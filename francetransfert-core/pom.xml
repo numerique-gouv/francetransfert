@@ -2,10 +2,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.gouv.culture.francetransfert</groupId>
-	<artifactId>FTR-core</artifactId>
+	<artifactId>ftr-core</artifactId>
 	<version>3.13.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>FTR-core</name>
+	<name>ftr-core</name>
 	<url>http://maven.apache.org</url>
 	<distributionManagement>
 		<repository>
