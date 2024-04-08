@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>administration du pli</title>
+</head>
+<body>
+        <div th:fragment="administrationPli" style="margin: 0rem 2rem 0.5rem 2rem; ;color: #000000; ">
+            <hr style="margin-block-start: 0;margin-inline-start: 2rem;margin-inline-end: 2rem;"/>
+            <p style="color: #0269cc; font-size: small; margin-block-end: 0em;margin-block-start: 0;margin-left: 2em;">
+                    <strong>
+                        <a th:href="${enclosure.get('urlAdmin').getAsString()}" th:text="#{lien.administration}"> </a>
+                    </strong>
+            </p>
+            
+
+            <p style="margin: 0px 0px 0px 0px;font-style: italic;font-size: small;margin-left: 2em;">          
+                  	<span th:text="#{fonctionnement.lien} + ' ' + ${enclosure.get('urlAdmin').getAsString()} "  ></span>
+             </p>
+
+             <table style="margin: auto; vertical-align: middle;" >
+                <tr style="vertical-align: middle;">
+                    <td th:if="${enclosure.get('ckeckRESANA').getAsString() == 'true'}"
+                        style="vertical-align: middle; padding: 12px 20px; color: #ffffff; mso-line-height-rule: exactly; background-color: #0269cc; border-radius: 7px;">
+                        <a
+                        style="vertical-align: middle; color: #ffffff; mso-line-height-rule: exactly; background-color: #0269cc; border-radius: 7px;"
+                        th:href="#{fonctionnement.lien} + ' ' + ${enclosure.get('urlAdmin').getAsString()} "> <strong th:text="#{acces.resana}">
+                                </strong>
+                    </a>
+                    </td>
+                    <td  th:if="${enclosure.get('ckeckOSMOSE').getAsString() == 'true'}"
+                        style="vertical-align: middle; padding: 12px 20px; color: #ffffff; mso-line-height-rule: exactly; background-color: #0269cc; border-radius: 7px;">
+                        <a
+                        style="vertical-align: middle; color: #ffffff; mso-line-height-rule: exactly; background-color: #0269cc; border-radius: 7px;"
+                        th:href="#{fonctionnement.lien} + ' ' + ${enclosure.get('urlAdmin').getAsString()} "> <strong th:text="#{acces.osmose}">
+                                </strong>
+                    </a>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+</body>
+</html>

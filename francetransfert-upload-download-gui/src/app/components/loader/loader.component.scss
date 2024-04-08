@@ -1,0 +1,99 @@
+.loader-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-justify-content: space-between;
+    -webkit-align-items: center;
+    .loader-card-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        display: -webkit-flex;
+        -webkit-flex-direction: column;
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+
+        .progress-spinner-wrapper {
+
+            ::ng-deep .mat-progress-spinner {
+                circle {
+                    stroke: var(--ft-blue-france);
+                }
+            }
+
+            .progress-spinner-inner-text {
+                position:relative;
+                top: -85px;
+                left: 50px;
+                font-size: 20px;
+            }
+        }
+
+        &-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            display: -webkit-flex;
+            -webkit-flex-direction: column;
+            -webkit-justify-content: space-between;
+            text-align: center;
+            &-title {
+                font-weight: bold;
+                font-size: 28px;
+                line-height: 36px;
+            }
+            &-sub {
+                margin-top: 10px;
+                font-size: 14px;
+                line-height: 24px;
+            }
+        }
+    }
+    .loader-card-actions {
+        .loader-card-actions-btn {
+            background-color: var(--ft-blue-france);
+            color: var(--ft-white);
+        }
+        .loader-card-actions-btn.mat-button-disabled {
+            background-color: var(--ft-grey);
+            color: var(--ft-mention);
+        }
+        .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+          box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+          outline-style: solid;
+          outline-width: 2px;
+          outline-offset: 2px;
+          outline-color: #1212ff;
+      }
+    }
+}
+
+
+@media screen and (min-width: 812px) {
+    .loader-card {
+        height: 100%;
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    .loader-card {
+        height: 100%;
+        width: 100%;
+    }
+}
+
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    .loader-card {
+        height: 95%;
+        .mat-card-actions {
+            margin-bottom: 0px !important;
+        }
+    }
+}

@@ -1,0 +1,69 @@
+<div class="menu-list-wrapper">
+  <mat-list class="menu-list">
+
+
+    <mat-list-item class="menu-list-item end" (click)="onToggleSidenav()">
+      <mat-icon mat-list-icon attr.aria-label="{{'Fermer_Menu' | translate}}">close</mat-icon>
+      <div mat-line> {{'Fermer' | translate}}</div>
+    </mat-list-item>
+    <mat-list-item >
+      <ft-language-selector class="language-selector-wrapper"></ft-language-selector>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item *ngIf="isLoggedIn()" class="menu-list-item" (click)="goToLink('/plis')">
+      <mat-icon aria-hidden="true">email</mat-icon>
+      <span>{{'Mes_Plis' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item class="menu-list-item" (click)="goToLink('/faq')">
+      <mat-icon aria-hidden="true">help_outline</mat-icon>
+      <span> {{'FAQ' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item class="menu-list-item" (click)="goToLink('/contact')">
+      <mat-icon aria-hidden="true">mail_outline</mat-icon>
+      <span> {{'Contact' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item class="menu-list-item" (click)="goToLink('/cgu')">
+      <mat-icon aria-hidden="true">assignment</mat-icon>
+      <span> {{'ConditionsUtilisation' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+
+    <!-- <mat-list-item class="menu-list-item" (click)="goToLink('/politique-de-protection-des-donnees')">
+          <mat-icon aria-hidden="true">security</mat-icon>
+          <span> {{'Politique_Protection_Données' | translate}}</span>
+      </mat-list-item>
+      <mat-divider></mat-divider> -->
+
+
+    <mat-list-item class="menu-list-item" (click)="goToLink('/mentions-legales')">
+      <mat-icon aria-hidden="true">assignment_ind</mat-icon>
+      <span> {{'MentionsLégales' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item *ngIf="!isLoggedIn()" class="menu-list-item" (click)="goToLink('/connect')">
+      <mat-icon aria-hidden="true">person_outline</mat-icon>
+      <span>{{'MeConnecter' | translate}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+
+    <mat-list-item *ngIf="isLoggedIn()" class="menu-list-item" (click)="logout()">
+      <mat-icon aria-hidden="true">logout</mat-icon>
+      <span>{{'MeDéconnecter' | translate}}</span>
+    </mat-list-item>
+
+    <mat-list-item class="menu-list-item">
+      <span>{{'Version' | translate}} {{version}}</span>
+    </mat-list-item>
+
+
+  </mat-list>
+</div>

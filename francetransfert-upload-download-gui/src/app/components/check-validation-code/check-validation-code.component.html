@@ -1,0 +1,87 @@
+<mat-card class="check-validation-code-card" *ngIf="component === 'upload'">
+    <form [formGroup]="verificationCodeForm" class="verification-code-form-container">
+        <mat-card-content class="check-validation-code-card-content">
+            <div class="check-validation-code-card-content-icon-container">
+                <mat-icon class="check-validation-code-card-content-icon" aria-hidden="true">lock_outline</mat-icon>
+            </div>
+            <div class="check-validation-code-card-content-text">
+                <span class="check-validation-code-card-content-text-title">{{'Vérification Adresse' | translate}}</span>
+                <span class="check-validation-code-card-content-text-sub" *ngIf="isLoggedIn">{{'Session Expiré' | translate}}</span>
+                <span class="check-validation-code-card-content-text-sub" *ngIf="!isLoggedIn">{{'CodeConfirmation1' | translate}}
+                  "{{'CodeConfirmation2' | translate}}",
+                  {{'CodeConfirmation3' | translate}}</span>
+                <span class="check-validation-code-card-content-text-sub">{{'Saisie_Code_Envoyé' | translate}}
+                    {{email}}
+                    {{'Spam' | translate}}</span>
+            </div>
+            <div class="check-validation-code-card-content-error" *ngIf="error && error.statusCode === 401">
+                <span role="alert"> {{'CodeInvalide' | translate}}</span><br />
+                <span *ngIf="error.codeTryCount > 0" role="alert">{{'NombreEchecs' | translate}} {{error.codeTryCount}}</span>
+                <span *ngIf="!error.codeTryCount" role="alert"> {{'CodeAnnulé' | translate}}</span>
+            </div>
+            <div class="check-validation-code-card-content-error" *ngIf="error && error.statusCode === 400">
+                <span role="alert"> {{'ErreurTechnique' | translate}}  </span>
+            </div>
+            <div class="verification-code-form-group">
+                <mat-form-field>
+                    <mat-label> {{'CodeVérification' | translate}} </mat-label>
+                    <input matInput formControlName="verificationCode" required autocomplete="off">
+                    <mat-error role="alert" *ngIf="f.verificationCode.errors?.required">{{'Saisie_Code_Vérification' | translate}} </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="mat-checkbox-layout">
+              <mat-checkbox formControlName="connectCheck"> {{'Rester_Connecté' | translate}} </mat-checkbox>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions class="check-validation-code-card-actions">
+            <button type="button" mat-raised-button class="check-validation-code-card-actions-btn"
+                *ngIf="error && error.statusCode === 401 && !error.codeTryCount" (click)="backToHome()" attr.aria-label="{{'Accueil' | translate}}"> {{'Accueil' | translate}} </button>
+            <button type="button" mat-raised-button class="check-validation-code-card-actions-btn"
+                *ngIf="!error || (error && error.statusCode === 401 && error.codeTryCount)"
+                (click)="cancel()" attr.aria-label="{{'Annuler' | translate}}"> {{'Annuler' | translate}} </button>
+            <button type="submit" [disabled]="!verificationCodeForm.valid || buttonDisable" mat-raised-button
+                class="check-validation-code-card-actions-btn"
+                *ngIf="!error || (error && error.statusCode === 401 && error.codeTryCount)"
+                (click)="validateForm()" attr.aria-label="{{'Valider' | translate}}"> {{'Valider' | translate}} </button>
+        </mat-card-actions>
+    </form>
+</mat-card>
+<mat-card class="check-validation-code-card" *ngIf="component === 'download'">
+    <form [formGroup]="verificationCodeForm" class="verification-code-form-container">
+        <mat-card-content class="check-validation-code-card-content">
+            <div class="check-validation-code-card-content-icon-container">
+                <mat-icon class="check-validation-code-card-content-icon" aria-hidden="true">lock_outline</mat-icon>
+            </div>
+            <div class="check-validation-code-card-content-text">
+                <span class="check-validation-code-card-content-text-title">{{'AccèsSécurisé' | translate}}</span>
+                <span class="check-validation-code-card-content-text-sub">{{'Mot_Passe_Téléchargement' | translate}}</span>
+            </div>
+            <div class="check-validation-code-card-content-error" *ngIf="error && error.statusCode === 401">
+                <span role="alert">{{'Mot_Passe_Invalide' | translate}}</span><br />
+                <span *ngIf="error.codeTryCount > 0 && !publicLink" role="alert">{{'NombreEchecs' | translate}} {{error.codeTryCount}}</span>
+                <span *ngIf="!error.codeTryCount && error.message" role="alert">{{errorMessage}}</span>
+            </div>
+            <div class="check-validation-code-card-content-error" *ngIf="error && error.statusCode === 400">
+                <span>{{'ErreurTechnique' | translate}}</span>
+            </div>
+            <div class="verification-code-form-group">
+                <mat-form-field>
+                    <mat-label>{{'Mot_de_Passe' | translate}}</mat-label>
+                    <input matInput formControlName="verificationCode" required [type]="hide ? 'password' : 'text'"
+                        autocomplete="off">
+                    <button type="button" mat-icon-button matSuffix (click)="hide = !hide; labelChanges()"
+                    [attr.aria-label]="label" [attr.aria-pressed]="'Masquer le mot de passe'">
+                        <mat-icon aria-hidden="true">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <mat-error role="alert" *ngIf="f.verificationCode.errors?.required">{{'Saisie_Mot_passe' | translate}}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </mat-card-content>
+        <mat-card-actions class="check-validation-code-card-actions">
+            <button type="submit" [disabled]="!verificationCodeForm.valid || buttonDisable" mat-raised-button
+                class="check-validation-code-card-actions-btn" (click)="validateForm()" attr.aria-label="{{'Valider' | translate}}"> {{'Valider' | translate}}</button>
+        </mat-card-actions>
+    </form>
+</mat-card>

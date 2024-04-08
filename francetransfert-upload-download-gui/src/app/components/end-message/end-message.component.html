@@ -1,0 +1,31 @@
+<mat-card class="end-message-card" *ngIf="component === 'upload'">
+  <mat-card-content class="end-message-card-content">
+      <img class="end-message-card-content-icon" alt="" src="assets/logos/monogramme_ft.png" />
+      <div *ngIf="!uploadFailed" class="end-message-card-content-text">
+          <h3 class="end-message-card-content-text-title"> {{'Terminé' | translate}}</h3>
+          <span *ngIf="publicLink" class="end-message-card-content-text-sub"> {{'MessageAttenteLien' | translate}}  {{ availabilityDate | customDate : 'd MMMM y'}}.
+                {{'EnvoiPli' | translate}}</span>
+        <span *ngIf="!publicLink" class="end-message-card-content-text-sub"> {{'MessageAttente' | translate}}  {{ availabilityDate | customDate : 'd MMMM y'}}.
+              {{'EnvoiPli' | translate}}</span>
+      </div>
+      <div role="alert" *ngIf="uploadFailed" class="end-message-card-content-text mat-error">
+          <span class="mat-error end-message-card-content-text-title"> {{'Oups' | translate}} !</span>
+          <span class="mat-error end-message-card-content-text-sub" [innerHTML]="'ErreurTransfertPli' | translate"> </span>
+      </div>
+  </mat-card-content>
+  <mat-card-actions class="end-message-card-actions">
+      <button mat-raised-button class="end-message-card-actions-btn" (click)="backToHome('upload')" attr.aria-label="{{'Accueil' | translate}}"> {{'Accueil' | translate}}</button>
+  </mat-card-actions>
+</mat-card>
+<mat-card class="end-message-card" *ngIf="component === 'download'">
+  <mat-card-content class="end-message-card-content">
+      <img class="end-message-card-content-icon" alt="Logo France transfert" src="assets/logos/monogramme_ft.png" />
+      <div class="end-message-card-content-text">
+          <span class="end-message-card-content-text-title">{{'TéléchargementLancé' | translate}}</span>
+          <span class="end-message-card-content-text-sub">  {{'DossierTéléchargement' | translate}}</span>
+      </div>
+  </mat-card-content>
+  <mat-card-actions class="end-message-card-actions">
+      <button mat-raised-button class="end-message-card-actions-btn" (click)="backToHome('download')" attr.aria-label="{{'Accueil' | translate}}">{{'Accueil' | translate}}</button>
+  </mat-card-actions>
+</mat-card>

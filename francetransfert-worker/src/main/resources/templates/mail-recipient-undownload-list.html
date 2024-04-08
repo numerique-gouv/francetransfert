@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>les personnes qui n'ont pas téléchargé la pli</title>
+</head>
+<body>
+    <div th:fragment="pliUndownloadBy" style="margin: 0.5rem 2rem 1rem 2rem ;color: #000000; ">
+
+        <div  style="flex-wrap: wrap;display: flex;justify-content: flex-start;">
+            <p style="color: #0269cc; margin-right: 3em;
+                            margin-block-start: 0em;margin-block-end: 0.5em;"
+               th:each="recipient : ${enclosure.get('notDownloadRecipients')}">
+                <a style="color: #0269cc;" th:text="${recipient.get('mail').getAsString()}"></a>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

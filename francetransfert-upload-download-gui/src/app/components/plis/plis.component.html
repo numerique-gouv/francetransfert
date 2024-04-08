@@ -1,0 +1,19 @@
+<mat-card class="envelope-card">
+  <mat-card-content class="envelope-card-content">
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedTabChange)="onSelectedTabChange($event)"
+      class="envelope-card-tab-group" mat-align-tabs="start">
+      <mat-tab label="{{'Mes_Plis_Envoyés' | translate}}" aria-label="Mes plis émis">
+        <ng-template matTabContent>
+          <ft-plis-envoyes class="envelope-mail-form-wrapper">
+          </ft-plis-envoyes>
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="{{'Mes_Plis_Reçus' | translate}}" aria-label="Mes plis reçus">
+        <ng-template matTabContent>
+          <ft-plis-recus class="envelope-mail-form-wrapper">
+          </ft-plis-recus>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,105 @@
+// .home{
+//   width: 90vw;
+//   margin: 0 auto;
+//   padding: 30px 20px;
+//   min-height: calc(100vh - 211px - 58px);
+// }
+
+.envelope-card {
+ // height: 100%;
+ // width: 100%;
+  width: 90vw;
+  margin: 0 auto;
+  margin-bottom: 45px;
+  margin-top: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  //padding: 0px;
+
+  display: -webkit-flex;
+  -webkit-flex-direction: column;
+  -webkit-justify-content: center;
+  .envelope-card-content {
+    padding: 16px;
+      .envelope-card-tab-group {
+
+        ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
+          padding: 3px!important;
+         }
+          ::ng-deep .mat-tab-label-content {
+              width: 100%;
+              justify-content: flex-start;
+              -webkit-justify-content: flex-start;
+              font-weight: bold;
+              font-size: 16px;
+              line-height: 28px;
+          }
+          ::ng-deep .mat-ink-bar {
+              background-color: var(--ft-primary);
+          }
+          ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
+              width: 100%;
+          }
+
+      }
+  }
+
+  ::ng-deep .mat-tab-body-content{
+      overflow-x: clip;
+  }
+}
+
+
+@media screen and (max-width: 278px) {
+  .envelope-card {
+      height: 100%;
+      .envelope-card-content {
+          height: 100%;
+          overflow: auto;
+          .envelope-card-tab-group {
+                ::ng-deep .mat-tab-label-content {
+                    font-size: 15px;
+                }
+
+          }
+      }
+  }
+}
+
+
+@media screen and (min-width: 812px) {
+  .envelope-card {
+      height: 100%;
+      .envelope-card-content {
+          height: 100%;
+          overflow: auto;
+          .envelope-card-tab-group {
+              height: 100%;
+              ::ng-deep .mat-tab-body-wrapper {
+                  height: 100%;
+              }
+
+          }
+      }
+  }
+}
+
+@media screen and (min-width: 200px) and (max-width: 812px) {
+  .envelope-card {
+      height: 100%;
+      margin-top: 22%;
+      .envelope-card-content {
+          height: 100%;
+          overflow: auto;
+          .envelope-card-tab-group {
+              height: 100%;
+              ::ng-deep .mat-tab-body-wrapper {
+                  height: 100%;
+              }
+
+          }
+      }
+  }
+}
+

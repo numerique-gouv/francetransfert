@@ -1,0 +1,25 @@
+name: Build Upload
+on:
+  push:
+    paths:
+      - francetransfert-upload-api/*
+jobs:
+  getsha:
+    runs-on: ubuntu-latest
+    outputs:
+      shortsha: ${{ steps.short-sha.outputs.sha }}
+    steps:
+      - uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+        with:
+          length: 6
+      - run: echo $SHA
+        env:
+          SHA: ${{ steps.short-sha.outputs.sha }}
+  build-projects:
+    needs: getsha
+    uses: ./.github/workflows/generic-build.yml
+    secrets: inherit
+    with:
+      project: francetransfert-upload-api
+      tag: ${{needs.getsha.outputs.shortsha}}

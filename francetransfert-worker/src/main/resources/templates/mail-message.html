@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>objet et message du pli</title>
+</head>
+<body>       
+        <div th:fragment="message" style="margin: 0rem 1rem 2rem 2rem  ;color: #000000;">
+
+            <p style="margin-block-start: 0em;margin-block-end: 0em;margin-left: 2em;">
+                <strong th:text="#{message}"></strong>
+                <span  style="margin-block-start: 0em;margin-block-end: 0em; margin: 1em 0px;"
+                 th:utext="${enclosure.get('message').getAsString().replaceAll('(\r\n|\n)','<br>')}"></span>
+            </p>
+
+        </div>
+</body>
+</html>

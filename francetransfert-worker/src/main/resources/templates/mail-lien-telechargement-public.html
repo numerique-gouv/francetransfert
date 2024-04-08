@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>lien du téléchargement public</title>
+</head>
+<body>
+<div th:fragment="lienPublic" style="margin: 0rem 2rem 0.5rem 2rem; ;color: #000000;">
+        <hr style="margin-block-start: 0;margin-inline-start: 2rem;margin-inline-end: 2rem;"/>
+        <p style="color: #0269cc; font-size: small; margin-block-end: 0em;margin-block-start: 0;margin-left: 2em;">
+            <strong>
+                <a th:href="${enclosure.get('urlDownload').getAsString()}" th:text="#{lien.téléchargement.public}"></a>
+            </strong>
+        </p>
+
+        <p style="margin: 0px 0px 0px 0px;font-style: italic;font-size: small;margin-left: 2em;">
+            <span th:text="#{lien.téléchargement}"></span>
+            <span th:text="${enclosure.get('urlDownload').getAsString()}"></span>
+        </p>
+</div>
+</body>
+</html>

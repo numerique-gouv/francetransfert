@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>{{'Etes_vous_sûr' | translate}} ?</h2>
+<mat-dialog-content class="mat-typography">
+  <h3> {{'AnnulationPli' | translate}}</h3>
+  <p> {{'Poursuivre' | translate}}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button type="button" class="btn" mat-button mat-dialog-close attr.aria-label="{{'Annuler' | translate}}">{{'Annuler' | translate}}</button>
+  <button type="button" class="btn" mat-button [mat-dialog-close]="true" cdkFocusInitial attr.aria-label="{{'Continuer' | translate}}">{{'Continuer' | translate}}</button>
+</mat-dialog-actions>

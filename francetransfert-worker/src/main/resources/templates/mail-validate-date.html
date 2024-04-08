@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<title>date de validité</title>
+</head>
+<body>
+	<div th:fragment="validateDate"
+		style="margin: 1rem 1rem 0.15rem 2rem;; color: #000000;">
+		<p style="margin-left: 2em;">
+			<strong th:text="#{date.validité}"></strong>&nbsp;
+			 <strong><span style="color: #0269cc;"
+				th:text="${enclosure.get('expireDate').getAsString()}"></span></strong>&nbsp;
+			<span th:text="#{durée.supression}" > </span>
+		</p>
+	</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+
+
+  "FAQFranceTransfert": "Preguntas Frecuentes Francia Transferencia",
+  "Question1": "Por qué la transferencia de Francia?",
+  "Question2": "Puedo usar France transfert para mi uso personal?",
+  "Question3": "Dos formas de usar France Transfer?",
+
+
+
+
+  "UploadTitre": "France transfert permite enviar grandes archivos no confidenciales de forma segura a un agente estatal o entre agentes.",
+  "Courriel": "Correo electrónico",
+
+
+
+  "Délai_Validité ": "D ",
+  "Nombres_Caractères": "1",
+  "Nombres_Lettres_Minuscules": "Au",
+  "Nombres_Lettres_Majuscules": "Au mos",
+  "Nombres_chiffres": "Au mo",
+  "Nombres_Caractères_Spéciaux": "Au moins ",
+  "Langue_Affichage_Courriels": "langue d'affiels",
+
+
+  "CourrielConnect": "Veuillez saisir votre adresse courriel pour utiliser ce service :",
+  "CodeConfrimationEnvoyé": "Un code de confirmation vous sera envoyé par courriel, il vous permettra d'utiliser le service tant que vous ne dépassez pas les 30 minutes d'inactivité. Au-delà un nouveau code de confirmation vous sera envoyé si vous souhaitez envoyer un nouveau pli.",
+  "ACCUEIL": "ACCUEIL",
+  "EnvoyerCode": "ENVOYER CODE",
+  "SaisieCode": "Saisissez le code qui vous a été envoyé pour accéder à France transfert (vérifier votre dossier spam):",
+  "CodeInvalide": "Le code de vérification est invalide.",
+  "NombreEchecs": "Nombre d'échecs : ",
+  "CodeNonDisponible": "Suite à 5 erreurs de validation, le code n'est plus disponible.<br />Merci d'annuler et de demander le renvoi d'un code ",
+  "ErreurTechnique": "Une erreur technique s'est produite.",
+
+  "FAQ": "FAQ",
+  "Contact": "Contact",
+  "MeConnecter": "Me connecter",
+  "MeDéconnecter": "Me déconnecter",
+
+  "Message": "",
+
+
+  "Lien": "Lien",
+  "LienFonctionnalité": "Cette fonctionnalité permet de générer un lien à partager. Pratique quand vous n'avez pas toutes les adresses e-mails de vos contacts !",
+  "ModificationOption": "'un mot de passe, etc.)",
+  "Envoyer": "enviar a",
+  "PréférencesTransfert": "Préférences du transfert",
+  "Annuler": "Annuler",
+  "Valider": "Valider",
+
+  "Question1_Texte": "",
+  "Question1Image": ""
+
+
+}

@@ -1,0 +1,72 @@
+<mat-toolbar class="header-toolbar">
+  <mat-toolbar-row class="header-toolbar-row">
+    <div class="header-toolbar-row-title">
+      <div class="header-toolbar-logos-wrapper" *ngIf="!isMobile">
+        <button type="button" [routerLink]="['/upload#Formulaire']" mat-raised-button fragment="Formulaire" attr.aria-label="{{'EnvoiePli' | translate}}"
+         class="admin-card-actions-btn margin-button evit" *ngIf="screenWidth === 'lg'">{{'EnvoiePli' | translate}}</button>
+
+        <a mat-button (click)="backToHome()" matTooltip="{{'Retour_Accueil' | translate}}" matSuffix>
+          <img class="header-toolbar-logo rep-fr" alt="" aria-hidden="true"
+          src="assets/logos/republique_francaise_logo.svg" />
+          <img class="header-toolbar-logo ft" alt="Logo France transfert" aria-hidden="true"
+          src="assets/logos/france_transfert_logo.svg" />
+        </a>
+      </div>
+      <div class="header-toolbar-logos-wrapper" *ngIf="isMobile">
+        <a mat-button (click)="backToHome()" matTooltip="{{'Retour_Accueil' | translate}}" matSuffix>
+          <img class="header-toolbar-logo rep-fr" alt="" aria-hidden="true"
+            src="assets/logos/republique_francaise_logo.svg" />
+          <img class="header-toolbar-logo ft" alt="Logo France transfert" aria-hidden="true"
+            src="assets/logos/monogramme_ft.png" />
+        </a>
+      </div>
+      <button mat-icon-button (click)="onToggleSidenav()" class="menu-icon" *ngIf="screenWidth !== 'lg'">
+        <mat-icon attr.aria-label="{{'Ouvrir_Menu' | translate}}">menu</mat-icon>
+      </button>
+      <div class="header-toolbar-right" *ngIf="screenWidth === 'lg'">
+        <ft-language-selector class="language-selector-wrapper"></ft-language-selector>
+        <nav>
+          <ul class="header-toolbar-links">
+            <span class="column-divider"></span>
+            <li>
+              <mat-icon aria-hidden="true">help_outline</mat-icon>
+              <a routerLink="/faq" class="link">{{'FAQ' | translate}}</a>
+            </li>
+            <!-- <span class="column-divider"></span>
+            <li>
+              <mat-icon aria-hidden="true">mail_outline</mat-icon>
+              <a routerLink="/contact" class="link" (click)="routeTo('/contact')">{{'Contact' | translate}}</a>
+            </li> -->
+            <span class="column-divider"></span>
+
+            <li *ngIf="isLoggedIn()">
+              <mat-icon aria-hidden="true">person</mat-icon>
+              <a routerLink="/plis"  attr.aria-label="{{'Mon_Compte' | translate}}" class="link">{{'Mon_Compte' | translate}}</a>
+             <button
+              mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+              <mat-icon attr.aria-label="{{'Menu' | translate}}">keyboard_arrow_down</mat-icon>
+             </button>
+
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item routerLink="/plis">
+                  <mat-icon class="icon-position" aria-hidden="true" attr.aria-label="{{'Mes_Plis' | translate}}">email</mat-icon>
+                  <span class="font-size">{{'Mes_Plis' | translate}}</span>
+                </button>
+
+                <button mat-menu-item (click)="logout()">
+                  <mat-icon class="icon-position" aria-hidden="true" attr.aria-label="{{'MeDéconnecter' | translate}}">logout</mat-icon>
+                  <span class="font-size">{{'MeDéconnecter' | translate}}</span>
+                </button>
+              </mat-menu>
+            </li>
+            <li *ngIf="!isLoggedIn()">
+              <mat-icon aria-hidden="true" attr.aria-label="{{'MeConnecter' | translate}}">person_outline</mat-icon>
+              <a class="link" routerLink="/connect"> {{'MeConnecter' | translate}}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>

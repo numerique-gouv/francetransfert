@@ -1,0 +1,21 @@
+<mat-toolbar *ngIf="data.mobileType === 'android'" class="android-prompt">
+  <img alt="Logo France transfert" src="./assets/icons/icon-72x72.png">
+  <button mat-button (click)="installPwa()" attr.aria-label="{{'Ajouter_Ecran_Accueil' | translate}}">
+     {{'Ajouter_Ecran_Accueil' | translate}}
+  </button>
+  <button mat-icon-button (click)="close()" attr.aria-label="{{'Fermer' | translate}}">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div *ngIf="data.mobileType === 'ios'" class="ios-prompt">
+  <button class="close-ios-inv" mat-button color="primary" (click)="close()"  attr.aria-label="{{'Fermer' | translate}}">
+    <mat-icon>close</mat-icon>
+  </button>
+  <div><span>
+    {{'Installation_Application' | translate}}
+  </span></div>
+  <div class="icons"><img alt="icône menu ios" src="./assets/icons/ios-menu-btn.png">
+    <mat-icon>navigate_next</mat-icon> <img alt="icône bouton ajouter ios" src="./assets/icons/ios-add-btn.png">
+  </div>
+</div>

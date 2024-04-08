@@ -1,0 +1,46 @@
+<div class="faq-wrapper">
+  <mat-card class="faq-card">
+    <mat-card-header class="faq-card-header">
+      <h1 #faq>{{'FAQFranceTransfert' | translate}}</h1>
+    </mat-card-header>
+    <h4> {{'Version' | translate}} {{'Faq-Version' | translate}}</h4>
+    <span> {{'Version_Française' | translate}}</span>
+    <mat-card-content class="faq-card-content">
+      <!-- test -->
+      <mat-form-field class="example-full-width">
+        <span matPrefix> </span>
+        <input matInput placeholder="{{'Rechercher' | translate}}" name="Filtrer" [(ngModel)]="queryString" id="search">
+      </mat-form-field>
+
+
+      <mat-accordion *ngFor="let category of categories; index as i">
+        <h2>{{ category.category}}</h2>
+
+
+      <mat-expansion-panel
+          *ngFor="let question of category.entities | FilterQuestionsPipe: queryString : searchableList; index as j"
+          [expanded]="stateJ === j && stateI === i" (opened)="setState(i, j)">
+
+      <mat-expansion-panel-header>
+            <mat-panel-title>
+              <h3>
+                {{ question.Question}}
+              </h3>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p [innerHTML]="question.Question_Texte1"></p>
+          <ul [innerHTML]="question.Question_Liste">
+          </ul>
+          <ol [innerHTML]="question.Question_Liste_Ordered">
+          </ol>
+          <p [innerHTML]="question.Question_Texte2"></p>
+          <div class="imagefaq" [innerHTML]="question.QuestionImage"></div>
+        </mat-expansion-panel>
+
+
+
+      </mat-accordion>
+
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,29 @@
+.fr-alert{
+  display: flex;
+
+
+
+  .fr-alert--success-icon{
+    background-color: #40a02b;
+    width: 10%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .fr-alert__icon{
+    color: white;
+    margin-left: 21%
+  }
+
+
+
+  .fr-alert--success-text{
+    background-color: #FFFFFF;
+    .fr-alert__message{
+      font-weight: bold ;
+      margin: 20px;
+      font-size: 14px
+    }
+  }
+
+}

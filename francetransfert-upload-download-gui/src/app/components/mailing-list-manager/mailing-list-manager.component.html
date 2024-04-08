@@ -1,0 +1,21 @@
+
+<div><h2 mat-dialog-title>{{'ImportationListeContacts' | translate}}</h2>
+
+<mat-dialog-content class="mat-typography">
+  <!-- <h3>Cette action supprimera définitivement votre pli et le rendra inaccessible.</h3> -->
+  <span> {{'ImportationListeContactsText' | translate}} ";"</span>
+  <span *ngIf="errorMessage !== ''" class="error" role="alert">{{errorMessage}}</span>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="btn" mat-button (click)="fileInput.click()" attr.aria-label="{{'Fichier' | translate}}">
+    <span> {{'Fichier' | translate}}</span>
+    <input #fileInput type="file" (change)="loadMailingListFromFile($event)" style="display:none;" />
+  </button>
+  <!-- <button class="btn" mat-button cdkFocusInitial (click)="loadMailingListFromLocalStorage()">Données stockées</button> -->
+</mat-dialog-actions>
+</div>
+
+
+
+
+

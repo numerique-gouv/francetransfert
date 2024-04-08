@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Contact</title>
+</head>
+<body>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;" >
+                      Nom[$-<span th:text="${contact.get('nom').getAsString()}"></span>-$]
+                    </p>
+                </div>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;">
+                        Prénom[$-<span th:text="${contact.get('prenom').getAsString()}"></span>-$]
+                    </p>
+                </div>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;">
+                        Mail[$-<span th:text="${contact.get('from').getAsString()}"></span>-$]
+                    </p>
+                </div>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;">
+                        Société[$-<span th:text="${contact.get('administration').getAsString()}"></span>-$]
+                    </p>
+                </div>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;">
+                        Objet de la demande[$-<span th:text="${contact.get('subject').getAsString()}"></span>-$]
+                    </p>
+                </div>
+                <div style="margin: 0rem 1rem 0rem 2rem;; color: #000000;">
+                    <p style="margin-block-end: 0.5em; margin-left: 2em;">
+                       Question[$-<span th:text="${contact.get('message').getAsString()}"></span>-$]
+                    </p>
+                </div>
+
+</body>
+</html>

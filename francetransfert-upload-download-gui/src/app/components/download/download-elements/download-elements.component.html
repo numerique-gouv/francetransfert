@@ -1,0 +1,41 @@
+<mat-card class="download-elements-card">
+    <mat-card-content class="download-elements-card-content">
+        <mat-icon class="download-elements-card-content-icon" aria-hidden="true">file_download</mat-icon>
+        <div class="download-elements-card-content-text">
+            <span class="download-elements-card-content-text-title"> {{'Prêt_Partez' | translate}} </span>
+            <span class="download-elements-card-content-text-sub"> {{'Jours_Restants1' | translate}} {{ remainingDays }}
+                {{'Jours_Restants2' | translate}} </span>
+        </div>
+
+    </mat-card-content>
+
+    <div class="download-elements-card-content-error" *ngIf="error && error.statusCode === 401">
+        <span role="alert">{{'Mot_Passe_Invalide' | translate}}</span><br />
+        <span *ngIf="!error.codeTryCount && error.message" role="alert">{{errorMessage}}</span>
+    </div>
+    <form [formGroup]="cguForm">
+        <div class="download-elements-div-CGU">
+            <mat-checkbox formControlName="cguCheck" class="checkbox">
+                <div [innerHTML]="'Acceptation_CGU' | translate">
+                </div>
+            </mat-checkbox>
+        </div>
+    </form>
+    <mat-card-actions class="download-elements-card-actions">
+        <button mat-raised-button [disabled]="!checkCGU || buttonDisable" class="download-elements-card-actions-btn"
+            (click)="download()" attr.aria-label="{{'Télécharger' | translate}}">{{'Télécharger' | translate}} </button>
+    </mat-card-actions>
+
+    <span *ngIf="checkRESANA || checkOSMOSE" class="satisfaction-check-card-content-text-sub"> {{'Resana-Osmose' |
+        translate}} </span>
+    <mat-card-actions class="download-elements-card-actions">
+        <button *ngIf="checkRESANA" mat-raised-button [disabled]="!checkCGU || buttonDisable"
+            class="download-elements-card-actions-btn" (click)="downloadResana()"
+            attr.aria-label="{{'RESANA' | translate}}">{{'RESANA' | translate}} </button>
+        <button *ngIf="checkOSMOSE" mat-raised-button [disabled]="!checkCGU || buttonDisable"
+            class="download-elements-card-actions-btn" (click)="downloadOsmose()"
+            attr.aria-label="{{'OSMOSE' | translate}}">{{'OSMOSE' | translate}} </button>
+    </mat-card-actions>
+
+
+</mat-card>

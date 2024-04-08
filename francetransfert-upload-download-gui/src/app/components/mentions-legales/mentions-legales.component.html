@@ -1,0 +1,36 @@
+<div class="mentions-legales-wrapper">
+    <mat-card class="mentions-legales-card">
+        <mat-card-header class="mentions-legales-card-header">
+            <h1 #mentionslegales>  {{'MentionsLégales' | translate}}</h1>
+        </mat-card-header>
+        <h4> {{'Version' | translate}} {{'Mentions-légales-Version' | translate}}</h4>
+        <span> {{'Version_Française' | translate}}</span>
+        <mat-card-content class="mentions-legales-card-content">
+            <h2 #editeur> {{'Éditeur' | translate}}</h2>
+            <p>
+                <span> {{'Ministère' | translate}}</span>
+                <span>{{'Adresse' | translate}}</span>
+                <span>{{'CodePostale_Ville' | translate}}</span>
+            </p>
+            <h2 #responsabledelapublication> {{'ResponsablePublication' | translate}}</h2>
+            <p>
+                <span> {{'ChefService' | translate}}</span>
+            </p>
+            <h2 #liens>{{'Liens' | translate}}</h2>
+            <p [innerHTML]="'LiensPagesSite' | translate">
+            </p>
+            <h2 #developpement> {{'Développement' | translate}}</h2>
+            <p>
+                <span>{{'ACT-ONTECHNOLOGY_Adresse' | translate}}</span>
+            </p>
+            <h2 #hebergement> {{'Hébergement' | translate}}</h2>
+            <p>
+                <span>  {{'OUSTSCAL_Adresse' | translate}}</span>
+            </p>
+            <h2 #traductions> {{'Traductions' | translate}}</h2>
+            <p>
+                <span>  {{'Traductions_Text' | translate}}</span>
+            </p>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>header</title>
+</head>
+<body>
+        <div th:fragment="header">
+            <div
+                    class="ft-email-logo"
+                    align="center"
+                    valign="middle"
+                    style="padding: 30px 108px 6px 108px; text-align: center;"
+            >
+                <strong
+                >      <img th:src="${logoFtRessource}" alt="France transfert"/>
+                </strong>
+
+            </div>
+            <hr style="margin-block-start: 0;margin-inline-start: 2rem;margin-inline-end: 2rem;"/>
+        </div>
+</body>
+</html>

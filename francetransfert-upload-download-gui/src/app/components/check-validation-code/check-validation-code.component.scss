@@ -1,0 +1,137 @@
+
+  .mat-icon-button.cdk-keyboard-focused:not([aria-disabled=true]) {
+    background: rgba(0, 0, 0, 0.3)
+  }
+.check-validation-code-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: -webkit-flex;
+  -webkit-flex-direction: column;
+  -webkit-justify-content: center;
+  -webkit-align-items: center;
+  .check-validation-code-card-content-icon-container {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    align-items: center;
+    align-self: center;
+    align-content: center;
+    justify-content: center;
+  }
+  .check-validation-code-card-content-icon {
+    overflow: visible;
+  }
+  .verification-code-form-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
+    .verification-code-form-group {
+      width: 100%;
+      .mat-form-field {
+        width: 100%;
+      }
+    }
+    .check-validation-code-card-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-direction: column;
+      display: -webkit-flex;
+      -webkit-align-items: center;
+      -webkit-justify-content: space-around;
+      -webkit-flex-direction: column;
+      height: 90%;
+      width: 100%;
+      padding: 0px 8px;
+      &-icon {
+        font-size: 100px;
+        margin-right: 70px;
+        color: var(--ft-blue-france);
+        align-self: center;
+        -webkit-align-self: center;
+      }
+      &-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        display: -webkit-flex;
+        -webkit-flex-direction: column;
+        -webkit-justify-content: space-between;
+        text-align: center;
+        &-title {
+          font-weight: bold;
+          font-size: 28px;
+          line-height: 36px;
+          margin-bottom: 0.5rem;
+        }
+        &-sub {
+          margin-top: 10px;
+          font-size: 14px;
+          line-height: 24px;
+        }
+      }
+      &-error {
+        color: var(--ft-error);
+      }
+    }
+    .check-validation-code-card-actions {
+      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+        outline-style: solid;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: #1212ff;
+    }
+      .check-validation-code-card-actions-btn {
+        background-color: var(--ft-blue-france);
+        color: var(--ft-white);
+      }
+      .check-validation-code-card-actions-btn.mat-button-disabled {
+        background-color: var(--ft-grey);
+        color: var(--ft-mention);
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 812px) {
+  .check-validation-code-card {
+    width: 100%;
+    height: 100%;
+    .verification-code-form-container {
+      .check-validation-code-card-content {
+        &-text {
+          margin-top: 30%;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+  .check-validation-code-card {
+    height: 100%;
+  }
+}
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+  .check-validation-code-card {
+    height: 95%;
+    .check-validation-code-card-content {
+      &-text {
+        margin-top: 20px;
+      }
+    }
+    .mat-card-actions {
+      padding: 0px !important;
+      margin-bottom: 0px !important;
+    }
+  }
+}

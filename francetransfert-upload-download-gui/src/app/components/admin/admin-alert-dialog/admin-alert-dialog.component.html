@@ -1,0 +1,39 @@
+<div *ngIf="data == 'deletePli'">
+  <h2 mat-dialog-title> {{'Etes_Vous_Sûr' | translate}} </h2>
+  <mat-dialog-content class="mat-typography">
+    <h3> {{'Archivage_Pli' | translate}}</h3>
+    <p>{{'Poursuivre' | translate}}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn" mat-button attr.aria-label="{{'Annuler' | translate}}" mat-dialog-close>
+      {{'Annuler' | translate}}</button>
+    <button type="button" class="btn" mat-button [mat-dialog-close]="true" attr.aria-label="{{'Archiver' | translate}}"
+      cdkFocusInitial> {{'Archiver' | translate}}</button>
+  </mat-dialog-actions>
+</div>
+<div *ngIf="data == 'deleteDest'">
+  <h2 mat-dialog-title> {{'Suppression_Destinataire' | translate}}</h2>
+  <mat-dialog-content class="mat-typography">
+    <h3> {{'Lien_Téléchargement' | translate}}</h3>
+    <p>{{'Poursuivre' | translate}}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn" mat-button attr.aria-label="{{'Annuler' | translate}}" mat-dialog-close>
+      {{'Annuler' | translate}}</button>
+    <button type="button" class="btn" mat-button [mat-dialog-close]="true" cdkFocusInitial
+      attr.aria-label="{{'Supprimer' | translate}}"> {{'Supprimer' | translate}}</button>
+  </mat-dialog-actions>
+</div>
+<div *ngIf="data == 'resendPli'">
+  <h2 mat-dialog-title> {{'Etes_Vous_Sûr' | translate}}</h2>
+  <mat-dialog-content class="mat-typography">
+    <h3> {{'Renvoyer_pli' | translate}}</h3>
+    <p>{{'Poursuivre_pli' | translate}}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn" mat-button attr.aria-label="{{'Oui' | translate}}" [mat-dialog-close]="true"
+      cdkFocusInitial> {{'Oui' | translate}}</button>
+    <button type="button" class="btn" mat-button attr.aria-label="{{'Non' | translate}}" mat-dialog-close> {{'Non' |
+      translate}}</button>
+  </mat-dialog-actions>
+</div>

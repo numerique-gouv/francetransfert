@@ -1,0 +1,95 @@
+<form [formGroup]="loginForm" class="connect-container">
+  <div class="card-formulaire">
+    <div class="connect-parameters">
+      <div *ngIf="isAgentConnect">
+        <div>
+          <p class="center">AgentConnect vous permet d’accéder à de nombreux services en ligne en utilisant l’un de vos
+            comptes professionnels existants.</p>
+        </div>
+        <div class="resize center">
+          <a class="img" (click)="login()" href="javascript:void(0)">
+            <img src="assets/images/agentconnect-btn.png" alt="Logo Agent Connect" aria-hidden="true"
+              class="image resize-image resize" />
+            <img src="assets/images/agentconnect-btn-hover.png" alt="Logo Agent Connect Hover" aria-hidden="true"
+              class="image-hover resize-image resize" />
+          </a>
+        </div>
+
+        <div>
+          <a href="https://agentconnect.gouv.fr/" target="_blank" class="question-parameters">
+            {{'AgentConnect' | translate}}</a>
+        </div>
+
+        <div class="or">
+          <div class="row-position"></div>
+          <p>{{'Ou' | translate}}</p>
+          <div class="row-position"></div>
+        </div>
+      </div>
+
+      <div class="connect-header">
+        <span> {{'CourrielConnect' | translate}}</span>
+      </div>
+
+      <div class="form-group">
+        <mat-form-field>
+          <mat-label> {{'VotreCourriel' | translate}} </mat-label>
+          <input [readonly]="visible" [disabled]="visible" type="input" id="sendercourriel" name="email" matInput
+            placeholder="jean.dupont@domaine.fr" formControlName="email" autocomplete="email">
+          <mat-error role="alert" *ngIf="email.errors?.required && codeSent == false"> {{'ExpéditeurRequis' |
+            translate}}
+          </mat-error>
+          <mat-error role="alert" *ngIf="email.errors?.email && codeSent == false"> {{'AdresseRequis' | translate}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <p> {{'CodeConfrimationEnvoyé' | translate}}</p>
+
+      <div class="card-actions evenly" *ngIf="!visible">
+        <mat-card-actions>
+          <button type="button" attr.aria-label="{{'Accueil' | translate}}" mat-raised-button class="card-actions-btn"
+            (click)="backToHome()"> {{'ACCUEIL' | translate}}</button>
+        </mat-card-actions>
+        <mat-card-actions>
+          <button type="submit" mat-raised-button attr.aria-label="{{'Envoyer_Code' | translate}}"
+            class="card-actions-btn" [disabled]="codeSent || !email.valid" (click)="sendCode($event)"> {{'EnvoyerCode'
+            |
+            translate}} </button>
+        </mat-card-actions>
+      </div>
+
+      <ng-container *ngIf="visible">
+        <div>
+          <p> {{'SaisieCode' | translate}}</p>
+        </div>
+        <div class="field-contact">
+          <mat-form-field>
+            <mat-label>{{'CodeReçu' | translate}} </mat-label>
+            <input id="codeReceived" #codeReceived id="codeReceived" name="code" formControlName="code" matInput
+              placeholder="Code" autocomplete="off">
+          </mat-form-field>
+          <div class="content-error" *ngIf="error && error.statusCode === 401">
+            <span role="alert"> {{'CodeInvalide' | translate}}</span><br />
+            <span *ngIf="error?.codeTryCount > 0" role="alert">{{'NombreEchecs' |
+              translate}}{{error?.codeTryCount}}</span>
+            <span *ngIf="!error?.codeTryCount" role="alert" [innerHTML]="'CodeNonDisponible' | translate"> </span>
+          </div>
+          <div class="content-error" *ngIf="error && error.statusCode === 400">
+            <span role="alert"> {{'ErreurTechnique' | translate}} </span>
+          </div>
+        </div>
+        <div class="card-actions evenly">
+          <button type="button" mat-raised-button attr.aria-label="{{'Annuler' | translate}}"
+            class="card-actions-btn color" (click)="cancel($event)"> {{'Annuler' | translate}}</button>
+          <button type="submit" mat-raised-button attr.aria-label="{{'Valider' | translate}}"
+            class="card-actions-btn color" [disabled]="!form.valid || (error && !error?.codeTryCount)"
+            (click)="validateCode($event)"> {{'Valider' | translate}}</button>
+        </div>
+      </ng-container>
+
+    </div>
+
+
+  </div>
+</form>

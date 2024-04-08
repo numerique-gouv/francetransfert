@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<title>pli content</title>
+</head>
+<body>
+	<div th:fragment="contentPli"
+		style="margin: 0rem 1rem 2rem 2rem;; color: #000000;">
+
+		<p style="margin-top: 1.5rem; margin-left: 2em;">
+			<strong th:text="#{contenu.pli}"> </strong> <span
+				th:text="${enclosure.get('countElements')} + ' ' + #{élément}"></span><span
+				th:text="${enclosure.get('totalSize').getAsString()} + ' ' + #{total}"></span>
+		</p>
+		<div th:each="rootFile : ${enclosure.get('rootFiles')}"
+			style="padding: 0px 0.5px 0px 3rem;">
+			<p
+				style="margin-block-start: 0.25em; margin-block-end: 0.25em; margin-left: 3em;">
+				<strong>&bull;&nbsp; <span
+					th:text="${rootFile.get('nameWithoutExtension').getAsString()}"></span>
+				</strong> <span style="font-size: 10px">&bull;&nbsp;</span> 
+				<span>
+					<span th:text="#{fichier} + ' ' + ${rootFile.get('extension').getAsString()}">
+					</span>
+				</span> 
+				<span style="font-size: 10px">&bull;&nbsp;</span> 
+				<span
+					th:text="${rootFile.get('size').getAsString()}"></span>
+			</p>
+
+
+		</div>
+		<div th:each="rootDir : ${enclosure.get('rootDirs')}"
+			style="padding: 0px 0.5px 0px 3rem;">
+
+			<p
+				style="margin-block-start: 0.25em; margin-block-end: 0.25em; margin-left: 3em;">
+				<strong>&bull;&nbsp; <span
+					th:text="${rootDir.get('name').getAsString()}"></span>
+				</strong> <span style="font-size: 10px">&bull;&nbsp;</span> <span   th:text="#{dossier}" >
+				</span> <span style="font-size: 10px">&bull;&nbsp;</span> <span
+					th:text="${rootDir.get('size').getAsString()}"></span>
+			</p>
+
+		</div>
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+.mentions-legales-wrapper {
+    width: 100%;
+    background-color: var(--ft-white);
+    .mentions-legales-card {
+        &-header {
+        }
+        &-content {
+            margin-top: 32px;
+            font-weight: normal;
+            font-size: 16px;
+            line-height: 24px;
+
+            h2 {
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }
+
+            p span {
+                display: block;
+                margin: 5px;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 812px) {
+    .mentions-legales-wrapper {
+        .mentions-legales-card {
+            height: 100%;
+        }
+    }
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    .mentions-legales-wrapper {
+        height: 100vh;
+        overflow-y: auto;
+        .mentions-legales-card {
+            margin-top: 90px;
+        }
+    }
+}
+
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    .mentions-legales-wrapper {
+        height: 100vh;
+        overflow-y: auto;
+        .mentions-legales-card {
+            margin-top: 90px;
+            ::ng-deep .mat-card-header-text {
+                margin: 0 0 !important;
+            }
+        }
+    }
+}

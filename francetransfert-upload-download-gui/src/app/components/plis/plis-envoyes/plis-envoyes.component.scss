@@ -1,0 +1,359 @@
+.plis-envoyes {
+  .spinner {
+    display: flex;
+    flex-wrap: wrap;
+    align-self: center;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+  }
+  margin-top: 2em;
+  .end-message-card-actions {
+    margin: 24px auto;
+    .end-message-card-actions-btn {
+      background-color: var(--ft-blue-france);
+      color: var(--ft-white);
+    }
+  }
+
+  .but{
+    border: none;
+    background: transparent;
+    color: #000000de;
+    padding: 0px 0px;
+  }
+
+  ::ng-deep .mat-form-field-wrapper {
+    padding-bottom: 1.9875em;
+  }
+
+  ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: #fafafa;
+  }
+
+  ::ng-deep .mat-form-field-appearance-legacy .mat-form-field-wrapper {
+    padding-bottom: 2.25em;
+  }
+
+  .mat-column-destinataires {
+    display: flex;
+    flex-wrap: wrap;
+    align-self: center;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+  }
+
+  .center-vertical {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+  }
+
+  .error-message {
+    display: flex;
+    font-size: larger;
+    font-weight: bold;
+    align-self: center;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    color: var(--ft-error);
+  }
+
+  mat-cell > span.truncate-text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .overflow-ellipsis {
+    text-overflow: ellipsis;
+    width: 100px;
+  }
+
+  .admin-card-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-justify-content: space-between;
+    padding-top: 0.5rem;
+    margin-left: 0px !important;
+    .admin-card-actions-btn {
+      background-color: var(--ft-blue-france);
+      color: var(--ft-white);
+    }
+
+.mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+    outline-style: solid;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: #1212ff;
+}
+  }
+
+
+  @media screen and (min-width: 790px) {
+    // .overflow-clip {
+    //   text-overflow: ellipsis;
+    //   width: 90%;
+    //   padding: 0.2em 0;
+    //   overflow: auto;
+    // }
+
+    .space {
+      padding-left: 2%;
+    }
+
+    .overflow-clip {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      display: block;
+      width: 80%;
+      text-align: center;
+    }
+
+
+  .admin-card-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-justify-content: space-between;
+    padding-top: 0.5rem;
+    margin-left: 0px !important;
+    .admin-card-actions-btn {
+      background-color: var(--ft-blue-france);
+      color: var(--ft-white);
+    }
+  }
+
+    .mat-table .mat-header-cell {
+      text-overflow: ellipsis;
+    }
+
+    .mat-width {
+      width: 112%;
+    }
+
+    .mat-row {
+      max-height: 25vh;
+    }
+
+
+    .mat-column-dateEnvoi {
+      flex-grow: 0;
+      flex-basis: 5.1rem;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+      padding-left: 1px !important;
+    }
+
+    .mat-column-finValidite {
+      flex-basis: 0rem;
+      flex-grow: 2;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-expired {
+      flex-basis: 0rem;
+      flex-grow: 2;
+    }
+
+    .mat-column-destinataires {
+      flex-basis: 0rem;
+      flex-grow: 2;
+      display: flex;
+      flex-wrap: wrap;
+      overflow: auto;
+      max-height: 15vh;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-type {
+      flex-basis: 0rem;
+      flex-grow: 2;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-taille {
+      flex-basis: 0rem;
+      flex-grow: 2;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-objet {
+      flex-basis: 0rem;
+      flex-grow: 2;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+  }
+
+  @media screen and (min-width: 640px) and (max-width: 790px) {
+    .container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .overflow-clip {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      display: block;
+      width: 80%;
+      text-align: center;
+    }
+
+    .mat-column-expired {
+      flex-basis: 2.5rem;
+    }
+    .mat-column-dateEnvoi {
+      flex-grow: 0;
+      flex-basis: 5rem;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+      padding-left: 1px !important;
+    }
+
+    .mat-column-finValidite {
+      flex-grow: 0;
+      flex-basis: 5rem;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-destinataires {
+      flex-basis: 7rem;
+      display: flex;
+      flex-wrap: wrap;
+      overflow: auto;
+      flex-grow: 1;
+      max-height: 15vh;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+    .mat-column-type {
+      flex-grow: 0;
+      flex-basis: 5.1rem;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-taille {
+      flex-grow: 0;
+      flex-basis: 5.1rem;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .mat-column-objet {
+      flex-basis: 5rem;
+      flex-grow: 2;
+      align-self: center;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    .container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mat-table {
+      border: 0;
+      vertical-align: middle;
+    }
+
+    .mat-table caption {
+      font-size: 1em;
+    }
+
+    // Enable this to hide header
+    .mat-table .mat-header-cell {
+      border: 10px solid;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    .mat-table .mat-header-row {
+      min-height: 0px;
+    }
+
+    .mat-table .mat-row {
+      border-bottom: 5px solid #ddd;
+      display: block;
+    }
+    .mat-table .mat-cell {
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      font-size: 1em;
+      text-align: right;
+      font-weight: bold;
+      height: 30px;
+      margin-bottom: 4%;
+      //padding-left: 24px;
+    }
+    .mat-table .mat-cell:before {
+      content: attr(data-label);
+      margin-right: auto;
+      //text-transform: uppercase;
+      font-weight: normal;
+      font-size: 0.85em;
+    }
+    .mat-table .mat-cell:last-child {
+      border-bottom: 0;
+    }
+    .mat-table .mat-cell:first-child {
+      margin-top: 4%;
+    }
+
+    .overflow-clip {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      display: block;
+      width: 80%;
+    }
+  }
+}

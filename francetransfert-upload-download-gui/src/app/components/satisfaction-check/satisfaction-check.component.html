@@ -1,0 +1,63 @@
+<mat-card class="satisfaction-check-card">
+    <form [formGroup]="satisfactionCheckForm" class="satisfaction-check-form-container">
+        <mat-card-content class="satisfaction-check-card-content">
+            <mat-icon class="satisfaction-check-card-content-icon" aria-hidden="true">info_outline</mat-icon>
+            <div class="satisfaction-check-card-content-text">
+                <h3 class="satisfaction-check-card-content-text-title"> {{'BienPassé' | translate}}</h3>
+                <span class="satisfaction-check-card-content-text-sub">  {{'VotreAvis' | translate}} </span>
+            </div>
+            <div class="satisfaction-check-faces">
+              <mat-radio-group class="only-image" >
+                <mat-label>
+                  <mat-radio-button value="dissatisfied">
+                    <div class="satisfaction-check-faces-icon-wrapper dissatisfied"
+                    [ngClass]="selectedFace === 'dissatisfied' ? 'selected' : ''" (click)="selectFace('dissatisfied')">
+                    <button mat-icon-button class="menu-icon">
+                      <mat-icon class="satisfaction-check-faces-icon"  aria-hidden="true" matSuffix attr.aria-label="{{'Pas bien' | translate}}">sentiment_dissatisfied</mat-icon>
+                    </button>
+                    <span class="satisfaction-check-faces-text">  {{'Pas bien' | translate}} </span>
+                    </div></mat-radio-button>
+
+                </mat-label>
+                <mat-label>
+                  <mat-radio-button value="neutral">
+                    <div  class="satisfaction-check-faces-icon-wrapper neutral"
+                    [ngClass]="selectedFace === 'neutral' ? 'selected' : ''"  (click)="selectFace('neutral')">
+                    <button mat-icon-button class="menu-icon">
+                      <mat-icon class="satisfaction-check-faces-icon" aria-hidden="true" matSuffix attr.aria-label="{{'Moyen' | translate}}">sentiment_neutral</mat-icon>
+                    </button>
+                    <span class="satisfaction-check-faces-text"> {{'Moyen' | translate}} </span>
+                  </div></mat-radio-button>
+
+                </mat-label>
+                <mat-label>
+                  <mat-radio-button value="satisfied">
+                    <div class="satisfaction-check-faces-icon-wrapper satisfied"
+                    [ngClass]="selectedFace === 'satisfied' ? 'selected' : ''" (click)="selectFace('satisfied')">
+                    <button mat-icon-button class="menu-icon">
+                      <mat-icon class="satisfaction-check-faces-icon" aria-hidden="true" matSuffix style="margin: auto;" attr.aria-label="{{'Très bien' | translate}}">sentiment_satisfied</mat-icon>
+                    </button>
+                    <span class="satisfaction-check-faces-text"> {{'Très bien' | translate}} </span>
+                  </div></mat-radio-button>
+
+                </mat-label>
+              </mat-radio-group>
+
+            </div>
+            <div class="satisfaction-check-form-group">
+                <mat-form-field>
+                    <mat-label> {{'Message' | translate}} </mat-label>
+                    <textarea cdkTextareaAutosize cdkAutosizeMinRows="5" cdkAutosizeMaxRows="10" matInput
+                        placeholder="{{'Saisissez_message' | translate}}" formControlName="message" autocomplete="off"></textarea>
+                </mat-form-field>
+                <div class="after-field">
+                  <span>{{'ChampsObligatoires' | translate}}</span>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions class="satisfaction-check-card-actions">
+            <button type="submit" [disabled]="selectedFace === '' || !satisfactionCheckForm.valid" mat-raised-button
+                class="satisfaction-check-card-actions-btn" attr.aria-label="{{'Envoyer' | translate}}" (click)="validateForm()"> {{'Envoyer' | translate}}</button>
+        </mat-card-actions>
+    </form>
+</mat-card>

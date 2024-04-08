@@ -1,0 +1,143 @@
+/* .home{
+  width: 90vw;
+  margin: 0 auto;
+  padding: 30px 20px;
+  min-height: calc(100vh - 211px - 58px);
+} */
+
+.app-root {
+    .app-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 2;
+    }
+    .sidenav-content {
+        min-height: 93.4vh;
+        display: flex;
+        flex-direction: column;
+        display: -webkit-flex;
+        -webkit-flex-direction: column;
+        .app-content {
+            flex-grow:1;
+            height: 100%;
+            width: 100%;
+        }
+        main{
+            display: flex;
+            flex-grow:1;
+            justify-content: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            -webkit-align-items: center;
+        }
+    }
+}
+
+::ng-deep .mat-tooltip {
+    color: var(--ft-mention) !important;
+    background-color: var(--ft-white) !important;
+    border: solid 1px var(--ft-mention) !important;
+    border-radius: 50%;
+    font-size: 12px !important;
+    line-height: 20px !important;
+}
+
+::ng-deep .mat-form-field.mat-focused {
+    .mat-form-field-label {
+        color: var(--ft-blue-france);
+    }
+    .mat-form-field-ripple {
+        background-color: var(--ft-blue-france);
+    }
+    .mat-form-field-required-marker {
+        color: var(--ft-blue-france);
+    }
+    .mat-input-element {
+        color: var(--ft-blue-france);
+    }
+}
+
+::ng-deep .mat-form-field.mat-form-field-invalid {
+    .mat-input-element {
+        color: var(--ft-error);
+    }
+    .mat-form-field-label {
+        color: var(--ft-error);
+        .mat-form-field-required-marker {
+            color: var(--ft-error);
+        }
+    }
+    .mat-form-field-ripple {
+        background-color: var(--ft-error);
+    }
+
+    .mat-error {
+        color: var(--ft-error);
+        font-size: 18.5px;
+        font-weight: bold;
+    }
+}
+
+::ng-deep .mat-error {
+    color: var(--ft-error);
+    font-size: 18.5px;
+    font-weight: bold;
+}
+
+::ng-deep .tootlip-ml.mat-tooltip{
+    max-width:max-content !important;
+    white-space: pre-wrap;
+}
+
+@media screen and (min-width: 812px) {
+    ::ng-deep .mat-sidenav-container {
+        // background-image: url('../assets/images/image_fond.png');
+        background-size: cover;
+    }
+    ::ng-deep .mat-drawer-content {
+        position: unset;
+        margin-top: 80px;
+        max-height: calc(100% - 80px);
+    }
+}
+
+// overwrite the checkbox background
+::ng-deep .mat-checkbox-checked .mat-checkbox-background,
+.mat-checkbox-indeterminate .mat-checkbox-background {
+    background-color: var(--ft-blue-france) !important;
+}
+
+// overwrite the ripple overlay on hover and click
+::ng-deep .mat-checkbox:not(.mat-checkbox-disabled) .mat-checkbox-ripple .mat-ripple-element {
+    background-color: var(--ft-blue-france) !important;
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    ::ng-deep .mat-sidenav {
+        width: 100%;
+        height: 100%;
+        top: 0 !important;
+    }
+    ::ng-deep .mat-sidenav-container {
+        // background-image: url('../assets/images/image_fond.png');
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+    }
+    ::ng-deep .mat-drawer-content {
+        position: unset;
+        margin-top: 10px;
+        max-height: calc(100% - 10px);
+        //overflow: hidden !important;
+    }
+}
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    ::ng-deep .mat-sidenav {
+        width: 100%;
+        height: 100%;
+        top: 0 !important;
+    }
+}

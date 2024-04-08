@@ -1,0 +1,25 @@
+<div class="app-root" (window:resize)="onResize()">
+  <header role="banner">
+    <ft-header class="app-header" (sidenavToggle)="toggleSideNav()" (routingCalled)="onRoutingCalled($event)"
+      *ngIf="!opened"></ft-header>
+  </header>
+  <mat-sidenav-container id="container" fullscreen [ngStyle]="{'background-image': 'url(' + backgroundPath + ')'}">
+    <mat-sidenav #sidenav [mode]="sideNavMode" role="navigation" [(opened)]="opened" [fixedInViewport]="true"
+      [fixedTopGap]="fixedTopGap" class="menu-sidenav">
+      <ft-menu class="app-menu" (sidenavToggle)="toggleSideNav()"></ft-menu>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <div class="sidenav-content" #topRoot>
+        <main role="main" class="home">
+          <div class="app-content">
+            <router-outlet #outlet="outlet" class="app-outlet"></router-outlet>
+          </div>
+        </main>
+        <footer role="contentinfo">
+          <ft-footer (routingCalled)="onRoutingCalled($event)" *ngIf="screenWidth === 'lg'" class="app-footer">
+          </ft-footer>
+        </footer>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

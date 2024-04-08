@@ -1,0 +1,56 @@
+.accessibilite-wrapper {
+    width: 100%;
+    background-color: var(--ft-white);
+    .accessibilite-card {        
+        &-header {
+        }
+        &-content {
+            margin-top: 32px;
+            font-weight: normal;
+            font-size: 16px;
+            line-height: 24px;
+
+            h2 {
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }
+
+            p span {
+                display: block;
+                margin: 5px;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 812px) {
+    .accessibilite-wrapper {        
+        .accessibilite-card {
+            height: 100%;
+        }
+    }
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    .accessibilite-wrapper {
+        height: 100vh;
+        overflow-y: auto;
+        .accessibilite-card {
+            margin-top: 90px;
+        }
+    }
+}
+
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    .accessibilite-wrapper {
+        height: 100vh;
+        overflow-y: auto;
+        .accessibilite-card {
+            margin-top: 90px;
+            ::ng-deep .mat-card-header-text {
+                margin: 0 0 !important;
+            }
+        }
+    }
+}

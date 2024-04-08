@@ -1,0 +1,119 @@
+<form [formGroup]="envelopeParametersForm" class="envelope-parameters-form-container" autocomplete="off">
+
+    <div class="envelope-parameters-form-group">
+        <mat-form-field>
+            <mat-label> {{'Mot_de_Passe' | translate}}</mat-label>
+            <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" autocomplete="off">
+            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Masquer le mot password'"
+                [attr.aria-pressed]="hide">
+                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+        </mat-form-field>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="sizeControl();else error_size">
+                check</mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_Caractères' | translate}}
+        </div>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="minChar();else error_size">check
+            </mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_Lettres_Minuscules' | translate}}
+        </div>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="majChar();else error_size">check
+            </mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_Lettres_Majuscules' | translate}}
+        </div>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="numChar();else error_size">check
+            </mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_chiffres' | translate}}
+        </div>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="specialChar();else error_size">
+                check</mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_Caractères_Spéciaux' | translate}}
+        </div>
+        <div class="error-container">
+            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="!noSpecial();else error_size">
+                check</mat-icon>
+            <ng-template #error_size>
+                <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
+            </ng-template>
+            {{'Nombres_Caractères_Spéciaux_Forbidden' | translate}}
+        </div>
+
+    </div>
+
+    <div class="envelope-parameters-form-group input-size">
+      <mat-form-field>
+          <mat-label> {{'Délai_Validité' | translate}}</mat-label>
+          <!-- <input matInput formControlName="expiryDays" autocomplete="off">
+          <span matSuffix>jours</span>
+          <mat-error role="alert" *ngIf="f.expiryDays.errors?.min">Le délai de validité ne peut être inférieur à 1 jour</mat-error>
+          <mat-error role="alert" *ngIf="f.expiryDays.errors?.max">Le délai de validité ne peut être supérieur à 90 jours</mat-error> -->
+         <input matInput [matDatepicker]="picker" formControlName="expiryDays" [min]="minDate" [max]="maxDate" autocomplete="off">
+          <mat-error role="alert" *ngIf="f.expiryDays.errors">{{'Date_invalide' | translate}}</mat-error>
+           <mat-datepicker #picker></mat-datepicker>
+
+              <button mat-icon-button matSuffix mat-stroked-button matTooltip="{{'Modification_Date_Fin_Validité' | translate}}"
+              (click)="picker.open()" class="backgroundColor">
+                <mat-icon matSuffix aria-hidden="true"
+                >event
+              </mat-icon>
+            </button>
+
+
+
+       </mat-form-field>
+      </div>
+
+    <div class="lang-selection">
+      <mat-form-field class="langue-size">
+          <mat-label> {{'Langue_Affichage_Courriels' | translate}}</mat-label>
+          <!-- langue d'affichage des courriels -->
+          <mat-select matNativeControl  [(value)]="language" class="language-select" [compareWith]="compareFunction" disableOptionCentering  (selectionChange)="selectLanguage($event.value)">
+              <mat-option *ngFor="let lang of languageList" [value]="lang"  [ngClass]="language.code">
+                  <span>{{ lang.label }}</span>
+              </mat-option>
+          </mat-select>
+      </mat-form-field>
+    </div>
+
+
+
+    <mat-checkbox formControlName="zipPassword">
+        <div [innerHTML]="'Zip_Mot_Passe' | translate">
+        </div>
+    </mat-checkbox>
+
+
+
+
+
+    <!-- <div class="envelope-parameters-form-group">
+        <mat-slide-toggle formControlName="eachDownloadNotify" [labelPosition]="'before'">Être notifié à chaque
+            téléchargement</mat-slide-toggle>
+    </div>
+    <div class="envelope-parameters-form-group">
+        <mat-slide-toggle formControlName="allDownloadNotify" [labelPosition]="'before'">Être notifié quand tous les
+            destinataires auront
+            téléchargé le transfert</mat-slide-toggle>
+    </div> -->
+
+</form>

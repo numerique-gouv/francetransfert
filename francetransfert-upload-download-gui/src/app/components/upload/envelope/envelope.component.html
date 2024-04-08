@@ -1,0 +1,57 @@
+<mat-card class="envelope-card" *ngIf="!showParameters; else parametersShowed">
+    <mat-card-content class="envelope-card-content">
+        <mat-tab-group [selectedIndex]="selectedTabIndex" (selectedTabChange)="onSelectedTabChange($event)"
+            class="envelope-card-tab-group" mat-align-tabs="start">
+            <mat-tab label="{{'Courriel' | translate}}">
+                <ng-template matTabContent>
+                    <ft-envelope-mail-form [mailFormValues]="mailFormValues"
+                        (onFormGroupChange)="onMailFormGroupChangeEvent($event)" class="envelope-mail-form-wrapper">
+                    </ft-envelope-mail-form>
+                </ng-template>
+            </mat-tab>
+            <mat-tab label="{{'Lien' | translate}}">
+                <ng-template mat-tab-label>
+                    <div class="envelope-card-tab-link" style="display: flex;">
+                        <span>{{'Lien' | translate}}</span>
+                        <button type="button" mat-button style="line-height: 0px;"
+                            matTooltip="{{'TooltipNomTransfert' | translate}}">
+                            <mat-icon matSuffix aria-hidden="true" attr.aria-label="{{'TooltipNomTransfert' | translate}}">
+                            info_outline</mat-icon>
+                        </button>
+                    </div>
+                </ng-template>
+                <ng-template matTabContent>
+                    <ft-envelope-link-form [linkFormValues]="linkFormValues"
+                        (onFormGroupChange)="onLinkFormGroupChangeEvent($event)" class="envelope-link-form-wrapper">
+                    </ft-envelope-link-form>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
+    </mat-card-content>
+    <mat-card-actions class="envelope-card-actions">
+        <button type="button" mat-raised-button class="envelope-card-actions-btn" (click)="triggerShowParameters()"
+            matTooltip="{{'ModificationOption' | translate}}" [matTooltipPosition]="'above'" attr.aria-label="{{'Paramètres' | translate}}">
+            <mat-icon>settings</mat-icon>
+        </button>
+        <button type="submit" mat-raised-button [disabled]="!canSend" class="envelope-card-actions-btn"
+            (click)="startUpload()" attr.aria-label="{{'Envoyer' | translate}}">{{'Envoyer' | translate}}</button>
+    </mat-card-actions>
+</mat-card>
+<ng-template #parametersShowed>
+    <mat-card class="envelope-card">
+        <mat-card-header class="envelope-card-header">
+            <mat-card-title>{{'PréférencesTransfert' | translate}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="envelope-card-content">
+            <ft-envelope-parameters-form [parametersFormValues]="parametersFormValues"
+                (onFormGroupChange)="onParametersFormGroupChangeEvent($event)" class="envelope-parameters-form-wrapper">
+            </ft-envelope-parameters-form>
+        </mat-card-content>
+        <mat-card-actions class="envelope-card-actions">
+            <button type="button" mat-raised-button class="envelope-card-actions-btn"
+                (click)="triggerShowParameters()" attr.aria-label="{{'Annuler' | translate}}">{{'Annuler' | translate}}</button>
+            <button type="button" [disabled]="!isParamFromValid()" mat-raised-button class="envelope-card-actions-btn"
+                (click)="triggerShowParametersValider()" attr.aria-label="{{'Valider' | translate}}">{{'Valider' | translate}}</button>
+        </mat-card-actions>
+    </mat-card>
+</ng-template>

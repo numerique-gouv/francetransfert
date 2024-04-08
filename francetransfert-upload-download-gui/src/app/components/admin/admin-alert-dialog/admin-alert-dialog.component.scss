@@ -1,0 +1,14 @@
+.btn {
+    background-color: var(--ft-blue-france);
+    color: var(--ft-white);
+}
+
+.mat-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+  outline-style: solid;
+  outline-width: 2px;
+  outline-offset: 2px;
+  outline-color: #1212ff;
+}
+
+

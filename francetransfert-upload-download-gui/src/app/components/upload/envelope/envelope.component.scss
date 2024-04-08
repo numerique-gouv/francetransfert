@@ -1,0 +1,142 @@
+.envelope-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-justify-content: center;
+    .envelope-card-content {
+        .envelope-card-tab-group {
+            ::ng-deep .mat-tab-label-content {
+                width: 100%;
+                justify-content: flex-start;
+                -webkit-justify-content: flex-start;
+                font-weight: bold;
+                font-size: 20px;
+                line-height: 28px;
+            }
+            ::ng-deep .mat-ink-bar {
+                background-color: var(--ft-primary);
+            }
+            ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
+                width: 100%;
+            }
+            .envelope-card-tab-link {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                display: -webkit-flex;
+                -webkit-flex-direction: row;
+                -webkit-justify-content: space-between;
+                .resize-icon {
+                  ::ng-deep .mat-form-field-appearance-legacy .mat-form-field-suffix {
+                    padding-right: 0.1em !important;
+                    .mat-icon {
+                      font-size: 21px;
+                      width: 21px;
+                      color: black;
+                    }
+                  }
+                }
+                .envelope-card-info-icon {
+                  color: black;
+                }
+            }
+            .envelope-mail-form-wrapper {
+                width: 100%;
+            }
+            .envelope-link-form-wrapper {
+                width: 100%;
+            }
+            .envelope-parameters-form-wrapper {
+                width: 100%;
+            }
+        }
+    }
+    .envelope-card-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        display: -webkit-flex;
+        -webkit-flex-direction: row;
+        -webkit-justify-content: space-between;
+      padding-top: 0.5rem;
+      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+        outline-style: solid;
+        outline-width: 2px;
+        outline-offset: 2px;
+        outline-color: #1212ff;
+    }
+        .envelope-card-actions-btn {
+            background-color: var(--ft-blue-france);
+            color: var(--ft-white);
+        }
+        .envelope-card-actions-btn.mat-button-disabled {
+            background-color: var(--ft-grey);
+            color: var(--ft-mention);
+        }
+    }
+    ::ng-deep .mat-tab-body-content{
+        overflow-x: clip;
+    }
+}
+
+@media screen and (min-width: 812px) {
+    .envelope-card {
+        height: 100%;
+        .envelope-card-content {
+            height: 100%;
+            overflow: auto;
+            .envelope-card-tab-group {
+                height: 100%;
+                ::ng-deep .mat-tab-body-wrapper {
+                    height: 100%;
+                }
+                .envelope-card-tab-link {
+                    .envelope-mail-form-wrapper {
+                        height: 100%;
+                    }
+                    .envelope-link-form-wrapper {
+                        height: 100%;
+                    }
+                    .envelope-parameters-form-wrapper {
+                        height: 100%;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    .envelope-card {
+        height: 100%;
+        .envelope-card-content {
+            height: 100%;
+            overflow: auto;
+            .envelope-card-tab-group {
+                height: 100%;
+                ::ng-deep .mat-tab-body-wrapper {
+                    height: 100%;
+                }
+                .envelope-card-tab-link {
+                    .envelope-mail-form-wrapper {
+                        height: 100%;
+                    }
+                    .envelope-link-form-wrapper {
+                        height: 100%;
+                    }
+                    .envelope-parameters-form-wrapper {
+                        height: 100%;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+
+}

@@ -1,0 +1,324 @@
+<div class="admin-wrapper">
+  <mat-card class="admin-card">
+    <mat-card-header class="admin-card-header" *ngIf="transfers">
+      <mat-card-title>
+        <h2 *ngIf="!fileInfos?.expired && !reciever">{{'Administration' | translate}}</h2>
+        <h2 *ngIf="fileInfos?.expired || (!fileInfos?.expired && reciever)">{{'Historique' | translate}}</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="admin-card-content">
+      <div class="admin-card-content-error" *ngIf="errorMessage">
+        <span>{{errorMessage | translate}}</span>
+      </div>
+      <div class="admin-card-content-infos" *ngIf="fileInfos">
+        <div class="subheader">
+          <h3> {{'Informations_Pli' | translate}}</h3>
+        </div>
+        <mat-list role="list">
+          <ng-container *ngIf="!reciever">
+            <mat-list-item *ngIf="!(fileInfos?.recipientsMails.length != 0 || fileInfos?.deletedRecipients.length != 0)"
+              role="listitem"><span>{{'Nombre_Téléchargements' |
+                translate}}{{fileInfos.downloadCount}}</span>
+            </mat-list-item>
+          </ng-container>
+          <mat-list-item role="listitem"><span>{{'Emetteur' | translate}} {{fileInfos.senderEmail}}</span>
+          </mat-list-item>
+          <mat-list-item role="listitem"><span>{{'Object' | translate}} {{fileInfos.subject}}</span>
+          </mat-list-item>
+          <mat-list-item role="listitem" style="white-space: pre-line"><span>{{'Message' | translate}}
+              {{fileInfos.message}}</span></mat-list-item>
+          <mat-list-item role="listitem"><span>{{'Date_Emission' | translate}}
+
+              <!-- {{fileInfos.timestamp | date: 'medium'}} -->
+              {{selectedDate | date: 'medium': '' : translate.currentLang}}
+            </span>
+          </mat-list-item>
+          <mat-list-item *ngIf="!fileInfos?.expired" role="listitem"><span>{{'Date_Fin_Validité' | translate}}
+              {{fileInfos.validUntilDate | date:
+              'medium': '' : translate.currentLang}}</span>
+            <mat-form-field style="width:1px;visibility:hidden;">
+              <input matInput [matDatepicker]="picker" [formControl]="validUntilDate" [min]="minDate" [max]="maxDate">
+              <mat-datepicker #picker (closed)="onPickerClose()"></mat-datepicker>
+            </mat-form-field>
+            <button type="button" mat-icon-button class="upload-item-actions-btn" (click)="picker.open()"
+              matTooltip="{{'Modification_Date_Fin_Validité' | translate}}" *ngIf="!reciever">
+              <mat-icon attr.aria-label="{{'Modification_Date_Fin_Validité' | translate}}">edit
+              </mat-icon>
+            </button>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="fileInfos?.expired && fileInfos.archiveUntilDate != '2000-01-31'" role="listitem">
+            <span>{{'Date_Archive' | translate}} {{fileInfos.archiveUntilDate | date:
+              'medium': '' : translate.currentLang}}</span>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="!fileInfos?.expired && !reciever" role="listitem" class="delete"><span>{{'Archiver_pli'
+              |
+              translate}}</span>
+            <button type="button" mat-icon-button class="upload-item-actions-btn" (click)="deleteFile()"
+              matTooltip="{{'Archiver_pli' | translate}}">
+              <mat-icon attr.aria-label="{{'Archiver_pli' | translate}}">archive
+              </mat-icon>
+            </button>
+          </mat-list-item>
+          <div *ngIf="!reciever">
+            <div *ngIf="fileInfos?.recipientsMails.length != 0 || fileInfos?.deletedRecipients.length != 0"
+              class="admin-card-content-files">
+              <div class="subheader respientHeader">
+                <h3>{{'Destinataires' | translate}} </h3>
+                <button type="button" mat-icon-button class="upload-item-actions-btn" (click)="addRecipient()"
+                  *ngIf="!fileInfos?.expired && !add" matTooltip="{{'Ajout_Destinataire' | translate}}">
+                  <mat-icon style="color: black;cursor: pointer;"
+                    attr.aria-label="{{'Ajout_Destinataire' | translate}}">add_box</mat-icon>
+                </button>
+                <button type="button" mat-icon-button class="upload-item-actions-btn" (click)="addRecipient()"
+                  *ngIf="!fileInfos?.expired && close" matTooltip="{{'Terminer' | translate}}">
+                  <mat-icon style="color: black;cursor: pointer;"
+                    attr.aria-label="{{'Terminer' | translate}}">close</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="add && !reciever" class="addDestinataire"
+              [ngClass]="errorValidEmail || errorEmail ? 'big-error' : ''">
+              <form [formGroup]="envelopeDestForm" class="addForm">
+                <mat-form-field class="full-width">
+                  <mat-label>{{'Courriel_Destinataire' | translate}}</mat-label>
+                  <input id="recipientmail" name="recipientmail" formControlName="email" type="email" matInput
+                    placeholder="JEAN.DUPONT@EMAIL.COM" #dest (blur)="onBlurDestinataires();"
+                    (keyup.enter)="dest.blur();">
+                  <mat-error role="alert" *ngIf="envelopeDestForm.controls.email.errors?.emailError">
+                    {{'AdresseRequis' | translate}}
+                  </mat-error>
+                  <mat-error role="alert" *ngIf="envelopeDestForm.controls.email.errors?.emailNotValid">
+                    {{'ExpéditeurNécessaire' | translate}}
+                  </mat-error>
+                  <mat-error role="alert" *ngIf="envelopeDestForm.controls.email.errors?.nbLimite">
+                    {{'DestinataireLimité' | translate}}
+                  </mat-error>
+
+                </mat-form-field>
+              </form>
+            </div>
+          </div>
+          <div class="admin-card-content-files" *ngIf="reciever">
+            <div class="subheader">
+              <span>{{'Téléchargement_Pli' | translate}}</span>
+            </div>
+            <ng-container *ngIf="!isMobile">
+              <mat-list-item role="listitem">
+                <span
+                  [ngClass]="numberOfDownload == 0 ? 'padding-countReciever' : 'down-countReciever'">{{numberOfDownload}}&nbsp;{{'Téléchargement'|
+                  translate}}</span>
+              </mat-list-item>
+              <mat-list-item role="listitem" *ngIf="numberOfDownload != 0">
+                <span class="down-countReciever float-dates">{{'Dates-telechargement' | translate}}</span>
+                <div class="flex-dates">
+                  <span class="down-countReciever" *ngFor="let date of toArray(downloadDates)">
+                    <!-- {{date}}  -->
+                    {{date.value | date: 'shortDate': '' : translate.currentLang}}
+                    {{'time' | translate}}
+                    {{date.value | date: "HH:mm:ss": '' : translate.currentLang}}
+                  </span>
+                </div>
+              </mat-list-item>
+
+
+            </ng-container>
+
+            <ng-container *ngIf="isMobile">
+              <mat-list-item role="listitem">
+                <span
+                  [ngClass]="numberOfDownload == 0 ? 'padding-countReciever' : 'down-countReciever'">{{numberOfDownload}}&nbsp;{{'Téléchargement'
+                  | translate}}</span>
+              </mat-list-item>
+              <mat-list-item role="listitem" *ngIf="numberOfDownload != 0">
+                <span class="down-countReciever float-dates">{{'Dates-telechargement' | translate}}</span>
+                <div class="flex-dates">
+                  <span class="down-countReciever" *ngFor="let date of toArray(downloadDates)">
+                    <!-- {{date}}  -->
+                    {{date.value | date: 'shortDate': '' : translate.currentLang}}
+                    {{'time' | translate}}
+                    {{date.value | date: "HH:mm:ss": '' : translate.currentLang}}
+                  </span>
+                </div>
+              </mat-list-item>
+
+
+            </ng-container>
+
+            <ng-container *ngIf="isMobile">
+              <mat-list-item role="listitem">
+                <span
+                  [ngClass]="numberOfDownload == 0 ? 'padding-count' : 'down-countReciever'">{{numberOfDownload}}&nbsp;{{'Téléchargement'
+                  | translate}}</span>
+              </mat-list-item><br>
+              <mat-list-item role="listitem">
+                <span class="down-countReciever float-dates">{{'Dates-telechargement' | translate}}</span>
+              </mat-list-item>
+              <mat-list-item role="listitem">
+                <div class="flex-dates">
+                  <span class="down-countReciever" *ngFor="let date of toArray(downloadDates)">
+                    <!-- {{date}}  -->
+                    {{date.value | date: 'shortDate': '' : translate.currentLang}}
+                    {{'time' | translate}}
+                    {{date.value | date: "HH:mm:ss": '' : translate.currentLang}}
+                  </span>
+                </div>
+              </mat-list-item>
+
+
+            </ng-container>
+
+
+          </div>
+
+          <mat-list-item role="listitem" class="delete"
+            *ngFor="let dest of fileInfos?.recipientsMails; let index = index">
+            <ng-container *ngIf="!isMobile  && !reciever">
+              <mat-accordion>
+                <mat-expansion-panel [disabled]="dest.numberOfDownloadPerRecipient == 0">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="overflow-clip">
+                      <span class="recipient-mail">{{dest.recipientMail}}</span>
+                      <span
+                        [ngClass]="dest.numberOfDownloadPerRecipient == 0 ? 'padding-count-admin' : 'down-count'">{{dest.numberOfDownloadPerRecipient}}&nbsp;{{'Téléchargement'
+                        | translate}}</span>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <span class="down-count float-dates">{{'Dates-telechargement' | translate}}</span>
+                  <div class="flex-dates">
+                    <span class="down-count" *ngFor="let date of toArray(dest.downloadDates)">
+                      <!-- {{date}}  -->
+                      {{date.value | date: 'shortDate': '' : translate.currentLang}}
+                      {{'time' | translate}}
+                      {{date.value | date: "HH:mm:ss": '' : translate.currentLang}}
+                    </span>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </ng-container>
+
+            <ng-container *ngIf="isMobile  && !reciever">
+              <mat-accordion>
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="overflow-clip">
+                      <span class="recipient-mail">{{dest.recipientMail}}</span>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="flex-dates">
+                    <span>{{dest.numberOfDownloadPerRecipient}}&nbsp;{{'Téléchargement' | translate}}</span>
+                    <ng-container *ngIf="dest.numberOfDownloadPerRecipient > 0">
+                      <br>
+                      <div class="flex-dates">
+                        <span class="down-countMobile" *ngFor="let date of toArray(dest.downloadDates)">
+                          <!-- {{date}}  -->
+                          {{date.value | date: 'shortDate': '' : translate.currentLang}}
+                          {{'time' | translate}}
+                          {{date.value | date: "HH:mm:ss": '' : translate.currentLang}}
+                        </span>
+                      </div>
+                    </ng-container>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </ng-container>
+            <button type="button" mat-icon-button class="upload-item-actions-btn"
+              matTooltip="{{'Renvoyer_Lien_Téléchargement' | translate}}" *ngIf="!fileInfos?.expired && !reciever" (click)="resendLink(dest.recipientMail)">
+              <mat-icon attr.aria-label="{{'Renvoyer_Lien_Téléchargement' | translate}}">
+                email</mat-icon>
+            </button>
+            <button type="button" mat-icon-button class="upload-item-actions-btn"
+              matTooltip="{{'Supprimer_Destinataire' | translate}}" *ngIf="!fileInfos?.expired && !reciever" (click)="deleteRecipient(index, dest)">
+              <mat-icon  attr.aria-label="{{'Supprimer_Destinataire' | translate}}">delete
+              </mat-icon>
+            </button>
+          </mat-list-item>
+
+
+          <mat-list-item role="listitem" class="delete"
+            *ngFor="let dest of fileInfos?.deletedRecipients; let index = index">
+
+            <ng-container *ngIf="!isMobile && !reciever">
+              <mat-accordion>
+                <mat-expansion-panel [disabled]="dest.numberOfDownloadPerRecipient == 0">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="overflow-clip deleted">
+                      <span class="recipient-mail">{{dest.recipientMail}}</span>
+                      <span
+                        [ngClass]="dest.numberOfDownloadPerRecipient == 0 ? 'padding-count-admin' : 'down-count'">{{dest.numberOfDownloadPerRecipient}}&nbsp;{{'Téléchargement'
+                        | translate}}</span>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <span class="down-count float-dates">{{'Dates-telechargement' | translate}}</span>
+                  <div class="flex-dates">
+                    <span class="down-count" *ngFor="let date of toArray(dest.downloadDates)">
+                      {{date}}</span>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </ng-container>
+
+
+            <ng-container *ngIf="isMobile && reciever">
+              <mat-accordion>
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="overflow-clip deleted">
+                      <span class="recipient-mail">{{dest.recipientMail}}</span>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="flex-dates">
+                    <span>{{dest.numberOfDownloadPerRecipient}}&nbsp;{{'Téléchargement' | translate}}</span>
+                    <ng-container *ngIf="dest.numberOfDownloadPerRecipient > 0">
+                      <br>
+                      <span>{{'Dates-telechargement' | translate}}</span>
+                      <span *ngFor="let date of toArray(dest.downloadDates)">
+                        {{date}}</span>
+                    </ng-container>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </ng-container>
+          </mat-list-item>
+        </mat-list>
+      </div>
+      <div class="admin-card-content-files " *ngIf="fileInfos">
+        <div class="subheader">
+          <h3>{{'Éléments_Pli' | translate}}</h3>
+        </div>
+        <ft-file-item class="file-item" *ngFor="let transfer of transfers" [transfer]="transfer" [readOnly]="true">
+        </ft-file-item>
+      </div>
+    </mat-card-content>
+    <mat-card-actions class="admin-card-actions" *ngIf="fileInfos && !reciever" style="flex-wrap: wrap;">
+
+      <div style="display: flex; justify-content: start;">
+        <button type="button" *ngIf="(fileInfos?.recipientsMails.length != 0 || fileInfos?.deletedRecipients.length != 0)"
+          type="button" mat-raised-button class="admin-card-actions-btn margin-auto" (click)="DupliquerDestinataires()"
+          attr.aria-label="{{'Dupliquer-destinataires' | translate}}">{{'Dupliquer-destinataires'
+          | translate}}</button>
+        <button type="button" mat-raised-button attr.aria-label="{{'Exporter_PDF' | translate}}"
+          class="admin-card-actions-btn margin" (click)="PDFinfo()">{{'Exporter_PDF' | translate}}</button>
+      </div>
+      <button type="button" mat-raised-button class="admin-card-actions-btn margin-button"
+        attr.aria-label="{{'Retour' | translate}}" (click)="previousPage()">{{'Retour' |
+        translate}}</button>
+    </mat-card-actions>
+
+    <mat-card-actions class="admin-card-actions" *ngIf="fileInfos && reciever" style="flex-wrap: wrap;">
+
+      <div style="display: flex; justify-content: start;">
+        <button type="button" mat-raised-button attr.aria-label="{{'Exporter_PDF' | translate}}"
+          class="admin-card-actions-btn margin-auto" (click)="PDFinfo()">{{'Exporter_PDF' | translate}}</button>
+        <button type="button" *ngIf="!fileInfos?.expired" mat-raised-button
+          attr.aria-label="{{'Details_Download' | translate}}" class="admin-card-actions-btn margin"
+          (click)="navigateTo()">{{'Details_Download' |
+          translate}}</button>
+      </div>
+      <button type="button" mat-raised-button attr.aria-label="{{'Retour' | translate}}"
+        class="admin-card-actions-btn margin-button" (click)="previousPage()">{{'Retour' |
+        translate}}</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

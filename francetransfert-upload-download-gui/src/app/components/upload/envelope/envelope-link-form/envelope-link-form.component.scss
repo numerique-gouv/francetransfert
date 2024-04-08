@@ -1,0 +1,61 @@
+.envelope-link-form-container {
+
+    .envelope-link-form-info {
+        display: flex;
+        justify-content: flex-end;
+        color: var(--ft-mention);
+        font-size: 12px;
+    }
+
+    .envelope-link-form-group {
+        .mat-form-field {
+            width: 100%;
+            margin-top: 20px;
+            .mat-icon {
+                cursor: pointer;
+            }
+            .backgroundColor{
+              border-color: transparent;
+            }
+
+        }
+        .link {
+            color: var(--ft-blue-france);
+            text-decoration: underline;
+        }
+    }
+
+    .resize-icon {
+      ::ng-deep .mat-form-field-appearance-legacy .mat-form-field-suffix {
+        padding-right: 0.1em !important;
+        .mat-icon {
+          font-size: 21px;
+          width: 21px;
+          color: black;
+        }
+      }
+    }
+
+    ::ng-deep .mat-checkbox-layout {
+      white-space: normal!important;
+    }
+}
+
+@media screen and (min-width: 812px) {
+    .envelope-link-form-container {
+        height: 100%;
+    }
+
+}
+
+@media screen and (min-width: 480px) and (max-width: 812px) {
+    .envelope-link-form-container {
+        height: 100%;
+    }
+}
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    .envelope-link-form-container {
+        overflow: hidden;
+    }
+}

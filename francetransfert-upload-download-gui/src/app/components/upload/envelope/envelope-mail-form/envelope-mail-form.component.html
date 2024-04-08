@@ -1,0 +1,83 @@
+<form [formGroup]="envelopeMailForm" class="envelope-mail-form-container">
+
+  <div class="envelope-mail-form-info">
+    <span>{{'ChampsObligatoires' | translate}}</span>
+  </div>
+
+  <div class="envelope-mail-form-group resize-icon flex" [ngClass]="f.from.errors?.quota ? 'big-error' : ''">
+    <mat-form-field>
+      <mat-label>{{'Expéditeur' | translate}}</mat-label>
+      <input matInput id="sendermail" name="email" [readonly]="isLoggedIn()" [disabled]="isLoggedIn()" matInput
+        placeholder="{{'AdresseCourriel' | translate}}" formControlName="from" autocomplete="email"
+        (keydown.enter)="enterDest();">
+      <mat-error role="alert" *ngIf="f.from.errors?.required">{{'ExpéditeurRequis' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.from.errors?.email">{{'AdresseRequis' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.from.errors?.quota">{{'QotaDépassé' | translate}}<br />
+      </mat-error>
+    </mat-form-field>
+    <button mat-icon-button matSuffix mat-stroked-button attr.aria-label="{{'TooltipExpéditeurLien' | translate}}"
+      matTooltip="{{'TooltipExpéditeurLien' | translate}}" class="button-fix">
+      <mat-icon aria-hidden="true" class="icon-btn" matSuffix>info_outline</mat-icon>
+    </button>
+  </div>
+
+  <div class="envelope-mail-form-group flex" [ngClass]="!f.to.valid && f.to.touched ? 'big-error' : ''">
+    <mat-form-field>
+      <mat-label>{{'Destinataire' | translate}} *</mat-label>
+      <input matInput id="recipientmail" name="recipientmail" matInput
+        placeholder="{{'PlaceholderDestinataires' | translate}}" formControlName="to" #dest
+        (blur)="onBlurDestinataires();" (keydown.enter)="dest.blur();enterDest();">
+      <mat-error role="alert" *ngIf="f.to.errors?.required">{{'DestinataireRequis' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.to.errors?.email">{{'AdresseRequis' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.to.errors?.notValid">{{'ExpéditeurNécessaire' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.to.errors?.nbLimite">{{'DestinataireLimité' | translate}}</mat-error>
+    </mat-form-field>
+    <button mat-icon-button matSuffix mat-stroked-button attr.aria-label="{{'TooltipExpéditeurCourriel' | translate}}"
+      (click)="openMailingListManager()" matTooltip="{{'TooltipExpéditeurCourriel' | translate}}" class="button-fix">
+      <mat-icon class="icon-btn">info_outline</mat-icon>
+    </button>
+
+    <button mat-icon-button matSuffix mat-stroked-button attr.aria-label="{{'ListeContacts' | translate}}"
+      (click)="openMailingListManager()" matTooltip="{{'ListeContacts' | translate}}" class="button-fix">
+      <mat-icon class="icon-btn">list_alt</mat-icon>
+    </button>
+  </div>
+
+  <div class="envelope-mail-form-group destinataire-flex">
+    <mat-chip-list *ngIf="destinatairesList && destinatairesList.length > 0" class="destinataires-chip-list">
+      <mat-chip (keyup.enter)="enterSubmit($event, index)" *ngFor="let dest of destinatairesList; let index = index"
+        class="destinataires-chip">{{dest}}
+        <mat-icon (click)="deleteDestinataire(index)" attr.aria-label="{{'SupprimerDestinataire' | translate}}"
+          class="destinataires-chip-delete">cancel</mat-icon>
+      </mat-chip>
+    </mat-chip-list>
+    <button mat-icon-button class="icon-btn icon-download" (click)="exportDataCSV()"
+      matTooltip="{{'ExporterListeCSV' | translate}}" *ngIf="destinatairesList && destinatairesList.length > 0">
+      <mat-icon matSuffix>cloud_download
+      </mat-icon>
+    </button>
+  </div>
+
+  <div class="envelope-mail-form-group">
+    <mat-form-field>
+      <mat-label>{{'Objet' | translate}}</mat-label>
+      <input matInput placeholder="(Facultatif)" formControlName="subject" autocomplete="off" #objet
+        (keyup.enter)="enterMessage()">
+    </mat-form-field>
+  </div>
+
+  <div class="envelope-mail-form-group">
+    <mat-form-field>
+      <mat-label>{{'Message' | translate}}</mat-label>
+      <textarea cdkTextareaAutosize cdkAutosizeMinRows="5" cdkAutosizeMaxRows="10" matInput placeholder="(Facultatif)"
+        formControlName="message" autocomplete="off" #message maxlength=2500 [maxLength]=2500></textarea>
+    </mat-form-field>
+  </div>
+
+  <div class="mat-checkbox-layout">
+    <mat-checkbox formControlName="cguCheck">
+      <div [innerHTML]="'CGU' | translate">
+      </div>
+    </mat-checkbox>
+  </div>
+</form>

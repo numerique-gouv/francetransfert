@@ -1,0 +1,104 @@
+
+<div class="cgu-wrapper">
+    <mat-card class="cgu-card">
+        <mat-card-header class="cgu-card-header">
+            <h1 #cgu> {{'CGU_Titre' | translate}}</h1>
+        </mat-card-header>
+        <h4> {{'Version' | translate}} {{'CGU-Version' | translate}}</h4>
+        <span> {{'Version_Française' | translate}}</span>
+        <mat-card-content class="cgu-card-content">
+            <h3 #preambule> {{'Préambule' | translate}}</h3>
+            <p [innerHTML]="'Intro' | translate">
+
+            </p>
+            <h2 #presentationduservice>{{'Présentation_Service' | translate}}</h2>
+            <p [innerHTML]="'Présentation_Service_Texte' | translate">
+
+            </p>
+            <ul [innerHTML]="'Présentation_Service_List' | translate">
+            </ul>
+            <p>
+                <span> {{'Service_Mis_A_Disposition' | translate}}</span>
+            </p>
+
+          <h2 #modalites>{{'Modalités_Titre' | translate}}</h2>
+            <h3 #inscription>{{'Inscription_Transmission_Titre' | translate}}</h3>
+            <p [innerHTML]="'Inscription_Transmission_Texte' | translate">
+            </p>
+
+
+            <h2 #techniques> {{'Données_Techniques_Titre' | translate}}</h2>
+            <h3>{{'Généralités_Titre' | translate}}</h3>
+            <p>
+                <span> {{'Généralités_Texte' | translate}} </span>
+            </p>
+            <h3>{{'Utilisation_Cookies_Titre' | translate}}</h3>
+            <p>
+                <span>{{'Utilisation_Cookies_Texte' | translate}}</span>
+            </p>
+            <h3> {{'Plateformes_Outils_Titre' | translate}}</h3>
+            <p>
+                <span>{{'Plateformes_Outils_Texte' | translate}} :</span>
+            </p>
+            <ul [innerHTML]="'Plateformes_Outils_List' | translate">
+             </ul>
+
+            <h2 #traitementdesdonnees> {{'Traitement_Données_Titre' | translate}}</h2>
+            <h3>{{'Information_Personnes_Titre' | translate}}</h3>
+                <p [innerHTML]="'Information_Personnes_Texte' | translate" ></p>
+                  <ul [innerHTML]="'Information_Personnes_Liste' | translate"></ul><br>
+                  <p [innerHTML]="'Information_Personnes_Second_Texte' | translate" ></p>
+
+
+            <h3 #sensibles> {{'Données_Sensibles_Titre' | translate}}</h3>
+                <p [innerHTML]="'Données_Sensibles_Texte' | translate">
+
+                </p>
+                <ul  [innerHTML]="'Données_Sensibles_Liste' | translate">
+
+                </ul>
+                    <p>
+                      <span>
+                        {{'Données_Sensibles_Texte2' | translate}}
+                          <a rel="noopener noreferrer" [href]='sanitizedUrl' target='_blank'>
+                            {{'conteneur_Zed' | translate}}</a>{{'exemple' | translate}}
+                      </span>
+                  </p>
+
+
+                <p [innerHTML]="'Données_Sensibles_Texte3' | translate">
+                </p>
+
+<span></span><br>
+
+
+
+
+
+            <h2 #conservationdesdonnees> {{'Démarches_Publiées_Titre' | translate}}</h2>
+            <p [innerHTML]="'Démarches_Publiées_Texte' | translate">
+            </p>
+            <ul [innerHTML]="'Démarches_Publiées_List' | translate">
+            </ul>
+
+
+            <h2 #engagementsetresponsabilite>{{'Engagements_Responsabilité_Titre' | translate}}</h2>
+            <h3> {{'Engagements_Ministère_Titre' | translate}}</h3>
+            <p [innerHTML]="'Engagements_Ministère_Texte' | translate">
+            </p>
+            <h3>{{'Engagements_Responsabilité_Usager_Titre' | translate}}</h3>
+            <p [innerHTML]="'Engagements_Responsabilité_Usager_Texte' | translate">
+            </p>
+            <h2 #qualiteduservice> {{'Modification_Evolution_Qualité_Titre' | translate}}</h2>
+            <p [innerHTML]="'Modification_Evolution_Qualité_Texte' | translate" >
+            </p>
+            <h2 #securite>{{'Sécurité_Titre' | translate}}</h2>
+            <p [innerHTML]="'Sécurité_Texte' | translate">
+
+            </p>
+            <h2 #contact> {{'Contact_Titre' | translate}}</h2>
+            <p [innerHTML]="'Contact_Texte' | translate">
+            </p>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,101 @@
+<form [formGroup]="formulaireContactForm" class="contact-container">
+  <div class="card-formulaire">
+    <div class="contact-parameters">
+      <div class="contact-header ">
+        <span>{{'Contact' | translate}}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="befor-field">
+        <span>{{'ChampsObligatoires' | translate}}</span>
+      </div>
+
+      <mat-form-field class="field-contact">
+        <mat-label>{{'NomContact' | translate}}</mat-label>
+        <input id="nom" #nom name="nom" matInput placeholder="Dupont" formControlName="nom">
+      </mat-form-field>
+
+      <mat-form-field class="field-contact">
+        <mat-label>{{'PrénomContact' | translate}}</mat-label>
+        <input id="prenom" name="prenom" matInput placeholder="Jean" formControlName="prenom">
+      </mat-form-field>
+
+      <div class="field-contact">
+        <mat-form-field>
+          <mat-label> {{'VotreCourriel' | translate}} </mat-label>
+          <input id="sendercourriel" name="courriel" matInput placeholder="jean.dupont@domaine.fr"
+            formControlName="from" required autocomplete="email">
+          <mat-error role="alert" *ngIf="f.from.errors?.required">{{'ExpéditeurRequis' | translate}}</mat-error>
+          <mat-error role="alert" *ngIf="f.from.errors?.email">{{'AdresseRequis' | translate}}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="field-contact">
+        <mat-form-field>
+          <mat-label>{{'AdministrationSociété' | translate}}</mat-label>
+          <input id="administration" formControlName="administration" name="administration" matInput placeholder= "{{'AdministrationSociété' | translate}}">  </mat-form-field>
+      </div>
+
+      <div class="field-contact">
+        <mat-form-field>
+          <mat-label>{{'Objet' | translate}}</mat-label>
+          <input matInput placeholder="Objet" formControlName="subject" autocomplete="off" required>
+        </mat-form-field>
+      </div>
+
+      <div class="field-contact">
+        <mat-form-field>
+          <mat-label>{{'Message' | translate}}</mat-label>
+          <textarea class="message" matInput formControlName="message" placeholder="Message" autocomplete="off"
+            required></textarea>
+          <mat-error role="alert" *ngIf="f.message.errors?.required"> {{'MessageRequis' | translate}}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="captcha-container">
+        <div class="captcha-text" >
+          <img *ngIf="captchaType == 'IMAGE'" [src]="getImageUrl()" />
+          <figure *ngIf="captchaType == 'SOUND'">
+              <audio controls [src]="getImageUrl()" #myInput >
+                Your browser does not support the
+                <code>audio</code> element.
+              </audio>
+          </figure>
+
+        </div>
+        <div class="captcha-button">
+          <button mat-icon-button color="primary" matTooltip= "{{'ChangerCaptcha' | translate}}" (click)="resetUuid()"
+         attr.aria-label="{{'ChangerCaptcha' | translate}}">
+            <mat-icon>refresh
+            </mat-icon>
+          </button>
+
+          <button mat-icon-button color="primary"
+            [matTooltip]="captchaType == 'IMAGE' ? ('CaptchaAudio' | translate )   :  ('CaptchaVisuel' | translate ) "
+            (click)="switchType()"
+            [attr.aria-label]="captchaType == 'IMAGE' ? ('CaptchaAudio' | translate ) : ('CaptchaVisuel' | translate ) ">
+            <mat-icon *ngIf="captchaType == 'IMAGE'">volume_up
+            </mat-icon>
+            <mat-icon *ngIf="captchaType == 'SOUND'">image
+            </mat-icon>
+          </button>
+        </div>
+        <mat-form-field>
+          <mat-label> {{'Captcha' | translate}}</mat-label>
+          <input class="captcha" matInput formControlName="userResponse" placeholder="captcha" autocomplete="off"
+            required />
+          <mat-error role="alert" *ngIf="f.userResponse.errors?.required"> {{'CaptchaRequis' | translate}}</mat-error>
+          <mat-error role="alert" *ngIf="f.userResponse.errors?.wrong"> {{'CaptchaIncorrect' | translate}}</mat-error>
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="card-actions">
+      <mat-card-actions>
+        <button mat-raised-button [disabled]="!canSend" class="card-actions-btn" (click)="send()" attr.aria-label="{{'Envoyer' | translate}}">{{'Envoyer' | translate}} </button>
+      </mat-card-actions>
+    </div>
+    <div class="after-field" [innerHTML]="'Formulaire' | translate">
+    </div>
+  </div>
+
+</form>

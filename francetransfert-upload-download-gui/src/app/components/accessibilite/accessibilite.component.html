@@ -1,0 +1,99 @@
+<div class="accessibilite-wrapper">
+    <mat-card class="accessibilite-card">
+        <mat-card-header class="accessibilite-card-header">
+            <h1 #accessibilite>{{'Accessibilité_Titre' | translate}}</h1>
+        </mat-card-header>
+        <h4> {{'Version' | translate}} {{'Accessibilite-Version' | translate}}</h4>
+        <span> {{'Version_Française' | translate}}</span>
+        <mat-card-content class="accessibilite-card-content">
+            <h2 #declarationaccessibilite> {{'Déclaration_Accessibilité_Titre' | translate}}</h2>
+            <p>
+                <span>{{'Déclaration_Accessibilité_Texte1' | translate}}</span>
+                <span> {{'Déclaration_Accessibilité_Texte2' | translate}}
+                    <a rel="noopener noreferrer"
+                        href="https://www.gouvernement.fr/schema-pluriannuel-d-accessibilite-2020-2022-du-service-d-information-du-gouvernement"
+                        target="_blank">
+                        {{'Déclaration_Accessibilité_Lien' | translate}}
+                    </a>.</span>
+                <span [innerHTML]="'Déclaration_Accessibilité_Texte3' | translate"></span>
+            </p>
+            <h2 #etatdeconformite> {{'État_Conformité_Titre' | translate}}</h2>
+            <p>
+              <span [innerHTML]="'État_Conformité_Texte1' | translate">
+                </span>
+            </p>
+            <h3> {{'Résultats_Tests_Titre' | translate}}</h3>
+            <p>
+                <span [innerHTML]="'Résultats_Tests_Texte1' | translate">
+                </span>
+            </p>
+            <ul [innerHTML]="'Résultats_Tests_Liste' | translate">
+            </ul>
+            <h3> {{'Contenus_Inaccessibles_Titre' | translate}}</h3>
+            <p>
+                <span> {{'Contenus_Inaccessibles_Texte' | translate}}
+                </span>
+            </p>
+            <h4> {{'Non_Conformité_Titre' | translate}}</h4>
+            <p>
+                <span> {{'Non_Conformité_Texte' | translate}}
+                </span>
+            </p>
+            <ul [innerHTML]="'Non_Conformité_Liste' | translate">
+            </ul>
+            <h4>{{'Dérogations_Charge_Disproportionnée_Titre' | translate}}</h4>
+            <p>
+                <span> {{'Néant' | translate}}</span>
+            </p>
+            <h4>{{'Contenus_Non_Soumis_Obligation_Accessibilité_Titre' | translate}}</h4>
+            <p>
+                <span>{{'Rizomo_Audit' | translate}}</span>
+            </p>
+            <h3>{{'Établissement_Déclaration_Accessibilité_Titre' | translate}}</h3>
+            <p>
+                <span>{{'Établissement_Déclaration_Accessibilité_Texte' | translate}}</span>
+            </p>
+            <h4>{{'Technologies_Utilisées_Titre' | translate}}</h4>
+            <ul>
+                <li>
+                    <span>Angular;</span>
+                </li>
+                <li>
+                    <span> {{'Angular_Material_UI' | translate}}</span>
+                </li>
+            </ul>
+            <h4> {{'Vérification_Accessibilité_Titre1' | translate}}</h4>
+            <p>
+                <span> {{'Vérification_Accessibilité_Texte' | translate}} </span>
+            </p>
+            <ul [innerHTML]="'Vérification_Accessibilité_Liste1' | translate">
+            </ul>
+            <p>
+                <span> {{'Vérification_Accessibilité_Titre2' | translate}} </span>
+            </p>
+            <ul [innerHTML]="'Vérification_Accessibilité_Liste2' | translate">
+            </ul>
+            <h4> {{'Vérification_Conformité_Titre' | translate}}</h4>
+            <ul [innerHTML]="'Vérification_Conformité_Liste' | translate">
+            </ul>
+            <h2 #retourinformationetcontact> {{'Retour_Information_Contact_Titre' | translate}}</h2>
+            <p>
+                <span> {{'Retour_Information_Contact_Texte' | translate}}
+                </span>
+            </p>
+            <ul>
+                <li><a rel="noopener noreferrer" href="https://francetransfert.numerique.gouv.fr/contact"
+                        target="_blank"> {{'Retour_Information_Contact_Liste' | translate}}</a></li>
+            </ul>
+            <h2 #voiederecours> {{'Voie_Recours_Titre' | translate}} </h2>
+            <p>
+                <span> {{'Voie_Recours_Texte1' | translate}}</span>
+                <span> {{'Voie_Recours_Texte2' | translate}}
+
+                </span>
+            </p>
+            <ul [innerHTML]="'Voie_Recours_Liste' | translate">
+            </ul>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,60 @@
+<mat-toolbar class="footer-toolbar" *ngIf="!isMobile"  id="btmFooter" flex>
+    <mat-toolbar-row class="footer-toolbar-row-bloc-marque">
+        <div class="footer-toolbar-row-bloc-marque-left">
+            <img class="footer-toolbar-row-bloc-marque-left-rep-fr" alt="" aria-hidden="true"
+                src="assets/logos/republique_francaise_logo.svg" />
+        </div>
+        <div class="footer-toolbar-row-bloc-marque-right">
+            <div class="footer-toolbar-row-bloc-marque-right-text">
+                <!-- <p>
+                    Texte optionnel 3 lignes maximum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur et vel quam auctor semper. Cras si amet mollis dolor.
+                </p> -->
+            </div>
+            <nav>
+                <ul class="footer-toolbar-row-bloc-marque-right-links" >
+                    <li>
+                        <a rel="noopener noreferrer" href="https://www.legifrance.gouv.fr/" target="_blank" class="link">legifrance.gouv.fr</a>
+                    </li>
+                    <li>
+                        <a rel="noopener noreferrer" href="https://www.gouvernement.fr/" target="_blank" class="link">gouvernement.fr</a>
+                    </li>
+                    <li>
+                        <a rel="noopener noreferrer" href="https://www.service-public.fr/" target="_blank" class="link">service-public.fr</a>
+                    </li>
+                    <li>
+                        <a rel="noopener noreferrer" href="https://www.data.gouv.fr/" target="_blank" class="link">data.gouv.fr</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </mat-toolbar-row>
+    <mat-toolbar-row class="footer-toolbar-row-mentions">
+        <nav>
+            <ul class="footer-toolbar-row-mentions-links">
+                <li>
+                    <a routerLink="/contact" class="link" (click)="routeTo('/contact')">  {{'Contact' | translate}} </a>
+                </li>
+                <span class="col-separator"></span>
+                <li>
+                    <a routerLink="/accessibilite" class="link" (click)="routeTo('/accessibilite')"> {{'Accessibilité' | translate}}</a>
+                </li>
+                <span class="col-separator"></span>
+                <li>
+                    <a routerLink="/mentions-legales"  (click)="routeTo('/mentions-legales')" class="link">{{'MentionsLégales' | translate}}</a>
+                </li>
+                <!-- <span class="col-separator"></span>
+                <li>
+                    <a routerLink="politique-de-protection-des-donnees"  (click)="routeTo('/politique-de-protection-des-donnees')" class="link">  {{'Politique_Protection_Données' | translate}}</a>
+                </li> -->
+                <span class="col-separator"></span>
+                <li>
+                  <a routerLink="/cgu"  (click)="routeTo('/cgu')" class="link"> {{'ConditionsUtilisation' | translate}}</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="footer-toolbar-row-mentions-text">
+            <span> {{'Licence' | translate}}</span>
+            <span> {{'Version' | translate}} : {{version}}</span>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>

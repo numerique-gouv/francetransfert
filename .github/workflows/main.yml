@@ -1,0 +1,40 @@
+name: Manual trigger
+on: workflow_dispatch
+jobs:
+  getsha:
+    runs-on: ubuntu-latest
+    outputs:
+      shortsha: ${{ steps.short-sha.outputs.sha }}
+    steps:
+      - uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+        with:
+          length: 6
+      - run: echo $SHA
+        env:
+          SHA: ${{ steps.short-sha.outputs.sha }}
+  build-core:
+    uses: ./.github/workflows/core.yml
+    secrets: inherit
+  build-projects:
+    needs: [build-core, getsha]
+    strategy:
+      matrix:
+        project:
+          [
+            francetransfert-download-api,
+            francetransfert-upload-api,
+            francetransfert-worker,
+          ]
+    uses: ./.github/workflows/generic-build.yml
+    secrets: inherit
+    with:
+      project: ${{ matrix.project }}
+      tag: ${{needs.getsha.outputs.shortsha}}
+  build-front:
+    needs: getsha
+    uses: ./.github/workflows/build-front.yml
+    secrets: inherit
+    with:
+      project: francetransfert-upload-download-gui
+      tag: ${{needs.getsha.outputs.shortsha}}

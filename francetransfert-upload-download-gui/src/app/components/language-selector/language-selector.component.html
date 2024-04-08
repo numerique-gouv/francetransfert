@@ -1,0 +1,16 @@
+
+
+<div class="lang-selection">
+  <mat-form-field>
+      <mat-label> {{'ChoixLangue' | translate}}</mat-label>
+      <!-- langue d'affichage des courriels -->
+      <mat-select matNativeControl disableOptionCentering [(value)]="language"   (selectionChange)="selectLanguage($event.value)" class="language-select" >
+          <mat-option *ngFor="let lang of languageList" [value]="lang.value"  [ngClass]="lang.code">
+              <span>{{ lang.label }}</span>
+          </mat-option>
+      </mat-select>
+  </mat-form-field>
+</div>
+
+
+

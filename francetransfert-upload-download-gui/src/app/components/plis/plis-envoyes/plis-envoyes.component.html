@@ -1,0 +1,119 @@
+<div class="plis-envoyes">
+
+  <div *ngIf="!isLoggedIn()">
+    <div class="error-message">{{'Se_connecter' | translate}}</div>
+  </div>
+
+  <div *ngIf="isLoggedIn()">
+    <h4>{{'Liste_Plis' | translate}}</h4>
+
+
+    <div class="container">
+      <mat-form-field>
+        <mat-label>{{'Filtrer' | translate}}</mat-label>
+        <input matInput class="form-field" [formControl]="destinatairesFilter" placeholder="Ex. jean.dupond@domaine.fr">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="space" *ngFor="let type of types">
+        <mat-label>{{type.Type_Pli}}</mat-label>
+        <mat-select [formControl]="expiredFilter">
+          <mat-option *ngFor="let typeVal of type.entities" [value]="typeVal.value">
+            {{typeVal.viewValue}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div>
+      <div *ngIf="loading" class="spinner">
+        <mat-spinner></mat-spinner>
+      </div>
+      <mat-table [dataSource]="dataSource" matSort class="mat-width" attr.aria-label="{{'Liste_Plis' | translate}}" matSort matSortActive="dateEnvoi"
+
+        matSortDirection="desc">
+
+        <!-- Date d'envoi Column -->
+        <ng-container matColumnDef="dateEnvoi" class="padding">
+          <mat-header-cell *matHeaderCellDef> {{'Date_Envoi' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Date_Envoi' | translate}}"> {{element.dateEnvoi |
+            date:
+            'shortDate': '' : translate.currentLang}} </mat-cell>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef> {{'Type' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Type' | translate}}"> {{element.type | translate}}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Objet Column -->
+        <ng-container matColumnDef="objet">
+          <mat-header-cell *matHeaderCellDef class="overflow-clip-header"> {{'Objet' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Objet' | translate}}">
+            <div class="overflow-clip">
+              {{element.objet}}
+            </div>
+          </mat-cell>
+        </ng-container>
+
+
+        <!-- Taille Column -->
+        <ng-container matColumnDef="taille">
+          <mat-header-cell *matHeaderCellDef> {{'Taille' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Taille' | translate}}">{{element.taille}}
+            {{element.typeSize | translate}} </mat-cell>
+        </ng-container>
+
+        <!-- Fin de validité Column -->
+        <ng-container matColumnDef="finValidite">
+          <mat-header-cell *matHeaderCellDef> {{'Fin_Validité' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Fin_Validité' | translate}}"> {{element.finValidite |
+            date:
+            'shortDate': '' : translate.currentLang}} </mat-cell>
+        </ng-container>
+
+        <!-- Destinataires Column -->
+        <ng-container matColumnDef="destinataires">
+          <mat-header-cell *matHeaderCellDef> {{'Liste_Destinataires' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Liste_Destinataires' | translate}}">
+            <div class="overflow-clip">
+              {{element.destinataires}}
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Token Column -->
+        <ng-container matColumnDef="expired">
+          <mat-header-cell *matHeaderCellDef> {{'Action' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let element" attr.data-label="{{'Action' | translate}}">
+            <button class="but" (click)="navigateTo(element.enclosureId)" matTooltip={{element.matTooltip}}>
+              <mat-icon  style="color: black;cursor: pointer;"
+               attr.aria-label={{element.matTooltip}}>{{element.expired}}
+              </mat-icon>
+            </button>
+            <button class="but" (click)="PdfGenerated(element.enclosureId)" matTooltip="{{'Export_PDF' | translate}}">
+              <mat-icon  style="color: black;cursor: pointer;" attr.aria-label="{{'Export_PDF' | translate}}">picture_as_pdf</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+        attr.aria-label="{{'Elément_Récurrent' | translate}}">
+      </mat-paginator>
+    </div>
+
+  </div>
+
+  <mat-card-actions class="admin-card-actions">
+    <button type="button" mat-raised-button class="admin-card-actions-btn" (click)="backToHome()"  attr.aria-label="{{'Accueil' | translate}}">{{'Accueil' | translate}}</button>
+    <button type="button" *ngIf="isLoggedIn()" mat-raised-button class="admin-card-actions-btn" (click)="exportCSV()"  attr.aria-label="{{'Exporter_CSV' | translate}}">{{'Exporter_CSV' |
+      translate}}</button>
+  </mat-card-actions>
+
+
+</div>

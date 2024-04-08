@@ -1,0 +1,753 @@
+{
+  "FAQFranceTransfert": "FAQ France Transfert",
+  "Question1": "Pourquoi France transfert ?",
+  "Question2": "Puis-je me servir de France transfert pour mon usage personnel ?",
+  "Question3": "Deux façons d'utiliser France transfert ?",
+  "Question4": "Puis-je utiliser France transfert sur mobile ?",
+  "Question5": "Pourquoi me demande-t-on un code de confirmation avant de procéder à l’envoi ?",
+  "Question6": "A quoi cela sert-il de « se connecter » ?",
+  "Question7": "Que se passe-t-il après l’envoi de mes fichiers ?",
+  "Question8": "Comment télécharger le pli qui m’est adressé ?",
+  "Question9": "Je me suis trompé dans ma liste de destinataires mais j’ai déjà envoyé mon pli, que faire ?",
+  "Question10": "Combien de fois les destinataires peuvent-ils télécharger les fichiers que j’ai envoyé ?",
+  "Question11": "Que deviennent les fichiers que j’ai transmis une fois qu’ils ont été téléchargés par le destinataire que j’ai indiqué ?",
+  "Question12": "Où vont les fichiers téléchargés ?",
+  "Question13": "Existe-il une limite de taille de transfert de fichiers sur France transfert ?",
+  "Question14": "Quelles extensions de fichiers puis-je envoyer sur France transfert ?",
+  "Question15": "Puis-je utiliser une liste de distribution ?",
+  "Question16": "À quoi sert le questionnaire de satisfaction ?",
+  "Question17": "Où puis-je trouver d’autres informations sur France transfert ?",
+  "Question18": "Existe -t-il un quota pour les envois ?",
+  "Question1_Texte": "<span>France transfert est un service créé par l’Etat pour aider ses usagers (citoyens, professionnels, entreprises, associations…), partenaires ou prestataires à envoyer (aux agents de l’Etat) ou recevoir (des agents de l’Etat), des fichiers et dossiers volumineux qui ne peuvent pas transiter par les messageries électroniques.Il a été conçu et est opéré par le ministère de la Culture, et mis à la disposition de tous les ministères par la direction interministérielle du numérique (DINUM)</span><br><span>C’est un service hébergé en France (société Outscale). Les données sont donc stockées sur des serveurs français le temps qu’elles soient téléchargées par leur destinataire.</span> ",
+  "Question2_Texte": "<span>France transfert est réservé aux échanges de fichiers volumineux entre services de l’administration et ses usagers. Il n’est pas possible d’échanger des fichiers entre usagers.</span>",
+  "Question3_Texte1": "France transfert peut être utilisé de deux façons différentes :",
+  "Question3_Liste": "<li> <span>Pour un envoi courriel, accessible aux agents de l’Etat tout comme aux usagers. Cette fonctionnalité permet à un expéditeur (agent de l’Etat ou usager) de transmettre des fichiers volumineux à un ou plusieurs destinataires connus. Attention toutefois, si l’expéditeur est un usager, le ou les destinataires doivent être obligatoirement des agents de l’Etat. Il n’y pas de transfert entre usagers. </span></li><li> <span>Pour la fonctionnalité « lien », elle n’est autorisée que pour les agents de l’Etat. Elle permet de générer un lien public vers les fichiers. L’expéditeur devra transmettre ce lien avec le mot de passe aux personnes qu’il juge nécessaire. La différence réside dans le fait que les destinataires peuvent ensuite transmettre ce lien sans que l’expéditeur puisse en contrôler le téléchargement.</span> </li>",
+  "Question3_Texte2": "<span>Remarque : si vous souhaitez envoyer un pli vers une boite fonctionnelle (boite de messagerie lue par plusieurs personnes), nous vous déconseillons d’utiliser la  modalité d’envoi courriel. En effet le nombre de téléchargements d’un pli est limité à 5 fois par destinataire. </span>",
+  "Question4_Texte": "Oui le service a été conçu comme une Progressive Web App et peut donc être installé comme une application (le navigateur internet invite l'utilisateur à installer France transfert comme application). ",
+  "Question5_Texte": "<span>Des personnes pourraient utiliser France transfert à des fins personnelles en « empruntant » l’adresse courriel d’un agent de l’Etat ou d’un usager. Pour éviter cela, un courriel contenant un code de confirmation est envoyé à l’expéditeur. Au moment de l’ajout des fichiers à transférer, il est alors demandé de saisir ce code de confirmation, dont la durée de validité est de 20 min. </span><span>Par la suite, si vous vous êtes préalablement connecté et que vous décidez de renvoyer un autre pli moins de 30 min après le précédent pli, on ne vous demandera pas un nouveau code de confirmation.</span>",
+  "Question6_Texte1": "Vous pouvez décider de vous connecter à France transfert avant un envoi de pli ou au moment de l’envoi de votre pli en cliquant sur la case « Rester connecté(e) ».",
+  "Question6_Liste": "<li><span>La connexion consiste à confirmer que vous êtes bien le propriétaire de l’adresse courriel indiquée comme expéditeur du pli : un code de confirmation est envoyé par courriel et vous disposez de 20 min pour le saisir. </span></li> <li> <span> Une fois que vous êtes connecté, il n’est plus nécessaire de saisir votre adresse courriel en tant qu’expéditeur lors d’un nouveau pli. </span> </li> <li> <span>  La connexion est valable 30 min, et reste active tant que vous envoyez un pli dans cet intervalle. Passé ce délai, et sans nouveau pli créé, il faudra de nouveau passer par l’étape de connexion.</span></li>",
+  "Question6_Texte2": "<span>La connexion ne nécessite pas la création d’un compte utilisateur, il s’agit uniquement d’un moyen de vérification via le code de confirmation de votre adresse courriel en tant qu’expéditeur et d’une facilité vous évitant de faire cette vérification à chaque pli. </span> <span>Si vous êtes déjà connecté et que vous souhaitez utiliser une autre adresse courriel en tant qu’expéditeur, il suffit de cliquer sur « Se déconnecter ». Vous pourrez alors passer par le processus de connexion, soit à l’envoi de votre prochain pli, soit en ayant au préalable cliqué sur « Se connecter ».</span><br> <span>Attention toutefois, si vous ouvrez France transfert dans un nouvel onglet ou rafraichissez la page de France transfert, les informations de connexion sont effacées. </span><br> <span>Vous pouvez aussi décider de ne pas vous connecter, dans ce cas vous devrez systématiquement saisir un code de confirmation à chaque envoi de pli. </span>",
+  "Question7_Texte": "<span>Une fois les fichiers envoyés vers France transfert, ils subissent une analyse antivirale qui peut conduire à leur suppression. </span><span>Si l’analyse s’est bien passée, un courriel de confirmation d’envoi est transmis à l’expéditeur ainsi que le mot de passe associé à ce pli. Les destinataires reçoivent un courriel avec un lien de téléchargement et un mot de passe dans un courriel séparé. </span><span>Si l'analyse antivirale prend du temps (pli de grosse volumétrie) alors l'envoi du courriel de confirmation peut tarder à arriver. Dans tous les cas l'expéditeur reçoit un courriel soit d'erreur (si problème de sécurité), soit de confirmation (dans ce cas les destinataires reçoivent eux aussi chacun un courriel avec les instructions de téléchargement).</span>",
+  "Question8_Texte": "<span>Lorsque l’envoi du pli est effectué, un courriel de confirmation d’envoi avec le détail concernant les fichiers qui composent le pli est transmis à l’expéditeur ainsi que le mot de passe associé à ce pli.</span><br> <span>Les destinataires reçoivent un courriel avec un lien de téléchargement et un autre courriel contenant le mot de passe à saisir pour pouvoir télécharger.</span> <br><span>Si jamais France transfert refuse le mot de passe saisi, vérifiez qu’en le copiant collant cela n’ait pas ajouté un espace à la fin du mot de passe (utilisez le pictogramme « œil » pour afficher le mot de passe en clair).</span>",
+  "Question9_Texte1": "Vous vous êtes trompés dans votre liste de destinataires ? Plusieurs possibilités s’offrent à vous depuis la page d’administration du pli (lien d’administration reçu dans le courriel de confirmation d’envoi du pli) et selon vos besoins :",
+  "Question9_Liste": "<li> Supprimer le pli : le pli est intégralement supprimé, plus aucun destinataire ne peut télécharger son contenu désormais.</li><li>Supprimer un ou des destinataires : le lien de téléchargement de ce(s) destinataire(s) est désormais révoqué et ne pourra plus être utilisé désormais pour le téléchargement de vos fichiers.</li><li>Ajouter un destinataire : vous avez la possibilité d’ajouter manuellement un ou plusieurs destinataires au pli. Comme les destinataires originaux, ils recevront un courriel avec le lien d’accès au pli et un courriel avec le mot de passe pour accéder à la page de téléchargement du pli. </li>",
+  "Question9_Texte2": "Dans le cas d’une suppression du pli ou d’un destinataire, pensez bien à en informer vos contacts afin qu’ils ne tentent pas inutilement de télécharger le pli.",
+  "Question10_Texte": "<span>Chaque destinataire dispose d’un lien de téléchargement unique pour accéder au téléchargement du pli. Avec ce lien, chaque destinataire peut télécharger jusqu’à 5 fois le contenu du pli. </span><br><span>Cela permet aux destinataires de récupérer plusieurs fois les fichiers si nécessaire (exemple : si le destinataire les a supprimés de son poste par exemple et qu’il en aurait de nouveau besoin). </span><br><span>Si un destinataire a dépassé cette limite de 5 téléchargements du même pli, il sera nécessaire de lui renvoyer les fichiers via un nouveau pli.  </span><span>Si le destinataire a « verrouillé » son lien de téléchargement en saisissant plus de 5 fois un mauvais mot de passe pour accéder à la page de téléchargement, il devra attendre le lendemain pour tenter de nouveau d’accéder au pli. </span>",
+  "Question11_Texte": "<span>Les fichiers sont supprimés après expiration du délai de validité du pli (par défaut à 30 jours). Il n’y a pas de suppression automatique du pli quand tous les destinataires l’ont téléchargé car un destinataire pourrait avoir besoin de nouveau de télécharger le pli.</span>",
+  "Question12_Texte": "<span>Les fichiers sont téléchargés par votre navigateur. En fonction de son paramétrage, il se peut qu’ils aillent directement dans le dossier « téléchargements » ou bien que la question de l’emplacement vous soit posée.</span>",
+  "Question13_Texte": "<span>France transfert permet d’envoyer jusqu’à 20 Go de fichiers et dossiers par transfert en faisant attention que chacun des fichiers respecte la taille maximale de 2Go.</span>",
+  "Question14_Texte": "<span>Toutes les extensions communes de fichiers sont téléchargeables sur France transfert, sauf, pour des raisons de sécurité, certains fichiers exécutables ou scripts informatiques qui pourraient contenir des virus.</span><span>Liste des extensions de fichiers interdites : </span><span>« ade, a3x, adp, app, appinstaller, applescript, application, appref-ms, appx, appxbundle, asp, aspx, asx, bas, bat, cer, chm, cmd, cnt, com, cpl, crt, csh, daa, der, diagcab, dll, dmg, exe, fxp, gadget, grp, hlp, hpj, hta, htc, img, inf, ins, iso, isp, its, jar, jnlp, js, jse, ksh, lnk, mad, maf, mag, mam, maq, mar, mas, mat, mau, mav, maw, mcf, mda, mdb, mde, mdt, mdw, mdz, msc, msh, msh1, msh1xml, msh2, msh2xml, mshxml, msi, msp, mst, msu, ocx, ops, osd, pcd, pif, pl, plg, ppa, ppam, ppkg, prf, prg, printerexport, ps1, ps1xml, ps2, ps2xml, psc1, psc2, psd1, psdm1, pst, py, pyc, pyo, pyw, pyz, pyzw, reg, scf, scpt, scr, sct, service, settingcontent-ms, shb, shs, so, theme, timer, tmp, url, vb, vbe, vbp, vbs, vhd, vhdx, vsmacros, vsw, webpnp, website, wim, ws, wsc, wsf, wsh, xbap, xlam, xll, xnk »</span><br> <span>Lorsque vous envoyez un fichier, assurez-vous néanmoins que votre destinataire puisse lire vos documents.</span>",
+  "Question15_Texte": "<span>Pour envoyer vos fichiers à plusieurs destinataires différents en une seule opération, il est possible d’importer un fichier de type csv (en respectant le séparateur « ; » entre chaque courriel) comportant la liste des destinataires. Pour ce faire cliquer sur le pictogramme situé à droite du champ « Destinataire(s) ». </span><br> <span>Vous pouvez générer un fichier csv de vos destinataires en cliquant sur le pictogramme situé à droite de vos destinataires. Charge à vous de le stocker puis de le réutiliser pour préremplir automatiquement la liste des destinataires de votre prochain pli. </span>",
+  "Question16_Texte": "<span>Le questionnaire est anonyme. Il sera utilisé à des fins statistiques et d’améliorations. </span><br><span>Si vous remplissez le questionnaire de satisfaction, la note que vous laissez est enregistrée à des fins exclusives de statistiques. Les commentaires éventuellement laissés vous permettent de vous exprimer de manière libre sur le service.</span><br><span>L’équipe produit examinera les commentaires mais ne peut s’engager, ni à y répondre individuellement, ni à mettre en œuvre les suggestions proposées.</span>",
+  "Question17_Texte": "<span>Pour les agents de l’Etat, il y a un salon « France transfert » dans TCHAP qui vous permettra de  suivre les évolutions ou d’échanger avec les autres membres. Vous pouvez vous y abonner. </span><br> <span>Vous pouvez également utiliser le formulaire de contact « Nous contacter » (en bas de page ou dans le menu de la version mobile).</span>",
+  "Question18_Texte": "Il existe un quota de 5 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
+
+  "UploadTitre": "France transfert permet d'envoyer des fichiers volumineux non sensibles de manière sécurisée à un agent de l'Etat ou entre agents.",
+  "Courriel": "Courriel",
+  "Lien": "Lien",
+  "LienFonctionnalité": "Cette fonctionnalité permet de générer un lien à partager. Pratique quand vous n'avez pas toutes les adresses e-mails de vos contacts !",
+  "ModificationOption": "Cliquez ici pour modifier les options de votre transfert (changement du délai de validité, ajout d'un mot de passe, etc.)",
+  "Envoyer": "Envoyer",
+  "PréférencesTransfert": "Préférences du transfert",
+  "Annuler": "Annuler",
+  "Valider": "Valider",
+
+  "ChampsObligatoires": "Les champs marqués d'une * sont obligatoires",
+  "NomTransfert": "Nom de votre transfert",
+  "TooltipNomTransfert": "Personnalisez le nom de votre transfert afin de le rendre plus facilement identifiable.",
+  "ExpéditeurRequis": "Un expéditeur est requis.",
+  "AdresseRequis": "Une adresse courriel valide est requise (JEAN.DUPONT@EMAIL.COM).",
+  "LienRéservé": "le lien est réservé aux agents de l'ETAT, merci d'utiliser la fonctionnalité Courriel",
+  "QotaDépassé": "Le quota quotidien d'envoi de l'expéditeur est dépassé",
+  "Message": "Message :",
+  "CGU": "J'ai pris connaissance des <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>CGU</a> et je n'envoie pas de données sensibles, telles que définies à l'article 4.2, non chiffrées au préalable.",
+
+  "TooltipExpéditeurLien": "l'expéditeur peut être un agent de l'administration française ou un particulier.",
+  "Expéditeur": "Expéditeur",
+  "Destinataire": "Destinataire(s)",
+  "TooltipExpéditeurCourriel": "si l'expéditeur est un agent de l'Etat, le ou les destinataires peuvent être un agent de l'Etat ou un particulier. Si l'expéditeur est un particulier, les destinataires ne peuvent être que des agents de l'Etat.",
+  "PlaceholderDestinataires": "les adresses courriels des destinataires",
+  "DestinataireRequis": "Un destinataire est requis.",
+  "ExpéditeurNécessaire": "Il est nécessaire que l'expéditeur ou que l'ensemble des destinataires soi(en)t un/des agent(s) de l'Etat",
+  "ListeContacts": "Utiliser une liste de contacts",
+  "SupprimerDestinataire": "Supprimer un destinataire",
+  "AdresseCourriel": "Votre adresse courriel",
+  "ExporterListeCSV": "Exporter ma liste de destinataires au format CSV",
+  "Objet": "Objet",
+  "Courriel_Invalide": "Veuillez saisir un courriel valide",
+
+  "TypeFichier": "Le fichier ",
+  "NonAutorisé": " a un type de fichier qui n'est pas autorisé",
+  "FichierNonAutorisé": "Le type de fichier que vous avez essayé d'ajouter n'est pas autorisé",
+  "TailleMaximale": "Le fichier que vous avez essayé d'ajouter a dépassé la taille maximale du pli autorisée (20 Go) ou la taille maximale autorisée par fichier (2 Go)",
+  "TailleMaximalePli": "Un fichier que vous avez essayé d'ajouter a dépassé la taille maximale du pli autorisée (20 Go)",
+  "TailleMaximaleFichier": "Un fichier que vous avez essayé d'ajouter a dépassé la taille maximale autorisée (2 Go)",
+  "AjoutDocument": "Ajoutez vos fichiers et dossiers ",
+  "Dépot": "ou déposez-les ici",
+
+  "ChoixLangue": "Choix de la langue",
+
+  "FAQ": "FAQ",
+  "MeConnecter": "Me connecter",
+  "MeDéconnecter": "Me déconnecter",
+
+  "NomContact": "Votre nom",
+  "PrénomContact": "Votre prénom",
+  "VotreCourriel": "Votre courriel",
+  "AdministrationSociété": "Votre administration / société",
+  "MessageRequis": "Un message est requis.",
+  "CaptchaAudio": "Passer à un captcha audio",
+  "CaptchaVisuel": "Passer à un captcha visuel",
+  "ChangerCaptcha": "Changer le captcha",
+  "Captcha": "Captcha",
+  "CaptchaRequis": "Un captcha est requis.",
+  "CaptchaIncorrect": "Le captcha est incorrect.",
+
+  "CourrielConnect": "Veuillez saisir votre adresse courriel pour utiliser ce service :",
+  "CodeConfrimationEnvoyé": "Un code de confirmation vous sera envoyé par courriel, il vous permettra d'utiliser le service tant que vous ne dépassez pas les 30 minutes d'inactivité. Au-delà un nouveau code de confirmation vous sera envoyé si vous souhaitez envoyer un nouveau pli.",
+  "ACCUEIL": "ACCUEIL",
+  "EnvoyerCode": "ENVOYER CODE",
+  "SaisieCode": "Saisissez le code qui vous a été envoyé pour accéder à France transfert (vérifier votre dossier spam):",
+  "CodeInvalide": "Le code de vérification est invalide.",
+  "NombreEchecs": "Nombre d'échecs : ",
+  "CodeNonDisponible": "Suite à 5 erreurs de validation, le code n'est plus disponible.<br />Merci d'annuler et de demander le renvoi d'un code ",
+  "ErreurTechnique": "Une erreur technique s'est produite.",
+
+  "CréationTransfert": "Création de votre transfert...",
+
+  "ImportationListeContacts": "Importer une liste de contacts",
+  "ImportationListeContactsText": "Vous pouvez importer une liste de contacts depuis un fichier contenant les adresses courriel que vous souhaitez utiliser séparées par un caractère",
+  "Fichier": "Depuis un fichier",
+  "FichierType": "Fichier",
+
+  "MentionsLégales": "Mentions légales",
+  "Éditeur": "Éditeur",
+  "Ministère": "Ministère de la Culture",
+  "Adresse": "182, rue Saint Honoré",
+  "CodePostale_Ville": "75001 Paris",
+  "ResponsablePublication": "Responsable de la publication",
+  "ChefService": "Le chef du Service Numérique du Ministère de la Culture",
+  "Liens": "Liens vers les pages du site",
+  "LiensPagesSite": "<span>Tout site public ou privé est autorisé à établir un lien vers les pages de ce site. Il n'y a pas d'autorisation préalable.</span><br> <span>Les pages de ce site ne devront pas être imbriquées à l'intérieur des pages d'un autre site. Elles devront être affichées dans une nouvelle fenêtre.</span>",
+  "Développement": "Développement",
+  "ACT-ONTECHNOLOGY_Adresse": "ACT-ON TECHNOLOGY : 19 rue d'Orléans 92200 Neuilly sur Seine",
+  "Hébergement": "Hébergement",
+  "OUSTSCAL_Adresse": "OUTSCALE : 1, rue Royale – 319 Bureaux de la Colline 92210 Saint-Cloud",
+
+  "élément": "élément",
+  "éléments": "éléments",
+  "Dossier": "Dossier",
+
+  "Information": "Information",
+  "Fichier_Dossier_DéjàPrésent": "Ce fichier ou ce dossier est déjà présent dans votre pli.",
+
+  "Accessibilité": "Accessibilité : partiellement conforme ",
+  "Politique_Protection_Données": "Politique de protection des données",
+  "ConditionsUtilisation": "Conditions Générales d'Utilisation ",
+  "Licence": "Sauf mention contraire, tous les textes de ce site sont sous licence etalab-2.0 ",
+  "Version": "Version",
+
+  "Terminé": "Terminé !",
+  "MessageAttenteLien": "Encore un peu de patience, votre pli est bien arrivé sur nos serveurs, le temps de l'analyser et vous recevrez ensuite le lien de téléchargement par courriel. Il sera disponible jusqu’au",
+  "EnvoiPli": "Envoyer un nouveau pli ?",
+  "MessageAttente": "Encore un peu de patience, votre pli est bien arrivé sur nos serveurs, le temps de l'analyser et vous recevrez ensuite un courriel de confirmation. Il sera disponible jusqu’au ",
+  "Oups": "Oups",
+  "ErreurTransfertPli": "Une erreur est survenue pendant le transfert de votre pli. Merci de réessayer.<br />Si le problème persiste n'hésitez pas à le remonter via le formulaire de contact ou de satisfaction.",
+  "Accueil": "Accueil",
+
+  "TéléchargementLancé": "Votre téléchargement est lancé",
+  "DossierTéléchargement": "Une fois téléchargés, les documents se trouveront normalement dans votre dossier Téléchargements.",
+  "Nombre_Téléchargements_Dépassé": "Vous avez dépassé le nombre de téléchargements autorisé pour ce pli",
+  "Existence_Pli": "Le pli demandé n'existe pas.",
+  "Pli_Corrompu": "Le pli a été corrompu, merci de voir avec l'expéditeur pour vous le renvoyer.",
+  "Erreur_Récupération_Pli": "Pli inexistant ou supprimé, merci de voir avec l'expéditeur de votre pli.",
+  "Accès_Pli_Sécurisé": "Accès au pli sécurisé !",
+
+  "MessageSuccès": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Succès de l'envoi</p><p>Merci pour votre contribution, votre avis a été pris en compte.</p>",
+
+  "BienPassé": "Tout s’est bien passé ?",
+  "VotreAvis": "Donnez votre avis sur France transfert",
+  "Pas bien": "Pas bien",
+  "Moyen": "Moyen",
+  "Très bien": "Très bien",
+
+  "Vérification Adresse": "Vérifiez votre adresse courriel",
+  "Session Expiré": "Votre session a expiré, un nouveau code de confirmation vous a été envoyé par courriel, il vous permettra de continuer à utiliser le service tant que vous ne dépassez pas les 30 minutes d'inactivité.",
+  "CodeConfirmation1": "Un code de confirmation vous a été envoyé par courriel. Si vous souhaitez rester ",
+  "CodeConfirmation2": "connecté(e)",
+  "CodeConfirmation3": " il vous permettra d'utiliser le service tant que vous ne dépassez pas les 30 minutes d'inactivité. Au-delà un nouveau code de confirmation vous sera envoyé si vous souhaitez envoyer un nouveau pli.",
+  "Saisie_Code_Envoyé": "Saisissez le code qui vous a été envoyé à",
+  "Spam": "(vérifiez votre dossier spam).",
+  "CodeAnnulé": "Suite à 5 erreurs de validation du code votre pli est annulé",
+  "CodeVérification": "Code de vérification",
+  "Saisie_Code_Vérification": "Veuillez entrer votre code de vérification.",
+  "Rester_Connecté": "Rester connecté(e)",
+  "AccèsSécurisé": "Accès au pli sécurisé !",
+  "Mot_Passe_Téléchargement": "La saisie d’un mot de passe est nécessaire pour télécharger ce pli.",
+  "Mot_Passe_Invalide": "Le mot de passe est invalide.",
+  "Mot_de_Passe": "Mot de passe",
+  "Saisie_Mot_passe": "Veuillez entrer le mot de passe.",
+  "Etes_vous_sûr": "Etes-vous sûr ",
+  "AnnulationPli": "Cette action annulera votre pli.",
+  "Poursuivre": "Poursuivre ?",
+  "Continuer": "Continuer",
+  "CGU_Titre": "CGU",
+  "Préambule": "Préambule",
+  "Intro": "<span>Les présentes conditions générales d’utilisation (CGU), valables pour une durée indéterminée, s’appliquent à tout usager du service en ligne : francetransfert.numerique.gouv.fr. Elles sont mises en œuvre conformément à l’article L. 112-8 du code des relations entre le public et l’administration (droit de saisine de l’administration par voie électronique). </span> <span>En cochant la case CGU lors d’un envoi, vous certifiez avoir lu et accepté les conditions générales d’utilisation du service France transfert présentées sur cette page. </span> <span>Une nouvelle acceptation des CGU sera demandée en cas d’extension des services proposés par le service France transfert ayant impliquée une modification des CGU.</span>",
+  "Présentation_Service": "1. Présentation du service",
+  "Présentation_Service_Texte": "<span>France transfert est un service (<b>le Service</b>) créé par l’Etat (<b>l’Etat</b>) pour aider ses usagers (citoyens, professionnels, entreprises, associations…), partenaires ou prestataires à envoyer aux agents de l’Etat ou recevoir de la part des agents de l’Etat, des fichiers et dossiers volumineux qui ne peuvent pas transiter par les messageries électroniques. </span> <br><span>Il a été conçu et est opéré par le ministère de la Culture (le Ministère), et mis à la disposition de tous les ministères par la direction interministérielle du numérique (DINUM). </span><br><span>Dans sa version actuelle le Service ne permet pas de transférer des fichiers ou dossiers numériques d’une taille unitaire supérieure à 2 Go. Une version ultérieure permettra d’augmenter significativement cette taille. </span><br><span>Le Service permet de transférer un ensemble de fichiers ou dossiers volumineux dans une limite de 20 Go dès lors que chaque fichier ou dossier transféré ne dépasse individuellement pas 2 Go. </span><br><span>Le Service n’est pas conçu : </span>",
+  "Présentation_Service_List": "<li><span>pour des démarches effectuées par des mineurs.</span></li> <li><span>pour des démarches nécessitant la collecte de données relevant du I de l’article 6 de la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés (données sensibles).</span></li>",
+  "Service_Mis_A_Disposition": "Le Service est mis à disposition sans autres garanties expresses ou tacites que celles qui sont prévues par les présentes.",
+  "Modalités_Titre": "2. Modalités d’utilisation du Service ",
+  "Inscription_Transmission_Titre": "2.1 Inscription et transmission de fichiers constituant le pli",
+  "Inscription_Transmission_Texte": "<span>Lors de la connexion sur la page du Service, l’usager du Service fournit l’adresse électronique du ou des destinataire(s) du pli. Chaque destinataire du pli reçoit un courriel indiquant l’adresse électronique de l’émetteur, le nom et la taille du ou des fichiers transmis et la date limite de téléchargement avant suppression du/des fichier(s) du pli ainsi que le mot de passe pour télécharger le(s) fichier(s) du pli dans un courriel à part. L’usager du Service fournit également une adresse électronique valide, à laquelle sera envoyé un courriel confirmant la transmission du pli au(x) destinataire(s). </span> <span>Ce courriel indique l’adresse électronique du destinataire ou des destinataires, le nom et la taille de chaque fichier transmis et la date limite de téléchargement avant suppression des fichiers du pli (le pli est alors archivé).</span> <span>L’utilisation du Service est libre et facultative.</span>",
+  "Données_Sensibles_Titre": "4.2 Données sensibles",
+  "Données_Sensibles_Texte": "<span>Le Service n’est actuellement pas prévu pour l’envoi de données sensibles. Par données sensibles, on entend :</span>",
+
+  "Données_Sensibles_Liste": "<li>La catégorie particulière de données à caractère personnel définie par la réglementation sur la protection des données personnelles. Il s’agit des informations qui révèlent la prétendue origine raciale ou ethnique, les opinions politiques, les convictions religieuses ou philosophiques ou l'appartenance syndicale, ainsi que le traitement des données génétiques, des données biométriques aux fins d'identifier une personne physique de manière unique, des données concernant la santé ou des données concernant la vie sexuelle ou l'orientation sexuelle d'une personne physique.</li> <li>Des données confidentielles ou secrètes (dont la diffusion est censée être limitée à un nombre restreint de personnes identifiées) que le Ministère n’a pas vocation à recueillir dans le cadre de ses missions via cet outil.</b></li>",
+  "Données_Sensibles_Texte2": "Si l’expéditeur souhaite malgré tout envoyer des données sensibles et ce, en conformité avec la réglementation applicable, via le Service, il doit s’assurer de les avoir chiffrées au préalable (via un ",
+  "Données_Sensibles_Texte3": "<span>Si un destinataire du Service constate que des données sensibles ont été transmises sans avoir été chiffrées par l’expéditeur, il peut faire un signalement en utilisant le formulaire de contact en veillant bien à fournir le lien de téléchargement du fichier ou dossier et le mot de passe associé. Le Ministère engagera alors une procédure de mise sous séquestre du pli concerné et procédera à une vérification puis prendra les mesures nécessaires qui s’imposent.</span>",
+
+  "Données_Techniques_Titre": "3. Données techniques",
+  "Généralités_Titre": "3.1 Généralités ",
+  "Généralités_Texte": "L'utilisation du Service requiert une connexion et un navigateur internet.",
+  "Utilisation_Cookies_Titre": "3.2 Utilisation de cookies ",
+  "Utilisation_Cookies_Texte": "Le Service n'utilise pas de cookies. ",
+  "Plateformes_Outils_Titre": "3.3 Plateformes et outils",
+  "Plateformes_Outils_Texte": "Technologies utilisées ",
+  "Plateformes_Outils_List": "<li>Angular</li> <li>Angular Material UI</li>",
+  "Traitement_Données_Titre": "4. Traitement des données à caractère personnel",
+  "Traitement_Données_Texte": "<span>Le Ministère est responsable des traitements opérés sur les données reçues dans le cadre du Service et, à ce titre, respecte les obligations inhérentes à ce traitement, notamment celles prévues par la loi n° 78-17 du 6 janvier 1978 relative à l’informatique, aux fichiers et aux libertés et par le règlement (UE) 2016/679 du Parlement européen et du Conseil du 27 avril 2016, relatif à la protection des personnes physiques à l'égard du traitement des données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive 95/46/CE (règlement général sur la protection des données ou RGPD). </span><br> <span>Le Ministère s’engage à ne pas commercialiser les données reçues, à ne pas les communiquer à des tiers en dehors des cas prévus par la loi et à effectuer toutes formalités préalables obligatoires auprès de la Commission Nationale de l’Informatique et des Libertés. </span><br> <span>Le Ministère garantit aux usagers du Service les droits d'accès, de rectification, d’effacement, d’opposition, d’un droit à la portabilité des informations qui le concernent ainsi qu’à la limitation des traitements prévus par la loi n° 78-17 du 6 janvier 1978 relative à l'informatique aux fichiers et aux libertés qui s’exercent auprès du Délégué à la protection des données par courrier électronique à l’adresse suivante : delegue-protection-donnees@culture.gouv.fr ou par courrier postal à l’adresse suivante, Délégué ministériel à la protection des données – 182 rue Saint-Honoré – 75033 Paris Cedex 01, en justifiant de votre identité par tout moyen. </span><br> <span>Le Ministère s’engage à n’opérer aucune commercialisation des informations et documents transmis par l’usager au moyen du Service et à ne pas les communiquer à des tiers, en dehors des cas prévus par la loi.</span><br> <span>Le Ministère s'engage à prendre toutes précautions utiles pour préserver la sécurité et la confidentialité des données transmises par l'usager, et notamment empêcher qu'elles soient déformées, endommagées ou que des tiers non autorisés y aient accès.</span>",
+  "Démarches_Publiées_Titre": "5. Lieu de stockage et durée de conservation des données des démarches publiées sur le Service",
+  "Démarches_Publiées_Texte": "<span>Le Service est hébergé sur un cloud souverain (Outscale). Les fichiers ou dossiers sont donc stockés sur des serveurs français le temps qu’ils soient téléchargés par leur(s) destinataire(s). </span><br> <span>Les fichiers ou dossiers transmis dans le cadre du Service sont détruits :</span>",
+  "Démarches_Publiées_List": "<li>Soit à la demande de l’expéditeur du transfert via le lien d’administration du pli qu’il a reçu.</li> <li>Soit automatiquement à la date d’expiration fournie par l’expéditeur du transfert.</li><li>Soit, à défaut de précision de la part de l’expéditeur, automatiquement au bout de 30 jours.</li>",
+  "Engagements_Responsabilité_Titre": "6. Engagements et responsabilité ",
+  "Engagements_Ministère_Titre": "6.1 Engagements du Ministère",
+  "Engagements_Ministère_Texte": "<span>La responsabilité du Ministère ne peut être recherchée en cas d'interruption du service, quelles que soient les conséquences qui pourraient en découler. L'indisponibilité du service ne donne droit à aucune indemnité.</span>",
+  "Engagements_Responsabilité_Usager_Titre": "6.2 Engagements et responsabilité de l’usager",
+  "Engagements_Responsabilité_Usager_Texte": "<span>L’usager s’engage à respecter les présentes conditions générales d’utilisation et la législation en vigueur. Il s’engage notamment à ne fournir, dans le cadre de l'utilisation du Service, que des informations exactes, à jour et complètes. </span><br><span>L’usager du Service s’engage à en faire un usage raisonné et à l’utiliser à des fins administratives et non personnelles. </span><br> <span>L’usager est seul responsable de son utilisation des moyens techniques mis à disposition dans le cadre du Service et des fichiers transférés par ses soins, dans le respect des lois et règlements en vigueur et des présentes conditions générales d’utilisation. </span><br> <span>L’usager s’engage à ne pas user du Service pour transférer des contenus illicites. Si un usager constate le transfert d’un contenu illicite, il lui est possible de le signaler via le formulaire « Nous contacter ». Le Ministère engagera alors une procédure de mise sous séquestre du pli concerné et procédera à une vérification puis prendra les mesures nécessaires qui s’imposent (signalement au Procureur de la République). </span><br> <span>L’usager s'engage à ne transmettre, via le Service, que des informations exactes, à jour et complètes. Dans l'hypothèse où l'usager ne s'acquitterait pas de cet engagement, le Ministère se réserve le droit de suspendre ou résilier la démarche administrative, sans préjudice des éventuelles actions en responsabilité pénale et civile qui pourraient être engagées à son encontre. </span><br> <span>Il est rappelé que toute personne procédant à une fausse déclaration pour elle-même ou pour autrui s'expose, notamment, aux sanctions prévues à l'article 441-1 du Code Pénal, prévoyant des peines pouvant aller jusqu'à trois ans d'emprisonnement et 45 000 euros d'amende.</span>",
+  "Modification_Evolution_Qualité_Titre": "7. Modification, évolution et qualité du service",
+  "Modification_Evolution_Qualité_Texte": "<span>Le Ministère se réserve la liberté de faire évoluer, de modifier ou de suspendre, sans préavis, le service pour des raisons de maintenance ou pour tout autre motif jugé nécessaire. </span><br> <span>Les termes des présentes conditions d'utilisation peuvent être amendés à tout moment, sans préavis, en fonction des modifications apportées au Service, de l'évolution de la législation ou pour tout autre motif jugé nécessaire.</span>",
+  "Sécurité_Titre": "8. Sécurité",
+  "Sécurité_Texte": "<span>Les données envoyées par France transfert font l’objet d’une analyse antivirale. Elles peuvent être protégées dans une archive zip avec mot de passe défini par l’usager. France transfert a fait l’objet d’une étude de sécurité EBIOS RM et de test d’intrusion début 2021, ainsi que d’un audit de code et de configuration en octobre 2021.  </span><br> <span>Le service France transfert a fait l'objet d'une homologation sécurité sous l'autorité de la DINUM le 15/12/2021.</span><br> <span>Le Ministère prend toutes précautions et mesures utiles pour préserver la sécurité des données à caractère personnel et, notamment, empêcher qu’elles soient déformées ou endommagées ou que des tiers non autorisés y aient accès. </span><br> <span>Toute question à propos de la sécurité du Service peut être adressée à l’adresse de contact défini à l’article 9.</span>",
+  "Contact_Titre": "9. Contact",
+  "Contact_Texte": "<span>Le service Contact est la direction interministérielle du numérique.</span><br> <span>Il est accessible via le lien « Nous contacter ».</span><br> <span>Pour les agents de l’Etat, vous pouvez rejoindre le salon tchap : France transfert si vous le souhaitez. Vous y trouverez des informations sur les futures évolutions et échanger avec d’autres agents sur le service. </span>",
+
+  "Politique_Protection_Données_Titre": "Politique de protection des données",
+  "Droits_Personnes_Titre": "Droits des personnes ",
+  "Droits_Personnes_Texte": "<span>Une donnée à caractère personnel est définie de la manière suivante : toute information relative à une personne physique susceptible d'être identifiée, directement ou indirectement. Sont ainsi considérées comme données à caractère personnel, les adresses courriel personnelles et professionnelles, ainsi que les adresses IP. </span><br> <span>Le service France transfert se conforme dans la collecte et la gestion de vos données à caractère personnel à la loi du 6 janvier 1978 relative à l’informatique, aux fichiers et aux libertés, dite « Informatique et Libertés », et au règlement général sur la protection des données du 27 avril 2016 (dit « RGPD »).</span>",
+  "Droits_Personnes_Liste": "<li><span>Les données à caractère personnel qui vous sont demandées sont nécessaires pour accéder au service France transfert. Elles sont destinées au Ministère de la culture (Service du numérique) en sa qualité de responsable de traitement. La base légale du traitement est l’intérêt légitime.</span></li> <li><span>Elles seront communiquées pour ces mêmes finalités aux personnes du Ministère de la culture maintenant en condition opérationnelle le service France transfert.</span></li>  <li><span>Les données à caractère personnel sont enregistrées et conservées dans les conditions décrites ci-après :</span> <ul><li><span>dans la base de données de l'application : la durée de vie du pli (30 jours par défaut, jusqu'à 90 jours selon le choix de l'expéditeur);</span></li><li> <span>dans les logs de l'application : jusqu'à 12 mois (pour analyse d'un éventuel dysfonctionnement).</span></li></ul></li><li> <span>Le Ministère de la culture s’engage à prendre toutes les mesures nécessaires pour garantir la sécurité et la confidentialité de vos données, dans le respect du cadre légal. Il s’engage en outre à n’opérer aucune commercialisation des informations que vous transmettez et à ne pas les communiquer à des tiers, en dehors des cas prévus par la loi. </span></li><li><span> En application de la Règlementation « Informatique et Libertés », vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation du traitement et du droit de définir le sort de vos données après votre décès, qui s’exercent auprès du Délégué à la protection des données, en justifiant de votre identité par tout moyen : </span>  <ul><li><span>par courrier électronique à l’adresse suivante : <a href='mailto:delegue-protection-donnees@culture.gouv.fr'>delegue-protection-donnees@culture.gouv.fr</a></span></li><li><span>ou par courrier postal à l’adresse suivante :</span><p><span>Ministère de la culture</span><br> <span>A l’attention de Monsieur le Délégué à la protection des données</span><br> <span>182, rue Saint-Honoré</span><br> <span>75033 Paris cedex 01</span></p></li></ul></li> <li><span>Si vous estimez, après nous avoir contactés, que vos droits « Informatique et Libertés » ne sont pas respectés, vous avez le droit d’introduire une réclamation auprès de la Commission Nationale de l’Informatique et des Libertés (CNIL), autorité de contrôle en charge du respect des obligations en matière de données à caractère personnel.</span></li>",
+
+  "Accessibilité_Titre": "Accessibilité",
+  "Déclaration_Accessibilité_Titre": "Déclaration d’accessibilité",
+  "Déclaration_Accessibilité_Texte1": "Le ministère de la culture s’engage à rendre ses sites internet, intranet, extranet accessibles conformément à l’article 47 de la loi n° 2005-102 du 11 février 2005.",
+  "Déclaration_Accessibilité_Texte2": "A cette fin, il met en œuvre la stratégie et les actions suivantes : ",
+  "Déclaration_Accessibilité_Lien": "schéma pluriannuel d'accessibilité du gouvernement",
+  "Déclaration_Accessibilité_Texte3": "Cette déclaration d’accessibilité s’applique au site  <a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/'target='blank'>France transfert</a>.",
+  "État_Conformité_Titre": "État de conformité",
+  "État_Conformité_Texte1": "Le site <a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/'target='blank'>France transfert</a> n’est pas en conformité avec le référentiel général d’amélioration de l’accessibilité  <a rel='noopener noreferrer' href='https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#contenu'target='blank'>RGAA version 4.1</a>. Les non-conformités et les éventuelles dérogations sont énumérées ci-dessous.",
+  "Résultats_Tests_Titre": "Résultats des tests",
+  "Résultats_Tests_Texte1": "L’audit de conformité réalisé par la société <a rel='noopener noreferrer' href='https://empreintedigitale.fr/' target='_blank'>Empreinte Digitale</a> révèle que :",
+  "Résultats_Tests_Liste": "<li><span>92,31% des critères RGAA sont respectés.</span></li><li><span>Le taux moyen de conformité du service en ligne s’élève à 98% (information facultative).</span></li>",
+  "Contenus_Inaccessibles_Titre": "Contenus inaccessibles",
+  "Contenus_Inaccessibles_Texte": "Les contenus listés ci-dessous ne sont pas accessibles pour les raisons suivantes.",
+  "Non_Conformité_Titre": "Non conformité",
+  "Non_Conformité_Texte": "Ne sont listées ici que les non-conformités jugées les plus impactantes et présentes en quantités importantes dans les pages de l’échantillon. Sur demande, le résultat complet de l’audit peut être mis à disposition.",
+  "Non_Conformité_Liste": "<li><span>Utilisation de balises < div > pour structurer les blocs de texte</span></li><li><span>Le calendrier n’est pas compatible avec les technologies d’assistance</span></li><li><span>Certains boutons n’ont pas d’intitulé</span></li><li><span>Lien d’accès rapide non pertinent</span></li>",
+  "Dérogations_Charge_Disproportionnée_Titre": "Dérogations pour charge disproportionnée",
+  "Néant": "Néant",
+  "Rizomo_Audit":"L’outil Rizomo n’a pas fait partie du périmètre d’audit.",
+  "Contenus_Non_Soumis_Obligation_Accessibilité_Titre": "Contenus non soumis à l’obligation d’accessibilité",
+  "Établissement_Déclaration_Accessibilité_Titre": "Établissement de cette déclaration d’accessibilité",
+  "Établissement_Déclaration_Accessibilité_Texte": "Cette déclaration a été établie le 28 avril 2023.",
+  "Technologies_Utilisées_Titre": "Technologies utilisées pour la réalisation [Du site web / De l’application mobile / Du service…] ",
+  "Angular_Material_UI": "Angular Material UI.",
+  "Vérification_Accessibilité_Titre1": "Agents utilisateurs, technologies d’assistance et outils utilisés pour vérifier l’accessibilité",
+  "Vérification_Accessibilité_Texte": "Les vérifications de restitution de contenus ont été réalisées avec les configurations suivantes :",
+  "Vérification_Accessibilité_Liste1": "<li><span>Firefox et NVDA ;</span></li><li><span>Safari et VoiceOver;</span></li><li><span>Firefox et Jaws.</span></li>",
+  "Vérification_Accessibilité_Titre2": "Les outils de vérification du code suivants ont été utilisés afin de vérifier la conformité aux tests du RGAA :",
+  "Vérification_Accessibilité_Liste2": "<li><span>Colour Contrast Analyser ;</span></li><li><span>Extension « Web Developer » ;</span></li><li><span>Extension « Assistant RGAA » ;</span></li><li><span>Extension « WCAG Contrast checker » ;</span></li><li><span>Extension « ARC Toolkit » ;</span></li><li><span>Extension « HeadingsMap » ;</span></li><li><span>Outils pour développeurs intégrés au navigateur Firefox ;</span> </li><li> <span>Validateur HTML du W3C.</span></li>",
+  "Vérification_Conformité_Titre": "Pages du site ayant fait l’objet de la vérification de conformité",
+  "Vérification_Conformité_Liste": "<li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/upload' target='_blank'>Page d’accueil</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/faq' target='_blank'>Page FAQ</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/connect' target='_blank'>Page de Connexion</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/plis' target='_blank'>Page Mes Plis</a></li><li>Page détail d’un plis émis</li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/contact' target='_blank'>Page Nous contacter</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/accessibilite' target='_blank'>Page Accessibilité</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/mentions-legales' target='_blank'>Page Mentions légales</a></li><li>Écran de vérification de mot de passe</li><li>Page de résultat d’un envoi</li>",
+
+  "Retour_Information_Contact_Titre": "Retour d'information et contact",
+  "Retour_Information_Contact_Texte": "Si vous n’arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable du site internet pour être orienté vers une alternative accessible ou obtenir le contenu sous une autre forme.",
+  "Retour_Information_Contact_Liste": "Envoyer un message",
+  "Voie_Recours_Titre": "Voie de recours",
+  "Voie_Recours_Texte1": "Cette procédure est à utiliser dans le cas suivant",
+  "Voie_Recours_Texte2": "Vous avez signalé au responsable du site internet un défaut d’accessibilité qui vous empêche d’accéder à un contenu ou à un des services du portail et vous n’avez pas obtenu de réponse satisfaisante.",
+  "Voie_Recours_Liste": "<li><span>Écrire un message au Défenseur des droits (<a rel='noopener noreferrer' href='https://formulaire.defenseurdesdroits.fr/defenseur/code/afficher.php?ETAPE=informations' target='_blank'>via le formulaire de contact</a>) ;</span></li><li><a rel='noopener noreferrer' href='https://www.defenseurdesdroits.fr/saisir/delegues' target='_blank'>Contacter le délégué du Défenseur des droits dans votre région</a> ;</li><li><span>Envoyer un courrier par la poste (gratuit, ne pas mettre de timbre) Défenseur des droits Libre réponse 71120 75342 Paris CEDEX 07 ;</span></li><li><span>Contacter le Défenseur des droits par téléphone : 09 69 39 00 00.</span></li>",
+
+  "Etes_Vous_Sûr": "Etes-vous sûr ?",
+  "Suppression_Pli": "Cette action supprimera définitivement votre pli et le rendra inaccessible.",
+  "Archivage_Pli": "Cette action archivera votre pli et rendra impossible tout téléchargement.",
+  "Supprimer": "Supprimer",
+  "Archiver": "Archiver",
+  "Archiver_pli": "Archiver le pli",
+  "Téléchargement_Pli": "Téléchargements du pli",
+  "Suppression_Destinataire": "Êtes vous sûr(e) de vouloir supprimer ce destinataire ?",
+  "Lien_Téléchargement": "Son lien de téléchargement reçu par courriel ne permettra plus de télécharger le pli.",
+
+  "Destinataire_Ajouté": "Le destinataire a bien été ajouté",
+  "Courriel_Envoyé": "Un courriel lui a été envoyé pour lui permettre de télécharger le pli.",
+
+  "Administration": "Administration du pli",
+  "Informations_Pli": "Informations du pli",
+  "Nombre_Téléchargements": "Nombre de téléchargements : ",
+  "Emetteur": "Emetteur :",
+  "Message_Admin": "Message : ",
+  "Date_Emission": "Date d'émission : ",
+  "Date_Fin_Validité": "Date de fin de validité : ",
+  "Modification_Date_Fin_Validité": "Modifier la date de fin de validité",
+  "Suppression_Pli_Admin": "Supprimer le pli : ",
+  "Destinataires": "Les destinataires : ",
+  "Courriel_Destinataire": "Courriel du destinataire",
+  "Supprimer_Destinataire": "Supprimer le destinataire",
+  "Éléments_Pli": "Éléments du pli",
+
+  "Message_Connect": "Vous pouvez désormais utiliser France transfert pendant au moins 30min.",
+
+  "Message_Contact": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Succès de l&#39;envoi</p><p>Merci pour votre message. Nous reviendrons vers vous dans les plus brefs délais.</p>",
+
+  "Prêt_Partez": "Prêt ? Partez !",
+  "Jours_Restants1": "Il vous reste ",
+  "Jours_Restants2": " jours pour télécharger le transfert.",
+  "Acceptation_CGU": "<p class= 'align-text'> J'ai pris connaissance des   <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>CGU</a>.</p>",
+
+  "Télécharger": "Télécharger",
+
+  "Ajouter_Ecran_Accueil": "Ajouter à l'écran d'accueil",
+  "Fermer": "Fermer",
+  "Installation_Application": "Pour installer cette application Web sur votre appareil, appuyez sur le bouton Menu, puis sur le bouton « Ajouter à l'écran d'accueil »",
+
+  "Mise_A_Jour_Disponible": "Mise à jour disponible ",
+  "Nouvelle_Version_Disponible": "Une nouvelle version de l'application est disponible.",
+  "Mettre_A_Jour": "Mettre à jour ?",
+  "Non": "Non",
+  "Oui": "Oui",
+
+  "Délai_Validité": "Délai de validité ",
+  "Nombres_Caractères": "12 caractères minimum - 64 caractères maximum",
+  "Nombres_Lettres_Minuscules": "Au moins 3 lettres minuscules (a-z non accentué)",
+  "Nombres_Lettres_Majuscules": "Au moins 3 lettres majuscules (A-Z non accentué)",
+  "Nombres_chiffres": "Au moins 3 chiffres",
+  "Nombres_Caractères_Spéciaux": "Au moins 3 caractères spéciaux (!@#$%^&*()_-:+)",
+  "Langue_Affichage_Courriels": "Langue d'affichage des courriels",
+  "Zip_Mot_Passe": "Protéger l'archive Zip de mon pli par mot de passe",
+
+  "Ajout_Destinataire": "Ajouter un destinataire",
+  "Terminer": "Terminer",
+  "Ouvrir_Menu": "Ouvrir le menu",
+  "Retour_Accueil": "Retour à l'accueil",
+  "Valide": "Valide",
+  "Erreur": "Erreur",
+  "Fermer_Menu": "Fermer le menu",
+  "Supprimer_Fichier": "Supprimer le fichier",
+  "Ajout_Fichiers": "Ajoutez vos fichiers",
+  "Afficher_Liste": "Afficher la liste",
+  "Masquer_Liste": "Masquer la liste",
+  "Envoyer_Code": "Envoyer code",
+
+  "Mon_Compte": "Mon compte",
+  "Mes_Plis": "Mes plis",
+  "Mes_Plis_Envoyés": "Mes plis émis",
+  "Mes_Plis_Reçus": "Mes plis reçus",
+
+  "ITEMS_PER_PAGE": "Plis par page",
+  "NEXT_PAGE": "Page suivante",
+  "PREVIOUS_PAGE": "Page précédente",
+  "FIRST_PAGE": "Première page",
+  "LAST_PAGE": "Dernière page",
+  "OF_LABEL": "sur",
+
+  "Filtrer": "Filtrer",
+  "Rechercher": "Rechercher",
+  "Liste_Plis": "Liste des plis que j’ai envoyés ",
+  "Se_connecter": "Vous avez été déconnecté(e). Merci de vous connecter de nouveau pour accéder à vos plis.",
+  "Date_Envoi": "Date d'envoi",
+  "Type": "Type",
+  "Taille": "Taille",
+  "Fin_Validité": "Fin de validité",
+  "Liste_Destinataires": "Destinataires",
+  "Elément_Récurrent": "Sélectionner la page de l'élément récurrent",
+
+  "Version2": "version ",
+  "Version_Française": " La version française de cette page fait foi en cas d'écart avec la version de cette page dans une autre langue.",
+  "Information_Personnes_Titre": "4.1 Information des personnes",
+  "Information_Personnes_Texte": "<span>Le ministère de la Culture, responsable du traitement, met en œuvre un traitement de données à caractère personnel vous concernant pour assurer la fourniture du Service France Transfert.</span><br><br><span>Les données collectées sont indispensables à ce traitement et sont destinées aux Directions du ministère de la Culture, ainsi qu’à ses éventuels sous-traitants.</span><br><br><span>La base juridique du traitement est l’exécution d’une mission d’intérêt public.</span><br><br><span>Le ministère de la Culture s’engage à n’opérer aucune commercialisation des informations et documents transmis par l’usager au moyen du Service et à ne pas les communiquer à des tiers, en dehors des cas prévus par la loi.</span><br><br><span>Les données collectées sont conservées pendant les durées suivantes :</span><br>",
+  "Information_Personnes_Liste": "<li>adresses courriels : 12mois ;</li> <li>logs : 12 mois</li>",
+  "Information_Personnes_Second_Texte": "<span>En application de la réglementation en vigueur, vous disposez d’un droit d’accès, de rectification ou d’effacement, de limitation du traitement de vos données, d’un droit d’opposition ainsi que du droit de définir des directives relatives au sort de vos données après votre décès, qui s’exercent par courrier électronique à delegue-protection-donnees@culture.gouv.fr ou par courrier postal, en justifiant de votre identité par tout moyen, à l’adresse suivante : </span><br><br><span>Ministère de la Culture </span><br><span>À l'attention de Monsieur le Délégué à la protection des données </span><br><span>182, rue Saint Honoré </span><br><span>75001 Paris </span><br><br><span>Vous pouvez contacter le Délégué à la protection des données personnelles désigné par le ministère de la Culture à l’adresse suivante : delegue-protection-donnees@culture.gouv.fr</span><br><br><span>Vous disposez enfin du droit d'introduire une réclamation auprès de la Commission Nationale de l’Informatique et des Libertés (CNIL), autorité de contrôle en charge du respect des obligations en matière de données à caractère personnel.</span><br>",
+
+  "Liste_Plis_Reçus": "Liste des plis que j’ai reçus​",
+  "Date_Réception": "Date de réception",
+  "expediteur": "Expéditeur",
+  "Nombres_Caractères_Spéciaux_Forbidden": "Aucun caractère spécial non supporté",
+  "Téléchargement": " téléchargement(s)",
+
+  "Contact": "Nous contacter",
+  "Question1Image": "<img mat-card-image alt='' src='assets/images/FT_France Transfert_V2.png' />",
+  "Question2Image": "<img   alt='' src='assets/images/FT_Envoyer des dossiers ou des fichiers_V2.png' />",
+  "Question6Image": "<img alt='' src='assets/images/FT_Être connecté à France Transfert V3.png' />",
+  "Question8Image": "<img  alt='' src='assets/images/FT_Telecharger un pli_V2.png' />",
+  "Question15Image": "<img  alt='' src='assets/images/FT_Utiliser une liste de diffusion_V2.png' />",
+  "Formulaire": "<span>Le ministère de la Culture, responsable du traitement, met en œuvre un traitement de données à caractère personnel vous concernant pour assurer la fourniture du service France Transfert. Pour en savoir plus sur vos droits, veuillez consulter les dispositions sur les données personnelles de nos <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'> conditions générales d’utilisation</a>.</span>",
+
+  "GB": "Go",
+  "MB": "Mo",
+  "KB": "Ko",
+  "bytes": "Octets",
+  "Download_Success": "Les courriels ont bien été envoyés au destinataire.",
+  "Renvoyer_pli": "Vous allez envoyer de nouveau un courriel avec le lien de téléchargement et un courriel avec le mot de passe d'accès au pli.",
+  "Poursuivre_pli": "Voulez-vous poursuivre ?",
+
+  "catégorie1": "Généralités",
+  "catégorie2": "Mon compte / Se connecter",
+  "catégorie3": "Envoyer un pli",
+  "catégorie4": "Télécharger un pli",
+  "catégorie5": "Administrer un pli",
+  "catégorie6": "Informations et retours utilisateurs",
+  "Question19": "A quoi sert la pastille ronde « sac à dos » en bas à droite de France transfert ?",
+  "Question19_Texte": "<span>Cette pastille est l’outil Rizomo utilisable par les agents de l’Etat.</span><span> Si son emplacement vous dérange, vous avez la possibilité de la déplacer ailleurs dans l’écran. </span><br><span>Rizomo permet aux agents de l’Etat d’avoir un raccourci vers les applications collaboratives interministérielles et prochainement, aux applications de leur organisation. </span><span>Pour accéder à Rizomo il suffit de cliquer sur la pastille « sac à dos ».</span>",
+  "Question20": "Comment retrouver facilement mes plis envoyés et reçus ? ",
+  "Question20_Texte": "<span>Une fois connecté(e) vous pouvez cliquer sur « Mon compte » puis « Mes plis » depuis l’entête de la page France transfert ou depuis le menu de l’application en version mobile. </span><br><span>Sur la page « Mes plis », vous avez ainsi accès :</span>",
+  "Question20_Liste": "<li>Au récapitulatif des plis que vous avez émis<ul><li>En cliquant sur le pictogramme en fin de ligne (colonne « Action »), vous pouvez accéder facilement à la page d’administration de votre pli (si le pli est actif) ou à la page de consultation du pli (si le pli est archivé).</li></ul><li>Au récapitulatif des plis que vous avez reçus<ul><li>En cliquant sur le pictogramme en fin de ligne (colonne « Action »), vous pouvez accéder à la page de téléchargement du pli (si le pli est actif) en vous munissant au préalable du mot de passe associé au pli que vous aviez reçu par courriel, ou à la page de consultation du pli (si le pli est archivé). </li></ul></li>",
+  "Question21": "Quelles informations de suivi des téléchargements je dispose ?",
+  "Question21_Texte1": "<span>En tant qu’expéditeur d’un pli, vous êtes informé(e) des téléchargements effectués par les destinataires de votre pli :</span>",
+  "Question21_Liste": "<li>Par courriel chaque jour où au moins un téléchargement a lieu.</li><li>Sur la page d’administration / consultation de votre pli : le nombre et les dates de téléchargements sont indiqués.</li>",
+  "Question21_Texte2": "<span>Si votre pli a été créé par « lien » (donc sans aucun destinataire renseigné dans France transfert), sur la page d’administration du pli vous disposez uniquement du nombre de téléchargements effectués.</span><span>Vous pouvez également retrouver ces informations dans l’export PDF qui est disponible sur la page d’administration / consultation de votre pli ou depuis le tableau des plis émis.</span>",
+  "Question22": "Un des destinataires se plaint de ne pas avoir reçu le courriel de France transfert ?",
+  "Question22_Texte1": "<span>Au moment de l’envoi d’un pli par « courriel », nous vous rappelons que France transfert émet 2 courriels à chaque destinataire : </span>",
+  "Question22_Liste": "<li>Un courriel comprenant un lien de téléchargement spécifique au destinataire.</li><li>Un courriel comprenant le mot de passe d’accès au pli (identique pour tous les destinataires, et fourni également par courriel à l’expéditeur).</li>",
+  "Question22_Texte2": "<span>Si un des destinataires de votre pli n’a reçu qu’un seul ou aucun de ces 2 courriels, vous avez la possibilité, sur la page d’administration de votre pli, de faire une réémission de ces 2 courriels en cliquant sur le pictogramme « enveloppe » pour le destinataire concerné. </span>",
+  "Question32": "",
+  "Dates-telechargement": "Dates de téléchargement :",
+  "time": "à",
+  "téléchargement-pli": "Télécharger le pli",
+  "Dupliquer-destinataires": "Dupliquer les destinataires",
+
+  "CGU-Version": "3.8.0",
+  "Faq-Version": "3.11.0",
+  "Accessibilite-Version": "3.12.2",
+  "Mentions-légales-Version": "3.6.0",
+  "Politique-protection-donnees-Version": "3.4.0",
+
+  "questions": [
+    {
+      "category": "Généralités",
+      "entities": [
+        {
+          "Question": "Pourquoi France transfert ?",
+          "Question_Texte1": "<span>France transfert est un service créé par l’Etat pour aider ses usagers (citoyens, professionnels, entreprises, associations…), partenaires ou prestataires à envoyer (aux agents de l’Etat) ou recevoir (des agents de l’Etat), des fichiers et dossiers volumineux qui ne peuvent pas transiter par les messageries électroniques.Il a été conçu et est opéré par le ministère de la Culture, et mis à la disposition de tous les ministères par la direction interministérielle du numérique (DINUM)</span><br><span>C’est un service hébergé en France (société Outscale). Les données sont donc stockées sur des serveurs français le temps qu’elles soient téléchargées par leur destinataire.</span> ",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": "<img mat-card-image alt='' src='assets/images/FT_France Transfert_V2.png' />"
+        },
+        {
+          "Question": "Puis-je me servir de France transfert pour mon usage personnel ?",
+          "Question_Texte1": "<span>France transfert est réservé aux échanges de fichiers volumineux entre services de l’administration et ses usagers. Il n’est pas possible d’échanger des fichiers entre usagers.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Puis-je utiliser France transfert sur mobile ?",
+          "Question_Texte1": "Oui le service a été conçu comme une Progressive Web App et peut donc être installé comme une application (le navigateur internet invite l'utilisateur à installer France transfert comme application). ",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "A quoi sert la pastille ronde « sac à dos » en bas à droite de France transfert ?",
+          "Question_Texte1": "<span>Cette pastille est l’outil appelé pastille SNAP utilisable par les agents de l’Etat. Si son emplacement vous dérange, vous avez la possibilité de la déplacer ailleurs dans l’écran. </span><span>La pastille SNAP permet aux agents de l’Etat d’avoir un raccourci vers les applications collaboratives interministérielles et prochainement, aux applications de leur organisation. Pour accéder à la pastille SNAP il suffit de cliquer sur la pastille « sac à dos ».</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+    {
+      "category": "Mon compte / Se connecter",
+      "entities": [
+        {
+          "Question": "A quoi cela sert-il de « se connecter » ?",
+          "Question_Texte1": "Vous pouvez décider de vous connecter à France transfert avant un envoi de pli ou au moment de l’envoi de votre pli en cliquant sur la case « Rester connecté(e) ».",
+          "Question_Liste": "<li><span>La connexion consiste à confirmer que vous êtes bien le propriétaire de l’adresse courriel indiquée comme expéditeur du pli : un code de confirmation est envoyé par courriel et vous disposez de 20 min pour le saisir. </span></li> <li> <span> Une fois que vous êtes connecté, il n’est plus nécessaire de saisir votre adresse courriel en tant qu’expéditeur lors d’un nouveau pli. </span> </li> <li> <span>  La connexion est valable 30 min, et reste active tant que vous envoyez un pli dans cet intervalle. Passé ce délai, et sans nouveau pli créé, il faudra de nouveau passer par l’étape de connexion.</span></li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>La connexion ne nécessite pas la création d’un compte utilisateur, il s’agit uniquement d’un moyen de vérification via le code de confirmation de votre adresse courriel en tant qu’expéditeur et d’une facilité vous évitant de faire cette vérification à chaque pli. </span> <span>Si vous êtes déjà connecté et que vous souhaitez utiliser une autre adresse courriel en tant qu’expéditeur, il suffit de cliquer sur « Se déconnecter ». Vous pourrez alors passer par le processus de connexion, soit à l’envoi de votre prochain pli, soit en ayant au préalable cliqué sur « Se connecter ».</span><span>Attention toutefois, si vous ouvrez France transfert dans un nouvel onglet ou rafraichissez la page de France transfert, les informations de connexion sont effacées. </span><span>Vous pouvez aussi décider de ne pas vous connecter, dans ce cas vous devrez systématiquement saisir un code de confirmation à chaque envoi de pli. </span>",
+          "QuestionImage": "<img alt='' src='assets/images/FT_Être connecté à France Transfert V3.png' />"
+        },
+        {
+          "Question": "Comment retrouver facilement mes plis envoyés et reçus ? ",
+          "Question_Texte1": "<span>Une fois connecté(e) vous pouvez cliquer sur « Mon compte » puis « Mes plis » depuis l’entête de la page France transfert ou depuis le menu de l’application en version mobile. </span><span>Sur la page « Mes plis », vous avez ainsi accès :</span>",
+          "Question_Liste": "<li>Au récapitulatif des plis que vous avez émis<ul><li>En cliquant sur le pictogramme « crayon » ou « œil » en fin de ligne (colonne « Action »), vous pouvez accéder facilement respectivement à la page d’administration de votre pli (si le pli est actif) ou à la page de consultation du pli (si le pli est archivé).</li></ul><li>Au récapitulatif des plis que vous avez reçus<ul><li>En cliquant sur le pictogramme « nuage » ou « œil » en fin de ligne (colonne « Action »), vous pouvez accéder respectivement à la page de téléchargement du pli (si le pli est actif) et télécharger ce pli sans le mot de passe, ou à la page de consultation du pli (si le pli est archivé). </li></ul></li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>Les listes de vos plis émis et reçus sont également exportables au format CSV. Chaque pli peut également être exporté au format PDF via le pictogramme correspondant présent dans la colonne « Action » du tableau des plis émis ou reçus.</span>",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Envoyer un pli",
+      "entities": [
+        {
+          "Question": "Deux façons d'utiliser France transfert ?",
+          "Question_Texte1": "France transfert peut être utilisé de deux façons différentes :",
+          "Question_Liste": "<li> <span>Pour un envoi courriel, accessible aux agents de l’Etat tout comme aux usagers. Cette fonctionnalité permet à un expéditeur (agent de l’Etat ou usager) de transmettre des fichiers volumineux à un ou plusieurs destinataires connus. Attention toutefois, si l’expéditeur est un usager, le ou les destinataires doivent être obligatoirement des agents de l’Etat. Il n’y pas de transfert entre usagers. </span></li><li> <span>Pour la fonctionnalité « lien », elle n’est autorisée que pour les agents de l’Etat. Elle permet de générer un lien public vers les fichiers. L’expéditeur devra transmettre ce lien avec le mot de passe aux personnes qu’il juge nécessaire. La différence réside dans le fait que les destinataires peuvent ensuite transmettre ce lien sans que l’expéditeur puisse en contrôler le téléchargement.</span> </li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>Remarque : si vous souhaitez envoyer un pli vers une boite fonctionnelle (boite de messagerie lue par plusieurs personnes), nous vous déconseillons d’utiliser la  modalité d’envoi courriel. En effet le nombre de téléchargements d’un pli est limité à 5 fois par destinataire. </span>",
+          "QuestionImage": "<img   alt='' src='assets/images/FT_Envoyer des dossiers ou des fichiers_V2.png' />"
+        },
+        {
+          "Question": "Pourquoi me demande-t-on un code de confirmation avant de procéder à l’envoi ?",
+          "Question_Texte1": "<span>Des personnes pourraient utiliser France transfert à des fins personnelles en « empruntant » l’adresse courriel d’un agent de l’Etat ou d’un usager. Pour éviter cela, un courriel contenant un code de confirmation est envoyé à l’expéditeur. Au moment de l’ajout des fichiers à transférer, il est alors demandé de saisir ce code de confirmation, dont la durée de validité est de 20 min. </span> <br><span>Par la suite, si vous vous êtes préalablement connecté et que vous décidez de renvoyer un autre pli moins de 30 min après le précédent pli, on ne vous demandera pas un nouveau code de confirmation.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Que se passe-t-il après l’envoi de mes fichiers ?",
+          "Question_Texte1": "<span>Une fois les fichiers envoyés vers France transfert, ils subissent une analyse antivirale qui peut conduire à leur suppression. </span><br> <span>Si l’analyse s’est bien passée, un courriel de confirmation d’envoi est transmis à l’expéditeur ainsi que le mot de passe associé à ce pli. Les destinataires reçoivent un courriel avec un lien de téléchargement et un mot de passe dans un courriel séparé. </span><br> <span>Si l'analyse antivirale prend du temps (pli de grosse volumétrie) alors l'envoi du courriel de confirmation peut tarder à arriver. Dans tous les cas l'expéditeur reçoit un courriel soit d'erreur (si problème de sécurité), soit de confirmation (dans ce cas les destinataires reçoivent eux aussi chacun un courriel avec les instructions de téléchargement).</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Existe -t-il un quota pour les envois ?",
+          "Question_Texte1": "Il existe un quota de 5 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Existe-il une limite de taille de transfert de fichiers sur France transfert ?",
+          "Question_Texte1": "<span>France transfert permet d’envoyer jusqu’à 20 Go de fichiers et dossiers par transfert en faisant attention que chacun des fichiers respecte la taille maximale de 2Go.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Quelles extensions de fichiers puis-je envoyer sur France transfert ?",
+          "Question_Texte1": "<span>Toutes les extensions communes de fichiers sont téléchargeables sur France transfert, sauf, pour des raisons de sécurité, certains fichiers exécutables ou scripts informatiques qui pourraient contenir des virus.</span><br> <span>Liste des extensions de fichiers interdites : </span><br> <span>« ade, a3x, adp, app, appinstaller, applescript, application, appref-ms, appx, appxbundle, asp, aspx, asx, bas, bat, cer, chm, cmd, cnt, com, cpl, crt, csh, daa, der, diagcab, dll, dmg, exe, fxp, gadget, grp, hlp, hpj, hta, htc, img, inf, ins, iso, isp, its, jar, jnlp, js, jse, ksh, lnk, mad, maf, mag, mam, maq, mar, mas, mat, mau, mav, maw, mcf, mda, mdb, mde, mdt, mdw, mdz, msc, msh, msh1, msh1xml, msh2, msh2xml, mshxml, msi, msp, mst, msu, ocx, ops, osd, pcd, pif, pl, plg, ppa, ppam, ppkg, prf, prg, printerexport, ps1, ps1xml, ps2, ps2xml, psc1, psc2, psd1, psdm1, pst, py, pyc, pyo, pyw, pyz, pyzw, reg, scf, scpt, scr, sct, service, settingcontent-ms, shb, shs, so, theme, timer, tmp, url, vb, vbe, vbp, vbs, vhd, vhdx, vsmacros, vsw, webpnp, website, wim, ws, wsc, wsf, wsh, xbap, xlam, xll, xnk »</span><br> <span>Lorsque vous envoyez un fichier, assurez-vous néanmoins que votre destinataire puisse lire vos documents.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Puis-je utiliser une liste de distribution ?",
+          "Question_Texte1": "<span>Pour envoyer vos fichiers à plusieurs destinataires différents en une seule opération, il est possible d’importer un fichier de type csv (en respectant le séparateur « ; » entre chaque courriel) comportant la liste des destinataires. Pour ce faire cliquer sur le pictogramme situé à droite du champ « Destinataire(s) ». </span><span>Vous pouvez générer un fichier csv de vos destinataires en cliquant sur le pictogramme situé à droite de vos destinataires. Charge à vous de le stocker puis de le réutiliser pour préremplir automatiquement la liste des destinataires de votre prochain pli. </span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": "<img  alt='' src='assets/images/FT_Utiliser une liste de diffusion_V2.png' />"
+        },
+        {
+          "Question": "Que devient mon pli après expiration du délai de validité ?",
+          "Question_Texte1": "<span>Une fois la date de validité du pli passée (par défaut 30 jours après l’envoi du pli) :</span>",
+          "Question_Liste": "<li> <span>si le pli n'a pas été téléchargé par au moins un destinataire, l’expéditeur reçoit un courriel lui indiquant les destinataires qui n’ont pas téléchargé le pli </span></li> <li> <span>les fichiers du pli sont automatiquement supprimés et les liens de téléchargement des destinataires (ou le lien de téléchargement public) ne sont donc plus opérationnels </span></li> <li> <span>le pli est dit « archivé » : <ul><li> il reste accessible depuis « Mon compte / Mes plis » (nécessite de se connecter) et permet à l’expéditeur de continuer d’avoir accès aux informations du pli (liste des destinataires, nombre de téléchargements, noms des fichiers contenus dans le pli) ;  </li></ul> <ul><li>il sera définitivement supprimé de France transfert 12 mois après sa création (se référer à la date de fin d’archivage pour rappel)</li></ul></span></li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Télécharger un pli",
+      "entities": [
+        {
+          "Question": "Comment télécharger le pli qui m’est adressé ?",
+          "Question_Texte1": "<span>Lorsque l’envoi du pli est effectué, un courriel de confirmation d’envoi avec le détail concernant les fichiers qui composent le pli est transmis à l’expéditeur ainsi que le mot de passe associé à ce pli.</span><span>Les destinataires reçoivent un courriel avec un lien de téléchargement et un autre courriel contenant le mot de passe à saisir pour pouvoir télécharger.</span><span>Si jamais France transfert refuse le mot de passe saisi, vérifiez qu’en le copiant collant cela n’ait pas ajouté un espace à la fin du mot de passe (utilisez le pictogramme « œil » pour afficher le mot de passe en clair).</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": "<img  alt='' src='assets/images/FT_Telecharger un pli_V2.png' />"
+        },
+        {
+          "Question": "Combien de fois les destinataires peuvent-ils télécharger les fichiers que j’ai envoyé ?",
+          "Question_Texte1": "<span>Chaque destinataire dispose d’un lien de téléchargement unique pour accéder au téléchargement du pli. Avec ce lien, chaque destinataire peut télécharger jusqu’à 5 fois le contenu du pli. </span><span>Cela permet aux destinataires de récupérer plusieurs fois les fichiers si nécessaire (exemple : si le destinataire les a supprimés de son poste par exemple et qu’il en aurait de nouveau besoin). </span><span>Si un destinataire a dépassé cette limite de 5 téléchargements du même pli, il sera nécessaire de lui renvoyer les fichiers via un nouveau pli.</span><span>Si le destinataire a « verrouillé » son lien de téléchargement en saisissant plus de 5 fois un mauvais mot de passe pour accéder à la page de téléchargement, il devra attendre le lendemain pour tenter de nouveau d’accéder au pli.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Que deviennent les fichiers que j’ai transmis une fois qu’ils ont été téléchargés par le destinataire que j’ai indiqué ?",
+          "Question_Texte1": "<span>Les fichiers sont supprimés après expiration du délai de validité du pli (par défaut à 30 jours). Il n’y a pas de suppression automatique du pli quand tous les destinataires l’ont téléchargé car un destinataire pourrait avoir besoin de nouveau de télécharger le pli.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Où vont les fichiers téléchargés ?",
+          "Question_Texte1": "<span>Les fichiers sont téléchargés par votre navigateur. En fonction de son paramétrage, il se peut qu’ils aillent directement dans le dossier « téléchargements » ou bien que la question de l’emplacement vous soit posée.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+    {
+      "category": "Administrer un pli",
+      "entities": [
+        {
+          "Question": "Je me suis trompé dans ma liste de destinataires mais j’ai déjà envoyé mon pli, que faire ?",
+          "Question_Texte1": "Vous vous êtes trompés dans votre liste de destinataires ? Plusieurs possibilités s’offrent à vous depuis la page d’administration du pli (lien d’administration reçu dans le courriel de confirmation d’envoi du pli) et selon vos besoins :",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li> Supprimer le pli : le pli est intégralement supprimé, plus aucun destinataire ne peut télécharger son contenu désormais.</li><li>Supprimer un ou des destinataires : le lien de téléchargement de ce(s) destinataire(s) est désormais révoqué et ne pourra plus être utilisé désormais pour le téléchargement de vos fichiers.</li><li>Ajouter un destinataire : vous avez la possibilité d’ajouter manuellement un ou plusieurs destinataires au pli. Comme les destinataires originaux, ils recevront un courriel avec le lien d’accès au pli et un courriel avec le mot de passe pour accéder à la page de téléchargement du pli. </li>",
+          "Question_Texte2": "Dans le cas d’une suppression du pli ou d’un destinataire, pensez bien à en informer vos contacts afin qu’ils ne tentent pas inutilement de télécharger le pli.",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Quelles informations de suivi des téléchargements je dispose ?",
+          "Question_Texte1": "<span>En tant qu’expéditeur d’un pli, vous êtes informé(e) des téléchargements effectués par les destinataires de votre pli :</span>",
+          "Question_Liste": "<li>Par courriel chaque jour où au moins un téléchargement a lieu.</li><li>Sur la page d’administration / consultation de votre pli : le nombre et les dates de téléchargements sont indiqués.</li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>Si votre pli a été créé par « lien » (donc sans aucun destinataire renseigné dans France transfert), sur la page d’administration du pli vous disposez uniquement du nombre de téléchargements effectués.</span><span>Vous pouvez également retrouver ces informations dans l’export PDF qui est disponible sur la page d’administration / consultation de votre pli ou depuis le tableau des plis émis.</span>",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Un des destinataires se plaint de ne pas avoir reçu le courriel de France transfert ?",
+          "Question_Texte1": "<span>Au moment de l’envoi d’un pli par « courriel », nous vous rappelons que France transfert émet 2 courriels à chaque destinataire : </span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li>Un courriel comprenant un lien de téléchargement spécifique au destinataire.</li><li>Un courriel comprenant le mot de passe d’accès au pli (identique pour tous les destinataires, et fourni également par courriel à l’expéditeur).</li>",
+          "Question_Texte2": "<span>Si un des destinataires de votre pli n’a reçu qu’un seul ou aucun de ces 2 courriels, vous avez la possibilité, sur la page d’administration de votre pli, de faire une réémission de ces 2 courriels en cliquant sur le pictogramme « enveloppe » pour le destinataire concerné. </span>",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Informations et retours utilisateurs",
+      "entities": [
+        {
+          "Question": "À quoi sert le questionnaire de satisfaction ?",
+          "Question_Texte1": "<span>Le questionnaire est anonyme. Il sera utilisé à des fins statistiques et d’améliorations. </span><span>Si vous remplissez le questionnaire de satisfaction, la note que vous laissez est enregistrée à des fins exclusives de statistiques. Les commentaires éventuellement laissés vous permettent de vous exprimer de manière libre sur le service.</span><br><span>L’équipe produit examinera les commentaires mais ne peut s’engager, ni à y répondre individuellement, ni à mettre en œuvre les suggestions proposées.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Où puis-je trouver d’autres informations sur France transfert ?",
+          "Question_Texte1": "<span>Pour les agents de l’Etat, il y a un salon « France transfert » dans TCHAP qui vous permettra de  suivre les évolutions ou d’échanger avec les autres membres. Vous pouvez vous y abonner. </span><span>Vous pouvez également utiliser le formulaire de contact « Nous contacter » (en bas de page ou dans le menu de la version mobile).</span><span>Enfin, si vous avez besoin d’aide supplémentaire dans la prise en main de France transfert, une brochure pas-à-pas est disponible ici : <a class='link' rel='noopener noreferrer' href='https://osmose.numerique.gouv.fr/front/publicLink/publicDownload.jsp?id=9bb69b78-cee3-4951-b70d-df031570f294b002893f-de07-400f-bc75-4d4efee4a8a9' target='_blank'>Votre pas-à-pas France transfert</a></span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Que faire si j’ai une page de blocage « Access denied - UBIKA Cloud Protector » ?",
+          "Question_Texte1": "<span>Le ministère de la Culture a mis en place un WAF (Web Application Firewall) qui protège France transfert d'un certain nombre d'attaques provenant d'Internet.</span><span>Ce composant de sécurité est censé être transparent pour les utilisateurs de France transfert dans le cas d'un usage classique.  Si toutefois il arrivait que le WAF détecte à tort une menace lors d'une action pourtant légitime, vous devriez normalement tomber face à une page de blocage « Access denied – UBIKA Cloud Protector ».</span><span>Dans ce cas, les consignes à suivre sont les suivantes :</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li>Copiez les informations indiquées dans la partie 'Additional information'.</li><li>Cliquez sur le bouton bleu 'Request access' => cela enverra une notification à l'équipe technique de France transfert en fournissant des informations techniques sur le blocage.</li><li>Retournez sur France transfert et allez sur la page 'Nous contacter' pour adresser un message à l'équipe de support en fournissant dans votre message les informations issues de la rubrique 'Additional information' (copiées préalablement) => cela permettra à l'équipe technique de France transfert de prendre contact avec vous via l'adresse courriel indiquée dans le formulaire de contact pour comprendre pourquoi le blocage s'est produit et ainsi mener les actions de paramétrage complémentaire au niveau du WAF pour éviter que ce blocage ne se reproduise.</li>",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    }
+  ],
+
+  "Renvoyer_Lien_Téléchargement": "Réémettre les courriels de téléchargement au destinataire",
+  "Date_Archive": "Date de fin d'archivage :",
+
+  "Historique": "Détail du pli",
+  "typePli": [
+    {
+      "Type_Pli": "Statut du pli",
+      "entities": [
+        {
+          "value": "remove_red_eye",
+          "viewValue": "Plis archivés"
+        },
+        {
+          "value": "edit",
+          "viewValue": "Plis actifs"
+        },
+        {
+          "value": "",
+          "viewValue": "Tous"
+        }
+      ]
+    }
+  ],
+  "typePliReçus": [
+    {
+      "Type_Pli": "Statut du pli",
+      "entities": [
+        {
+          "value": "remove_red_eye",
+          "viewValue": "Plis archivés"
+        },
+        {
+          "value": "cloud_download",
+          "viewValue": "Plis actifs"
+        },
+        {
+          "value": "",
+          "viewValue": "Tous"
+        }
+      ]
+    }
+  ],
+  "Traductions": "Traductions",
+  "Traductions_Text": "La traduction du site en anglais de France transfert a été réalisée par le Département de la traduction du Ministère de l’Europe et des Affaires étrangères.",
+  "Details_Oeil": "Consulter le pli",
+  "Details_Edit": "Administrer le pli",
+  "Details_Download": "Télécharger le pli",
+  "Object": "Objet :",
+  "Retour": "Retour",
+  "Importation_Erreur": "Veuillez importer une liste de contacts depuis un fichier CSV",
+  "CodeReçu": "Code reçu",
+  "Nombre d'essais maximum atteint": "Nombre d'essais maximum atteint",
+  "Ou": "Ou",
+  "AgentConnect": "Qu'est-ce que AgentConnect?",
+  "Exporter_PDF": "Export PDF",
+  "Export_PDF": "Exporter au format PDF",
+  "Nom": "Nom",
+  "Récapitulatif_Pli": "Récapitulatif du pli",
+  "Dates_Téléchargement": "Dates de téléchargement",
+  "Nb_Téléchargement": "Nombre de téléchargements",
+  "Dossiers": "Dossiers",
+  "Fichiers": "Fichiers",
+  "Langue": "fr",
+  "Edité": "Edité le ",
+  "Destinataire_Download": "Nombre de destinataires ayant procédé à au moins un téléchargement",
+  "Nombre_Destinataires": "Nombre de destinataires",
+  "Nombre_Téléchargement": "Nombre de téléchargements",
+  "Date_Premier_Téléchargement": "Date premier téléchargement",
+  "Date_Dernier_Téléchargement": "Date dernier téléchargement",
+  "Exporter_CSV": "Export CSV",
+  "Plis_Reçus": "Liste des plis reçus",
+  "Plis_Envoyés": "Liste des plis envoyés",
+  "namePDF-sent": "Pli envoyé",
+  "namePDF-recieved": "Pli reçu",
+  "PDF": "PDF",
+
+  "Resana-Osmose": "Si vous disposez d'un compte OSMOSE et/ou RESANA et que vous souhaitez télécharger directement dans OSMOSE ou RESANA le contenu de ce pli, vous pouvez cliquer sur l'un des boutons ci-dessous : ",
+  "Type_Pli": "Type de pli",
+  "Total_Size": "Taille totale du pli :",
+  "Date_invalide": "Date invalide",
+  "Saisissez_message": "Saisissez ici votre message",
+  "Menu": "Menu",
+  "Paramètres": "Paramètres",
+  "DestinataireLimité": "Le nombre de destinataires est limité à 100",
+  "exemple": " par exemple).",
+  "conteneur_Zed": "conteneur Zed",
+  "EnvoiePli": "Envoyer un pli",
+  "Facultatif": "(Facultatif)"
+
+
+}

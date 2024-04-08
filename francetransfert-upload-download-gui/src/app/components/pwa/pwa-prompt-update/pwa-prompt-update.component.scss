@@ -1,0 +1,27 @@
+.prompt-update-title-wrapper {
+
+}
+
+.prompt-update-content-wrapper {
+    .prompt-update-content-line {
+      p span {
+        display: block;
+        margin: 5px;
+      }
+    }
+}
+
+.prompt-update-actions-wrapper {
+    .btn-yes {
+        background-color: var(--janus-aot-asset-dark);
+        color: var(--janus-aot-white);
+    }
+}
+
+.mat-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+  outline-style: solid;
+  outline-width: 2px;
+  outline-offset: 2px;
+  outline-color: #1212ff;
+}

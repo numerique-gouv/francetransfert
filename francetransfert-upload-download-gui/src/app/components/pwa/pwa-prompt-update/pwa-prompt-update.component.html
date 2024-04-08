@@ -1,0 +1,15 @@
+<div mat-dialog-title class="prompt-update-title-wrapper">
+    <h1 class="prompt-update-title">{{'Mise_A_Jour_Disponible' | translate}}</h1>
+</div>
+<div class="prompt-update-content-wrapper" mat-dialog-content>
+    <div class="prompt-update-content-line">
+      <p>
+        <span> {{'Nouvelle_Version_Disponible' | translate}}</span>
+        <span> {{'Mettre_A_Jour' | translate}}</span>
+      </p>
+    </div>
+</div>
+<div class="prompt-update-actions-wrapper" mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close attr.aria-label="{{'Non' | translate}}"> {{'Non' | translate}}</button>
+    <button class="btn-yes" mat-button [mat-dialog-close]="true" cdkFocusInitial attr.aria-label="{{'Oui' | translate}}"> {{'Oui' | translate}}</button>
+</div>

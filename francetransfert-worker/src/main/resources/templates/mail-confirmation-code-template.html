@@ -1,0 +1,60 @@
+
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html  xmlns:th="http://www.thymeleaf.org"
+	th:lang="${#locale.language}" 
+    th:xmllang="${#locale.language}" 
+>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>FranceTransfert : fichiers envoyés</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body
+	style="margin: 0px 0px 0px 0px; padding: 40px 0px 40px 0px; background-color: #D9D9D9; height: auto; width: 100%; font-family: Calibri, sans-serif">
+	<table align="center"
+		style="background-color: #D9D9D9; height: auto; width: 60%; text-align: center;">
+		<tr>
+			<td>
+				<table class="container"
+					style="border-color: black; background-color: #ffffff; border-radius: 10px; padding-bottom: 1rem; border-style: solid; border-width: thin; border-color: #454141;">
+					<tr>
+						<td style="text-align: initial;">
+							<div th:insert="~{mail-header :: header}"></div>
+							<div>
+								<p
+									style="margin: 23px 0px 19px 0px; font-size: 26px; text-align: center;">
+									<strong> <span style="color: black"  th:text="#{code.confirmation}" > </span>
+									</strong>
+								</p>
+								<p style="margin: 0 44px; color: #414856; text-align: center;">
+									 <span th:text="#{login.durée}"></span>
+									 <span th:text="${enclosure.get('sessionTime').getAsString()}"></span>
+									 <span th:text="#{minutes.inactivité}"></span>
+                   				</p>
+							</div>
+							<div>
+								<p
+									style="margin: 34px 0px 46px 0px; text-align: center; font-size: 25px;">
+									<strong> <span style="color: #0269cc"
+										th:text="${enclosure.get('code').getAsString()}"></span>
+									</strong>
+								</p>
+							</div>
+							<div>
+								<p style="text-align: center; color: #414856;">
+								<span th:text="#{code.valable}"></span>&nbsp;
+								<strong><span th:text="${enclosure.get('codeTime').getAsString()} + ' ' + #{durée.code}"></span></strong>&nbsp;
+								<span th:text="#{date.disponibilité} + ' ' + ${enclosure.get('dateExpiration').getAsString()} + ' ' + #{cet}"></span>
+								</p>
+								<p style="font-size: 12px; font-style: italic; margin: 24px 17px 0px 9px; text-align: center" th:text="#{origine.opération}">
+								</p>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

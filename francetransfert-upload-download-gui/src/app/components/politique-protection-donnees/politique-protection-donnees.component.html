@@ -1,0 +1,16 @@
+<div class="politique-protection-donnees-wrapper">
+  <mat-card class="politique-protection-donnees-card">
+    <mat-card-header class="politique-protection-donnees-card-header">
+      <h1 #politiquedeprotectiondesdonnees>  {{'Politique_Protection_Données_Titre' | translate}} </h1>
+    </mat-card-header>
+    <h4> {{'Version' | translate}} {{'Politique-protection-donnees-Version' | translate}}</h4>
+    <span> {{'Version_Française' | translate}}</span>
+    <mat-card-content class="politique-protection-donnees-card-content">
+      <h2 #droitsdespersonnes> {{'Droits_Personnes_Titre' | translate}} </h2>
+      <p  [innerHTML]="'Droits_Personnes_Texte' | translate">
+      </p>
+      <ol [innerHTML]="'Droits_Personnes_Liste' | translate">
+      </ol>
+    </mat-card-content>
+  </mat-card>
+</div>

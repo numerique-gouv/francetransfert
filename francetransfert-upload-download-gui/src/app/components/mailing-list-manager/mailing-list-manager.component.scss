@@ -1,0 +1,31 @@
+.mat-typography {
+    span {
+        display: inline-block !important;
+        line-height: 24px;
+        margin: 5px;
+    }
+}
+
+.mat-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+  outline-style: solid;
+  outline-width: 2px;
+  outline-offset: 2px;
+  outline-color: #1212ff;
+}
+
+.btn {
+    background-color: var(--ft-blue-france);
+    color: var(--ft-white);
+}
+
+.error {
+    color: var(--ft-error);
+}
+
+@media screen and (min-width: 200px) and (max-width: 480px) {
+    .btn {
+        margin-bottom: 5px;
+        min-width: 80%;
+    }
+}

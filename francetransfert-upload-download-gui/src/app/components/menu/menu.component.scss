@@ -1,0 +1,28 @@
+.menu-list-wrapper {
+    .menu-list {
+        .menu-list-item {     
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;       
+            display: -webkit-flex;
+            -webkit-flex-direction: row;
+            -webkit-justify-content: space-between;
+            -webkit-align-items: center;
+            color: var(--ft-blue-france);
+            font-size: 14px;
+            line-height: 24px;
+            span {
+                margin-left: 5px;
+            }
+            cursor: pointer;
+        }
+        .language-selector-wrapper {
+            width: 100%;
+        }
+        .menu-list-item.end { 
+            justify-content: flex-end;
+            -webkit-justify-content: flex-end;
+        }  
+    }
+}

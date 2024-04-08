@@ -1,0 +1,753 @@
+{
+  "FAQFranceTransfert": "France Transfert FAQ",
+  "Question1": "Why use France Transfert?",
+  "Question2": "Can I use France Transfert for personal use?",
+  "Question3": "What can France Transfert do?",
+  "Question4": "Can I use France Transfert on a mobile?",
+  "Question5": "Why do I have to provide a confirmation code to send a file?",
+  "Question6": "What is the point of logging in?",
+  "Question7": "What happens after I send my files?",
+  "Question8": "How do I download a package addressed to me?",
+  "Question9": "Made a mistake in the list of recipients but I already sent my package. What can I do?",
+  "Question10": "How many times can recipients download files I send?",
+  "Question11": "What happens to the files I send after they have been downloaded by my chosen recipients?",
+  "Question12": "Where do downloaded files go?",
+  "Question13": "Is there a file size limit on France Transfert?",
+  "Question14": "What file extensions are allowed on France Transfert?",
+  "Question15": "Can I use a list of addresses?",
+  "Question16": "What is the user questionnaire for?",
+  "Question17": "Where can I find more information about France Transfert?",
+  "Question18": "Is there a usage limit?",
+  "Question1_Texte": "<span>France Transfert is a service created by the government to help its users (citizens, professionals, companies, associations, etc.), partners and service provides exchange large files and folders that cannot be sent by email with government personnel.It was designed and is operated by the Ministry of Culture, and made available to all ministries by the Interministerial Digital Directorate (DINUM).</span><br><span>The service is hosted in France by Outscale. The data is stored on French servers until it is downloaded by the recipient.</span> ",
+  "Question2_Texte": "<span>France Transfert is reserved for exchanging large files between government services and their users. It is not possible to exchange files between users.</span>",
+  "Question3_Texte1": "France Transfert can be used in two different ways:",
+  "Question3_Liste": "<li> <span>Email delivery, accessible to both officials and users. This feature allows senders (officials or users) to send large files to one or more known recipients. However, if the sender is a user, recipients must be officials. It is not possible to exchange files between users. </span></li><li> <span>The “link” feature is only available to officials. It generates a public link to the files. The sender then sends the link and password to the appropriate recipients. The difference is that recipients can then share the link without the sender being able to control when it is downloaded.</span> </li>",
+  "Question3_Texte2": "<span>N.B. If you want to send a package to a functional email address (used by a group), we do not recommend using the “email delivery” option. A package can only be downloaded five times per recipient. </span>",
+  "Question4_Texte": "Yes. France Transfert was designed as a Progressive Web App and can therefore be installed as an application (the web browser will invite you to do so). ",
+  "Question5_Texte": "<span>People could use France Transfert for personal use by “borrowing” the email address of an official or user. To avoid this, the sender will receive an email containing a confirmation code. When you add the files to transfer, you will have to enter the confirmation code, which is valid 20 minutes. </span> <br><span>If you have logged in and decide to send another package less than 30 min after the previous one, you will not be asked for a new confirmation code.</span>",
+  "Question6_Texte1": "You can decide to log in to France Transfert before or when sending a package by clicking on “Stay connected”. ",
+  "Question6_Liste": "<li><span>Logging in confirms that you are the owner of the email address indicated as the sender of the package: a confirmation code is sent by email and you have 20 minutes to enter it. </span></li> <li> <span> Once you are logged in, you no longer need to enter your email address again to send another package. </span> </li> <li> <span>  You will remain logged in for 30 min and can send another package during that period. If you do not create another package before the end of that period, you will have to log in again.</span></li>",
+  "Question6_Texte2": "<span>Logging in does not require you to create a user account. It is only a means of verifying your email address and saving you the effort of proceeding with verification for every package.  </span> <span>If you are already logged in and want to send using a different email address, simply click on “Log out”. You can then go through the connection process, either when sending your next package, or after clicking on “Log in”.</span><br> <span>However, if you open France Transfert in a new tab or refresh the page, the login information is erased. </span><br> <span>You can also decide not to log in, in which case you will need to enter a confirmation code each time you send a package. </span>",
+  "Question7_Texte": "<span>Once files are submitted to France Transfert, they are scanned for viruses and may be deleted if necessary. </span><br> <span>If the scan goes well, a confirmation email is sent to the sender, along with the password to download the package. Recipients receive an email with a download link and a password in a separate email. </span><br> <span>If the virus scan is long (large packages) then the confirmation email may take a long time to arrive. The sender receives an email either to inform them of an error (such as a security issue) or to confirm delivery (in which case recipients also receive an email with download instructions).</span>",
+  "Question8_Texte": "<span>When the package is sent, a confirmation email with details of the package files is sent to the sender, as is the password to download the package.</span><br> <span>Recipients receive an email with a download link and a password in a separate email.</span> <br><span>If the password is not accepted, check that no trailing space was copied with it (use the eye pictogram to display the password).</span>",
+  "Question9_Texte1": "Did you make a mistake entering recipients? Several options are available from the package administration page (administration link received in the delivery confirmation email), depending on your needs:",
+  "Question9_Liste": "<li> Delete the package: the package is completely deleted, and no recipients can download it anymore.</li><li>Delete one or more recipients: the download links of selected recipients are revoked and can no longer be used to download files.</li><li>Add a recipient: you can manually add one or more package recipients. Like the original recipients, they will receive an email with a download link and a password in a separate email. </li>",
+  "Question9_Texte2": "If you delete a package or a recipient, do inform affected recipients so that they do not try in vain to download the package.",
+  "Question10_Texte": "<span>Each recipient has their own link to download the package. With this link, each recipient can download the package 5 times. </span><br><span>This allows recipients to download the files again if they need to (in case of deletion from their computer, for example). </span><br><span>If a recipient exceeds the 5-download limit, a new package will have to be sent. This may also be necessary if the recipient has “locked” their link by entering the wrong download password more than 5 times. </span>",
+  "Question11_Texte": "<span>Files are deleted after the package’s validity period (default 30 days) has expired. Packages are not deleted automatically once all recipients have downloaded them, as recipients may need to download them again.</span>",
+  "Question12_Texte": "<span>The files are downloaded via your browser. Depending on its configuration, they may go directly to the “Downloads” folder, or you may be asked to decide where to save them.</span>",
+  "Question13_Texte": "<span>France Transfert allows you to send up to 20 GB of files and folders per package, so long as no file exceeds 2 GB.</span>",
+  "Question14_Texte": "<span>All common file extensions are accepted on France Transfert except, for security reasons, certain executable files and computer scripts that could contain viruses.</span><br> <span>List of prohibited file extensions: </span><br> <span>“ade, a3x, adp, app, appinstaller, applescript, application, appref-ms, appx, appxbundle, asp, aspx, asx, bas, bat, cer, chm, cmd, cnt, com, cpl, crt, csh, daa, der, diagcab, dll, dmg, exe, fxp, gadget, grp, hlp, hpj, hta, htc, img, inf, ins, iso, isp, its, jar, jnlp, js, jse, ksh, lnk, mad, maf, mag, mam, maq, mar, mas, mat, mau, mav, maw, mcf, mda, mdb, mde, mdt, mdw, mdz, msc, msh, msh1, msh1xml, msh2, msh2xml, mshxml, msi, msp, mst, msu, ocx, ops, osd, pcd, pif, pl, plg, ppa, ppam, ppkg, prf, prg, printerexport, ps1, ps1xml, ps2, ps2xml, psc1, psc2, psd1, psdm1, pst, py, pyc, pyo, pyw, pyz, pyzw, reg, scf, scpt, scr, sct, service, settingcontent-ms, shb, shs, so, theme, timer, tmp, url, vb, vbe, vbp, vbs, vhd, vhdx, vsmacros, vsw, webpnp, website, wim, ws, wsc, wsf, wsh, xbap, xlam, xll, xnk”.</span><br> <span>When you send a file, do make sure your recipient can open it.</span>",
+  "Question15_Texte": "<span>To send a package to several recipients at once, you can upload a CSV file containing their addresses (using the semicolon (;) separator). To do this, click on the pictogram to the right of the “Recipients” field. </span><br> <span>You can generate a CSV file from your recipients by clicking on the pictogram to the right of the address list. You can store and use it to automatically complete the recipient list for your next package. </span>",
+  "Question16_Texte": "<span>The questionnaire is anonymous and used for statistical and improvement purposes only. </span><br><span>If you complete the questionnaire, the rating you leave is recorded for statistical purposes only. You can leave comments to tell us what you think about the service.</span><br><span>The product team will review the comments but cannot commit to responding individually or implementing any suggestions.</span>",
+  "Question17_Texte": "<span>For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. </span><br> <span>You can also write to France Transfert’s support team via the “Contact” form (at the bottom of the page or in the menu on the mobile version). </span>",
+  "Question18_Texte": "There is a daily limit of 5 packages per non-official sending address.",
+
+  "UploadTitre": "France Transfert can be used to send large, non-sensitive files securely to officials or between officials.",
+  "Courriel": "Email",
+  "Lien": "Link",
+  "LienFonctionnalité": "This feature generates a link to share, which is practical if you do not have the email addresses of all recipients.",
+  "ModificationOption": "Click here to change your transfer options (validity period, password, etc.).",
+  "Envoyer": "Send",
+  "PréférencesTransfert": "Transfer preferences",
+  "Annuler": "Cancel",
+  "Valider": "OK",
+
+  "ChampsObligatoires": "Fields marked with * are mandatory",
+  "NomTransfert": "Name of your package",
+  "TooltipNomTransfert": "Customise the name of your package to make it more easily identifiable.",
+  "ExpéditeurRequis": "A sending address is required.",
+  "AdresseRequis": "A valid email address is required (eg. JOHN.SMITH@EMAIL.COM).",
+  "LienRéservé": "Links are only available to officials. Please use the Email delivery option.",
+  "QotaDépassé": "Daily package limit exceeded",
+  "Message": "Message:",
+  "CGU": "I have read the <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>Terms and Conditions of Use</a> and I will not send sensitive data, as defined in article 4.2, without first encrypting them.",
+
+  "TooltipExpéditeurLien": "The sender may be a French official or an individual.",
+  "Expéditeur": "Sender",
+  "Destinataire": "Recipients",
+  "TooltipExpéditeurCourriel": "If the sender is an official, the recipients may be either officials or individuals. If the sender is an individual, the recipients can only be officials.",
+  "PlaceholderDestinataires": "Email addresses of recipients",
+  "DestinataireRequis": "A recipient address is required.",
+  "ExpéditeurNécessaire": "Either the sender or all recipients must be officials.",
+  "ListeContacts": "Use a contact list",
+  "SupprimerDestinataire": "Delete a recipient",
+  "AdresseCourriel": "Your email address",
+  "ExporterListeCSV": "Export list of recipients to CSV format",
+  "Objet": "Re.:",
+  "Courriel_Invalide": "Please enter a valid email address",
+
+  "TypeFichier": "The file ",
+  "NonAutorisé": " is not an allowed file type.",
+  "FichierNonAutorisé": "You have attempted to add an unauthorized file type.",
+  "TailleMaximale": "You have tried to add a file beyond the maximum package size (20 GB) or the maximum file size (2 GB)",
+  "TailleMaximalePli": "You have tried to add a file beyond the maximum package size (20 GB)",
+  "TailleMaximaleFichier": "You have tried to add a file beyond the maximum package size (2 GB)",
+  "AjoutDocument": "Add your files and folders ",
+  "Dépot": "or drag them here",
+
+  "ChoixLangue": "Choice of language",
+
+  "FAQ": "FAQ",
+  "MeConnecter": "Log in",
+  "MeDéconnecter": "Log out",
+
+  "NomContact": "Your surname",
+  "PrénomContact": "Your given name",
+  "VotreCourriel": "Your email",
+  "AdministrationSociété": "Your administration/company",
+  "MessageRequis": "A message is required.",
+  "CaptchaAudio": "Switch to an audio captcha",
+  "CaptchaVisuel": "Switch to a visual captcha",
+  "ChangerCaptcha": "Request a different captcha",
+  "Captcha": "Captcha",
+  "CaptchaRequis": "A captcha is required.",
+  "CaptchaIncorrect": "The captcha is incorrect.",
+
+  "CourrielConnect": "Please enter your email address to use this service:",
+  "CodeConfrimationEnvoyé": "A confirmation code will be sent to you by email, allowing you to use the service as long as you do not exceed 30 minutes of inactivity. If you do, you will need a new confirmation code to send another package.",
+  "ACCUEIL": "HOMEPAGE",
+  "EnvoyerCode": "SEND CODE",
+  "SaisieCode": "Enter the France Transfert access code sent to you (check your spam folder):",
+  "CodeInvalide": "The confirmation code is invalid.",
+  "NombreEchecs": "Number of failures: ",
+  "CodeNonDisponible": "Following 5 errors, the code will be deactivated.<br/>Please cancel and request a new code. ",
+  "ErreurTechnique": "A technical error occurred.",
+
+  "CréationTransfert": "Creating your package...",
+
+  "ImportationListeContacts": "Import a contact list",
+  "ImportationListeContactsText": "You can import a list of contacts from a CSV file containing the email addresses you want to use separated by a semicolon  ",
+  "Fichier": "From a file",
+  "FichierType": "File",
+
+  "MentionsLégales": "Impressum",
+  "Éditeur": "Publisher",
+  "Ministère": "Ministry of Culture",
+  "Adresse": "182 Rue Saint-Honoré",
+  "CodePostale_Ville": "75001 Paris",
+  "ResponsablePublication": "Publication manager",
+  "ChefService": "Head of the Digital Service of the Ministry of Culture",
+  "Liens": "Links to site pages",
+  "LiensPagesSite": "<span>Any public or private site may link to the pages of this site. No prior authorization is required.</span><br> <span>The pages of this site must not be embedded in the pages of another site. They must be displayed in a new window.</span>",
+  "Développement": "Development",
+  "ACT-ONTECHNOLOGY_Adresse": "ACT-ON TECHNOLOGY: 19 Rue d’Orléans – 92200 Neuilly sur Seine",
+  "Hébergement": "Hosting",
+  "OUSTSCAL_Adresse": "OUTSCALE: 1 Rue Royale – 319 Bureaux de la Colline – 92210 Saint-Cloud",
+
+  "élément": "item",
+  "éléments": "items",
+  "Dossier": "Folder",
+
+  "Information": "Information",
+  "Fichier_Dossier_DéjàPrésent": "This file or folder is already in your package.",
+
+  "Accessibilité": "Accessibility: partially conformant ",
+  "Politique_Protection_Données": "Data protection policy",
+  "ConditionsUtilisation": "Terms and Conditions of Use ",
+  "Licence": "Unless otherwise stated, all texts on this site are licensed under Etalab-2.0 ",
+  "Version": "Version",
+
+  "Terminé": "Completed!",
+  "MessageAttenteLien": "Give us a minute. Your package has reached our servers. We are now analysing it and you will receive the download link by email soon. It will be available until",
+  "EnvoiPli": "Send a new package?",
+  "MessageAttente": "Give us a minute. Your package has reached our servers. We are now analysing it and you will receive the confirmation email soon. It will be available until ",
+  "Oups": "Oops",
+  "ErreurTransfertPli": "Error transferring your package. Please try again.<br/>If the problem persists, please report it via the contact form or questionnaire.",
+  "Accueil": "Homepage",
+
+  "TéléchargementLancé": "Your download has started.",
+  "DossierTéléchargement": "Once downloaded, the package will typically be stored in your Downloads folder.",
+  "Nombre_Téléchargements_Dépassé": "You have exceeded the number of downloads allowed for this package.",
+  "Existence_Pli": "The requested package does not exist.",
+  "Pli_Corrompu": "The package is corrupted. Please ask the sender to send it again.",
+  "Erreur_Récupération_Pli": "Inexistent or deleted package. Please contact the sender.",
+  "Accès_Pli_Sécurisé": "Access to secure package!",
+
+  "MessageSuccès": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Questionnaire submitted.</p><p>Thank you for your opinion.</p>",
+
+  "BienPassé": "Did everything go well?",
+  "VotreAvis": "What do you think of France Transfert?",
+  "Pas bien": "Poor",
+  "Moyen": "Acceptable",
+  "Très bien": "Very good",
+
+  "Vérification Adresse": "Check your email address",
+  "Session Expiré": "Your session has expired. You have been sent a new confirmation code by email to continue using the service as long as you do not exceed 30 minutes of inactivity.",
+  "CodeConfirmation1": "You have been sent a confirmation code by email. If you want to stay ",
+  "CodeConfirmation2": "connected",
+  "CodeConfirmation3": " it will allow you to use the service as long as you do not exceed 30 minutes of inactivity. If you do, you will need a new confirmation code to send another package.",
+  "Saisie_Code_Envoyé": "Enter the code that was sent to you at",
+  "Spam": "(check your spam folder).",
+  "CodeAnnulé": "Your package’s code has been deactivated following five validation errors.",
+  "CodeVérification": "Verification code",
+  "Saisie_Code_Vérification": "Please enter your verification code.",
+  "Rester_Connecté": "Stay connected",
+  "AccèsSécurisé": "Access to secure package!",
+  "Mot_Passe_Téléchargement": "A password is required to download this package.",
+  "Mot_Passe_Invalide": "Invalid password.",
+  "Mot_de_Passe": "Password",
+  "Saisie_Mot_passe": "Please enter the password.",
+  "Etes_vous_sûr": "Are you sure ",
+  "AnnulationPli": "This action will cancel your package.",
+  "Archivage_Pli": "This action will archive your package and make any download impossible.",
+  "Archiver": "Archive",
+  "Archiver_pli": "Archive package",
+  "Poursuivre": "Continue?",
+  "Continuer": "Continue",
+  "CGU_Titre": "Terms and Conditions of Use",
+  "Préambule": "Preamble",
+  "Intro": "<span>These Terms and Conditions of Use, valid indefinitely, apply to any user of the online service available at francetransfert.numerique.gouv.fr. They are applied in accordance with Article L. 112-8 of the French Code on Relations Between the Public and the Administration (right to administration via electronic means). </span> <span>By checking the box when sending, you certify that you have read and accepted the France Transfert Terms and Conditions of Use on this page. </span> <span>You will be asked to accept the Terms and Conditions of Use again in the event of extension of the services offered by France Transfert leading to changes to the Terms and Conditions of Use.</span>",
+  "Présentation_Service": "1. Presentation of the service",
+  "Présentation_Service_Texte": "<span>France Transfert (the Service) is a service created by the State (the State) to help its users (citizens, professionals, companies, associations, etc.), partners or providers to exchange large files and folders from officials that cannot be sent by email. </span> <br><span>It was designed and is operated by the Ministry of Culture (the Ministry) and made available to all ministries by the Interministerial Digital Directorate (DINUM). </span><br><span>The current version of the Service does not allow the transfer of files or folders larger than 2 GB. A later version will significantly increase this size. </span><br><span>The Service can be used to send a set of files or folders totalling up to 20 GB, as long as no file or folder exceeds 2 GB individually. </span><br><span>The Service is not designed: </span>",
+  "Présentation_Service_List": "<li><span>For the administrative procedures of minors;</span></li> <li><span>For procedures requiring the collection of data subject to Article 6 (I) of Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties (sensitive data).</span></li>",
+  "Service_Mis_A_Disposition": "The Service is provided with no express or tacit warranties other than those provided herein.",
+  "Modalités_Titre": "2. Terms of use of the Service ",
+  "Inscription_Transmission_Titre": "2.1 Registration and transmission of package files",
+  "Inscription_Transmission_Texte": "<span>When logging in to the Service page, the user of the Service provides the email address of the package’s recipients. Each recipient of the package will receive an email indicating the sender’s email address, the name and size of the files and the deadline to download the package before its deletion, as well as the password to download the package in a separate email. The user of the Service also provides a valid email address, to which an email will be sent confirming the transmission of the file to the  recipients. </span> <span>This email indicates the email addresses of recipients, the names and sizes of submitted files and the deadline to download the package before its deletion (the package is then archived).</span> <span>Use of the Service is free and optional.</span>",
+  "Données_Sensibles_Titre": "4.2 Sensitive data",
+  "Données_Sensibles_Texte": "<span>The Service is currently not designed for sending sensitive data. Sensitive data means:</span>",
+
+  "Données_Sensibles_Liste": "<li>The specific category of personal data defined by personal data protection regulations. This includes information that reveals a supposed racial or ethnic origin, political opinions, religious or philosophical beliefs or trade union membership, as well as the processing of genetic data, biometric data for the purpose of uniquely identifying a natural person, data concerning health or data concerning the sex life or sexual orientation of a natural person;</li> <li>Confidential or secret data (the dissemination of which is supposed to be limited to a small number of identified persons) which the Ministry is not supposed to collect through this tool in the course of its work.</b></li>",
+  "Données_Sensibles_Texte2": "If the sender wishes nevertheless to send sensitive data via the Service, in accordance with the applicable regulations, he or she must ensure that it has first been encrypted (via a ",
+  "Données_Sensibles_Texte3": "<span>If a recipient of a package sent via the Service finds that sensitive data has been sent without encryption by the sender, he or she may report this using the contact form, providing the download link of the package and the associated password. The Ministry will then initiate a procedure to isolate the package concerned, conduct an audit and then take the necessary action.</span>",
+  "Données_Techniques_Titre": "3. Technical data",
+  "Généralités_Titre": "3.1 General requirements ",
+  "Généralités_Texte": "Use of the Service requires an Internet connection and browser.",
+  "Utilisation_Cookies_Titre": "3.2 Use of cookies ",
+  "Utilisation_Cookies_Texte": "The Service does not use cookies. ",
+  "Plateformes_Outils_Titre": "3.3 Platforms and tools",
+  "Plateformes_Outils_Texte": "Technologies used ",
+  "Plateformes_Outils_List": "<li>Angular</li> <li>Angular Material UI</li>",
+  "Traitement_Données_Titre": "4. Processing of personal data",
+  "Traitement_Données_Texte": "<span>The Ministry is responsible for the processing of data received as it operates the Service and, as such, complies with the obligations inherent to such processing, in particular those laid down in Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties and Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 on the protection of natural persons with regard to the processing of personal data and on the free movement of such data, and repealing Directive 95/46/EC (General Data Protection Regulation [or GDPR]). </span><br> <span>The Ministry undertakes not to sell the data received, nor to divulge it to third parties except in cases provided for by law and to carry out all necessary prior formalities with the National Commission on Data Processing and Liberties (CNIL). </span><br> <span>The Ministry guarantees the users of the Service the rights of access, rectification, erasure and opposition, the right to portability of information concerning him or her, and the right to the limitation of processing, as provided for in Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties, by contacting the Data Protection Officer, providing evidence of identity by any means, by email (to delegue-protection-donnees@culture.gouv.fr) or by post (to Délégué ministériel à la protection des données – 182 rue Saint-Honoré – 75033 Paris CEDEX 01). </span><br> <span>The Ministry undertakes not to sell the information and documents provided by the user through the Service and not to communicate it to third parties, except in cases provided for by law.</span><br> <span>The Ministry undertakes to take all necessary precautions to preserve the security and confidentiality of data provided by the user, including preventing it from being distorted, damaged or accessed by unauthorized third parties.</span>",
+  "Démarches_Publiées_Titre": "5. Place of storage and retention period of data from procedures carried out using the Service",
+  "Démarches_Publiées_Texte": "<span>The Service is hosted on a sovereign cloud (Outscale). The files and folders are stored on French servers until they are downloaded by their recipients. </span><br> <span>Files and folders sent using the Service are destroyed:</span>",
+  "Démarches_Publiées_List": "<li>At the request of the sender, via the link received to administer the package.</li> <li>Automatically, on the expiry date set by the sender.</li><li>Automatically, after 30 days, if the sender does not specify an expiry date.</li>",
+  "Engagements_Responsabilité_Titre": "6. Commitments and liability ",
+  "Engagements_Ministère_Titre": "6.1 Commitments of the Ministry",
+  "Engagements_Ministère_Texte": "<span>The Ministry cannot be held liable in the event of Service downtime, regardless of the consequences that may arise. Service downtime does not give rise to any compensation.</span>",
+  "Engagements_Responsabilité_Usager_Titre": "6.2 Commitments and liability of the user",
+  "Engagements_Responsabilité_Usager_Texte": "<span>The user undertakes to comply with these Terms and Conditions of Use and applicable legislation. In particular, he or she undertakes to provide only accurate, up-to-date and complete information when using the Service. </span><br><span>The user of the Service undertakes to make reasonable use of it and to use it for administrative and non-personal purposes only. </span><br> <span>The user has sole responsibility for his or her use of the technical means provided under the Service and the files he or she sends, in accordance with the applicable laws and regulations and these Terms and Conditions of Use. </span><br> <span>The user undertakes not to use the Service to transfer illegal content. If the user discovers that illegal content has been transferred, he or she can report it via the “Contact us” form. The Ministry will then initiate a procedure to isolate the package concerned, conduct an audit and then take the necessary action (report to the Public Prosecutor). </span><br> <span>The user undertakes to provide only accurate, up-to-date and complete information when using the Service. In the event that the user fails to fulfil this undertaking, the Ministry reserves the right to suspend or terminate the administrative process, without prejudice to any criminal and civil legal action that may be taken against him or her. </span><br> <span>Any person who makes a false statement for him or herself or another person may incur, inter alia, the penalties laid down in Article 441-1 of the Criminal Code, including sentences of up to three years’ imprisonment and €45,000 fine.</span>",
+  "Modification_Evolution_Qualité_Titre": "7. Changes, evolutions and quality of the Service",
+  "Modification_Evolution_Qualité_Texte": "<span>The Ministry reserves the right to develop, change or suspend the Service, without notice, for maintenance or for any other reason deemed necessary. </span><br> <span>These Terms and Conditions of Use may be amended at any time, without notice, depending on changes made to the Service, evolutions of legislation or for any other reason deemed necessary.</span>",
+  "Sécurité_Titre": "8. Security",
+  "Sécurité_Texte": "<span>The data sent by France Transfert is scanned for viruses. They can be protected in a ZIP archive with a password set by the user. France Transfert underwent an EBIOS RM security audit and penetration test in early 2021, as well as a code and configuration audit in October 2021.  </span><br> <span>The France Transfert Service received security accreditation under the authority of the Interministerial Digital Directorate (DINUM) on 15 December 2021.</span><br> <span>The Ministry takes all necessary precautions and steps to preserve the security personal data, including preventing it from being distorted, damaged or accessed by unauthorized third parties. </span><br> <span>Any questions about the security of the Service may be sent to the contact address provided in Article 9.</span>",
+  "Contact_Titre": "9. Contact",
+  "Contact_Texte": "<span>The contact department is DINUM.</span><br> <span>It can be reached via the “Contact us” form.</span><br> <span>Officials can join the dedicated Tchap room for France Transfert. You will find information on future developments and discuss the Service with other officials. </span>",
+
+  "Politique_Protection_Données_Titre": "Data protection policy",
+  "Droits_Personnes_Titre": "Rights of data subjects ",
+  "Droits_Personnes_Texte": "<span>Personal data means any information relating to a natural person who could be identified, directly or indirectly. Personal and professional email addresses, as well as IP addresses, are considered personal data. </span><br> <span>The France Transfert service is compliant in its collection and management of your personal data with Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties and the General Data Protection Regulation of 27 April 2016 (the “GDPR”).</span>",
+  "Droits_Personnes_Liste": "<li><span>The personal data requested from you are required to access the France Transfert service. They are for the use of the Ministry of Culture (Digital Service) in its capacity as data controller. The legal basis for the processing is legitimate interest.</span></li> <li><span>They will be communicated for the same purposes to the staff members of the Ministry of Culture maintaining the France Transfert service.</span></li>  <li><span>Personal data are recorded and stored as follows:</span> <ul><li><span>In the application database: the life of the package (30 days by default, up to 90 days as chosen by the sender);</span></li><li> <span>In the application logs: up to 12 months (for analysis of any malfunction).</span></li></ul></li><li> <span>The Ministry of Culture undertakes to take all necessary measures to guarantee the security and confidentiality of your data, in accordance with the legal framework. It also undertakes not to sell any of the information you transmit or to communicate it to third parties, except as provided for by law. </span></li><li><span> In accordance with the Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties, you have the right of access, rectification, erasure, restriction of processing and the right to determine the fate of your data after your death, which is exercised by contacting the Data Protection Officer and proving your identity by any means: </span>  <ul><li><span>By email at the following address: <a href='mailto:delegue-protection-donnees@culture.gouv.fr'>delegue-protection-donnees@culture.gouv.fr</a></span></li><li><span>Or by post at the following address:</span><p><span>Ministère de la Culture</span><br> <span>À l’attention de Monsieur le Délégué à la protection des données</span><br> <span>182 Rue Saint-Honoré</span><br> <span>75033 Paris CEDEX 01</span></p></li></ul></li> <li><span>If you feel, after contacting us, that your rights under the Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties are not respected, you have the right to lodge a complaint with the National Commission on Data Processing and Liberties (CNIL), the supervisory authority responsible for compliance with personal data obligations.</span></li>",
+
+  "Accessibilité_Titre": "Accessibility",
+  "Déclaration_Accessibilité_Titre": "Accessibility declaration",
+  "Déclaration_Accessibilité_Texte1": "The Ministry of Culture undertakes to make its web, intranet and extranet sites accessible in accordance with Article 47 of Act 2005-102 of 11 February 2005.",
+  "Déclaration_Accessibilité_Texte2": "To this end, it is implementing the following strategy and actions: ",
+  "Déclaration_Accessibilité_Lien": "Multi-year government accessibility plan",
+  "Déclaration_Accessibilité_Texte3": "This accessibility statement applies to the site <a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/'target='blank'>France transfert</a>.",
+  "État_Conformité_Titre": "Conformance",
+  "État_Conformité_Texte1": "The site <a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/'target='blank'>France transfert</a> is not conformant with <a rel='noopener noreferrer' href='https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#contenu'target='blank'>RGAA (general accessibility improvement standard) version 4.1</a>. Non-conformities and possible exemptions are listed below.",
+  "Résultats_Tests_Titre": "Test Results",
+  "Résultats_Tests_Texte1": "The conformance audit carried out by <a rel='noopener noreferrer' href='https://empreintedigitale.fr/' target='_blank'>Empreinte Digitale</a> revealed that:",
+  "Résultats_Tests_Liste": "<li><span>92,31% of RGAA criteria are respected.</span></li><li><span>The average conformance rate of the online service is 98% (optional information).</span></li>",
+  "Contenus_Inaccessibles_Titre": "Inaccessible content",
+  "Contenus_Inaccessibles_Texte": "The content listed below is not accessible for the following reasons.",
+  "Non_Conformité_Titre": "Non-conformity",
+  "Non_Conformité_Texte": "Only the non-conformities considered to have the greatest impact and present in significant numbers on the sample pages are listed here. The full findings of the audit may be disclosed upon request.",
+  "Non_Conformité_Liste": "<li><span>Use of < div > tags to structure text blocks</span></li><li><span>The calendar is not compatible with assistive technologies</span></li><li><span>Some buttons do not have a label</span></li><li><span>Quick link not relevant</span></li>",
+  "Dérogations_Charge_Disproportionnée_Titre": "Exemptions for disproportionate burden",
+  "Néant": "N/A",
+  "Rizomo_Audit": "The Rizomo tool was not part of the audit scope.",
+  "Contenus_Non_Soumis_Obligation_Accessibilité_Titre": "Content not subject to accessibility requirements",
+  "Établissement_Déclaration_Accessibilité_Titre": "Establishment of this Accessibility Statement",
+  "Établissement_Déclaration_Accessibilité_Texte": "This statement was established on April 28, 2023.",
+  "Technologies_Utilisées_Titre": "Technologies used to produce [Website/Mobile App/Service...] ",
+  "Angular_Material_UI": "Angular Material UI.",
+  "Vérification_Accessibilité_Titre1": "User agents, assistance technologies and tools used to check accessibility",
+  "Vérification_Accessibilité_Texte": "Content restitution checks were carried out with the following configurations:",
+  "Vérification_Accessibilité_Liste1": "<li><span>Firefox and NVDA;</span></li><li><span>Safari and VoiceOver;</span></li><li><span>Firefox and Jaws.</span></li>",
+  "Vérification_Accessibilité_Titre2": "The following code verification tools were used to verify RGAA conformance:",
+  "Vérification_Accessibilité_Liste2": "<li><span>Colour Contrast Analyser;</span></li><li><span>Web Developer extension;</span></li><li><span>“Assistant RGAA” extension;</span></li><li><span>“WCAG Contrast Checker” extension;</span></li><li><span>“ARC Toolkit” extension;</span></li><li><span>“HeadingsMap” extension;</span></li><li><span>Firefox browser Developer Tools;</span> </li><li> <span>W3C HTML validator.</span></li>",
+  "Vérification_Conformité_Titre": "Website pages that were subject to conformance checks",
+  "Vérification_Conformité_Liste": "<li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/upload' target='_blank'>Home</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/faq' target='_blank'>FAQ Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/connect' target='_blank'>Login Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/plis' target='_blank'>My packages Page</a></li><li>Detail Page of an issued package</li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/contact' target='_blank'>Contact us Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/accessibilite' target='_blank'>Accessibility Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/mentions-legales' target='_blank'>Impressum Page</a></li><li>Password verification screen</li><li>Result page of a submission</li>",
+
+  "Retour_Information_Contact_Titre": "Feedback and contact information",
+  "Retour_Information_Contact_Texte": "If you are unable to access a specific piece of content or service, you can contact the website manager to be directed to an accessible alternative or to obtain the content in a different form.",
+  "Retour_Information_Contact_Liste": "Send a message",
+  "Voie_Recours_Titre": "Complaint procedure",
+  "Voie_Recours_Texte1": "This procedure is to be used in the following case.",
+  "Voie_Recours_Texte2": "If you inform the website manager of an accessibility problem that prevents you from accessing a specific service or content and do not receive a satisfactory response:",
+  "Voie_Recours_Liste": "<li><span>Write a message to the Defender of Rights (<a rel='noopener noreferrer' href='https://formulaire.defenseurdesdroits.fr/defenseur/code/afficher.php?ETAPE=informations' target='_blank'>via the contact form</a>) ;</span></li><li><a rel='noopener noreferrer' href='https://www.defenseurdesdroits.fr/saisir/delegues' target='_blank'>Contact the delegate of the Defender of Rights in your region</a> ;</li><li><span>Send a letter by post (free-of-charge, no stamp is necessary) to: Défenseur des droits Libre réponse 71120 75342 Paris CEDEX 07 ;</span></li><li><span>Contact the Defender of Rights by telephone: +33 (0)9 69 39 00 00.</span></li>",
+
+  "Etes_Vous_Sûr": "Are you sure?",
+  "Suppression_Pli": "This will permanently delete your package and make it inaccessible.",
+  "Supprimer": "Delete",
+  "Suppression_Destinataire": "Are you sure you want to delete this recipient?",
+  "Lien_Téléchargement": "The download link received by email will no longer work.",
+
+  "Destinataire_Ajouté": "The recipient has been added.",
+  "Courriel_Envoyé": "The recipient has been sent an email with a package download link.",
+
+  "Administration": "Package administration",
+  "Informations_Pli": "Package information",
+  "Nombre_Téléchargements": "Number of downloads: ",
+  "Emetteur": "Sender:",
+  "Message_Admin": "Message: ",
+  "Date_Emission": "Date of sending: ",
+  "Date_Fin_Validité": "Valid until: ",
+  "Modification_Date_Fin_Validité": "Change validity period",
+  "Suppression_Pli_Admin": "Delete package: ",
+  "Destinataires": "Addressees: ",
+  "Courriel_Destinataire": "Recipient’s email address",
+  "Supprimer_Destinataire": "Delete recipient",
+  "Éléments_Pli": "Package elements",
+  "Téléchargement_Pli": "Package Downloads",
+
+  "Message_Connect": "You can now use France Transfert for at least 30 min.",
+
+  "Message_Contact": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Sending complete</p><p>Thank you for your message. We will get back to you as soon as possible.",
+
+  "Prêt_Partez": "Ready? Go!",
+  "Jours_Restants1": "You have ",
+  "Jours_Restants2": " days left to download the package.",
+  "Acceptation_CGU": "  I have read the <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>Terms and Conditions of Use</a>.",
+  "Télécharger": "Download",
+
+  "Ajouter_Ecran_Accueil": "Add to Home screen",
+  "Fermer": "Close",
+  "Installation_Application": "To install this web application on your device, press the Menu button, then the “Add to Home screen” button",
+
+  "Mise_A_Jour_Disponible": "Update available ",
+  "Nouvelle_Version_Disponible": "A new version of the application is available.",
+  "Mettre_A_Jour": "Update?",
+  "Non": "No",
+  "Oui": "Yes",
+
+  "Délai_Validité": "Validity period ",
+  "Nombres_Caractères": "12 characters minimum - 64 characters maximum",
+  "Nombres_Lettres_Minuscules": "At least 3 lower case letters (a-z, no accents)",
+  "Nombres_Lettres_Majuscules": "At least 3 upper case letters (A-Z, no accents)",
+  "Nombres_chiffres": "At least 3 numbers",
+  "Nombres_Caractères_Spéciaux": "At least 3 special characters (!@#$%^&*_-:+)",
+  "Langue_Affichage_Courriels": "Email language",
+  "Zip_Mot_Passe": "Protect the package’s ZIP file with a password",
+
+  "Ajout_Destinataire": "Add a recipient",
+  "Terminer": "Complete",
+  "Details": "Administer package",
+  "Ouvrir_Menu": "Open menu",
+  "Retour_Accueil": "Back to home page",
+  "Valide": "Valid",
+  "Erreur": "Error",
+  "Fermer_Menu": "Close menu",
+  "Supprimer_Fichier": "Delete file",
+  "Ajout_Fichiers": "Add files",
+  "Afficher_Liste": "Show list",
+  "Masquer_Liste": "Hide list",
+  "Envoyer_Code": "Send code",
+
+  "Mon_Compte": "My account",
+  "Mes_Plis": "My packages",
+  "Mes_Plis_Envoyés": "My sent packages",
+  "Mes_Plis_Reçus": "My received packages",
+
+  "ITEMS_PER_PAGE": "Packages per page",
+  "NEXT_PAGE": "Next page",
+  "PREVIOUS_PAGE": "Previous page",
+  "FIRST_PAGE": "First page",
+  "LAST_PAGE": "Last page",
+  "OF_LABEL": "on",
+
+  "Filtrer": "Filter",
+  "Rechercher": "Search",
+  "Liste_Plis": "List of sent packages ",
+  "Se_connecter": "You have been logged out. Please log in again to access your packages.",
+  "Date_Envoi": "Date of sending",
+  "Type": "Type",
+  "Taille": "Size",
+  "Fin_Validité": "Valid until",
+  "Liste_Destinataires": "Recipients",
+  "Elément_Récurrent": "Select the page of the recurring element",
+
+  "Version2": "version ",
+  "Version_Française": " The French version of this page prevails in the event of differences with versions in other languages.",
+  "Information_Personnes_Titre": "4.1 Personal information",
+  "Information_Personnes_Texte": "<span>The Ministry of Culture, the controller, processes your personal data in order to provide the France Transfert service.</span><br><br><span>The data collected are essential for this processing and are intended for the relevant directorates of the Ministry of Culture and any subcontractors.</span><br><br><span>The legal basis for the processing is the execution of a public service mission.</span><br><br><span>The Ministry of Culture undertakes not to sell the information and documents transmitted by the User via the Service and not to communicate it to third parties, except in the cases provided for by law.</span><br><br><span>The data collected shall be kept for the following periods:</span><br>",
+  "Information_Personnes_Liste": "<li>email addresses: 12 months;</li> <li>logs: 12 months</li>",
+  "Information_Personnes_Second_Texte": "<span>In accordance with the regulations in force, you have the right of access, rectification, erasure, restriction of processing and to object, and the right to determine the fate of your data after your death, which may be exercised by contacting the Data Protection Officer by email at delegue-protection-donnees@culture.gouv.fr or by post, proving your identity by any means, at the following address: </span><br><br><span>Ministère de la Culture </span><br><span>À l’attention de Monsieur le Délégué à la protection des données </span><br><span>182 Rue Saint-Honoré </span><br><span>75001 Paris </span><br><br><span>You can contact the Data Protection Officer designated by the Ministry of Culture at the following address: delegue-protection-donnees@culture.gouv.fr</span><br><br><span>Finally, you have the right to lodge a complaint with the National Commission on Data Processing and Liberties (CNIL), the supervisory authority responsible for compliance with personal data obligations.</span><br>",
+
+  "Liste_Plis_Reçus": "List of received packages",
+  "Date_Réception": "Date of receipt",
+  "expediteur": "Sender",
+  "Nombres_Caractères_Spéciaux_Forbidden": "No unsupported special characters",
+  "Téléchargement": " download(s)",
+
+  "Contact": "Contact us",
+
+  "Question1Image": "",
+  "Question2Image": "",
+  "Question6Image": "",
+  "Question8Image": "",
+  "Question15Image": "",
+  "Formulaire": "The Ministry of Culture, the controller, processes your personal data in order to provide the France Transfert service. To find out more about your rights, consult the provisions on personal data in our <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'> Terms and Conditions of Use</a>.</span>",
+  "Renvoyer_Lien_Téléchargement": "Resend download links",
+
+  "MB": "MB",
+  "KB": "KB",
+  "bytes": "B",
+  "Download_Success": "The emails have been sent to the recipient.",
+  "Renvoyer_pli": "You can resend a download link email and a download password email.",
+  "Poursuivre_pli": "Continue?",
+
+  "catégorie1": "General",
+  "catégorie2": "My account / Log in",
+  "catégorie3": "Send package",
+  "catégorie4": "Download package",
+  "catégorie5": "Administer package",
+  "catégorie6": "Information and user feedback",
+  "Question19": "What does the round “rucksack” button at the bottom-right of France Transfert do?",
+  "Question19_Texte": "<span>The button is the Rizomo tool for officials.</span><span> If it gets in the way, you can move it elsewhere on the screen. </span><br><span>Rizomo provides officials with a shortcut to collaborative interministerial applications, and will soon offer links to their own organization’s applications. </span><span>To access Rizomo, simply click on the “rucksack” button.</span>",
+  "Question20": "Where can I find the packages I have sent and received? ",
+  "Question20_Texte": "<span>Once connected, you can click on “My account” and then “My packages” from the header of the France Transfert page or the application menu on the mobile version. </span><br><span>On the “My packages” page you can access:</span>",
+  "Question20_Liste": "<li>The list of sent packages<ul><li>By clicking on the icon at the end of the line (“Action” column), you can easily reach the administration page for your package (if it's still active) or the details page (if it has been archived).</li></ul><li>The list of received packages<ul><li>By clicking on the icon at the end of the line (“Action” column), you can reach the package’s download page (if it's still active) or the details page (if it has been archived). Have the package password that you received by email ready. </li></ul></li>",
+  "Question21": "What information do I have to keep track of downloads?",
+  "Question21_Texte1": "<span>As sender, you are informed of downloads of your package by recipients:</span>",
+  "Question21_Liste": "<li>By email, every day that one or more downloads take place.</li><li>On the package administration page, which lists how many downloads have taken place and when.</li>",
+  "Question21_Texte2": "<span>If your package was created using the “link” function (without a recipient indicated), the package administration page will only show the number of downloads that have taken place.</span>",
+  "Question22": "Has a recipient not received the email from France Transfert?",
+  "Question22_Texte1": "<span>When you send a package using the “email” function, France Transfert sends two emails to each recipient: </span>",
+  "Question22_Liste": "<li>An email with a specific download link for each recipient,</li><li>An email with the package download password (identical for each recipient, and also sent to the sender by email).</li>",
+  "Question22_Texte2": "<span>If one of your recipients did not receive one or both of these emails, you can use the package administration page to resend them by clicking on the “envelope” icon for the recipient concerned. </span>",
+  "Question32": "",
+  "Dates-telechargement": "Download dates:",
+  "time": "at",
+  "téléchargement-pli": "Download package",
+
+  "Dupliquer-destinataires": "Duplicate recipients",
+  "CGU-Version": "3.8.0",
+  "Faq-Version": "3.8.0",
+  "Accessibilite-Version": "3.12.2",
+  "Mentions-légales-Version": "3.6.0",
+  "Politique-protection-donnees-Version": "3.4.0",
+
+  "questions": [
+    {
+      "category": "General",
+      "entities": [
+        {
+          "Question": "Why use France Transfert?",
+          "Question_Texte1": "<span>France Transfert is a service created by the government to help its users (citizens, professionals, companies, associations, etc.), partners and service provides exchange large files and folders that cannot be sent by email with government personnel.It was designed and is operated by the Ministry of Culture, and made available to all ministries by the Interministerial Digital Directorate (DINUM).</span><br><span>The service is hosted in France by Outscale. The data is stored on French servers until it is downloaded by the recipient.</span> ",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Can I use France Transfert for personal use?",
+          "Question_Texte1": "<span>France Transfert is reserved for exchanging large files between government services and their users. It is not possible to exchange files between users.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Can I use France Transfert on a mobile?",
+          "Question_Texte1": "Yes. France Transfert was designed as a Progressive Web App and can therefore be installed as an application (the web browser will invite you to do so). ",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What does the round “rucksack” button at the bottom-right of France Transfert do?",
+          "Question_Texte1": "<span>The button is the Rizomo tool for officials.</span><span> If it gets in the way, you can move it elsewhere on the screen. </span><br><span>Rizomo provides officials with a shortcut to collaborative interministerial applications, and will soon offer links to their own organization’s applications. </span><span>To access Rizomo, simply click on the “rucksack” button.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+    {
+      "category": "My account / Log in",
+      "entities": [
+        {
+          "Question": "What is the point of “logging in”?",
+          "Question_Texte1": "You can decide to log in to France Transfert before or when sending a package by clicking on “Stay connected”. ",
+          "Question_Liste": "<li><span>Logging in confirms that you are the owner of the email address indicated as the sender of the package: a confirmation code is sent by email and you have 20 minutes to enter it. </span></li> <li> <span> Once you are logged in, you no longer need to enter your email address again to send another package. </span> </li> <li> <span>  You will remain logged in for 30 min and can send another package during that period. If you do not create another package before the end of that period, you will have to log in again.</span></li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>Logging in does not require you to create a user account. It is only a means of verifying your email address and saving you the effort of proceeding with verification for every package.  </span> <span>If you are already logged in and want to send using a different email address, simply click on “Log out”. You can then go through the connection process, either when sending your next package, or after clicking on “Log in”.</span><br> <span>However, if you open France Transfert in a new tab or refresh the page, the login information is erased. </span><br> <span>You can also decide not to log in, in which case you will need to enter a confirmation code each time you send a package. </span>",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Where can I find the packages I have sent and received?",
+          "Question_Texte1": "<span>Once connected, you can click on “My account” and then “My packages” from the header of the France Transfert page or the application menu on the mobile version. </span><br><span>On the “My packages” page you can access:</span>",
+          "Question_Liste": "<li>The list of sent packages<ul><li>By clicking on the icon at the end of the line (“Action” column), you can easily reach the administration page for your package (if active) or the details page (if archived).</li></ul><li>The list of received packages<ul><li>By clicking on the icon at the end of the line (“Action” column), you can reach the package’s download page (if active) or the details page (if archived). You will need the package password received by email, which is also available on the package consultation page (if archived). </li></ul></li>",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Send package",
+      "entities": [
+        {
+          "Question": "What can France Transfert do?",
+          "Question_Texte1": "France Transfert can be used in two different ways:",
+          "Question_Liste": "<li> <span>Email delivery, accessible to both officials and users. This feature allows senders (officials or users) to send large files to one or more known recipients. However, if the sender is a user, recipients must be officials. It is not possible to exchange files between users. </span></li><li> <span>The “link” feature is only available to officials. It generates a public link to the files. The sender then sends the link and password to the appropriate recipients. The difference is that recipients can then share the link without the sender being able to control when it is downloaded.</span> </li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>N.B. If you want to send a package to a functional email address (used by a group), we do not recommend using the “email delivery” option. A package can only be downloaded five times per recipient. </span>",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Why do I have to provide a confirmation code to send a file?",
+          "Question_Texte1": "<span>People could use France Transfert for personal use by “borrowing” the email address of an official or user. To avoid this, the sender will receive an email containing a confirmation code. When you add the files to transfer, you will have to enter the confirmation code, which is valid 20 minutes. </span> <br><span>If you have logged in and decide to send another package less than 30 min after the previous one, you will not be asked for a new confirmation code.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What happens after I send my files?",
+          "Question_Texte1": "<span>Once files are submitted to France Transfert, they are scanned for viruses and may be deleted if necessary. </span><br> <span>If the scan goes well, a confirmation email is sent to the sender, along with the password to download the package. Recipients receive an email with a download link and a password in a separate email. </span><br> <span>If the virus scan is long (large packages) then the confirmation email may take a long time to arrive. The sender receives an email either to inform them of an error (such as a security issue) or to confirm delivery (in which case recipients also receive an email with download instructions).</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Is there a usage limit?",
+          "Question_Texte1": "There is a daily limit of 5 packages per non-official sending address.",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Is there a file size limit on France Transfer?",
+          "Question_Texte1": "<span>France Transfert allows you to send up to 20 GB of files and folders per package, so long as no file exceeds 2 GB.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What file extensions are allowed on France Transfert?",
+          "Question_Texte1": "<span>All common file extensions are accepted on France Transfert except, for security reasons, certain executable files and computer scripts that could contain viruses.</span><br> <span>List of prohibited file extensions: </span><br> <span>“ade, a3x, adp, app, appinstaller, applescript, application, appref-ms, appx, appxbundle, asp, aspx, asx, bas, bat, cer, chm, cmd, cnt, com, cpl, crt, csh, daa, der, diagcab, dll, dmg, exe, fxp, gadget, grp, hlp, hpj, hta, htc, img, inf, ins, iso, isp, its, jar, jnlp, js, jse, ksh, lnk, mad, maf, mag, mam, maq, mar, mas, mat, mau, mav, maw, mcf, mda, mdb, mde, mdt, mdw, mdz, msc, msh, msh1, msh1xml, msh2, msh2xml, mshxml, msi, msp, mst, msu, ocx, ops, osd, pcd, pif, pl, plg, ppa, ppam, ppkg, prf, prg, printerexport, ps1, ps1xml, ps2, ps2xml, psc1, psc2, psd1, psdm1, pst, py, pyc, pyo, pyw, pyz, pyzw, reg, scf, scpt, scr, sct, service, settingcontent-ms, shb, shs, so, theme, timer, tmp, url, vb, vbe, vbp, vbs, vhd, vhdx, vsmacros, vsw, webpnp, website, wim, ws, wsc, wsf, wsh, xbap, xlam, xll, xnk”.</span><br> <span>When you send a file, do make sure your recipient can open it.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Can I use a list of addresses?",
+          "Question_Texte1": "<span>To send a package to several recipients at once, you can upload a CSV file containing their addresses (using the semicolon (;) separator). To do this, click on the pictogram to the right of the “Recipients” field. </span><br> <span>You can generate a CSV file from your recipients by clicking on the pictogram to the right of the address list. You can store and use it to automatically complete the recipient list for your next package. </span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What happens to my package after the validity period expires?",
+          "Question_Texte1": "<span>Once the validity period has expired (by default, 30 days after sending):</span>",
+          "Question_Liste": "<li> <span>If the package has not been downloaded by at least one addressee, the sender receives an email indicating that the addressees have not downloaded the package </span></li> <li> <span>The package files are automatically deleted and the download links sent to addressees (or the public download link) will no longer work</span></li> <li> <span>The package is “archived”:<ul><li>It remains accessible via “My Account” / “My packages” (login required) and enables the sender to retain access to package information (addressee list, number of downloads, names of package files);</li></ul> <ul><li>It will be permanently deleted from France Transfert 12 months after creation (date of archive expiry)</li></ul></span></li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Download package",
+      "entities": [
+        {
+          "Question": "How do I download a package addressed to me?",
+          "Question_Texte1": "<span>When the package is sent, a confirmation email with details of the package files is sent to the sender, as is the password to download the package.</span><br> <span>Recipients receive an email with a download link and a password in a separate email.</span> <br><span>If the password is not accepted, check that no trailing space was copied with it (use the eye pictogram to display the password).</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "How many times can recipients download files I send?",
+          "Question_Texte1": "<span>Each recipient has their own link to download the package. With this link, each recipient can download the package 5 times. </span><br><span>This allows recipients to download the files again if they need to (in case of deletion from their computer, for example). </span><br><span>If a recipient exceeds the 5-download limit, a new package will have to be sent. This may also be necessary if the recipient has “locked” their link by entering the wrong download password more than 5 times. </span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What happens to the files I send after they have been downloaded by my chosen recipients?",
+          "Question_Texte1": "<span>Files are deleted after the package’s validity period (default 30 days) has expired. Packages are not deleted automatically once all recipients have downloaded them, as recipients may need to download them again.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Where do downloaded files go?",
+          "Question_Texte1": "<span>The files are downloaded via your browser. Depending on its configuration, they may go directly to the “Downloads” folder, or you may be asked to decide where to save them.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    },
+    {
+      "category": "Administer package",
+      "entities": [
+        {
+          "Question": "Made a mistake in the list of recipients but I already sent my package. What can I do?",
+          "Question_Texte1": "Did you make a mistake entering recipients? Several options are available from the package administration page (administration link received in the delivery confirmation email), depending on your needs:",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li> Delete the package: the package is completely deleted, and no recipients can download it anymore.</li><li>Delete one or more recipients: the download links of selected recipients are revoked and can no longer be used to download files.</li><li>Add a recipient: you can manually add one or more package recipients. Like the original recipients, they will receive an email with a download link and a password in a separate email. </li>",
+          "Question_Texte2": "If you delete a package or a recipient, do inform affected recipients so that they do not try in vain to download the package.",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What information do I have to keep track of downloads?",
+          "Question_Texte1": "<span>As sender, you are informed of downloads of your package by recipients:</span>",
+          "Question_Liste": "<li>By email, every day that one or more downloads take place.</li><li>On the package administration page, which lists how many downloads have taken place and when.</li>",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "<span>If your package was created using the “link” function (without a recipient indicated), the package administration page will only show the number of downloads that have taken place.</span>",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Has a recipient not received the email from France Transfert?",
+          "Question_Texte1": "<span>When you send a package using the “email” function, France Transfert sends two emails to each recipient: </span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li>An email with a specific download link for each recipient,</li><li>An email with the package download password (identical for each recipient, and also sent to the sender by email).</li>",
+          "Question_Texte2": "<span>If one of your recipients did not receive one or both of these emails, you can use the package administration page to resend them by clicking on the “envelope” icon for the recipient concerned. </span>",
+          "QuestionImage": ""
+        }
+      ]
+    },
+
+    {
+      "category": "Information and user feedback",
+      "entities": [
+        {
+          "Question": "What is the user questionnaire for?",
+          "Question_Texte1": "<span>The questionnaire is anonymous and used for statistical and improvement purposes only. </span><br><span>If you complete the questionnaire, the rating you leave is recorded for statistical purposes only. You can leave comments to tell us what you think about the service.</span><br><span>The product team will review the comments but cannot commit to responding individually or implementing any suggestions.</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "Where can I find more information about France Transfert?",
+          "Question_Texte1": "<span>For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. </span><br> <span>You can also use the “Contact” form (at the bottom of the page or in the menu on the mobile version). </span><span>Lastly, if you need help to get to grips with France Transfert, a step-by-step guide is available here: <a class='link' rel='noopener noreferrer' href='https://osmose.numerique.gouv.fr/front/publicLink/publicDownload.jsp?id=9bb69b78-cee3-4951-b70d-df031570f294b002893f-de07-400f-bc75-4d4efee4a8a9' target='_blank'>Step-by-step France Transfert Guide</a></span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        },
+        {
+          "Question": "What should I do if an “Access denied – UBIKA Cloud Protector” page appears?",
+          "Question_Texte1": "<span>The Ministry of Culture has set up a Web Application Firewall (WAF) to protect France Transfert from certain attacks over the Internet.</span><span>This security system should be invisible for users of France Transfert in normal use. However, the WAF may wrongly detect a threat during legitimate use, in which case an “Access denied – UBIKA Cloud Protector” page should appear.</span><span>In this case, you should:</span>",
+          "Question_Liste": "",
+          "Question_Liste_Ordered": "<li>Copy the information displayed under “Additional information”.</li><li>Click on the blue “Request access” button. This will send a notification to the France Transfert technical team with technical information on the blockage.</li><li>Return to France Transfert and use the “Contact us” page to send a message to the support team, providing the “Additional information” copied earlier. This will enable the France Transfert technical team to contact you via the email address given in the contact form to identify why your access was blocked and take extra WAF configuration steps to avoid repetition of the problem.</li>",
+          "Question_Texte2": "",
+          "QuestionImage": ""
+        }
+      ]
+    }
+  ],
+  "Historique": "Package's detail",
+  "typePli": [
+    {
+      "Type_Pli": "Status of package",
+      "entities": [
+        {
+          "value": "remove_red_eye",
+          "viewValue": "Archived package"
+        },
+        {
+          "value": "edit",
+          "viewValue": "Active package"
+        },
+        {
+          "value": "",
+          "viewValue": "All"
+        }
+      ]
+    }
+  ],
+  "typePliReçus": [
+    {
+      "Type_Pli": "Status of package",
+      "entities": [
+        {
+          "value": "remove_red_eye",
+          "viewValue": "Archived package"
+        },
+        {
+          "value": "cloud_download",
+          "viewValue": "Active package"
+        },
+        {
+          "value": "",
+          "viewValue": "All"
+        }
+      ]
+    }
+  ],
+  "Traductions": "Translations",
+  "Traductions_Text": "The translation of the France Transfert website into English was carried out by the Translation Department of the Ministry for Europe and Foreign Affairs.",
+  "Object": "Re. :",
+  "Details_Oeil": "View the package",
+  "Details_Edit": "Administer package",
+  "Details_Download": "Download package",
+  "GB": "GB",
+  "Importation_Erreur": "Please import a list of contacts from a CSV file",
+  "Retour": "Back",
+  "Date_Archive": "Archiving end date :",
+  "CodeReçu": "Code received",
+  "Nombre d'essais maximum atteint": "Maximum number of trials reached",
+  "Ou": "Or",
+  "AgentConnect": "What is AgentConnect?",
+
+  "Exporter_PDF": "PDF export",
+  "Export_PDF": "Export as PDF",
+  "Nom": "Name",
+  "Récapitulatif_Pli": "Package Summary",
+  "Dates_Téléchargement": "Download dates",
+  "Nb_Téléchargement": "Number of downloads",
+  "Dossiers": "Folders",
+  "Fichiers": "Files",
+  "Langue": "en",
+  "Edité": "Edited on ",
+  "Destinataire_Download": "Number of recipients who have made at least one download",
+  "Nombre_Destinataires": "Number of recipients",
+  "Nombre_Téléchargement": "Number of downloads",
+  "Date_Premier_Téléchargement": "Date of first download",
+  "Date_Dernier_Téléchargement": "Date of last download",
+  "Exporter_CSV": "CSV export ",
+  "Plis_Reçus": "List of received packages",
+  "Plis_Envoyés": "List of sent packages",
+  "namePDF-sent": "Sent package",
+  "namePDF-recieved": "Recieved package",
+  "PDF" : "PDF",
+  "Resana-Osmose": "If you have an OSMOSE and/or RESANA account and you wish to download the contents of this fold directly into OSMOSE or RESANA, you can click on one of the buttons below: ",
+  "Type_Pli": "Package type :",
+  "Total_Size": "Total size of the package :",
+  "Date_invalide": "Invalid date",
+  "Menu": "Menu",
+  "Paramètres": "Settings",
+  "DestinataireLimité": "Maximum number of adressees is : 100",
+  "conteneur_Zed": "Zed container",
+  "exemple": " for example).,",
+  "EnvoiePli": "Send a package",
+   "Facultatif": "(Optional)"
+
+
+
+
+
+
+}
