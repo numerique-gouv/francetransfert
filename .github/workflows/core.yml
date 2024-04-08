@@ -1,6 +1,5 @@
 name: Publish Core
 on:
-  on:
   # release:
   #   types: [created]
   push:
