@@ -3,3 +3,5 @@ on: workflow_dispatch
 jobs:
   build-core:
     uses: ./.github/workflows/core.yml
+  build-donwload:
+    uses: ./.github/workflows/download.yml

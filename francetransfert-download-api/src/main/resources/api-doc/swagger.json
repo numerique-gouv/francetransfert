@@ -1,0 +1,96 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Spring Boot Rest API Description",
+    "version": "2019",
+    "title": "Starterkit API",
+    "termsOfService": "https://www.open.global/fr",
+    "contact": {
+      "name": "Open Group",
+      "url": "https://www.open.global/fr",
+      "email": "contact@open.global"
+    },
+    "license": {
+      "name": "License of API",
+      "url": "https://www.open.global/fr"
+    },
+    "x-project.branch": "STK-03",
+    "x-project.build.time": "2019-04-01T15:34:23+0200",
+    "x-project.build.version": "0.0.1-SNAPSHOT",
+    "x-project.commit.id": "69e69af0f40ef1ec3191867b582a6e97657fcaf6",
+    "x-project.commit.id.abbrev": "69e69af"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "dummy-rest-controller",
+      "description": "Dummy API end Point"
+    }
+  ],
+  "paths": {
+    "/api/dummy": {
+      "get": {
+        "tags": [
+          "dummy-rest-controller"
+        ],
+        "summary": "dummy",
+        "operationId": "dummyUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/gitInfo": {
+      "get": {
+        "tags": [
+          "dummy-rest-controller"
+        ],
+        "summary": "getCommitId",
+        "operationId": "getCommitIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  }
+}
