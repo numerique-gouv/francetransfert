@@ -1,5 +1,11 @@
 name: Publish Core
 on:
+  on:
+  # release:
+  #   types: [created]
+  push:
+    paths:
+      - francetransfert-core/*
   workflow_call:
 jobs:
   publish:
