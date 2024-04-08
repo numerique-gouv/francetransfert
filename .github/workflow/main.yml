@@ -1,0 +1,10 @@
+name: Build
+on:
+  # release:
+  #   types: [created]
+  push:
+    paths:
+      - francetransfert-core/*
+jobs:
+  build-core:
+    uses: ./.github/workflows/maven.yaml
