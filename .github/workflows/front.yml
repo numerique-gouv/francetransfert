@@ -1,4 +1,4 @@
-name: Build Download
+name: Build Front
 on:
   push:
     paths:
