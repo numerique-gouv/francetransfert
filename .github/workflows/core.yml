@@ -3,7 +3,7 @@ on:
   workflow_call:
   push:
     paths:
-      - francetransfert-core/*
+      - francetransfert-core/**
 jobs:
   publish:
     runs-on: ubuntu-latest

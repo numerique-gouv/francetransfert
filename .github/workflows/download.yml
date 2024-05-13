@@ -2,8 +2,8 @@ name: Build Download
 on:
   push:
     paths:
-      - francetransfert-download-api/*
-      - francetransfert-core/*
+      - francetransfert-download-api/**
+      - francetransfert-core/**
 jobs:
   getsha:
     runs-on: ubuntu-latest

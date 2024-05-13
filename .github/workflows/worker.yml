@@ -2,8 +2,8 @@ name: Build Worker
 on:
   push:
     paths:
-      - francetransfert-worker/*
-      - francetransfert-core/*
+      - francetransfert-worker/**
+      - francetransfert-core/**
 jobs:
   getsha:
     runs-on: ubuntu-latest
