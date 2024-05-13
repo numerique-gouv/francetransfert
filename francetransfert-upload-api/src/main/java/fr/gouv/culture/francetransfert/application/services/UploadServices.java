@@ -261,7 +261,7 @@ public class UploadServices {
 		LOGGER.debug("FlowChuncksCounter in redis {}", flowChuncksCounter);
 		LOGGER.info("Uploading File {} from enclosure {} - Chunk {}/{}", flowIdentifier, enclosureId,
 				flowChuncksCounter, flowTotalChunks);
-		if (flowTotalChunks == flowChuncksCounter) {
+		if (flowTotalChunks >= flowChuncksCounter) {
 			isUploaded = finishUploadFile(enclosureId, senderId, hashFid, bucketName, fileNameWithPath, uploadOsuId);
 		}
 		return isUploaded;

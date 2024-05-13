@@ -41,7 +41,7 @@
   "Question15_Texte": "<span>To send a package to several recipients at once, you can upload a CSV file containing their addresses (using the semicolon (;) separator). To do this, click on the pictogram to the right of the “Recipients” field. </span><br> <span>You can generate a CSV file from your recipients by clicking on the pictogram to the right of the address list. You can store and use it to automatically complete the recipient list for your next package. </span>",
   "Question16_Texte": "<span>The questionnaire is anonymous and used for statistical and improvement purposes only. </span><br><span>If you complete the questionnaire, the rating you leave is recorded for statistical purposes only. You can leave comments to tell us what you think about the service.</span><br><span>The product team will review the comments but cannot commit to responding individually or implementing any suggestions.</span>",
   "Question17_Texte": "<span>For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. </span><br> <span>You can also write to France Transfert’s support team via the “Contact” form (at the bottom of the page or in the menu on the mobile version). </span>",
-  "Question18_Texte": "There is a daily limit of 5 packages per non-official sending address.",
+  "Question18_Texte": "There is a daily limit of 10 packages per non-official sending address.",
 
   "UploadTitre": "France Transfert can be used to send large, non-sensitive files securely to officials or between officials.",
   "Courriel": "Email",
@@ -520,7 +520,7 @@
         },
         {
           "Question": "Is there a usage limit?",
-          "Question_Texte1": "There is a daily limit of 5 packages per non-official sending address.",
+          "Question_Texte1": "There is a daily limit of 10 packages per non-official sending address.",
           "Question_Liste": "",
           "Question_Liste_Ordered": "",
           "Question_Texte2": "",

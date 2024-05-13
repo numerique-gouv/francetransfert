@@ -41,7 +41,7 @@
   "Question15_Texte": "<span>Pour envoyer vos fichiers à plusieurs destinataires différents en une seule opération, il est possible d’importer un fichier de type csv (en respectant le séparateur « ; » entre chaque courriel) comportant la liste des destinataires. Pour ce faire cliquer sur le pictogramme situé à droite du champ « Destinataire(s) ». </span><br> <span>Vous pouvez générer un fichier csv de vos destinataires en cliquant sur le pictogramme situé à droite de vos destinataires. Charge à vous de le stocker puis de le réutiliser pour préremplir automatiquement la liste des destinataires de votre prochain pli. </span>",
   "Question16_Texte": "<span>Le questionnaire est anonyme. Il sera utilisé à des fins statistiques et d’améliorations. </span><br><span>Si vous remplissez le questionnaire de satisfaction, la note que vous laissez est enregistrée à des fins exclusives de statistiques. Les commentaires éventuellement laissés vous permettent de vous exprimer de manière libre sur le service.</span><br><span>L’équipe produit examinera les commentaires mais ne peut s’engager, ni à y répondre individuellement, ni à mettre en œuvre les suggestions proposées.</span>",
   "Question17_Texte": "<span>Pour les agents de l’Etat, il y a un salon « France transfert » dans TCHAP qui vous permettra de  suivre les évolutions ou d’échanger avec les autres membres. Vous pouvez vous y abonner. </span><br> <span>Vous pouvez également utiliser le formulaire de contact « Nous contacter » (en bas de page ou dans le menu de la version mobile).</span>",
-  "Question18_Texte": "Il existe un quota de 5 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
+  "Question18_Texte": "Il existe un quota de 10 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
 
   "UploadTitre": "France transfert permet d'envoyer des fichiers volumineux non sensibles de manière sécurisée à un agent de l'Etat ou entre agents.",
   "Courriel": "Courriel",
@@ -521,7 +521,7 @@
         },
         {
           "Question": "Existe -t-il un quota pour les envois ?",
-          "Question_Texte1": "Il existe un quota de 5 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
+          "Question_Texte1": "Il existe un quota de 10 envois journaliers par adresse courriel expéditeur qui n'est pas celle d'un agent de l'Etat.",
           "Question_Liste": "",
           "Question_Liste_Ordered": "",
           "Question_Texte2": "",

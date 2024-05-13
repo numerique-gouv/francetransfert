@@ -123,8 +123,6 @@ public class ValidationMailService {
 	@Autowired
 	private MimeService mimeService;
 
-	private static SimpleDateFormat DAY_DATE_PARSER = new SimpleDateFormat("yyyy-MM-dd");
-
 	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
 	private static List<String> ALLOWED_CODE = Arrays.asList(StatutEnum.PAT.getCode(), StatutEnum.ECT.getCode(),
@@ -571,6 +569,8 @@ public class ValidationMailService {
 	}
 
 	private void validatePreference(List<ApiValidationError> errorList, PreferencesRepresentation preferences) {
+
+		SimpleDateFormat DAY_DATE_PARSER = new SimpleDateFormat("yyyy-MM-dd");
 
 		if (preferences.getLanguage() != null) {
 			ApiValidationError langueCourrielChecked = validLangueCourriel(preferences.getLanguage());
