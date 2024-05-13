@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - francetransfert-upload-api/*
+      - francetransfert-core/*
 jobs:
   getsha:
     runs-on: ubuntu-latest
