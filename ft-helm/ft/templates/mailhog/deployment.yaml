@@ -1,0 +1,27 @@
+{{- if .Values.mailhog.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-mailhog-app 
+spec:
+  replicas: {{ .Values.mailhog.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-mailhog-app
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "france-transfert.fullname" . }}-mailhog-app
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ include "france-transfert.fullname" . }}-mailhog-app
+        image: {{ .Values.mailhog.image.repository }}:{{ .Values.mailhog.image.tag }}
+        imagePullPolicy: {{ .Values.mailhog.image.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.mailhog.service.portSmtp }}
+        - containerPort: {{ .Values.mailhog.service.portHttp }}
+        resources:
+          {{- toYaml .Values.mailhog.resources | nindent 10 }}
+{{- end }}

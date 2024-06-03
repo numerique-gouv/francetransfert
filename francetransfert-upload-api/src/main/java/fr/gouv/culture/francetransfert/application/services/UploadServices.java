@@ -259,9 +259,9 @@ public class UploadServices {
 		isUploaded = true;
 		long flowChuncksCounter = RedisUtils.incrementCounterOfUploadChunksPerFile(redisManager, hashFid);
 		LOGGER.debug("FlowChuncksCounter in redis {}", flowChuncksCounter);
-		LOGGER.info("Uploading File {} from enclosure {} - Chunk {}/{}", flowIdentifier, enclosureId,
-				flowChuncksCounter, flowTotalChunks);
-		if (flowTotalChunks >= flowChuncksCounter) {
+		LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{}", flowIdentifier, enclosureId,
+				flowChunkNumber, flowChuncksCounter, flowTotalChunks);
+		if (flowChuncksCounter >= flowTotalChunks) {
 			isUploaded = finishUploadFile(enclosureId, senderId, hashFid, bucketName, fileNameWithPath, uploadOsuId);
 		}
 		return isUploaded;

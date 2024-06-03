@@ -299,6 +299,7 @@ public class RedisForUploadUtils {
 				redisManager.insertHASH( // file:SHA1(GUID_pli:fid) => HASH { rel-obj-key: "Façade.jpg", size: "2",
 											// mul-id: "..." }
 						RedisKeysEnum.FT_FILE.getKey(shaFid), map);
+						redisManager.expire(RedisKeysEnum.FT_FILE.getKey(shaFid), 172800);
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);

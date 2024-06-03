@@ -1,0 +1,17 @@
+{{- if .Values.mailhog.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-mailhog-service 
+spec:
+  selector:
+    app: {{ include "france-transfert.fullname" . }}-mailhog-app
+    release: {{ .Release.Name }}
+  ports:
+    - name: http
+      port: {{ .Values.mailhog.service.portHttp }}
+      targetPort: {{ .Values.mailhog.service.targetPortHttp }}
+    - name: smtp
+      port: {{ .Values.mailhog.service.portSmtp }}
+      targetPort: {{ .Values.mailhog.service.targetPortSmtp }}
+{{- end }}

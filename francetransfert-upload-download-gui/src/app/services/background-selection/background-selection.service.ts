@@ -15,6 +15,6 @@ export class BackgroundSelectionService {
   constructor() { }
 
   getBackground(): string {
-    return '../assets/images/image_fond.min.png';
+    return 'https://integration.lasuite.numerique.gouv.fr/api/backgrounds/v1/france-transfert.jpg';
   }
 }

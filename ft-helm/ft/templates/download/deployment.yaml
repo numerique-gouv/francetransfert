@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-download-app 
+spec:
+  replicas: {{ .Values.download.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-download-app
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "france-transfert.fullname" . }}-download-app
+        release: {{ .Release.Name }}
+        tier: back
+    spec:
+      {{ if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{ end }}
+      containers:
+      - name: {{ include "france-transfert.fullname" . }}-download-app
+        image: {{ .Values.download.image.repository }}:{{ .Values.download.image.tag }}
+        imagePullPolicy:  {{ .Values.download.image.imagePullPolicy }}          
+        envFrom:
+        - configMapRef:
+            name: download-override-conf-{{ .Release.Name }}
+        - configMapRef:
+            name:  app-config-map-{{ .Release.Name }}
+        - secretRef:
+            name: ft-secret-app
+        ports:
+        - containerPort: {{ .Values.download.service.port }}
+        securityContext:
+          {{- toYaml .Values.download.securityContext | nindent 10 }}
+        resources:
+          {{- toYaml .Values.download.resources | nindent 10 }}
+        volumeMounts:
+          - name: tmp-volume
+            mountPath: /tmp
+          - name: work-volume
+            mountPath: /opt/work/
+      volumes:
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 250Mi
+      - name: work-volume
+        emptyDir:
+          sizeLimit: 250Mi

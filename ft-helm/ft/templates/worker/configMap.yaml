@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worker-override-conf-{{ .Release.Name }}
+data:
+  SCAN_CLAMAV_HOST: {{ .Release.Name }}-clamav
+  {{ if .Values.worker.overrideConf.MAIL_SMTP_SERVER }}
+  SPRING_MAIL_HOST: {{ .Values.worker.overrideConf.MAIL_SMTP_SERVER }}
+  {{ else if .Values.mailhog.enable }}
+  SPRING_MAIL_HOST: {{ include "france-transfert.fullname" . }}-mailhog-service
+  {{ end }}
+  {{- toYaml .Values.worker.overrideConf | nindent 2 }}

@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-angular-service 
+spec:
+  selector:
+    app: {{ include "france-transfert.fullname" . }}-angular-app
+    release: {{ .Release.Name }}
+  ports:
+    - port: {{ .Values.front.service.port }}
+      targetPort: {{.Values.front.service.targetPort }}

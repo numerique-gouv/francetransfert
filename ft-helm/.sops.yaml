@@ -1,0 +1,10 @@
+creation_rules:
+  # - Jacques key-id: age15fyxdwmg5mvldtqqus87xspuws2u0cpvwheehrtvkexj4tnsqqysw6re2x
+  # - argocd key-id: age1qy04neuzwpasmvljqrcvhwnf0kz5cpyteze38c8avp0czewskasszv9pyw
+  # - Jaub key-id: age1lxduvqtglrdj38m27gsa4akdu82keqwgh7r57ep3dcwf7uaref4qtafwy5
+  # - Fcoh key-id: age1udkf02y0z9g3nk5yd4jxlkfu03lzmzlvv6uy30eq2mfa9n3fyu7su4mghy
+  - age:
+      age15fyxdwmg5mvldtqqus87xspuws2u0cpvwheehrtvkexj4tnsqqysw6re2x,
+      age1qy04neuzwpasmvljqrcvhwnf0kz5cpyteze38c8avp0czewskasszv9pyw,
+      age1lxduvqtglrdj38m27gsa4akdu82keqwgh7r57ep3dcwf7uaref4qtafwy5,
+      age1udkf02y0z9g3nk5yd4jxlkfu03lzmzlvv6uy30eq2mfa9n3fyu7su4mghy

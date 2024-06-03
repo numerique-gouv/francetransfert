@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-angular-app 
+spec:
+  replicas: {{ .Values.front.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-angular-app
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "france-transfert.fullname" . }}-angular-app
+        release: {{ .Release.Name }}
+        tier: front
+    spec:
+      {{ if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{ end }}
+      containers:
+      - name: {{ include "france-transfert.fullname" . }}-angular-app
+        image: {{ .Values.front.image.repository }}:{{ .Values.front.image.tag }}
+        imagePullPolicy: {{ .Values.front.image.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.front.service.port }}
+        securityContext:
+          {{- toYaml .Values.front.securityContext | nindent 10 }}
+        resources:
+          {{- toYaml .Values.front.resources | nindent 10 }}
+        volumeMounts:
+          - name: tmp-volume
+            mountPath: /opt/bitnami/nginx/tmp/
+      volumes:
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 250Mi

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-upload-service 
+spec:
+  selector:
+    app: {{ include "france-transfert.fullname" . }}-upload-app
+    release: {{ .Release.Name }}
+  ports:
+  - port: {{ .Values.upload.service.port }}
+    targetPort: {{ .Values.upload.service.targetPort }}

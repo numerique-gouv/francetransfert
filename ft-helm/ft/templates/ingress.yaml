@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-nginx-http
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{.Values.ingress.className}}
+  tls: {{.Values.ingress.tls | toYaml | nindent 2}}
+  rules:
+    {{- if .Values.mailhog.enable }}
+    - host: mailhog-127-0-0-1.xip.lhjmmc.cn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" . }}-mailhog-service
+                port:
+                  number: {{ .Values.mailhog.service.portHttp }}
+    {{- end }}
+    {{- range $value := .Values.ingress.hosts }}
+    - host: {{ $value }}
+      http:
+        paths:
+          - path: /api-private/upload-module/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-upload-service
+                port:
+                  number: {{ $.Values.upload.service.port}}
+          - path: /api-private/confirmation-module/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-upload-service
+                port:
+                  number: {{ $.Values.upload.service.port}}
+          - path: /api-private/download-module/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-download-service
+                port:
+                  number: {{ $.Values.download.service.port}}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-angular-service
+                port:
+                  number: {{ $.Values.front.service.port}}
+    {{- end }}

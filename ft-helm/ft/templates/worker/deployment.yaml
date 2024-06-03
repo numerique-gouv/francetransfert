@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-worker-app 
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-worker-app
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "france-transfert.fullname" . }}-worker-app
+        release: {{ .Release.Name }}
+        tier: back
+    spec:
+      {{ if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{ end }}
+      securityContext:
+        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ include "france-transfert.fullname" . }}-worker-app
+        image: {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
+        imagePullPolicy: {{ .Values.worker.image.imagePullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: worker-override-conf-{{ .Release.Name }}
+        - configMapRef:
+            name: app-config-map-{{ .Release.Name }}
+        - secretRef:
+            name: ft-secret-app
+        volumeMounts:
+          - name: {{ include "france-transfert.fullname" . }}-worker-data
+            mountPath: /tmp/
+          - name: work-volume
+            mountPath: /opt/work/
+          - name: config-volume
+            mountPath: /dummy/
+          - name: ft-keystore
+            mountPath: /ft-keystore/
+        resources:
+          {{- toYaml .Values.worker.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.worker.securityContext | nindent 10 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: worker-dummy
+        - name: ft-keystore
+          secret:
+            secretName: ft-keystore
+        - name: work-volume
+          emptyDir:
+            sizeLimit: 250Mi
+        - name: {{ include "france-transfert.fullname" . }}-worker-data
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                labels:
+                  type: tmpworker
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                {{ if .Values.worker.persistentVolumeClaim.storageClass }}
+                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClass }}
+                {{ end }}
+                resources:
+                  requests:
+                    storage: {{ .Values.worker.persistentVolumeClaim.storage }}

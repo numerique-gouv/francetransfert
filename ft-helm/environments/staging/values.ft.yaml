@@ -1,0 +1,325 @@
+environnement: &environnement integ
+
+rootUrl: &rootUrl ft-staging.beta.numerique.gouv.fr
+
+# imagePullSecrets: "registry-pull-secret"
+nameOverride: ""
+fullnameOverride: ""
+
+overrideGlobalConf:
+  UPLOAD_LIMIT: "21474836480"
+  UPLOAD_FILE_LIMIT: "2147483648"
+  APPLICATION_COOKIES_DOMAIN: ""
+  API_KEY: "{}"
+  ENCLOSURE_EXPIRE_DAYS: "30"
+  ENCLOSURE_MAX_PASSWORD_TRY: "5"
+  ENVIRONNEMENT: "DEV"
+  PASSWORD_MINSIZE: "12"
+  PASSWORD_MAXSIZE_GENERATED: "20"
+  PASSWORD_LOWER_MIN: "3"
+  PASSWORD_UPPER_MIN: "3"
+  PASSWORD_SPECIAL_MIN: "3"
+  PASSWORD_SPECIAL_LIST: "!@#$%^&*()_-:+"
+  PASSWORD_DIGIT_MIN: "3"
+  URL_DOWNLOAD_API: "https://ft-staging.beta.numerique.gouv.fr/download/"
+  URL_ADMIN_PAGE: "https://ft-staging.beta.numerique.gouv.fr/admin"
+  MAIL_IMAGE_FT_LOGO: "https://ft-staging.beta.numerique.gouv.fr/statics/logos/france_transfert_logo.svg"
+  MAIL_IMAGE_FT_FILE: "https://ft-staging.beta.numerique.gouv.fr/statics/email-contents/Fichier_white.png"
+  MAIL_IMAGE_FT_FOLDER: "https://ft-staging.beta.numerique.gouv.fr/statics/email-contents/Dossier_white.png"
+  MAIL_IMAGE_FT_ACCESSBUTTON: "https://ft-staging.beta.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
+
+clamav:
+  enabled: false
+  clamdConfig: |
+    ###############
+    # General
+    ###############
+
+    DatabaseDirectory /data
+    TemporaryDirectory /tmp
+    LogTime yes
+    # CUSTOM: Use pid file in tmp
+    PidFile /tmp/clamd.pid
+    LocalSocket /tmp/clamd.sock
+    # CUSTOM: Set local socket group to defined group id
+    LocalSocketGroup 2000
+    TCPSocket 3310
+    Foreground yes
+
+    ###############
+    # Results
+    ###############
+
+    DetectPUA yes
+    ExcludePUA NetTool
+    ExcludePUA PWTool
+    HeuristicAlerts yes
+    Bytecode yes
+
+    ###############
+    # Scan
+    ###############
+
+    ScanPE yes
+    DisableCertCheck yes
+    ScanELF yes
+    AlertBrokenExecutables yes
+    ScanOLE2 yes
+    ScanPDF yes
+    ScanSWF yes
+    ScanMail yes
+    PhishingSignatures yes
+    PhishingScanURLs yes
+    ScanHTML yes
+    ScanArchive yes
+
+    ###############
+    # Scan
+    ###############
+
+    MaxScanSize 150M
+    MaxFileSize 30M
+    MaxRecursion 10
+    MaxFiles 15000
+    MaxEmbeddedPE 10M
+    MaxHTMLNormalize 10M
+    MaxHTMLNoTags 2M
+    MaxScriptNormalize 5M
+    MaxZipTypeRcg 1M
+    MaxPartitions 128
+    MaxIconsPE 200
+    PCREMatchLimit 10000
+    PCRERecMatchLimit 10000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 2Gi
+    limits:
+      memory: 2Gi
+
+redis:
+  networkPolicy:
+    enabled: false
+    allowExternal: false
+  global:
+    storageClass: gp2
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  architecture: replication
+  sentinel:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 5Gi
+  auth:
+    enabled: true
+    sentinel: true
+    existingSecret: ft-secret-app
+    existingSecretPasswordKey: METALOAD_PASSWORD
+  master:
+    persistence:
+      size: 10Gi
+      enabled: true
+  replica:
+    persistence:
+      size: 10Gi
+      enabled: true
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+mailhog:
+  enable: false
+  replicaCount: 1
+  image:
+    repository: mailhog/mailhog
+    tag: "latest"
+    imagePullPolicy: Always
+  service:
+    portSmtp: 1025
+    targetPortStmp: 1025
+    portHttp: 8025
+    targetPortHttp: 8025
+  resources: {}
+
+front:
+  replicaCount: 1
+  image:
+    repository: jaubertaot/francetransfert-upload-download-gui
+    tag: bb33e3
+    imagePullPolicy: IfNotPresent
+  service:
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      memory: 256Mi
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100101
+    runAsGroup: 100101
+
+upload:
+  replicaCount: 1
+  image:
+    repository: jaubertaot/francetransfert-upload-api
+    tag: bb33e3
+    imagePullPolicy: IfNotPresent
+  service:
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  overrideConf:
+    SERVER_PORT: "8080"
+    SERVER_COMPRESSION_ENABLED: "true"
+    SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
+    UPLOAD_LIMIT_SENDERMAIL: "10"
+    UPLOAD_FILE_LIMIT: "2147483648"
+    UPLOAD_TOKEN_CHUNKMODULO: "6"
+    UPLOAD_EXPIRED_LIMIT: "90"
+    EXPIRE_CONFIRMATION_CODE_LENGTH: "8"
+    EXPIRE_TOKEN_SENDER: "1800"
+    EXPIRE_TOKEN_INITAPI: "120"
+    CAPTCHA_URL: "https://ft-staging.beta.numerique.gouv.fr/captcha/services/v1.2/captchaService"
+    CAPTCHA_SECURE: "false"
+    URL_DOWNLOAD_PUBLIC: "https://ft-staging.beta.numerique.gouv.fr/download/download-info-public?enclosure"
+    AGENTCONNECT_ENABLED: "false"
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100102
+    runAsGroup: 100102
+
+download:
+  replicaCount: 1
+  image:
+    repository: jaubertaot/francetransfert-download-api
+    tag: bb33e3
+    imagePullPolicy: IfNotPresent
+  service:
+    port: 8081
+    targetPort: 8081
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
+  overrideConf:
+    SERVER_PORT: "8081"
+    SERVER_COMPRESSION_ENABLED: "true"
+    SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
+    ENCLOSURE_MAX_DOWNLOAD: "5"
+    ENCLOSURE_MAX_PASSWORD_TRY: "5"
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100103
+    runAsGroup: 100103
+
+worker:
+  replicaCount: 1
+  image:
+    repository: jaubertaot/francetransfert-worker
+    tag: bb33e3
+    imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      memory: 1024Mi
+  overrideConf:
+    SCAN_CLAMAV_TIMEOUT: "20000"
+    SCAN_CLAMAV_CHUNKSIZE: "655360"
+    SCAN_CLAMAV_MAXFILESIZE: "2147483648"
+    GLIMPS_DELAY_SECONDS: "30"
+    GLIMPS_MAXTRY: "10"
+    GLIMPS_ENABLED: "true"
+    GLIMPS_RETRYCODE: "504,512"
+    GLIMPS_KNOWNCODE: "4001,5001,5000"
+    TMP_FOLDER_PATH: /tmp/
+    WORKER_EXPIRED_LIMIT: "90"
+    POOL_SIZE: "40"
+    SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "5"
+    SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: "5"
+    TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: "5"
+    ZIPWORKEREXECUTOR_POOL_SIZE: "5"
+    SENDEMAILDOWNLOADINPROGRESSWORKEREXECUTOR_POOL_SIZE: "5"
+    UPLOADDOWNLOADWORKEREXECUTOR_POOL_SIZE: "5"
+    STATWORKEREXECUTOR_POOL_SIZE: "5"
+    RELAUNCH_MAIL_DAYS: "1"
+    SCHEDULED_RELAUNCH_MAIL: "0 0 12 * * *"
+    SCHEDULED_CLEAN_UP: "0 0 10 * * *"
+    SCHEDULED_APP_SYNC_CLEANUP: "0 0 */1 * * *"
+    SCHEDULED_APP_SYNC_RELAUNCH: "0 0 */1 * * *"
+    SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "0 0 */1 * * *"
+    SCHEDULED_IGNIMISSION_DOMAIN: "0 0 0 25 9 ?"
+    SCHEDULED_SEND_STAT: "0 */30 * * * *"
+    SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
+    SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
+    SCHEDULED_SYNC_CHECKMAIL: "0 */45 * * * ?"
+    SCHEDULED_SYNC_CHECKGLIMPS: "10 */2 * * * ?"
+    SCHEDULED_CHECKGLIMPS: "0 */2 * * * ?"
+  persistentVolumeClaim:
+    storage: 25Gi
+    accessModes: ReadWriteOnce
+    storageClassName: bsu-sc
+  podSecurityContext:
+    runAsUser: 100104
+    runAsGroup: 100104
+    fsGroup: 100104
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100104
+    runAsGroup: 100104
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 200m
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - ft-staging.beta.numerique.gouv.fr
+  tls:
+    - secretName: transfert-tls
+      hosts:
+        - ft-staging.beta.numerique.gouv.fr

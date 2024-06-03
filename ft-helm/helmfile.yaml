@@ -1,0 +1,27 @@
+repositories:
+  - name: wiremind
+    url: https://wiremind.github.io/wiremind-helm-charts
+    oci: false
+  - name: bitnami
+    url: registry-1.docker.io/bitnamicharts
+    oci: true
+
+releases:
+  - name: ft
+    version: {{ .Values.version }}
+    namespace: {{ .Namespace }}
+    chart: ./ft
+    values:
+      - environments/{{ .Environment.Name }}/values.ft.yaml
+    secrets:
+      - environments/{{ .Environment.Name }}/secrets.enc.yaml
+environments:
+  default:
+    values:
+      - version: 0.0.1
+  dev:
+    values:
+      - version: 0.0.1
+  staging:
+    values:
+      - version: 0.0.1

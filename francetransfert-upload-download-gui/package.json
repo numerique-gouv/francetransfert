@@ -23,6 +23,7 @@
     "@angular/service-worker": "16.0.1",
     "@flowjs/flow.js": "2.14.1",
     "@flowjs/ngx-flow": "0.6.0",
+    "@gouvfr-lasuite/integration": "^0.1.7",
     "@ngx-translate/core": "15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@types/flowjs": "2.13.9",

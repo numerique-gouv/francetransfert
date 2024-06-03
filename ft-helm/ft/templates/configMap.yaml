@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config-map-{{ .Release.Name }}
+data:
+  METALOAD_HOST: {{ .Release.Name }}-redis
+  METALOAD_PORT: "{{ .Values.redis.master.containerPorts.redis | default 6379 }}"
+  METALOAD_SENTINEL_ACTIVE: {{ .Values.redis.sentinel.enabled | toString | quote }}
+  METALOAD_SENTINEL_MASTER_NAME: {{ .Values.redis.sentinel.masterSet | default "mymaster" }}
+  METALOAD_SENTINEL_NODES: {{ printf "%s-redis:%s" .Release.Name ((.Values.redis.sentinel.containerPorts.sentinel | default 26379 ) | toString) }}
+  {{- if not (empty .Values.overrideGlobalConf) }}
+  {{- toYaml .Values.overrideGlobalConf | nindent 2 }}
+  {{- end }}
+

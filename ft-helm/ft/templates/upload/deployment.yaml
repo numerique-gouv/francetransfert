@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-upload-app 
+spec:
+  replicas: {{ .Values.upload.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-upload-app
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "france-transfert.fullname" . }}-upload-app
+        release: {{ .Release.Name }}
+        tier: back
+    spec:
+      {{ if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{ end }}
+      containers:
+      - name: {{ include "france-transfert.fullname" . }}-upload-app
+        image: {{ .Values.upload.image.repository }}:{{ .Values.upload.image.tag }}
+        imagePullPolicy: {{ .Values.upload.image.imagePullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: upload-override-conf-{{ .Release.Name }}
+        - configMapRef:
+            name:  app-config-map-{{ .Release.Name }}
+        - secretRef:
+            name: ft-secret-app
+        volumeMounts:
+          - name: tmp-volume
+            mountPath: /tmp
+          - name: work-volume
+            mountPath: /opt/work/
+        ports:
+        - containerPort: {{ .Values.upload.service.port }}
+        resources:
+          {{- toYaml .Values.upload.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.upload.securityContext | nindent 10 }}
+      volumes:
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 250Mi
+      - name: work-volume
+        emptyDir:
+          sizeLimit: 250Mi
+      

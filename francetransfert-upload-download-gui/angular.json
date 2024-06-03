@@ -40,6 +40,9 @@
               },
               {
                 "input": "./node_modules/tarteaucitronjs/css/tarteaucitron.css"
+              },
+              {
+                "input": "./node_modules/@gouvfr-lasuite/integration/dist/css/gaufre.css"
               }
             ],
             "scripts": [

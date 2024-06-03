@@ -1,43 +1,46 @@
-.mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
-  // box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
-  // outline-style: solid;
-  // outline-width: 2px;
-  // outline-offset: 2px;
-  // outline-color: #1212ff;
-  box-shadow: inset 0 0 0 1px var(--ft-blue-france);
-  color: var(--ft-blue-france);
-  position: inherit;
+.mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]) {
+    // box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
+    // outline-style: solid;
+    // outline-width: 2px;
+    // outline-offset: 2px;
+    // outline-color: #1212ff;
+    box-shadow: inset 0 0 0 1px var(--ft-blue-france);
+    color: var(--ft-blue-france);
+    position: inherit;
 }
 
-.evit{
-  position: absolute;
-  top: 0;
-  left: -9999px;
+.evit {
+    position: absolute;
+    top: 0;
+    left: -9999px;
 }
 
 .font-size {
-  font-size: 12px;
-  color: var(--ft-blue-france);
+    font-size: 12px;
+    color: var(--ft-blue-france);
 }
 
-.link{ text-decoration: none !important;}
+.link {
+    text-decoration: none !important;
+}
 
 .icon-position {
-  margin-right: 3px;
-  font-size: 18px;
-  margin-top: 7px;
-  color: var(--ft-blue-france);
+    margin-right: 3px;
+    font-size: 18px;
+    margin-top: 7px;
+    color: var(--ft-blue-france);
 }
 
 
 .mat-menu-item .mat-icon {
-  margin-right: 3px;
+    margin-right: 3px;
 }
 
 .header-toolbar {
     background: var(--ft-white);
     color: var(--ft-primary);
     box-shadow: 10px 5px 5px var(--ft-asset);
+
     .header-toolbar-row {
         height: 100%;
         display: flex;
@@ -46,6 +49,7 @@
         display: -webkit-flex;
         -webkit-flex-direction: row;
         -webkit-justify-content: space-between;
+
         .header-toolbar-row-title {
             cursor: pointer;
             height: 100%;
@@ -54,6 +58,7 @@
             align-items: center;
             display: -webkit-flex;
             -webkit-align-items: center;
+
             .header-toolbar-logos-wrapper {
                 display: flex;
                 justify-content: space-around;
@@ -61,10 +66,12 @@
                 display: -webkit-flex;
                 -webkit-justify-content: space-around;
                 -webkit-align-items: center;
+
                 .header-toolbar-logo.ft {
                     margin-left: 30px;
                 }
             }
+
             .header-toolbar-right {
                 width: 47%;
                 display: flex;
@@ -76,8 +83,9 @@
 
                 .language-selector-wrapper {
                     width: 50%;
+
                     @media screen and (max-width:1000px) {
-                    margin-left: 11%;
+                        margin-left: 11%;
                     }
                 }
 
@@ -89,45 +97,46 @@
 
 
                 nav {
-                  display: flex;
-                  display: -webkit-flex;
-                  width: 100%;
+                    display: flex;
+                    display: -webkit-flex;
+                    width: 100%;
                 }
 
                 .header-toolbar-links {
-                  flex-direction: row;
-                  justify-content: space-around;
-                  display: -webkit-flex;
-                  -webkit-flex-direction: row;
-                  -webkit-justify-content: space-around;
-                  width: 100%;
-                  list-style-type: none;
-                  color: var(--ft-blue-france);
-                  font-size: 14px;
-                  line-height: 24px;
-                  cursor: pointer;
-                  text-decoration: none;
-
-                  li {
-                    display: flex;
                     flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
+                    justify-content: space-around;
+                    display: -webkit-flex;
+                    -webkit-flex-direction: row;
+                    -webkit-justify-content: space-around;
+                    width: 100%;
+                    list-style-type: none;
+                    color: var(--ft-blue-france);
+                    font-size: 14px;
+                    line-height: 24px;
+                    cursor: pointer;
+                    text-decoration: none;
 
-                    a {
-                      margin-left: 5px;
+                    li {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+                        align-items: center;
+
+                        a {
+                            margin-left: 5px;
+                        }
                     }
-                  }
                 }
-              }
+            }
 
-      .header-toolbar-link.mat-icon-button {
+            .header-toolbar-link.mat-icon-button {
                 color: var(--ft-blue-france);
                 font-size: 14px;
                 line-height: 24px;
                 width: unset;
                 padding: unset;
                 min-width: unset;
+
                 span {
                     margin-left: 5px;
                 }
@@ -139,21 +148,26 @@
 @media screen and (min-width:1400px) {
     .header-toolbar {
         height: 80px;
+
         .header-toolbar-row {
             .header-toolbar-row-title {
                 justify-content: space-around;
                 -webkit-justify-content: space-around;
+
                 .header-toolbar-logos-wrapper {
                     width: 35%;
                 }
+
                 .header-toolbar-logo.rep-fr {
                     height: 88px;
                     width: 90px;
                 }
+
                 .header-toolbar-logo.ft {
                     height: 24px;
                     width: 239px;
                 }
+
                 .header-toolbar-right {
                     .flag-icon {
                         height: 18px;
@@ -195,6 +209,7 @@
                     -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
+
                 .corner-ribbon.blue {
                     background: var(--ft-blue-france);
                 }
@@ -206,17 +221,22 @@
 @media screen and (min-width: 480px) and (max-width: 1400px) {
     .header-toolbar {
         height: 90px;
+
         .header-toolbar-row {
             padding: 0 5px;
+
             .header-toolbar-row-title {
                 justify-content: space-between;
                 -webkit-justify-content: space-between;
+
                 .header-toolbar-logos-wrapper {
-                    width: 50%;
+                    width: 75%;
                 }
+
                 .header-toolbar-logo {
                     height: 50%;
                 }
+
                 .header-toolbar-right {
                     width: 50%;
                     font-size: 16px;
@@ -225,8 +245,9 @@
                     display: -webkit-flex;
                     -webkit-align-items: center;
                 }
+
                 .menu-icon {
-                    margin-right: 50px;
+                    margin-right: 25px;
                 }
 
                 .corner-ribbon {
@@ -261,6 +282,7 @@
                     -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
+
                 .corner-ribbon.blue {
                     background: var(--ft-blue-france);
                 }
@@ -272,20 +294,26 @@
 @media screen and (min-width: 200px) and (max-width: 480px) {
     .header-toolbar {
         height: 90px;
+
         .header-toolbar-row {
             padding: 0 5px;
+
             .header-toolbar-row-title {
                 justify-content: space-between;
                 -webkit-justify-content: space-between;
+
                 .header-toolbar-logos-wrapper {
-                    width: 60%;
+                    width: 75%;
                 }
+
                 .header-toolbar-logo {
                     height: 50%;
                 }
+
                 .header-toolbar-logo.ft {
                     height: 38px;
                 }
+
                 .header-toolbar-right {
                     width: 50%;
                     font-size: 16px;
@@ -296,7 +324,7 @@
                 }
 
                 .menu-icon {
-                    margin-right: 50px;
+                    margin-right: 25px;
                 }
 
                 .corner-ribbon {
@@ -331,6 +359,7 @@
                     -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
+
                 .corner-ribbon.blue {
                     background: var(--ft-blue-france);
                 }
@@ -338,6 +367,3 @@
         }
     }
 }
-
-
-

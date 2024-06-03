@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ import fr.gouv.culture.francetransfert.core.utils.StringUploadUtils;
 import fr.gouv.culture.francetransfert.model.Enclosure;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailEnclosureNoLongerAvailbleServices;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 
 @Service
 public class CleanUpServices {
@@ -57,6 +60,12 @@ public class CleanUpServices {
 
 	@Value("${bucket.prefix}")
 	private String bucketPrefix;
+
+	@Value("${expire.month:12}")
+	private int expireMonth;
+
+	@Value("${deepclean.weekday:7}")
+	private int deepCleanWeekDay;
 
 	@Autowired
 	MailEnclosureNoLongerAvailbleServices mailEnclosureNoLongerAvailbleServices;
@@ -121,6 +130,80 @@ public class CleanUpServices {
 				}
 			});
 		});
+		this.deepClean();
+	}
+
+	private void deepClean() {
+
+		Calendar cal = Calendar.getInstance();
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		if (dayOfWeek == deepCleanWeekDay) {
+			LOGGER.info("Deep Clean");
+
+			ScanParams scanParams = new ScanParams().count(1000).match("enclosure:*");
+			ScanParams scanFilesParams = new ScanParams().count(1000).match("file:*");
+			String cur = scanParams.SCAN_POINTER_START;
+			LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
+			int cpt = 0;
+			LOGGER.info("Clean Old Enclosure");
+			do {
+
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanParams);
+
+				for (String enclosureKey : scanResult.getResult()) {
+					try {
+						LOGGER.debug("Key {}", enclosureKey);
+						if (StringUtils.countMatches(enclosureKey, ":") == 1) {
+							String enclosureId = enclosureKey.split(":")[1];
+
+							LocalDate enclosureExipireDateRedis = DateUtils.convertStringToLocalDateTime(
+									redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+											EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()))
+									.toLocalDate();
+
+							LocalDate enclosureInDate = DateUtils.convertStringToLocalDateTime(
+									redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+											EnclosureKeysEnum.TIMESTAMP.getKey()))
+									.toLocalDate();
+
+							LOGGER.debug("Enclosure {} at date {} / {}", enclosureId,
+									enclosureExipireDateRedis.toString(), enclosureInDate.toString());
+							if (enclosureExipireDateRedis.isBefore(deleteBefore)
+									|| enclosureInDate.isBefore(deleteBefore)) {
+								LOGGER.info("Deleting {}", enclosureId);
+								cleanUpEnclosureTempDataInRedis(enclosureId, true);
+								cleanUpEnclosureCoreInRedis(enclosureId);
+								cpt++;
+							}
+						}
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", enclosureKey, e);
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned enclosure {}", cpt);
+
+			LOGGER.info("Clean fail files");
+			cpt = 0;
+			cur = scanParams.SCAN_POINTER_START;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanFilesParams);
+
+				for (String file : scanResult.getResult()) {
+					try {
+						redisManager.deleteKey(file);
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", file, e);
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanFilesParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned files {}", cpt);
+		} else {
+			LOGGER.info("Next deep clean on {}", dayOfWeek);
+		}
+
 	}
 
 	public void cleanEnclosure(String enclosureId, boolean archive) throws MetaloadException {
@@ -218,6 +301,7 @@ public class CleanUpServices {
 	public void cleanUpEnclosureCoreInRedis(String enclosureId) throws WorkerException, MetaloadException {
 		cleanUpEnclosurePartiallyCoreInRedis(enclosureId);
 		// delete hash enclosure and sender
+		LOGGER.debug("Clean enclosure key {}", enclosureId);
 		redisManager.deleteKey(RedisKeysEnum.FT_SENDER.getKey(enclosureId));
 		redisManager.deleteKey(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId));
 	}

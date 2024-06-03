@@ -52,7 +52,7 @@ export const environment = {
       url: 'https://test-francetransfert.aot.agency/captcha/captcha/'
     }
   },
-  version: '3.12.7'
+  version: '3.12.9'
 };
 
 /*
