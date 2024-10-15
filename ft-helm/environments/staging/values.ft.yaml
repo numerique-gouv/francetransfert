@@ -202,7 +202,9 @@ upload:
     CAPTCHA_URL: "https://ft-staging.beta.numerique.gouv.fr/captcha/services/v1.2/captchaService"
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://ft-staging.beta.numerique.gouv.fr/download/download-info-public?enclosure"
-    AGENTCONNECT_ENABLED: "false"
+    AGENTCONNECT_ENABLED: "true"
+    AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_CLIENTID: francetransfert
   podSecurityContext: {}
   securityContext:
     privileged: false
