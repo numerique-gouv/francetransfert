@@ -205,6 +205,7 @@ upload:
     AGENTCONNECT_ENABLED: "true"
     AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
     AGENTCONNECT_CLIENTID: francetransfert
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
   podSecurityContext: {}
   securityContext:
     privileged: false
