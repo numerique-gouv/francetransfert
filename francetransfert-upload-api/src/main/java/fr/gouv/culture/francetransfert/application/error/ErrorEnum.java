@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -16,6 +16,7 @@ public enum ErrorEnum {
     TECHNICAL_ERROR("TECHNICAL_ERROR"),
     FUNCTIONAL_ERROR("FUNCTIONAL_ERROR"),
     LIMT_SIZE_ERROR("LIMT_SIZE_ERROR"),
+    FILE_NAME_TOO_LONG("FILE_NAME_TOO_LONG"),
     INVALID_TOKEN("INVALID_TOKEN"),
     CONFIRMATION_CODE_ERROR("CONFIRMATION_CODE_ERROR"),
 	RECIPIENT_DOESNT_EXIST("RECIPIENT_DOESNT_EXIST"),

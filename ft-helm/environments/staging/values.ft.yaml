@@ -7,6 +7,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 overrideGlobalConf:
+  ROOT_LOG_LEVEL: "INFO"
+  FT_LOG_LEVEL: "INFO"
   UPLOAD_LIMIT: "21474836480"
   UPLOAD_FILE_LIMIT: "2147483648"
   APPLICATION_COOKIES_DOMAIN: ""
@@ -149,7 +151,7 @@ mailhog:
 front:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-upload-download-gui
+    repository: lasuite/francetransfert-upload-download-gui
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -176,7 +178,7 @@ front:
 upload:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-upload-api
+    repository: lasuite/francetransfert-upload-api
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -184,11 +186,12 @@ upload:
     targetPort: 8080
   resources:
     requests:
-      cpu: 150m
-      memory: 256Mi
-    limits:
+      cpu: 1
       memory: 512Mi
+    limits:
+      memory: 1024Mi
   overrideConf:
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SERVER_PORT: "8080"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
@@ -201,7 +204,7 @@ upload:
     EXPIRE_TOKEN_INITAPI: "120"
     CAPTCHA_URL: "https://ft-staging.beta.numerique.gouv.fr/captcha/services/v1.2/captchaService"
     CAPTCHA_SECURE: "false"
-    URL_DOWNLOAD_PUBLIC: "https://ft-staging.beta.numerique.gouv.fr/download/download-info-public?enclosure"
+    URL_DOWNLOAD_PUBLIC: "https://ft-staging.beta.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
     AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
     AGENTCONNECT_CLIENTID: francetransfert
@@ -221,7 +224,7 @@ upload:
 download:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-download-api
+    repository: lasuite/francetransfert-download-api
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -254,7 +257,7 @@ download:
 worker:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-worker
+    repository: lasuite/francetransfert-worker
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   resources:
@@ -264,6 +267,7 @@ worker:
     limits:
       memory: 1024Mi
   overrideConf:
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"

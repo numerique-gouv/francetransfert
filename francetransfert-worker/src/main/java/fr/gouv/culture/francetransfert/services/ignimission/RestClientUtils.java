@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import fr.gouv.culture.francetransfert.model.IgnimissionAuthenticationResponse;
-import fr.gouv.culture.francetransfert.model.IgnimissionDomainParameter;
 import fr.gouv.culture.francetransfert.model.IgnimissionDomainResponse;
 import fr.gouv.culture.francetransfert.model.IgnimissionParameter;
 import fr.gouv.culture.francetransfert.security.WorkerException;
@@ -89,23 +88,22 @@ public class RestClientUtils {
 	 * @param httpMethod
 	 * @return
 	 */
-	public IgnimissionDomainResponse getAsamExtensions(IgnimissionDomainParameter ignimissionDomainParameter,
-			String token, String requestUri, HttpMethod httpMethod) {
+	public List<String> getDomain(String token, String requestUri, HttpMethod httpMethod) {
 
-		ResponseEntity<IgnimissionDomainResponse[]> response = null;
+		ResponseEntity<IgnimissionDomainResponse> response = null;
 		try {
 
-			LOGGER.info("================================> worker Ignimission domain update from [{}]", requestUri);
+			LOGGER.info("================================> worker LaSuite domain update from [{}]", requestUri);
 			RestTemplate restTemplate = restTemplateBuilder.messageConverters(converters)
 					.errorHandler(new IgnimissionErrorHandler()).build();
 
-			response = restTemplate.exchange(requestUri, httpMethod,
-					getHttpEntityWithCredentials(ignimissionDomainParameter, token), IgnimissionDomainResponse[].class);
+			response = restTemplate.exchange(requestUri, httpMethod, getHttpEntityWithCredentials(null, token),
+					IgnimissionDomainResponse.class);
 		} catch (HttpMessageNotReadableException e) {
-			LOGGER.error("Worker Ignimission domain update ERROR {} ", e.getMessage(), e);
+			LOGGER.error("Worker LaSuite domain update ERROR {} ", e.getMessage(), e);
 		}
 
-		return Objects.nonNull(response) ? Arrays.stream(response.getBody()).findFirst().orElse(null) : null;
+		return response.getBody().getItems();
 	}
 
 	public void sendIgniStat(String token, String requestUri, HttpMethod httpMethod, File file, String idStat) {

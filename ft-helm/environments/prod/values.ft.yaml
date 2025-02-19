@@ -1,0 +1,460 @@
+environnement: &environnement prod
+
+rootUrl: &rootUrl francetransfert.numerique.gouv.fr
+
+# imagePullSecrets: "registry-pull-secret"
+nameOverride: ""
+fullnameOverride: ""
+
+overrideGlobalConf:
+  ROOT_LOG_LEVEL: "INFO"
+  FT_LOG_LEVEL: "INFO"
+  UPLOAD_LIMIT: "21474836480"
+  UPLOAD_FILE_LIMIT: "2147483648"
+  APPLICATION_COOKIES_DOMAIN: ""
+  ENCLOSURE_EXPIRE_DAYS: "30"
+  ENCLOSURE_MAX_PASSWORD_TRY: "5"
+  ENVIRONNEMENT: "PROD"
+  PASSWORD_MINSIZE: "12"
+  PASSWORD_MAXSIZE_GENERATED: "20"
+  PASSWORD_LOWER_MIN: "3"
+  PASSWORD_UPPER_MIN: "3"
+  PASSWORD_SPECIAL_MIN: "3"
+  PASSWORD_SPECIAL_LIST: "!@#$%^&*()_-:+"
+  PASSWORD_DIGIT_MIN: "3"
+  URL_DOWNLOAD_API: "https://francetransfert.numerique.gouv.fr/download/"
+  URL_ADMIN_PAGE: "https://francetransfert.numerique.gouv.fr/admin"
+  MAIL_IMAGE_FT_LOGO: "https://francetransfert.numerique.gouv.fr/statics/logos/france_transfert_logo.svg"
+  MAIL_IMAGE_FT_FILE: "https://francetransfert.numerique.gouv.fr/statics/email-contents/Fichier_white.png"
+  MAIL_IMAGE_FT_FOLDER: "https://francetransfert.numerique.gouv.fr/statics/email-contents/Dossier_white.png"
+  MAIL_IMAGE_FT_ACCESSBUTTON: "https://francetransfert.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
+
+maintenance:
+  enabled: false
+
+clamav:
+  enabled: true
+  startupProbe:
+    failureThreshold: 60
+    initialDelaySeconds: 60
+    periodSeconds: 60
+    successThreshold: 1
+    tcpSocket:
+      port: tcp-clamav
+    timeoutSeconds: 60
+  resources:
+    requests:
+      cpu: 250m
+      memory: 3Gi
+    limits:
+      memory: 3Gi
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 100101
+    runAsGroup: 100101
+    fsGroup: 100101
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    privileged: false
+    capabilities:
+      drop:
+        - ALL
+  
+
+redis:
+  commonConfiguration: |-
+    appendonly yes
+    save "7200 1 3600 10000"
+    dbfilename ftr-data.rdb
+    appendfilename appendonly.aof
+    aof-use-rdb-preamble yes
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 2048mb
+  networkPolicy:
+    enabled: false
+    allowExternal: false
+  global:
+    storageClass: bsu-gp2
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  architecture: replication
+  sentinel:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 5Gi
+  auth:
+    enabled: true
+    sentinel: true
+    existingSecret: ft-secret-app
+    existingSecretPasswordKey: METALOAD_PASSWORD
+  master:
+    persistence:
+      size: 50Gi
+      enabled: true
+    resources:
+      requests:
+        cpu: 500m
+        memory: 8Gi
+      limits:
+        memory: 8Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+  replica:
+    persistence:
+      size: 50Gi
+      enabled: true
+    resources:
+      requests:
+        cpu: 500m
+        memory: 8Gi
+      limits:
+        memory: 8Gi
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+
+mailhog:
+  enable: false
+  replicaCount: 1
+  image:
+    repository: mailhog/mailhog
+    tag: "latest"
+    imagePullPolicy: Always
+  service:
+    portSmtp: 1025
+    targetPortStmp: 1025
+    portHttp: 8025
+    targetPortHttp: 8025
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      memory: 256Mi
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 100101
+    runAsGroup: 100101
+
+front:
+  replicaCount: 2
+  image:
+    repository: lasuite/francetransfert-upload-download-gui
+    tag: 4.0.0
+    imagePullPolicy: Always
+  service:
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      memory: 256Mi
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 100101
+    runAsGroup: 100101
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
+
+upload:
+  replicaCount: 4
+  readinessLiveness:
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  image:
+    repository: lasuite/francetransfert-upload-api
+    tag: 4.0.0
+    imagePullPolicy: Always
+  service:
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      memory: 512Mi
+  overrideConf:
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
+    SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
+    ENABLEMTLS: "false"
+    DISABLESSL: "false"
+    SERVER_PORT: "8080"
+    SERVER_COMPRESSION_ENABLED: "true"
+    SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
+    UPLOAD_LIMIT_SENDERMAIL: "10"
+    UPLOAD_FILE_LIMIT: "2147483648"
+    UPLOAD_TOKEN_CHUNKMODULO: "6"
+    UPLOAD_EXPIRED_LIMIT: "90"
+    EXPIRE_CONFIRMATION_CODE_LENGTH: "8"
+    EXPIRE_TOKEN_SENDER: "1800"
+    EXPIRE_TOKEN_INITAPI: "120"
+    CAPTCHA_URL: "https://francetransfert.numerique.gouv.fr/captcha/services/v1.2/captchaService"
+    CAPTCHA_SECURE: "false"
+    URL_DOWNLOAD_PUBLIC: "https://francetransfert.numerique.gouv.fr/download/download-info-public?enclosure="
+    AGENTCONNECT_ENABLED: "true"
+    AGENTCONNECT_ISSUERURL: https://auth-apps.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_CLIENTID: francetransfert
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-apps.numerique.gouv.fr/realms/applications
+  podSecurityContext:
+    runAsUser: 100102
+    runAsGroup: 100102
+    fsGroup: 100102
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 100102
+    runAsGroup: 100102
+  hpa:
+    enabled: false
+    minReplicas: 4
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
+  persistentVolumeClaim:
+    storage: 5Gi
+    accessModes: ReadWriteOnce
+    storageClassName: bsu-gp2
+
+download:
+  replicaCount: 2
+  readinessLiveness:
+    readinessProbe:
+      tcpSocket:
+        port: 8081
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      tcpSocket:
+        port: 8081
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  image:
+    repository: lasuite/francetransfert-download-api
+    tag: 4.0.0
+    imagePullPolicy: Always
+  service:
+    port: 8081
+    targetPort: 8081
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
+  overrideConf:
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    SERVER_PORT: "8081"
+    SERVER_COMPRESSION_ENABLED: "true"
+    SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
+    ENCLOSURE_MAX_DOWNLOAD: "5"
+    ENCLOSURE_MAX_PASSWORD_TRY: "5"
+  podSecurityContext: {}
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100103
+    runAsGroup: 100103
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
+
+worker:
+  replicaCount: 4
+  terminationGracePeriodSeconds: 180
+  image:
+    repository: lasuite/francetransfert-worker
+    tag: 4.0.0
+    imagePullPolicy: Always
+  resources:
+    requests:
+      cpu: 2
+      memory: 512Mi
+    limits:
+      memory: 512Mi
+  overrideConf:
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    SCAN_CLAMAV_TIMEOUT: "20000"
+    SCAN_CLAMAV_CHUNKSIZE: "655360"
+    SCAN_CLAMAV_MAXFILESIZE: "2147483648"
+    GLIMPS_DELAY_SECONDS: "30"
+    GLIMPS_MAXTRY: "10"
+    GLIMPS_ENABLED: "true"
+    GLIMPS_RETRYCODE: "504,512"
+    GLIMPS_KNOWNCODE: "5001,5000"
+    GLIMPS_ALLOWCODE: "4001"
+    TMP_FOLDER_PATH: /tmp/
+    WORKER_EXPIRED_LIMIT: "90"
+    POOL_SIZE: "50"
+    SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "2"
+    SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: "2"
+    TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: "2"
+    ZIPWORKEREXECUTOR_POOL_SIZE: "2"
+    SENDEMAILDOWNLOADINPROGRESSWORKEREXECUTOR_POOL_SIZE: "2"
+    UPLOADDOWNLOADWORKEREXECUTOR_POOL_SIZE: "2"
+    STATWORKEREXECUTOR_POOL_SIZE: "2"
+    EXPIRE_MONTH: 12
+    RELAUNCH_MAIL_DAYS: "7"
+    SCHEDULED_RELAUNCH_MAIL: "0 0 2 * * ?"
+    SCHEDULED_CLEAN_UP: "0 30 0 * * *"
+    SCHEDULED_APP_SYNC_CLEANUP: "20 0 */1 * * *"
+    SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
+    SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "20 0 */1 * * *"
+    SCHEDULED_IGNIMISSION_DOMAIN: "0 45 3 * * *"
+    SCHEDULED_SEND_STAT: "0 */30 * * * *"
+    SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
+    SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
+    SCHEDULED_SYNC_CHECKMAIL: "20 */45 * * * ?"
+    SCHEDULED_SYNC_CHECKGLIMPS: "10 */2 * * * ?"
+    SCHEDULED_CHECKGLIMPS: "0 */2 * * * ?"
+    SCHEDULED_SYNC_HEALTHCHECK: "10 */2 * * * ?"
+    SCHEDULED_HEALTHCHECK: "0 */2 * * * ?"
+    DEEPCLEAN_WEEKDAY: 7
+  persistentVolumeClaim:
+    storage: 200Gi
+    accessModes: ReadWriteOnce
+    storageClassName: bsu-gp2
+  podSecurityContext:
+    runAsUser: 100104
+    runAsGroup: 100104
+    fsGroup: 100104
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 100104
+    runAsGroup: 100104
+  hpa:
+    enabled: false
+    minReplicas: 4
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  upload:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200M"
+      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+  hosts:
+    - francetransfert.numerique.gouv.fr
+    - ft-ppr1.beta.numerique.gouv.fr
+  tls:
+    - secretName: transfert-tls
+      hosts:
+        - francetransfert.numerique.gouv.fr
+    - secretName: transfert1-tls
+      hosts:
+        - ft-ppr1.beta.numerique.gouv.fr
+
+backup:
+  backupDate: "2025_06_11_131853"
+  enabled: true
+  schedule: "20 4 * * *"
+  persistentVolumeClaim:
+    storage: 25Gi
+    storageClassName: bsu-gp2
+  podSecurityContext:
+    runAsUser: 110101
+    runAsGroup: 110101
+    fsGroup: 110101
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 110101
+    runAsGroup: 110101

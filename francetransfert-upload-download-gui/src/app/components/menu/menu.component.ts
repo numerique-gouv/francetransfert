@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
-  * SPDX-License-Identifier: MIT 
+  * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
   */
 
@@ -9,6 +9,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login/login.service';
 import { environment } from 'src/environments/environment';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ft-menu',
@@ -21,9 +22,9 @@ export class MenuComponent implements OnInit {
   @Output() routingCalled: EventEmitter<boolean> = new EventEmitter();
   version: string;
 
-  constructor(private _router: Router, private loginService: LoginService) {
+  constructor(private _router: Router, private loginService: LoginService, private translate: TranslateService) {
     this.version = environment.version;
-   }
+  }
 
   ngOnInit(): void {
   }
@@ -35,6 +36,15 @@ export class MenuComponent implements OnInit {
 
   onToggleSidenav = () => {
     this.sidenavToggle.emit();
+  }
+
+  goToExternalLink(translationKey: string, newTab: boolean = false) {
+    const link = this.translate.instant(translationKey);
+    if (newTab) {
+      window.open(link, '_blank');
+    } else {
+      window.location.href = link;
+    }
   }
 
   isLoggedIn() {

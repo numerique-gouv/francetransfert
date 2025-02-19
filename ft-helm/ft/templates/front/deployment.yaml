@@ -36,3 +36,25 @@ spec:
       - name: tmp-volume
         emptyDir:
           sizeLimit: 250Mi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-angular-app
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-angular-app
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: {{ include "france-transfert.fullname" . }}-angular-app
+                topologyKey: kubernetes.io/hostname
+              weight: 1

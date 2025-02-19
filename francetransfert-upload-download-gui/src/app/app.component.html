@@ -1,3 +1,16 @@
+<div *ngIf="loaderService.isLoading$ | async" class="loader-overlay">
+  <div *ngIf="loaderService.showSpinner$ | async" class="spinner"></div>
+  <p class="loading-message">{{ loaderService.loadingMessage$ | async }}</p>
+  <ng-container *ngIf="loaderService.downloadKeyId$ | async as downloadKeyId">
+    <button #clickHere type="button" mat-raised-button class="filtred-button"
+      [attr.aria-label]=" 'CliquerIci' | translate " (click)="handleDownload(downloadKeyId)">{{"CliquerIci" | translate}}
+    </button>
+  </ng-container>
+  <button *ngIf="loaderService.showSpinner$ | async" type="button" mat-raised-button class="filtred-button"
+    (click)="handleClick()" attr.aria-label="{{'Annuler' | translate}}" #btnRef>{{'Annuler'
+    |translate}}</button>
+
+</div>
 <div class="app-root" (window:resize)="onResize()">
   <header role="banner">
     <ft-header class="app-header" (sidenavToggle)="toggleSideNav()" (routingCalled)="onRoutingCalled($event)"

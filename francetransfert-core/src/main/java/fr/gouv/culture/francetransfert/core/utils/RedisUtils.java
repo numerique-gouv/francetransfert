@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -41,6 +41,7 @@ import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RootDirKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RootFileKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.SenderKeysEnum;
+import fr.gouv.culture.francetransfert.core.enums.StatutEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 
@@ -227,7 +228,7 @@ public class RedisUtils {
             if (StringUtils.isNotBlank(recipientId)) {
                 passTry = Integer.valueOf(redisManager.getHgetString(RedisKeysEnum.FT_RECIPIENT.getKey(recipientId),
                         RecipientKeysEnum.PASSWORD_TRY_COUNT.getKey()));
-//				RESET DATE IF TRY AFTER DATE
+                // RESET DATE IF TRY AFTER DATE
                 LocalDateTime lastTryDate = LocalDateTime.parse(redisManager.getHgetString(
                         RedisKeysEnum.FT_RECIPIENT.getKey(recipientId), RecipientKeysEnum.LAST_PASSWORD_TRY.getKey()));
                 if (lastTryDate != null) {
@@ -378,6 +379,24 @@ public class RedisUtils {
         }
     }
 
+    public static Long getCounterOfUploadChunksPerFile(RedisManager redisManager, String fileId)
+            throws MetaloadException {
+        try {
+            String nbChunk = redisManager.getHgetString(RedisKeysEnum.FT_FILE.getKey(fileId),
+                    FileKeysEnum.MUL_NB_CHUNKS_DONE.getKey());
+            if (StringUtils.isBlank(nbChunk)) {
+                return Long.valueOf("0");
+            } else {
+                return Long.valueOf(nbChunk);
+            }
+        } catch (Exception e) {
+            throw new MetaloadException(
+                    MessageFormat.format(
+                            "Echec à l incrémentation du nombre des chunk(s) uploader pour ce fichier: {0}", fileId),
+                    e);
+        }
+    }
+
     public static Long getCounterOfChunkIteration(RedisManager redisManager, String fileId) throws MetaloadException {
         try {
             String nbChunk = redisManager.getHgetString(RedisKeysEnum.FT_FILE.getKey(fileId),
@@ -493,6 +512,23 @@ public class RedisUtils {
         int seconds = Math
                 .toIntExact(Duration.between(LocalDateTime.now(), LocalDate.now().atTime(LocalTime.MAX)).getSeconds());
         redisManager.expire(senderKey, seconds);
+    }
+
+    public static void updateEnclosureStatus(RedisManager redisManager, String enclosureId, StatutEnum status) {
+
+        String currentStatus = redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+                EnclosureKeysEnum.STATUS_CODE.getKey());
+
+        if ((StatutEnum.ECH.equals(status) || StatutEnum.ECC.equals(status))
+                && StatutEnum.CHT.getCode().equalsIgnoreCase(currentStatus)) {
+            LOGGER.info("Enclosure {} is already in status {} cannot rollback to {}", enclosureId, currentStatus,
+                    status.getWord());
+            return;
+        }
+        redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+                EnclosureKeysEnum.STATUS_CODE.getKey(), status.getCode(), -1);
+        redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+                EnclosureKeysEnum.STATUS_WORD.getKey(), status.getWord(), -1);
     }
 
 }

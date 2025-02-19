@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -7,28 +7,42 @@
 
 package fr.gouv.culture.francetransfert.application.services;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
+import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.application.error.ErrorEnum;
@@ -39,7 +53,9 @@ import fr.gouv.culture.francetransfert.application.resources.model.EnclosureRepr
 import fr.gouv.culture.francetransfert.application.resources.model.FileInfoRepresentation;
 import fr.gouv.culture.francetransfert.application.resources.model.FileRepresentation;
 import fr.gouv.culture.francetransfert.application.resources.model.FranceTransfertDataRepresentation;
+import fr.gouv.culture.francetransfert.application.resources.model.PlisPaginated;
 import fr.gouv.culture.francetransfert.application.resources.model.RecipientInfo;
+import fr.gouv.culture.francetransfert.application.resources.model.TmpEnclosure;
 import fr.gouv.culture.francetransfert.application.resources.model.ValidateCodeResponse;
 import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.FileKeysEnum;
@@ -54,7 +70,7 @@ import fr.gouv.culture.francetransfert.core.enums.ValidationErrorEnum;
 import fr.gouv.culture.francetransfert.core.error.ApiValidationError;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
-import fr.gouv.culture.francetransfert.core.exception.RetryStorageException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.NewRecipient;
@@ -81,6 +97,9 @@ public class UploadServices {
 
 	@Value("${bucket.prefix}")
 	private String bucketPrefix;
+
+	@Value("${bucket.export}")
+	private String bucketExport;
 
 	@Value("${upload.limit}")
 	private long uploadLimitSize;
@@ -196,15 +215,13 @@ public class UploadServices {
 		} catch (Exception e) {
 			LOGGER.error("Error while uploading enclosure " + enclosureId + " for chunk " + flowChunkNumber
 					+ " and flowidentifier " + flowIdentifier + " : " + e.getMessage(), e);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ECH.getCode(), -1);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ECH.getWord(), -1);
-//			try {
-//				cleanEnclosure(enclosureId);
-//			} catch (Exception e1) {
-//				LOGGER.error("Error while cleanin after upload error : " + e.getMessage(), e);
-//			}
+			RedisUtils.updateEnclosureStatus(redisManager, enclosureId, StatutEnum.ECH);
+			// try {
+			// cleanEnclosure(enclosureId);
+			// } catch (Exception e1) {
+			// LOGGER.error("Error while cleanin after upload error : " + e.getMessage(),
+			// e);
+			// }
 			throw new UploadException(ErrorEnum.TECHNICAL_ERROR.getValue() + " during file upload : " + e.getMessage(),
 					enclosureId, e);
 		}
@@ -212,17 +229,17 @@ public class UploadServices {
 
 	public boolean uploadFile(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId)
-			throws MetaloadException, RetryStorageException, StorageException, IOException, ApiValidationException {
+			throws MetaloadException, RetryException, StorageException, IOException, ApiValidationException {
+
+		LOGGER.info("Start check for uploading File {} from enclosure {} - Chunk {}", flowIdentifier, enclosureId,
+				flowChunkNumber);
 
 		checkExtension(multipartFile, enclosureId);
 
-		String hashFid = RedisUtils.generateHashsha1(enclosureId + ":" + flowIdentifier);
-		if (chunkExists(flowChunkNumber, enclosureId, flowIdentifier)) {
-			return true; // multipart is uploaded
-		}
-
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
+		String hashFid = RedisUtils.generateHashsha1(enclosureId + ":" + flowIdentifier);
 		Map<String, String> redisFileInfo = RedisUtils.getFileInfo(redisManager, hashFid);
+
 		if (redisFileInfo.isEmpty()) {
 			ApiValidationError unknowFile = new ApiValidationError();
 			unknowFile.setCodeChamp(ValidationErrorEnum.FT2019.getCodeChamp());
@@ -236,10 +253,7 @@ public class UploadServices {
 			try {
 				String uploadID = storageManager.generateUploadIdOsu(bucketName, fileNameWithPath);
 				RedisForUploadUtils.addToFileMultipartUploadIdContainer(redisManager, uploadID, hashFid);
-				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-						EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ECC.getCode(), -1);
-				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-						EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ECC.getWord(), -1);
+				RedisUtils.updateEnclosureStatus(redisManager, enclosureId, StatutEnum.ECC);
 			} catch (Exception e) {
 				redisManager.hsetString(RedisKeysEnum.FT_FILE.getKey(hashFid),
 						FileKeysEnum.MUL_CHUNKS_ITERATION.getKey(), "0", -1);
@@ -247,32 +261,63 @@ public class UploadServices {
 			}
 
 		}
+
+		if (chunkExists(flowChunkNumber, enclosureId, flowIdentifier)) {
+			return true; // multipart is uploaded
+		}
+
 		String uploadOsuId = RedisForUploadUtils.getUploadIdBlocking(redisManager, hashFid);
 
 		boolean isUploaded = false;
-
-		LOGGER.debug("Osu bucket name: {}", bucketName);
-		PartETag partETag = storageManager.uploadMultiPartFileToOsuBucket(bucketName, flowChunkNumber, fileNameWithPath,
-				multipartFile.getInputStream(), multipartFile.getSize(), uploadOsuId);
-		String partETagToString = RedisForUploadUtils.addToPartEtags(redisManager, partETag, hashFid);
-		LOGGER.debug("PartETag added {} for: {}", partETagToString, hashFid);
-		isUploaded = true;
-		long flowChuncksCounter = RedisUtils.incrementCounterOfUploadChunksPerFile(redisManager, hashFid);
-		LOGGER.debug("FlowChuncksCounter in redis {}", flowChuncksCounter);
-		LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{}", flowIdentifier, enclosureId,
-				flowChunkNumber, flowChuncksCounter, flowTotalChunks);
-		if (flowChuncksCounter >= flowTotalChunks) {
-			isUploaded = finishUploadFile(enclosureId, senderId, hashFid, bucketName, fileNameWithPath, uploadOsuId);
+		try (InputStream inputStream = multipartFile.getInputStream()) {
+			LOGGER.debug("Osu bucket name: {}", bucketName);
+			PartETag partETag = storageManager.uploadMultiPartFileToOsuBucket(bucketName, flowChunkNumber,
+					fileNameWithPath, inputStream, multipartFile.getSize(), uploadOsuId);
+			String partETagToString = RedisForUploadUtils.addToPartEtags(redisManager, partETag, hashFid);
+			LOGGER.debug("PartETag added {} for: {}", partETagToString, hashFid);
+			long chunkUploaded = RedisForUploadUtils.addChunkToFile(redisManager, enclosureId, hashFid,
+					flowChunkNumber);
+			isUploaded = true;
+			long flowChuncksCounter = RedisUtils.incrementCounterOfUploadChunksPerFile(redisManager, hashFid);
+			LOGGER.debug("FlowChuncksCounter in redis {}", flowChuncksCounter);
+			LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{}", flowIdentifier, enclosureId,
+					flowChunkNumber, flowChuncksCounter, flowTotalChunks);
+			if (flowChuncksCounter >= flowTotalChunks && chunkUploaded == flowTotalChunks) {
+				isUploaded = finishUploadFile(enclosureId, senderId, hashFid, bucketName, fileNameWithPath,
+						uploadOsuId);
+			}
 		}
+
 		return isUploaded;
 	}
 
 	public boolean chunkExists(int flowChunkNumber, String enclosureId, String flowIdentifier) {
 		String hashFid = RedisUtils.generateHashsha1(enclosureId + ":" + flowIdentifier);
 		try {
-			return RedisUtils.getNumberOfPartEtags(redisManager, hashFid).contains(flowChunkNumber);
+			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
+			Map<String, String> redisFileInfo = RedisUtils.getFileInfo(redisManager, hashFid);
+			String fileNameWithPath = redisFileInfo.get(FileKeysEnum.REL_OBJ_KEY.getKey());
+			String uploadOsuId = RedisForUploadUtils.getUploadIdBlockingInit(redisManager, hashFid);
+			RedisUtils.getNumberOfPartEtags(redisManager, hashFid).contains(flowChunkNumber);
+			boolean chunkExists = false;
+			try {
+				chunkExists = storageManager.existChunk(bucketName, fileNameWithPath, uploadOsuId, flowChunkNumber);
+				if (chunkExists) {
+					return true;
+				}
+			} catch (Exception e) {
+			}
+
+			ObjectMetadata obj = storageManager.getObjectMetadataByName(bucketName, fileNameWithPath);
+			if (obj != null && obj.getContentLength() > 0) {
+				LOGGER.error("File {} in enclosure {} already exists", fileNameWithPath, enclosureId);
+				return true;
+			}
+			return chunkExists;
 		} catch (Exception e) {
-			throw new UploadException("Checked chunk doest not exist : " + e.getMessage(), hashFid, e);
+			return false;
+			// throw new UploadException("Checked chunk doest not exist : " +
+			// e.getMessage(), hashFid, e);
 		}
 	}
 
@@ -543,6 +588,11 @@ public class UploadServices {
 			LOGGER.error("enclosure size > upload limit size: {}", uploadLimitSize);
 			throw new UploadException(ErrorEnum.LIMT_SIZE_ERROR.getValue());
 		}
+
+		if (FileUtils.hasFileNameTooLong(metadata.getRootFiles(), metadata.getRootDirs())) {
+			LOGGER.error("enclosure has file name too long");
+			throw new UploadException(ErrorEnum.FILE_NAME_TOO_LONG.getValue());
+		}
 		try {
 			LOGGER.debug("limit enclosure size is < upload limit size: {}", uploadLimitSize);
 			// generate password if provided one not valid
@@ -621,43 +671,343 @@ public class UploadServices {
 		return true;
 	}
 
-	public List<FileInfoRepresentation> getSenderPlisList(ValidateCodeResponse metadata) throws MetaloadException {
+	public PlisPaginated getSenderPlisList(ValidateCodeResponse metadata, int page, int size, String searchedMail,
+			String dateDebut, String dateFin, String objet, String statut) throws MetaloadException {
 		List<FileInfoRepresentation> listPlis = new ArrayList<FileInfoRepresentation>();
 		List<String> result = RedisUtils.getSentPli(redisManager, metadata.getSenderMail());
+		PlisPaginated plisPaginated = new PlisPaginated();
+		/*
+		 * if (!(size > 0)) { size = 5; }
+		 */
 
+		// Apply searshedMail filter
 		if (!CollectionUtils.isEmpty(result)) {
-			for (String enclosureId : result) {
+			List<TmpEnclosure> pagePlis = sliceList(page, size, result, searchedMail, dateDebut, dateFin, objet, statut,
+					true);
+
+			if (size != 0) {
+				plisPaginated.setTotalPages(pagePlis.size() / size);
+			}
+
+			for (TmpEnclosure tmpEnclosureId : pagePlis.subList(Math.min(page * size, pagePlis.size()),
+					size != 0 ? Math.min((page + 1) * size, pagePlis.size()) : pagePlis.size())) {
 				try {
-					FileInfoRepresentation enclosureInfo = getInfoPlis(enclosureId);
+					FileInfoRepresentation enclosureInfo = getInfoPlis(tmpEnclosureId.getEnclosureId());
 					if (!enclosureInfo.isDeleted()) {
 						listPlis.add(enclosureInfo);
 					}
 				} catch (Exception e) {
-					LOGGER.error("Cannot get plis {} for list ", enclosureId, e);
+					LOGGER.error("Cannot get plis {} for list ", tmpEnclosureId.getEnclosureId(), e);
 				}
 			}
+
+			plisPaginated.setPlis(listPlis);
+			plisPaginated.setPage(page);
+			plisPaginated.setPageSize(size);
+			plisPaginated.setTotalItems(pagePlis != null ? pagePlis.size() : 0);
 		}
-		return listPlis;
+
+		return plisPaginated;
+
 	}
 
-	public List<FileInfoRepresentation> getReceivedPlisList(ValidateCodeResponse metadata) throws MetaloadException {
-		List<FileInfoRepresentation> listPlis = new ArrayList<FileInfoRepresentation>();
+	public PlisPaginated getReceivedPlisList(ValidateCodeResponse metadata, int page, int size, String searchedMail,
+			String dateDebut, String dateFin, String objet, String statut) throws MetaloadException {
+		List<FileInfoRepresentation> listPlis = new ArrayList<>();
+
 		List<String> result = RedisUtils.getReceivedPli(redisManager, metadata.getSenderMail());
+		PlisPaginated plisPaginated = new PlisPaginated();
+		plisPaginated.setTotalItems(0);
+		/*
+		 * if (!(size > 0)) { size = 5; }
+		 */
 
 		if (!CollectionUtils.isEmpty(result)) {
-			for (String enclosureId : result) {
+
+			List<TmpEnclosure> pagePlis = sliceList(page, size, result, searchedMail, dateDebut, dateFin, objet, statut,
+					false);
+
+			if (size != 0) {
+				plisPaginated.setTotalPages(pagePlis.size() / size);
+			}
+
+			for (TmpEnclosure tmpEnclosureId : pagePlis.subList(Math.min(page * size, pagePlis.size()),
+					size != 0 ? Math.min((page + 1) * size, pagePlis.size()) : pagePlis.size())) {
 				try {
-					FileInfoRepresentation enclosureInfo = getInfoPlisForReciever(enclosureId,
+					FileInfoRepresentation enclosureInfo = getInfoPlisForReciever(tmpEnclosureId.getEnclosureId(),
 							metadata.getSenderMail());
 					if (!enclosureInfo.isDeleted()) {
 						listPlis.add(enclosureInfo);
 					}
 				} catch (Exception e) {
-					LOGGER.error("Cannot get plis {} for list ", enclosureId, e);
+					LOGGER.error("Cannot get plis {} for list ", tmpEnclosureId.getEnclosureId(), e);
 				}
 			}
+			plisPaginated.setTotalItems(pagePlis.size());
 		}
-		return listPlis;
+
+		plisPaginated.setPlis(listPlis);
+		plisPaginated.setPage(page);
+		plisPaginated.setPageSize(size);
+		return plisPaginated;
+	}
+
+	private List<TmpEnclosure> sliceList(int page, int size, List<String> result, String searchedMail, String dateDebut,
+			String dateFin, String objet, String statut, boolean fromSender) {
+
+		Map<String, Map<String, String>> redisMap = redisManager
+				.hmgetAllString(result.stream().map(RedisKeysEnum.FT_ENCLOSURE::getKey).toList());
+
+		List<TmpEnclosure> pagePlis = redisMap.keySet().stream().map(x -> {
+			if (!StringUtils.isBlank(redisMap.get(x).get(EnclosureKeysEnum.TIMESTAMP.getKey()))) {
+				return TmpEnclosure.builder().enclosureId(x.replace("enclosure:", "")).meta(redisMap.get(x))
+						.timestamp(redisMap.get(x).get(EnclosureKeysEnum.TIMESTAMP.getKey())).build();
+			} else {
+				return null;
+			}
+		}).filter(Objects::nonNull).filter(x -> {
+			return filterEnclosure(searchedMail, dateDebut, dateFin, objet, statut, x, fromSender);
+		}).sorted().toList();
+
+		return pagePlis;
+	}
+
+	private boolean filterEnclosure(String searchedMail, String dateDebut, String dateFin, String objet, String statut,
+			TmpEnclosure x, boolean fromSender) {
+
+		boolean matches = true;
+
+		if ((objet != null && StringUtils.isNotBlank(objet)) && matches) {
+			matches = matches
+					&& StringUtils.containsIgnoreCase(x.getMeta().get(EnclosureKeysEnum.SUBJECT.getKey()), objet);
+		}
+		if ((statut != null && !statut.isEmpty()) && matches) {
+			LocalDate expirationDate = DateUtils
+					.convertStringToLocalDate(x.getMeta().get(EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()));
+			boolean isExpired = LocalDate.now().isAfter(expirationDate);
+			if (statut.equals("remove_red_eye")) {
+				matches = matches && isExpired;
+			} else {
+				matches = matches && !isExpired;
+			}
+		}
+		if ((dateDebut != null || dateFin != null) && matches) {
+			try {
+				String enclosureDateStr = x.getMeta().get(EnclosureKeysEnum.TIMESTAMP.getKey());
+
+				LocalDateTime enclosureDateTime = LocalDateTime.parse(enclosureDateStr,
+						DateTimeFormatter.ISO_DATE_TIME);
+				LocalDate enclosureDate = enclosureDateTime.toLocalDate();
+
+				LocalDate debut = dateDebut != null ? LocalDate.parse(dateDebut, DateTimeFormatter.ISO_DATE_TIME)
+						: null;
+				LocalDate fin = dateFin != null ? LocalDate.parse(dateFin, DateTimeFormatter.ISO_DATE_TIME) : null;
+
+				if (dateDebut != null && dateFin != null) {
+					matches = matches && (debut == null || !enclosureDate.isBefore(debut))
+							&& (fin == null || !enclosureDate.isAfter(fin));
+				} else if (dateDebut != null && dateFin == null) {
+					matches = matches && (debut == null || !enclosureDate.isBefore(debut));
+				} else if (dateDebut == null && dateFin != null) {
+					matches = matches && (fin == null || !enclosureDate.isAfter(fin));
+				}
+			} catch (Exception e) {
+				LOGGER.error("Cannot parse date for plis {} in list ", e);
+				return false;
+			}
+		}
+		if ((searchedMail != null && StringUtils.isNotBlank(searchedMail)) && matches) {
+			if (fromSender) {
+				matches = RedisUtils.getRecipientsEnclosure(redisManager, x.getEnclosureId()).entrySet().stream()
+						.anyMatch(mailRec -> {
+							return StringUtils.containsIgnoreCase(mailRec.getKey(), searchedMail);
+						});
+			} else {
+				try {
+					String senderMail = RedisUtils.getEmailSenderEnclosure(redisManager, x.getEnclosureId());
+					matches = matches && StringUtils.containsIgnoreCase(senderMail, searchedMail);
+				} catch (MetaloadException e) {
+					LOGGER.error("Cannot get enclosure sender ", e);
+				}
+			}
+
+		}
+		return matches;
+	}
+
+	@Async
+	public CompletableFuture<String> exportToS3(ValidateCodeResponse metadata, String searchedMail, String dateDebut,
+			String dateFin, String objet, String statut, boolean isPLiSent) throws IOException, MetaloadException {
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+		DateTimeFormatter formatterdate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String formattedDate = now.format(formatter);
+		String objectKey;
+
+		if (isPLiSent) {
+			objectKey = metadata.getSenderMail() + "_plis_envoyés_" + formattedDate + ".csv";
+		} else {
+			objectKey = metadata.getSenderMail() + "_plis_reçus_" + formattedDate + ".csv";
+		}
+
+		LOGGER.debug("objectKey ready");
+		// Return the objectKey immediately
+		CompletableFuture<String> futureObjectKey = CompletableFuture.completedFuture(objectKey);
+
+		// Generate the file asynchronously
+		CompletableFuture.runAsync(() -> {
+			try {
+
+				List<FileInfoRepresentation> fileInfoList = new ArrayList<>();
+				String[] headers;
+
+				if (isPLiSent) {
+					try {
+						fileInfoList = getSenderPlisList(metadata, 0, 0, searchedMail, dateDebut, dateFin, objet,
+								statut).getPlis();
+					} catch (Exception e) {
+						LOGGER.error("Cannot get plis {} for list ", e);
+					}
+					headers = new String[] { "Date de réception", "type", "Objet", "Taille", "Fin de validité",
+							"Destinataires", "Nombre de destinataires",
+							"Nombre de destinataires ayant procédé à au moins un téléchargement", "Éléments du pli" };
+				} else {
+					try {
+						fileInfoList = getReceivedPlisList(metadata, 0, 0, searchedMail, dateDebut, dateFin, objet,
+								statut).getPlis();
+					} catch (Exception e) {
+						LOGGER.error("Cannot get plis {} for list ", e);
+					}
+					headers = new String[] { "Date de réception", "Expéditeur", "Objet", "Taille", "Fin de validité",
+							"Nombre de téléchargements", "Date premier téléchargement", "Date dernier téléchargement",
+							"Éléments du pli" };
+				}
+
+				CSVFormat option = CSVFormat.EXCEL.builder().setDelimiter(";").setQuoteMode(QuoteMode.ALL)
+						.setHeader(headers).build();
+				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+						PrintWriter printer = new PrintWriter(outputStream);) {
+					printer.write('\uFEFF');
+					try (CSVPrinter csvPrinter = new CSVPrinter(printer, option);) {
+
+						// Remplissage des données
+
+						for (FileInfoRepresentation fileInfo : fileInfoList) {
+
+							LocalDate localDateTime = DateUtils.convertStringToLocalDate(fileInfo.getTimestamp());
+
+							String dateReception = localDateTime.format(formatterdate);
+
+							if (isPLiSent) {
+
+								StringBuilder recipientsStr = new StringBuilder();
+								int nombreDestDownload = 0;
+								for (RecipientInfo recipientInfo : fileInfo.getRecipientsMails()) {
+									if (recipientsStr.length() > 0) {
+										recipientsStr.append(",");
+									}
+									recipientsStr.append(recipientInfo.getRecipientMail());
+									if (recipientInfo.getNumberOfDownloadPerRecipient() != 0) {
+										nombreDestDownload++;
+									}
+								}
+								StringBuilder elementPlis = new StringBuilder();
+								if (fileInfo.getRootFiles() != null) {
+									for (FileRepresentation file : fileInfo.getRootFiles()) {
+										if (elementPlis.length() > 0) {
+											elementPlis.append(",");
+										}
+										elementPlis.append(file.getName());
+									}
+								}
+
+								if (fileInfo.getRootDirs() != null) {
+									for (DirectoryRepresentation rootDir : fileInfo.getRootDirs()) {
+										if (elementPlis.length() > 0) {
+											elementPlis.append(",");
+										}
+										elementPlis.append(rootDir.getName());
+									}
+								}
+
+								csvPrinter.printRecord(dateReception, fileInfo.isPublicLink() ? "lien" : "Courriel",
+										fileInfo.getSubject(), fileInfo.getTotalSize(),
+										fileInfo.getValidUntilDate().format(formatterdate), recipientsStr.toString(),
+										fileInfo.getRecipientsMails().size(), nombreDestDownload,
+										elementPlis.toString());
+							} else {
+								ArrayList<String> dateDownload = new ArrayList();
+								for (RecipientInfo recipientInfo : fileInfo.getRecipientsMails()) {
+									for (String date : recipientInfo.getDownloadDates()) {
+										dateDownload.add(date);
+									}
+								}
+								ArrayList<LocalDate> localDates = new ArrayList<>();
+								if (dateDownload != null) {
+									for (String dateStr : dateDownload) {
+										LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME);
+										localDates.add(date);
+									}
+								}
+
+								LocalDate earliestDate = localDates.stream().min(Comparator.naturalOrder())
+										.orElse(null);
+								LocalDate latestDate = localDates.stream().max(Comparator.naturalOrder()).orElse(null);
+
+								StringBuilder elementPlis = new StringBuilder();
+								if (fileInfo.getRootFiles() != null) {
+									for (FileRepresentation file : fileInfo.getRootFiles()) {
+										if (elementPlis.length() > 0) {
+											elementPlis.append(",");
+										}
+										elementPlis.append(file.getName());
+									}
+								}
+								if (fileInfo.getRootDirs() != null) {
+									for (DirectoryRepresentation rootDir : fileInfo.getRootDirs()) {
+										if (elementPlis.length() > 0) {
+											elementPlis.append(",");
+										}
+										elementPlis.append(rootDir.getName());
+									}
+								}
+
+								csvPrinter.printRecord(dateReception, fileInfo.getSenderEmail(), fileInfo.getSubject(),
+										fileInfo.getTotalSize(), fileInfo.getValidUntilDate().format(formatterdate),
+										dateDownload.size(),
+										earliestDate != null ? earliestDate.format(formatterdate) : null,
+										latestDate != null ? latestDate.format(formatterdate) : null,
+										elementPlis.toString());
+							}
+						}
+
+						csvPrinter.flush();
+						csvPrinter.close();
+
+						storageManager.setExportToS3(bucketExport, objectKey, outputStream, metadata.getSenderMail());
+
+					}
+				}
+
+			} catch (Exception e) {
+				throw new UploadException("error while creating file csv: " + e.getMessage(), e);
+			}
+		});
+
+		return futureObjectKey;
+	}
+
+	public String getUrlExport(ValidateCodeResponse metadata, String objectKey) throws IOException, MetaloadException {
+		String url = storageManager.getUrlExport(bucketExport, objectKey, redisManager);
+		return url;
+	}
+
+	public void validateCheckExport(String senderMail, String objectKey) throws MetaloadException {
+		// verify token in redis
+		LOGGER.debug("check senderMail for export csv {}", senderMail);
+		if (!objectKey.startsWith(senderMail)) {
+			throw new MetaloadException("Invalid senderMail");
+		}
 	}
 
 	public LocalDate validateExpirationDate(String enclosureId) throws MetaloadException {
@@ -686,7 +1036,7 @@ public class UploadServices {
 		return true;
 	}
 
-	public void cleanEnclosure(String prefix) throws MetaloadException, RetryStorageException {
+	public void cleanEnclosure(String prefix) throws MetaloadException, RetryException {
 		String bucketName = RedisUtils.getBucketName(redisManager, prefix, bucketPrefix);
 		storageManager.deleteFilesWithPrefix(bucketName, prefix);
 	}
@@ -729,36 +1079,32 @@ public class UploadServices {
 				partETags);
 		boolean isUpload = false;
 		if (succesUpload != null) {
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ECC.getCode(), -1);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ECC.getWord(), -1);
+			RedisUtils.updateEnclosureStatus(redisManager, enclosureId, StatutEnum.ECC);
 			int fileCount = RedisUtils.getFilesIds(redisManager, enclosureId).size();
 			long uploadFilesCounter = RedisUtils.incrementCounterOfUploadFilesEnclosure(redisManager, enclosureId);
 			LOGGER.info("Finish upload File {}/{} for enclosure {} ==> {} ", uploadFilesCounter, fileCount, enclosureId,
 					fileNameWithPath);
 			if (fileCount == uploadFilesCounter) {
-				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId);
 				RedisUtils.addPliToDay(redisManager, senderId, enclosureId);
 				LOGGER.info("Finish upload enclosure ==> {} ", enclosureId);
 				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
 						EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.CHT.getCode(), -1);
 				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
 						EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.CHT.getWord(), -1);
+				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+						EnclosureKeysEnum.UPLOADED_TIMESTAMP.getKey(), LocalDateTime.now().toString(), -1);
+				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId);
 			}
 			isUpload = true;
 		} else {
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ECH.getCode(), -1);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
-					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ECH.getWord(), -1);
+			RedisUtils.updateEnclosureStatus(redisManager, enclosureId, StatutEnum.ECH);
 			isUpload = false;
 		}
 		return isUpload;
 	}
 
 	private void checkExtension(MultipartFile multipartFile, String enclosureId)
-			throws MetaloadException, RetryStorageException {
+			throws MetaloadException, RetryException {
 		if (!mimeService.isAuthorisedMimeTypeFromFileName(multipartFile.getOriginalFilename())) {
 			LOGGER.error("Extension file no authorised for file {}", multipartFile.getOriginalFilename());
 			cleanEnclosure(enclosureId);

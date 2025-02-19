@@ -1,0 +1,59 @@
+{{- if .Values.maintenance.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: maintenance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance
+  template:
+    metadata:
+      labels:
+        app: maintenance
+    spec:
+      containers:
+        - name: maintenance
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+            runAsNonRoot: true
+            runAsUser: 100101
+            runAsGroup: 100101
+          image: bitnami/nginx:1.28.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NGINX_PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: index
+              mountPath: /app
+              readOnly: false
+            - name: tmp
+              mountPath: /opt/bitnami/nginx/tmp/
+              readOnly: false
+            - name: serverblock
+              mountPath: /opt/bitnami/nginx/conf/server_blocks/
+              readOnly: true
+      volumes:
+        - name: index
+          configMap:
+            name: maintenance
+        - name: serverblock
+          configMap:
+            name: maintenance
+            items:
+              - key: my_server_block.conf
+                path: my_server_block.conf
+        - name: tmp
+          emptyDir: {}
+{{- end }}

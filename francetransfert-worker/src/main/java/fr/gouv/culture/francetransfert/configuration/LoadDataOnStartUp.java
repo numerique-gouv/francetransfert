@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PreDestroy;
 
 @Component
 public class LoadDataOnStartUp {
@@ -42,5 +44,10 @@ public class LoadDataOnStartUp {
 				LOGGER.error("Cannot delete configuration file : " + System.getenv(CONFIG_PATH_KEY));
 			}
 		}
+	}
+
+	@PreDestroy
+	public void tearDown() {
+		LOGGER.info("Application shutting down");
 	}
 }

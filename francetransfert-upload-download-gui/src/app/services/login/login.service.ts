@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -98,16 +98,22 @@ export class LoginService {
     this._httpClient.post(
       `${environment.host}${environment.apis.logout}`,
       {
-        senderMail: this.tokenInfo.getValue().senderMail,
-        senderToken: this.tokenInfo.getValue().senderToken
+        senderMail: this.tokenInfo.getValue()?.senderMail,
+        senderToken: this.tokenInfo.getValue()?.senderToken
       }
     ).pipe(take(1)).subscribe(x => {
 
     });
+    if (this.isSso()) {
+      this.connectCheck.next(false);
+      this.tokenInfo.next(null);
+      this.loggedIn$.next(false);
+      this.oauthService.logOut();
+    }
     this.connectCheck.next(false);
     this.tokenInfo.next(null);
     this.loggedIn$.next(false);
-    this.oauthService.logOut();
+
   }
 
   validateCode(body: any, currentLanguage: any): any {

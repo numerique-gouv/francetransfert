@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -7,6 +7,7 @@
 
 package fr.gouv.culture.francetransfert.core.services;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.Protocol;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
@@ -527,6 +530,50 @@ public class RedisManager {
         }
     }
 
+    public Transaction multi() {
+        Jedis jedis = null;
+        boolean success = true;
+        Transaction ret = null;
+        try {
+            jedis = pool.getResource();
+            if (jedis == null) {
+                success = false;
+                throw new JedisException(JEDIS_NULL);
+            }
+            ret = jedis.multi();
+        } catch (Exception e) {
+            success = false;
+            releaseRedisSource(success, jedis);
+        } finally {
+            releaseRedisSource(success, jedis);
+        }
+        return ret;
+    }
+
+    public Map<String, Map<String, String>> hmgetAllString(List<String> keys) {
+        Jedis jedis = null;
+        boolean success = true;
+        Map<String, Map<String, String>> ret = new HashMap();
+        Map<String, Response<Map<String, String>>> tmp = new HashMap();
+        try {
+            jedis = pool.getResource();
+            if (jedis == null) {
+                success = false;
+                throw new JedisException(JEDIS_NULL);
+            }
+            Transaction tr = jedis.multi();
+            keys.stream().forEach(x -> tmp.put(x, tr.hgetAll(x)));
+            tr.exec();
+            tmp.entrySet().stream().forEach(x -> ret.put(x.getKey(), x.getValue().get()));
+        } catch (Exception e) {
+            success = false;
+            returnBrokenResource(jedis, "hmgetAllString" + keys, e);
+        } finally {
+            releaseRedisSource(success, jedis);
+        }
+        return ret;
+    }
+
     public Map<String, String> hmgetAllString(String key) {
         Jedis jedis = null;
         boolean success = true;
@@ -581,6 +628,26 @@ public class RedisManager {
         } catch (Exception e) {
             success = false;
             returnBrokenResource(jedis, "hLen" + key, e);
+        } finally {
+            releaseRedisSource(success, jedis);
+        }
+        return ret;
+    }
+
+    public long llen(String key) {
+        Jedis jedis = null;
+        boolean success = true;
+        long ret = -1;
+        try {
+            jedis = pool.getResource();
+            if (jedis == null) {
+                success = false;
+                throw new JedisException(JEDIS_NULL);
+            }
+            ret = jedis.llen(key);
+        } catch (Exception e) {
+            success = false;
+            returnBrokenResource(jedis, "llen" + key, e);
         } finally {
             releaseRedisSource(success, jedis);
         }
@@ -657,7 +724,7 @@ public class RedisManager {
                 success = false;
                 throw new JedisException(JEDIS_NULL);
             }
-            keys = jedis.keys("*" + key + "*");
+            keys = jedis.keys(key);
         } catch (Exception e) {
             success = false;
             returnBrokenResource(jedis, "keys", e);
@@ -859,6 +926,27 @@ public class RedisManager {
             success = false;
             returnBrokenResource(jedis, "scardString" + key, e);
             LOGGER.debug("scardString : " + e.getMessage(), e);
+        } finally {
+            releaseRedisSource(success, jedis);
+        }
+        return ret;
+    }
+
+    public long saddExpire(String key, String value, long timeout) {
+        Jedis jedis = null;
+        boolean success = true;
+        Long ret = 0L;
+        try {
+            jedis = pool.getResource();
+            if (jedis == null) {
+                success = false;
+                throw new JedisException(JEDIS_NULL);
+            }
+            ret = jedis.sadd(key, value);
+            jedis.expire(key, timeout);
+        } catch (Exception e) {
+            success = false;
+            returnBrokenResource(jedis, "saddString" + key, e);
         } finally {
             releaseRedisSource(success, jedis);
         }

@@ -2,7 +2,7 @@ name: Build Front
 on:
   push:
     paths:
-      - francetransfert-upload-download-gui/*
+      - francetransfert-upload-download-gui/**
 jobs:
   getsha:
     runs-on: ubuntu-latest

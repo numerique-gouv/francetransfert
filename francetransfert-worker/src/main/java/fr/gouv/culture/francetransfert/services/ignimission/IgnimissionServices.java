@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -10,8 +10,7 @@ package fr.gouv.culture.francetransfert.services.ignimission;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -27,9 +26,6 @@ import org.springframework.stereotype.Service;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.model.IgnimissionAuthenticationResponse;
-import fr.gouv.culture.francetransfert.model.IgnimissionDomainDataParameter;
-import fr.gouv.culture.francetransfert.model.IgnimissionDomainParameter;
-import fr.gouv.culture.francetransfert.model.IgnimissionDomainResponse;
 import fr.gouv.culture.francetransfert.model.IgnimissionParameter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,6 +54,12 @@ public class IgnimissionServices {
 
 	@Value("${ignimission.client.secret}")
 	private String clientSecret;
+
+	@Value("${lasuite.token}")
+	private String laSuiteToken;
+
+	@Value("${lasuite.domain.url}")
+	private String laSuiteUrl;
 
 	@Value("${ignimission.domain.asam_product_filter}")
 	private String asamProductFilter;
@@ -94,25 +96,14 @@ public class IgnimissionServices {
 	public void updateDomains() {
 
 		try {
-			IgnimissionAuthenticationResponse ignimissionAuth = getAuthentication();
 
-			if (Objects.isNull(ignimissionAuth)) {
-				LOGGER.error("No Auth for ignimission");
-				return;
-			}
+			List<String> ignimissionDomainResponse = restClientUtils.getDomain(laSuiteToken, laSuiteUrl,
+					HttpMethod.GET);
 
-			IgnimissionDomainParameter ignimissionDomainParameter = IgnimissionDomainParameter.of(chunkSize,
-					new IgnimissionDomainDataParameter(asamProductFilter, asamAutorise,
-							LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)));
-			IgnimissionDomainResponse ignimissionDomainResponse = restClientUtils.getAsamExtensions(
-					ignimissionDomainParameter, ignimissionAuth.getAccessToken(), baseUri + domainPath,
-					HttpMethod.POST);
+			if (CollectionUtils.isNotEmpty(ignimissionDomainResponse)) {
+				LOGGER.debug("worker LaSuite domains size {} ", ignimissionDomainResponse.size());
 
-			if (Objects.nonNull(ignimissionDomainResponse) && ignimissionDomainResponse.getNbItems() > 0
-					&& !CollectionUtils.isEmpty(ignimissionDomainResponse.getDomainsAsList())) {
-				LOGGER.debug("worker Ignimission domains size {} ", ignimissionDomainResponse.getNbItems());
-
-				ignimissionDomainResponse.getDomainsAsList().forEach(domain -> {
+				ignimissionDomainResponse.forEach(domain -> {
 					String ext = (!StringUtils.isEmpty(domain)) ? domain.trim().replaceAll(CLEANUP_PATTERN, "") : null;
 					if (Objects.nonNull(ext)) {
 						redisManager.saddString(RedisKeysEnum.FT_DOMAINS_MAILS_TMP.getKey(""), ext.toLowerCase());
@@ -127,7 +118,7 @@ public class IgnimissionServices {
 						redisManager.smembersString(RedisKeysEnum.FT_DOMAINS_MAILS_MAILS.getKey("")).size());
 			}
 		} catch (Exception ex) {
-			LOGGER.error("worker Ignimission domain update error {} ", ex.getMessage());
+			LOGGER.error("worker LaSuite domain update error {} ", ex.getMessage());
 		}
 	}
 
@@ -175,6 +166,14 @@ public class IgnimissionServices {
 					} catch (Exception ex) {
 						LOGGER.error("Worker Ignimission stat error {} ", ex.getMessage(), ex);
 					}
+//					finally {
+//						try {
+//							Files.deleteIfExists(x);
+//						} catch (Exception d) {
+//							LOGGER.error("Cannot delete Ignimission file error {} ", d.getMessage(), d);
+//						}
+//					}
+
 				});
 			}
 

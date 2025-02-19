@@ -1,3 +1,22 @@
+environments:
+  default:
+    values:
+      - version: 0.0.1
+  dev:
+    values:
+      - version: 0.0.1
+  staging:
+    values:
+      - version: 0.0.1
+  ppr:
+    values:
+      - version: 0.0.1
+  ppr2:
+    values:
+      - version: 0.0.1
+
+---
+
 repositories:
   - name: wiremind
     url: https://wiremind.github.io/wiremind-helm-charts
@@ -15,13 +34,3 @@ releases:
       - environments/{{ .Environment.Name }}/values.ft.yaml
     secrets:
       - environments/{{ .Environment.Name }}/secrets.enc.yaml
-environments:
-  default:
-    values:
-      - version: 0.0.1
-  dev:
-    values:
-      - version: 0.0.1
-  staging:
-    values:
-      - version: 0.0.1

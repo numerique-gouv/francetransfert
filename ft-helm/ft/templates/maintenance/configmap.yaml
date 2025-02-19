@@ -1,0 +1,15 @@
+{{- if .Values.maintenance.enabled }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: maintenance
+data:
+  my_server_block.conf: |
+    server {
+    listen 0.0.0.0:8080;
+    server_name _;
+    root /app;
+    try_files $uri $uri/ /index.html;
+    }
+{{ (tpl (.Files.Glob "scripts/index.html").AsConfig .) | indent 2 }}
+{{- end }}

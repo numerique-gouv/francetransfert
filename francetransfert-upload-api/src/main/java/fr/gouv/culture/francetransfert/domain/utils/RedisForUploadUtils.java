@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -299,7 +299,7 @@ public class RedisForUploadUtils {
 				redisManager.insertHASH( // file:SHA1(GUID_pli:fid) => HASH { rel-obj-key: "Façade.jpg", size: "2",
 											// mul-id: "..." }
 						RedisKeysEnum.FT_FILE.getKey(shaFid), map);
-						redisManager.expire(RedisKeysEnum.FT_FILE.getKey(shaFid), 172800);
+				redisManager.expire(RedisKeysEnum.FT_FILE.getKey(shaFid), 172800);
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
@@ -340,6 +340,18 @@ public class RedisForUploadUtils {
 		}
 	}
 
+	public static long addChunkToFile(RedisManager redisManager, String enclosureId, String hashFid,
+			int chunkNumber) {
+		try {
+			String key = RedisKeysEnum.FT_ENCLOSURE_UPLOAD_FILE.getKey(enclosureId) + hashFid;
+			redisManager.saddString(key, chunkNumber + "");
+			redisManager.expire(key, 60 * 60 * 10);
+			return redisManager.scardString(key);
+		} catch (Exception e) {
+			throw new UploadException("Error adding chunk to file : " + e.getMessage(), e);
+		}
+	}
+
 	public static String addToFileMultipartUploadIdContainer(RedisManager redisManager, String uploadId,
 			String hashFid) {
 		try {
@@ -354,7 +366,16 @@ public class RedisForUploadUtils {
 	public static String getUploadIdBlocking(RedisManager redisManager, String hashFid) throws UploadException {
 		String keySource = RedisKeysEnum.FT_ID_CONTAINER.getKey(hashFid);
 		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, 30);
+		if (uploadOsuId == null || uploadOsuId.isBlank() || uploadOsuId.isEmpty()) {
+			String uuid = UUID.randomUUID().toString();
+			throw new UploadException("Error getting uploadOsuId for hash : " + hashFid, uuid);
+		}
+		return uploadOsuId;
+	}
 
+	public static String getUploadIdBlockingInit(RedisManager redisManager, String hashFid) throws UploadException {
+		String keySource = RedisKeysEnum.FT_ID_CONTAINER.getKey(hashFid);
+		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, 5);
 		if (uploadOsuId == null || uploadOsuId.isBlank() || uploadOsuId.isEmpty()) {
 			String uuid = UUID.randomUUID().toString();
 			throw new UploadException("Error getting uploadOsuId for hash : " + hashFid, uuid);
