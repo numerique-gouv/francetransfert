@@ -1,12 +1,5 @@
-/* 
- * Copyright (c) Ministère de la Culture (2022) 
- * 
- * SPDX-License-Identifier: Apache-2.0 
- * License-Filename: LICENSE.txt 
- */
-
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -123,6 +116,8 @@ public class ValidationMailService {
 	@Autowired
 	private MimeService mimeService;
 
+	private static SimpleDateFormat DAY_DATE_PARSER = new SimpleDateFormat("yyyy-MM-dd");
+
 	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
 	private static List<String> ALLOWED_CODE = Arrays.asList(StatutEnum.PAT.getCode(), StatutEnum.ECT.getCode(),
@@ -165,11 +160,14 @@ public class ValidationMailService {
 
 		ApiValidationError extenstionCheck = checkExtension(metadata.getRootFiles());
 
+		ApiValidationError filenameLengthCheck = checkFilenameLength(metadata.getRootFiles());
+
 		errorList.add(passwordChecked);
 		errorList.add(typeChecked);
 		errorList.add(idNameFilesChecked);
 		errorList.add(sizePackageChecked);
 		errorList.add(extenstionCheck);
+		errorList.add(filenameLengthCheck);
 		errorList.removeIf(Objects::isNull);
 
 		if (CollectionUtils.isEmpty(errorList)) {
@@ -215,6 +213,18 @@ public class ValidationMailService {
 		} else {
 			throw new ApiValidationException(errorList);
 		}
+	}
+
+	private ApiValidationError checkFilenameLength(List<FileRepresentationApi> rootFiles) {
+		boolean hasFileNameTooLong = FileUtils.hasFileNameTooLong(rootFiles);
+		if (hasFileNameTooLong) {
+			ApiValidationError apiError = new ApiValidationError();
+			apiError.setCodeChamp(ValidationErrorEnum.FT031.getCodeChamp());
+			apiError.setNumErreur(ValidationErrorEnum.FT031.getNumErreur());
+			apiError.setLibelleErreur(ValidationErrorEnum.FT031.getLibelleErreur());
+			return apiError;
+		}
+		return null;
 	}
 
 	// ------------Info pli destinataire------------
@@ -569,8 +579,6 @@ public class ValidationMailService {
 	}
 
 	private void validatePreference(List<ApiValidationError> errorList, PreferencesRepresentation preferences) {
-
-		SimpleDateFormat DAY_DATE_PARSER = new SimpleDateFormat("yyyy-MM-dd");
 
 		if (preferences.getLanguage() != null) {
 			ApiValidationError langueCourrielChecked = validLangueCourriel(preferences.getLanguage());

@@ -90,6 +90,8 @@ clamav:
     PCRERecMatchLimit 10000
 
 redis:
+  commonLabels:
+    tier: back
   # networkPolicy:
   #   allowExternal: false
   global:
@@ -108,6 +110,9 @@ redis:
     sentinel: true
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
+  commonConfiguration: |-
+    appendonly yes
+    save 3600 1 300 100 60 10000
   master:
     persistence:
       size: 10Gi
@@ -138,7 +143,7 @@ mailhog:
   resources: {}
 
 front:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-front
     tag: "local"
@@ -163,9 +168,15 @@ front:
     runAsNonRoot: true
     runAsUser: 100101
     runAsGroup: 100101
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 upload:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-upload
     tag: "local"
@@ -208,9 +219,15 @@ upload:
     runAsNonRoot: true
     runAsUser: 100102
     runAsGroup: 100102
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 download:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-download
     tag: "local"
@@ -241,9 +258,15 @@ download:
     runAsNonRoot: true
     runAsUser: 100103
     runAsGroup: 100103
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 worker:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-worker
     tag: "local"
@@ -301,6 +324,12 @@ worker:
     runAsNonRoot: true
     runAsUser: 100104
     runAsGroup: 100104
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 ingress:
   enabled: true
@@ -316,3 +345,7 @@ ingress:
     - secretName: transfert-tls
       hosts:
         - transfert-127-0-0-1.xip.lhjmmc.cn
+
+backup:
+  enabled: true
+  schedule: "20 4 * * *"

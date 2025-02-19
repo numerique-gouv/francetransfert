@@ -69,3 +69,19 @@ spec:
                 resources:
                   requests:
                     storage: {{ .Values.worker.persistentVolumeClaim.storage }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-worker-app
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: {{ include "france-transfert.fullname" . }}-worker-app
+                topologyKey: kubernetes.io/hostname
+              weight: 1

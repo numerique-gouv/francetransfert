@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +27,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,15 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
+import fr.gouv.culture.francetransfert.core.enums.GlimpsHealthCheckEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
 import fr.gouv.culture.francetransfert.core.enums.SourceEnum;
 import fr.gouv.culture.francetransfert.core.enums.StatutEnum;
 import fr.gouv.culture.francetransfert.core.enums.TypeStat;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
-import fr.gouv.culture.francetransfert.core.exception.RetryStorageException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
+import fr.gouv.culture.francetransfert.core.exception.RetryGlimpsException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.MimeService;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
@@ -52,7 +55,6 @@ import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.exception.InvalidSizeTypeException;
 import fr.gouv.culture.francetransfert.model.Enclosure;
 import fr.gouv.culture.francetransfert.model.ScanInfo;
-import fr.gouv.culture.francetransfert.security.GlimpsException;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.clamav.ClamAVScannerManager;
 import fr.gouv.culture.francetransfert.services.cleanup.CleanUpServices;
@@ -143,6 +145,10 @@ public class ZipWorkerServices {
 		LOGGER.debug(" SIZE " + list.size() + " LIST ===> " + list.toString());
 		Enclosure enclosure = Enclosure.build(enclosureId, redisManager);
 
+		boolean glimpsState = Boolean.parseBoolean(redisManager.getString(GlimpsHealthCheckEnum.STATE_REAL.getKey()));
+
+		LOGGER.debug(" glimpsState {} and  glimpsEnabled {}", glimpsState, glimpsEnabled);
+
 		try {
 
 			boolean finishedScan = false;
@@ -150,14 +156,13 @@ public class ZipWorkerServices {
 
 			String encStatut = enclosure.getStatut();
 
+			if (glimpsEnabled && !glimpsState) {
+				LOGGER.error("Glimps in error fall back to CLAMAV for enclosure {}", enclosureId);
+			}
+
 			if (StatutEnum.CHT.getCode().equals(encStatut)) {
 
 				LOGGER.info("[Worker] Start scan process for enclosur N°  {}", enclosureId);
-
-				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-						EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ANA.getCode(), -1);
-				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-						EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ANA.getWord(), -1);
 
 				LOGGER.info(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
 						bucketName, list, enclosureId, bucketPrefix);
@@ -165,8 +170,12 @@ public class ZipWorkerServices {
 				downloadFilesToTempFolder(manager, bucketName, list);
 				sizeCheck(list);
 
-				if (glimpsEnabled) {
+				if (glimpsEnabled && glimpsState) {
 					glimpsService.sendToGlipms(list, enclosureId);
+					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+							EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ANA.getCode(), -1);
+					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+							EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ANA.getWord(), -1);
 					File fileToDelete = new File(getBaseFolderNameWithEnclosurePrefix(enclosureId));
 					deleteFilesFromTemp(fileToDelete);
 					encStatut = StatutEnum.ANA.getCode();
@@ -177,41 +186,51 @@ public class ZipWorkerServices {
 			}
 
 			if (StatutEnum.ANA.getCode().equals(encStatut)) {
-				String lastGlimpsCheckStr = redisManager
-						.getString(RedisKeysEnum.FT_ENCLOSURE_SCAN_DELAY.getKey(enclosureId));
-				if (StringUtils.isBlank(lastGlimpsCheckStr) || LocalDateTime.parse(lastGlimpsCheckStr)
-						.plusSeconds(glimpsDelay).isBefore(LocalDateTime.now())) {
-					LOGGER.info("Checking glimps for enclosure {}", enclosureId);
-					isClean = glimpsService.checkGlipms(enclosureId);
-					if (CollectionUtils.isEmpty(redisManager
-							.hmgetAllString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId)).values())) {
-						finishedScan = true;
-					}
-					if (!isClean) {
-						Map<String, String> scanJsonList = redisManager
-								.hmgetAllString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId));
-						boolean toStop = scanJsonList.values().stream().map(json -> {
-							return new Gson().fromJson(json, ScanInfo.class);
-						}).anyMatch(x -> x.isError() || x.isVirus());
-						Long tryCount = redisManager.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId),
-								1);
-						if (toStop || (tryCount >= glipmsMaxTry)) {
-							isClean = false;
+				if (glimpsState) {
+					String lastGlimpsCheckStr = redisManager
+							.getString(RedisKeysEnum.FT_ENCLOSURE_SCAN_DELAY.getKey(enclosureId));
+					if (StringUtils.isBlank(lastGlimpsCheckStr) || LocalDateTime.parse(lastGlimpsCheckStr)
+							.plusSeconds(glimpsDelay).isBefore(LocalDateTime.now())) {
+						LOGGER.info("Checking glimps for enclosure {}", enclosureId);
+						isClean = glimpsService.checkGlipms(enclosureId);
+						if (CollectionUtils.isEmpty(redisManager
+								.hmgetAllString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId)).values())) {
 							finishedScan = true;
-							LOGGER.error("Too many Glimps error or virus for enclosure {} ", enclosureId);
-							redisManager.deleteKey(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId));
-						} else {
-							LOGGER.error("Retry error waiting before next call for enclosure {}", enclosureId);
-							isClean = true;
-							finishedScan = false;
 						}
+						if (!isClean) {
+							Map<String, String> scanJsonList = redisManager
+									.hmgetAllString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId));
+							boolean toStop = scanJsonList.values().stream().map(json -> {
+								return new Gson().fromJson(json, ScanInfo.class);
+							}).anyMatch(x -> x.isError() || x.isVirus());
+							Long tryCount = redisManager
+									.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId), 1);
+							if (toStop || (tryCount >= glipmsMaxTry)) {
+								isClean = false;
+								finishedScan = true;
+								LOGGER.error("Too many Glimps error or virus for enclosure {} ", enclosureId);
+								redisManager.deleteKey(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId));
+							} else {
+								LOGGER.error("Retry error waiting before next call for enclosure {}", enclosureId);
+								isClean = true;
+								finishedScan = false;
+							}
+						}
+						redisManager.setString(RedisKeysEnum.FT_ENCLOSURE_SCAN_DELAY.getKey(enclosureId),
+								LocalDateTime.now().toString());
+					} else {
+						LOGGER.debug("Waiting before next call for enclosure {}", enclosureId);
+						isClean = true;
+						finishedScan = false;
 					}
-					redisManager.setString(RedisKeysEnum.FT_ENCLOSURE_SCAN_DELAY.getKey(enclosureId),
-							LocalDateTime.now().toString());
 				} else {
-					LOGGER.debug("Waiting before next call");
+					LOGGER.error("Glimps in error for check enclosure {} putting enclosure back to CHT", enclosureId);
 					isClean = true;
 					finishedScan = false;
+					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+							EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.CHT.getCode(), -1);
+					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+							EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.CHT.getWord(), -1);
 				}
 			}
 
@@ -250,7 +269,7 @@ public class ZipWorkerServices {
 				LOGGER.debug(" start delete zip file in OSU");
 				try {
 					deleteFilesFromOSU(manager, bucketName, enclosureId);
-				} catch (RetryStorageException rse) {
+				} catch (RetryException rse) {
 					LOGGER.error("Cannot delete temporary file for complete enclosure NOT FAILING", rse);
 				}
 
@@ -276,6 +295,18 @@ public class ZipWorkerServices {
 						EnclosureKeysEnum.TIMESTAMP.getKey(), depotDate.toString(), -1);
 
 				LOGGER.debug(" STEP STATE ZIP OK");
+
+				String endUploadDate = redisManager.hget(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+						EnclosureKeysEnum.UPLOADED_TIMESTAMP.getKey());
+
+				if (StringUtils.isNotBlank(endUploadDate)) {
+					LocalDateTime uploadTime = LocalDateTime
+							.parse(redisManager.hget(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
+									EnclosureKeysEnum.UPLOADED_TIMESTAMP.getKey()));
+
+					LOGGER.warn("Finish enclosure {} in seconds | {} ", enclosureId,
+							ChronoUnit.SECONDS.between(uploadTime, depotDate));
+				}
 
 			} else if (!isClean && finishedScan) {
 
@@ -311,12 +342,14 @@ public class ZipWorkerServices {
 				LOGGER.debug("Scan in progress for enclosure {}", enclosureId);
 				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosure.getGuid());
 			}
-		} catch (RetryStorageException retryE) {
-			LOGGER.error("Error while sending zip to S3 for enclosure {}", enclosureId, retryE);
+		} catch (RetryException retryE) {
 			Long tryCount = redisManager.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId), 1);
 			if (tryCount < glipmsMaxTry) {
+				LOGGER.error("Retry StorageError putting back enclosure to queue - {}", enclosureId, retryE);
 				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosure.getGuid());
 			} else {
+				LOGGER.error("Too many retry StorageError while sending zip to S3 for enclosure {}", enclosureId,
+						retryE);
 				cleanUpEnclosure(bucketName, enclosureId, enclosure,
 						NotificationTemplateEnum.MAIL_ERROR_SENDER.getValue(), subjectVirusError);
 			}
@@ -329,13 +362,22 @@ public class ZipWorkerServices {
 			LOGGER.error("Enclosure " + enclosure.getGuid() + " as invalid type or size : ", sizeEx);
 			cleanUpEnclosure(bucketName, enclosureId, enclosure,
 					NotificationTemplateEnum.MAIL_INVALID_ENCLOSURE_SENDER.getValue(), subjectVirusError);
-		} catch (GlimpsException exGlimps) {
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.EAV.getCode(), -1);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.EAV.getWord(), -1);
-			cleanUpEnclosure(bucketName, enclosureId, enclosure,
-					NotificationTemplateEnum.MAIL_VIRUS_INDISP_SENDER.getValue(), subjectVirusError);
+		} catch (RetryGlimpsException exGlimps) {
+			Long tryCount = redisManager.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId), 1);
+			if (tryCount < glipmsMaxTry) {
+				LOGGER.error("Retry GlimpsError putting enclosure back to queue " + enclosureId + " : "
+						+ exGlimps.getMessage(), exGlimps);
+				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosure.getGuid());
+			} else {
+				LOGGER.error("Too many Retry GlimpsError for enclosure " + enclosureId + " : " + exGlimps.getMessage(),
+						exGlimps);
+				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+						EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.EAV.getCode(), -1);
+				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+						EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.EAV.getWord(), -1);
+				cleanUpEnclosure(bucketName, enclosureId, enclosure,
+						NotificationTemplateEnum.MAIL_VIRUS_INDISP_SENDER.getValue(), subjectVirusError);
+			}
 		} catch (Exception e) {
 			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
 					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.EAV.getCode(), -1);
@@ -396,8 +438,7 @@ public class ZipWorkerServices {
 		redisManager.publishFT(RedisQueueEnum.MAIL_QUEUE.getValue(), prefix);
 	}
 
-	private void deleteFilesFromOSU(StorageManager manager, String bucketName, String prefix)
-			throws RetryStorageException {
+	private void deleteFilesFromOSU(StorageManager manager, String bucketName, String prefix) throws RetryException {
 		manager.deleteFilesWithPrefix(bucketName, prefix);
 	}
 
@@ -417,7 +458,7 @@ public class ZipWorkerServices {
 	}
 
 	public void uploadZippedEnclosure(String bucketName, StorageManager manager, String fileName, String fileZipPath)
-			throws RetryStorageException {
+			throws RetryException {
 		manager.uploadMultipartForZip(bucketName, fileName, fileZipPath);
 	}
 
@@ -500,17 +541,18 @@ public class ZipWorkerServices {
 	}
 
 	private void downloadFilesToTempFolder(StorageManager manager, String bucketName, ArrayList<String> list)
-			throws RetryStorageException {
+			throws RetryException {
 		try {
 			for (String fileName : list) {
 				S3Object object = manager.getObjectByName(bucketName, fileName);
 				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
 					writeFile(object, fileName);
 				}
+				object.close();
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error During File Dowload from OSU to Temp Folder : " + e.getMessage(), e);
-			throw new RetryStorageException("Error During File Dowload from OSU to Temp Folder ", e);
+			throw new RetryException("Error During File Dowload from OSU to Temp Folder ", e);
 		}
 	}
 
@@ -598,6 +640,7 @@ public class ZipWorkerServices {
 										glimps.getUuid(), jsonInString, -1);
 							}
 						}
+						fileChannel.close();
 					}
 				}
 			}

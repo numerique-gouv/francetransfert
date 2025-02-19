@@ -1,0 +1,85 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restorejob
+  labels:
+    tier: back
+spec:
+  schedule: "1 1 1 1 *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  suspend: true
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          serviceAccountName: backup
+          restartPolicy: Never
+          initContainers:
+            - name: s3
+              image: mesosphere/aws-cli
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "256Mi"
+                  cpu: "250m"
+              volumeMounts:
+                - name: data
+                  mountPath: /backup
+                - name: backup-script
+                  mountPath: /scripts
+              env:
+                - name: BACKUP_DATE
+                  value: "test"
+              envFrom:
+                - configMapRef:
+                    name: app-config-map-{{ .Release.Name }}
+                - secretRef:
+                    name: ft-secret-app
+              command:
+                - /bin/sh
+                - "/scripts/getbackup.sh"
+          containers:
+            - name: kubectlcp
+              image: bitnami/kubectl
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "256Mi"
+                  cpu: "1"
+              volumeMounts:
+                - name: data
+                  mountPath: /backup
+                - name: backup-script
+                  mountPath: /scripts
+              command:
+                - /bin/sh
+                - "/scripts/restoreredis.sh"
+              envFrom:
+                - configMapRef:
+                    name: app-config-map-{{ .Release.Name }}
+                - secretRef:
+                    name: ft-secret-app
+          restartPolicy: Never
+          volumes:
+            - name: backup-script
+              configMap:
+                defaultMode: 0770
+                name: backup-script
+            - name: data
+              ephemeral:
+                volumeClaimTemplate:
+                  metadata:
+                    labels:
+                      type: tmpdata
+                  spec:
+                    accessModes: [ "ReadWriteOnce" ]
+                    resources:
+                      requests:
+                        storage: 5Gi

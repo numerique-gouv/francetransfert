@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -24,10 +24,12 @@ public enum RedisKeysEnum {
     FT_DOMAINS_MAILS_NOTIF_RIZOMO("enclosure-mails:rizomo-notif", ""),
     FT_DOMAINS_MAILS_TMP("enclosure-mails:tmp", ""),
     CHECK_MAIL("check-mail", ""), FT_SEND("send:", ""), FT_RECEIVE("receive:", ""),
+    FT_EXPORT("export:", ""),
     FT_Download_Date("recipient:", ":dates"), FT_ENCLOSURE_SCAN("enclosure:", ":scans"),
     FT_ENCLOSURE_VIRUS("enclosure:", ":virus"), FT_ENCLOSURE_SCAN_DELAY("enclosure:", ":scans-delay"),
     FT_ENCLOSURE_SCAN_RETRY("enclosure:", ":scans-retry"),
-    FT_TOKEN_INITAPI("enclosureId:", ":upload-token");
+    FT_TOKEN_INITAPI("enclosureId:", ":upload-token"),
+    HEALTHCHECK("healthcheck", "");
 
     private String firstKeyPart;
     private String lastKeyPart;

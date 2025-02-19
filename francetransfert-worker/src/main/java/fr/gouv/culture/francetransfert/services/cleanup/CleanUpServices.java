@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -37,7 +37,7 @@ import fr.gouv.culture.francetransfert.core.enums.RecipientKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.StatutEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
-import fr.gouv.culture.francetransfert.core.exception.RetryStorageException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.services.StorageManager;
@@ -66,6 +66,9 @@ public class CleanUpServices {
 
 	@Value("${deepclean.weekday:7}")
 	private int deepCleanWeekDay;
+
+	@Value("${bucket.export}")
+	private String bucketExport;
 
 	@Autowired
 	MailEnclosureNoLongerAvailbleServices mailEnclosureNoLongerAvailbleServices;
@@ -142,12 +145,12 @@ public class CleanUpServices {
 
 			ScanParams scanParams = new ScanParams().count(1000).match("enclosure:*");
 			ScanParams scanFilesParams = new ScanParams().count(1000).match("file:*");
+			ScanParams scanTokensParams = new ScanParams().count(1000).match("sender:*");
 			String cur = scanParams.SCAN_POINTER_START;
 			LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
 			int cpt = 0;
 			LOGGER.info("Clean Old Enclosure");
 			do {
-
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanParams);
 
 				for (String enclosureKey : scanResult.getResult()) {
@@ -200,6 +203,23 @@ public class CleanUpServices {
 				cur = scanResult.getCursor();
 			} while (!cur.equals(scanFilesParams.SCAN_POINTER_START));
 			LOGGER.info("Cleaned files {}", cpt);
+
+			LOGGER.info("Clean old token");
+			cpt = 0;
+			cur = scanParams.SCAN_POINTER_START;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanTokensParams);
+
+				for (String token : scanResult.getResult()) {
+					try {
+						redisManager.expire(token, 3600);
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", token, e);
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanFilesParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned token {}", cpt);
 		} else {
 			LOGGER.info("Next deep clean on {}", dayOfWeek);
 		}
@@ -287,7 +307,7 @@ public class CleanUpServices {
 	 * @param enclosureId
 	 * @throws StorageException
 	 */
-	private void cleanUpOSU(String bucketName, String enclosureId) throws RetryStorageException {
+	private void cleanUpOSU(String bucketName, String enclosureId) throws RetryException {
 		storageManager.deleteFilesWithPrefix(bucketName, storageManager.getZippedEnclosureName(enclosureId));
 	}
 
@@ -514,15 +534,22 @@ public class CleanUpServices {
 			}
 		});
 
+		try {
+			LOGGER.info("Clean export bucket");
+			storageManager.deleteFilesWithPrefix(bucketExport, "");
+		} catch (Exception e) {
+			LOGGER.error("cannot delete export bucket content {} ", bucketExport, e);
+		}
+
 	}
 
-	public void deleteContentBucket(String bucketName) throws StorageException, RetryStorageException {
+	public void deleteContentBucket(String bucketName) throws StorageException, RetryException {
 		ArrayList<String> objectListing = storageManager.listBucketContent(bucketName);
 
 		objectListing.forEach(file -> {
 			try {
 				storageManager.deleteFilesWithPrefix(bucketName, file);
-			} catch (RetryStorageException e) {
+			} catch (RetryException e) {
 				LOGGER.error("unable to delete file {} ", file, e.getMessage(), e);
 			}
 		});

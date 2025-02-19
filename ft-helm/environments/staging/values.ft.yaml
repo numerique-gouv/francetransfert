@@ -149,7 +149,7 @@ mailhog:
 front:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-upload-download-gui
+    repository: lasuite/francetransfert-upload-download-gui
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -176,7 +176,7 @@ front:
 upload:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-upload-api
+    repository: lasuite/francetransfert-upload-api
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -221,7 +221,7 @@ upload:
 download:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-download-api
+    repository: lasuite/francetransfert-download-api
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   service:
@@ -254,7 +254,7 @@ download:
 worker:
   replicaCount: 1
   image:
-    repository: jaubertaot/francetransfert-worker
+    repository: lasuite/francetransfert-worker
     tag: a60ae6
     imagePullPolicy: IfNotPresent
   resources:

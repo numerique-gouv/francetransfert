@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -38,7 +38,7 @@ public class SendEmailConfirmationCodeTask implements Runnable {
 	@Override
 	public void run() {
 		try {
-			LOGGER.info("[Worker] Start send confirmation code : " + mailCode);
+			LOGGER.debug("[Worker] Start send confirmation code : " + mailCode);
 			mailConfirmationCodeServices.sendConfirmationCode(mailCode);
 		} catch (Exception e) {
 			LOGGER.error("[Worker] Send mail confirmation code error : " + e.getMessage(), e);

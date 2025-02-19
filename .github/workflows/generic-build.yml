@@ -45,5 +45,5 @@ jobs:
           context: ${{ inputs.project }}
           push: true
           tags: |
-            jaubertaot/${{ inputs.project }}:${{ inputs.tag }}
-            jaubertaot/${{ inputs.project }}:${{ github.ref_name }}
+            lasuite/${{ inputs.project }}:${{ inputs.tag }}
+            lasuite/${{ inputs.project }}:${{ github.ref_name }}

@@ -1,5 +1,14 @@
 
 .plis-recu {
+  .filtred-button{
+    background-color: var(--ft-blue-france);
+    color: var(--ft-white);
+    margin-left: 1%;
+    margin-bottom: 2%;
+  }
+  .backgroundColor{
+    border-color: transparent;
+  }
   .spinner {
     display: flex;
     flex-wrap: wrap;

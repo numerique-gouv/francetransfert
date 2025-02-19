@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -31,12 +31,12 @@ import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.NewRecipient;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
+import fr.gouv.culture.francetransfert.healthcheck.services.HealthCheckService;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.app.sync.AppSyncServices;
 import fr.gouv.culture.francetransfert.services.cleanup.CleanUpServices;
 import fr.gouv.culture.francetransfert.services.glimps.GlimpsService;
 import fr.gouv.culture.francetransfert.services.ignimission.IgnimissionServices;
-import fr.gouv.culture.francetransfert.services.mail.MailCheckService;
 import fr.gouv.culture.francetransfert.services.mail.SnapService;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailAvailbleEnclosureServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailConfirmationCodeServices;
@@ -59,6 +59,12 @@ public class ScheduledTasks {
 
 	@Value("${bucket.sequestre}")
 	private String sequestreBucket;
+
+	@Value("${queue.size:5}")
+	private int queueSize;
+
+	@Value("${queue.sleep:30000}")
+	private int queueSleep;
 
 	@Autowired
 	private MailAvailbleEnclosureServices mailAvailbleEnclosureServices;
@@ -102,11 +108,14 @@ public class ScheduledTasks {
 	@Autowired
 	private RedisManager redisManager;
 
-	@Autowired
-	private MailCheckService mailCheckService;
+//	@Autowired
+//	private MailCheckService mailCheckService;
 
 	@Autowired
 	private GlimpsService glimpsService;
+
+	@Autowired
+	private HealthCheckService healthCheckService;
 
 	@Autowired
 	@Qualifier("satisfactionWorkerExecutor")
@@ -203,39 +212,49 @@ public class ScheduledTasks {
 		}
 	}
 
-	@Scheduled(cron = "${scheduled.sendcheckmail}")
-	public void checkMailSend() throws WorkerException {
-		if (appSyncServices.shouldSendCheckMail()) {
-			LOGGER.info("Worker : start checkMailSend");
-			mailCheckService.sendMail();
-			LOGGER.info("Worker : finished checkMailSend");
-		}
-	}
+//	@Scheduled(cron = "${scheduled.sendcheckmail}")
+//	public void checkMailSend() throws WorkerException {
+//		if (appSyncServices.shouldSendCheckMail()) {
+//			LOGGER.info("Worker : start checkMailSend");
+//			mailCheckService.sendMail();
+//			LOGGER.info("Worker : finished checkMailSend");
+//		}
+//	}
 
-	@Scheduled(cron = "${scheduled.checkglimps}")
+	@Scheduled(cron = "${scheduled.healthcheck}")
 	public void checkGlimps() throws WorkerException {
 		if (appSyncServices.shouldCheckGlimps()) {
-			LOGGER.info("Worker : start checkGlimps");
-			glimpsService.healthCheckGlimps();
-			LOGGER.info("Worker : finished checkGlimps");
+			LOGGER.info("Worker : start HealthCheck");
+			try {
+				glimpsService.healthCheckGlimps();
+			} catch (Exception e) {
+				LOGGER.error("Fail while checking glimps", e);
+			}
+			try {
+				healthCheckService.healthCheck();
+			} catch (Exception e) {
+				LOGGER.error("Fail while Healthchecking", e);
+			}
+
+			LOGGER.info("Worker : finished HealthCheck");
 		}
 	}
 
-	@Scheduled(cron = "${scheduled.sync.checkglimps}")
+	@Scheduled(cron = "${scheduled.sync.healthcheck}")
 	public void appSyncGlimpsCheck() {
-		LOGGER.info("Worker : start Application synchronization appSyncGlimpsCheck");
+		LOGGER.info("Worker : start Application synchronization appSyncHealthcheck");
 		appSyncServices.appSyncGlimpsCheck();
-		LOGGER.info("Worker : finished Application synchronization appSyncGlimpsCheck");
+		LOGGER.info("Worker : finished Application synchronization appSyncHealthcheck");
 	}
 
-	@Scheduled(cron = "${scheduled.checkmail}")
-	public void checkMailCheck() throws WorkerException {
-		if (appSyncServices.shouldCheckMailCheck()) {
-			LOGGER.info("Worker : start checkMail");
-			mailCheckService.mailCheck();
-			LOGGER.info("Worker : finished checkMail");
-		}
-	}
+//	@Scheduled(cron = "${scheduled.checkmail}")
+//	public void checkMailCheck() throws WorkerException {
+//		if (appSyncServices.shouldCheckMailCheck()) {
+//			LOGGER.info("Worker : start checkMail");
+//			mailCheckService.mailCheck();
+//			LOGGER.info("Worker : finished checkMail");
+//		}
+//	}
 
 	@Scheduled(cron = "${scheduled.sync.checkmail}")
 	public void appSyncCheckMailCheck() {
@@ -441,12 +460,22 @@ public class ScheduledTasks {
 				executorList.add(zipWorkerExecutor);
 				while (runningThread) {
 					try {
-						List<String> returnedBLPOPList = redisManager.subscribeFT(RedisQueueEnum.ZIP_QUEUE.getValue());
-						if (!CollectionUtils.isEmpty(returnedBLPOPList)) {
-							String enclosureId = returnedBLPOPList.get(1);
-							ZipWorkerTask task = new ZipWorkerTask(enclosureId, zipWorkerServices);
-							zipWorkerExecutor.execute(
-									new MonitorRunnable(task, RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId));
+						if (queueIsNotFull(zipWorkerExecutor)) {
+							List<String> returnedBLPOPList = redisManager
+									.subscribeFT(RedisQueueEnum.ZIP_QUEUE.getValue());
+							if (!CollectionUtils.isEmpty(returnedBLPOPList)) {
+								String enclosureId = returnedBLPOPList.get(1);
+								ZipWorkerTask task = new ZipWorkerTask(enclosureId, zipWorkerServices);
+								zipWorkerExecutor.execute(
+										new MonitorRunnable(task, RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId));
+							}
+//						else {
+//								LOGGER.debug("Worker full putting back enclosure to queue {}", enclosureId);
+//								redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId);
+//							}
+						} else {
+							// Sleep 60s
+							Thread.currentThread().sleep(queueSleep);
 						}
 					} catch (Exception e) {
 						LOGGER.error("Error initZipWorkers : " + e.getMessage(), e);
@@ -454,6 +483,14 @@ public class ScheduledTasks {
 				}
 			}
 		});
+	}
+
+	private boolean queueIsNotFull(ThreadPoolTaskExecutor workerExecutor) {
+		LOGGER.debug("Queue size : " + workerExecutor.getQueueSize());
+		if (workerExecutor.getQueueSize() >= queueSize) {
+			return false;
+		}
+		return true;
 	}
 
 	private void initFormuleContact() {

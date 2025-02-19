@@ -1,0 +1,13 @@
+{{- if gt (int .Values.front.replicaCount) 1 }}
+kind: PodDisruptionBudget
+apiVersion: policy/v1
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-angular-app-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-angular-app
+      release: {{ .Release.Name }}
+      tier: front
+{{ end }}

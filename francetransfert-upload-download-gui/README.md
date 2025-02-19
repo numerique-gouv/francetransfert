@@ -1,7 +1,7 @@
 France transfert
 ================
 
-France transfert est un service créé par l’Etat pour aider ses usagers (citoyens, professionnels, entreprises, associations…), partenaires ou prestataires à envoyer (aux agents de l’Etat) ou recevoir (des agents de l’Etat), des fichiers et dossiers volumineux qui ne peuvent pas transiter par les messageries électroniques. Il a été conçu et est opéré par le ministère de la Culture, et mis à la disposition de tous les ministères par la direction interministérielle du numérique (DINUM). 
+France transfert est un service créé par l’Etat pour aider ses usagers (citoyens, professionnels, entreprises, associations…), partenaires ou prestataires à envoyer (aux agents de l’Etat) ou recevoir (des agents de l’Etat), des fichiers et dossiers volumineux qui ne peuvent pas transiter par les messageries électroniques. Il a été conçu et est opéré par le Direction Interministérielle du Numérique, et mis à la disposition de tous les ministères par la direction interministérielle du numérique (DINUM). 
 
 # Fonctionnalités
 

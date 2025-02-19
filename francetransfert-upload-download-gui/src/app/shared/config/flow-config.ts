@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -15,5 +15,6 @@ export const FLOW_CONFIG: Flow.FlowOptions = {
   chunkRetryInterval: 5000,
   prioritizeFirstAndLastChunk: true,
   allowDuplicateUploads: false,
+  simultaneousUploads: 3
   //withCredentials : true,
 };
