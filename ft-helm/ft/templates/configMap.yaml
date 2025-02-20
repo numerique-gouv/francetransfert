@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: app-config-map-{{ .Release.Name }}
 data:
+  BACKUP_BUCKET_NAME: redis-ft-backup-{{.Values.environnement}}
   METALOAD_HOST: {{ .Release.Name }}-redis
   METALOAD_PORT: "{{ .Values.redis.master.containerPorts.redis | default 6379 }}"
   METALOAD_SENTINEL_ACTIVE: {{ .Values.redis.sentinel.enabled | toString | quote }}

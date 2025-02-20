@@ -90,6 +90,8 @@ clamav:
     PCRERecMatchLimit 10000
 
 redis:
+  commonLabels:
+    tier: back
   # networkPolicy:
   #   allowExternal: false
   global:
@@ -108,6 +110,9 @@ redis:
     sentinel: true
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
+  commonConfiguration: |-
+    appendonly yes
+    save 3600 1 300 100 60 10000
   master:
     persistence:
       size: 10Gi
@@ -316,3 +321,7 @@ ingress:
     - secretName: transfert-tls
       hosts:
         - transfert-127-0-0-1.xip.lhjmmc.cn
+
+backup:
+  enabled: true
+  schedule: "20 4 * * *"

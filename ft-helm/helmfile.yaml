@@ -25,3 +25,6 @@ environments:
   staging:
     values:
       - version: 0.0.1
+  ppr:
+    values:
+      - version: 0.0.1
