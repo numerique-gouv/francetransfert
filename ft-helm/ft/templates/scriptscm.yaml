@@ -3,7 +3,5 @@ kind: ConfigMap
 metadata:
   name: backup-script
 data:
-  backup.sh: |
-    #!/bin/bash
-  redisdump.sh: |
-    #!/bin/bash
+{{ (tpl (.Files.Glob "scripts/backup.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redisdump.sh").AsConfig .) | indent 2 }}
