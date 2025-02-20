@@ -326,3 +326,7 @@ ingress:
     - secretName: transfert-tls
       hosts:
         - ft-ppr.beta.numerique.gouv.fr
+
+backup:
+  enabled: true
+  schedule: "20 4 * * *"
