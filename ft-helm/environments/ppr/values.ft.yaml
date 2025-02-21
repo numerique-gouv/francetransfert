@@ -190,6 +190,7 @@ upload:
       memory: 512Mi
   overrideConf:
     ENABLEMTLS: "false"
+    DISABLESSL: "false"
     SERVER_PORT: "8080"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
