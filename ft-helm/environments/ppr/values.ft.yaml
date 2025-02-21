@@ -29,7 +29,7 @@ overrideGlobalConf:
   MAIL_IMAGE_FT_ACCESSBUTTON: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
 
 clamav:
-  enabled: true
+  enabled: false
   clamdConfig: |
     ###############
     # General
