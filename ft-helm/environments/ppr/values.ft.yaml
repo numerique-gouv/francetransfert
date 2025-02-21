@@ -102,7 +102,7 @@ redis:
     enabled: false
     allowExternal: false
   global:
-    storageClass: gp2
+    storageClass: bsu-default
     compatibility:
       openshift:
         adaptSecurityContext: auto
