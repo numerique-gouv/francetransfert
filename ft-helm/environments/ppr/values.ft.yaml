@@ -150,7 +150,7 @@ front:
   replicaCount: 1
   image:
     repository: jaubertaot/francetransfert-upload-download-gui
-    tag: 4a10c55
+    tag: 4a10c5
     imagePullPolicy: IfNotPresent
   service:
     port: 8080
@@ -177,7 +177,7 @@ upload:
   replicaCount: 1
   image:
     repository: jaubertaot/francetransfert-upload-api
-    tag: 4a10c55
+    tag: 4a10c5
     imagePullPolicy: IfNotPresent
   service:
     port: 8080
@@ -223,7 +223,7 @@ download:
   replicaCount: 1
   image:
     repository: jaubertaot/francetransfert-download-api
-    tag: 4a10c55
+    tag: 4a10c5
     imagePullPolicy: IfNotPresent
   service:
     port: 8081
@@ -256,7 +256,7 @@ worker:
   replicaCount: 1
   image:
     repository: jaubertaot/francetransfert-worker
-    tag: 4a10c55
+    tag: 4a10c5
     imagePullPolicy: IfNotPresent
   resources:
     requests:
