@@ -84,7 +84,7 @@
                 <mat-form-field class="full-width">
                   <mat-label>{{'Courriel_Destinataire' | translate}}</mat-label>
                   <input id="recipientmail" name="recipientmail" formControlName="email" type="email" matInput
-                    placeholder="JEAN.DUPONT@EMAIL.COM" #dest (blur)="onBlurDestinataires();"
+                    placeholder="CAMILLE.DUPONT@EMAIL.COM" #dest (blur)="onBlurDestinataires();"
                     (keyup.enter)="dest.blur();">
                   <mat-error role="alert" *ngIf="envelopeDestForm.controls.email.errors?.emailError">
                     {{'AdresseRequis' | translate}}

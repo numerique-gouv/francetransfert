@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -370,6 +370,24 @@ public class RedisUtils {
         try {
             return redisManager.hincrBy(RedisKeysEnum.FT_FILE.getKey(fileId), FileKeysEnum.MUL_NB_CHUNKS_DONE.getKey(),
                     1);
+        } catch (Exception e) {
+            throw new MetaloadException(
+                    MessageFormat.format(
+                            "Echec à l incrémentation du nombre des chunk(s) uploader pour ce fichier: {0}", fileId),
+                    e);
+        }
+    }
+
+    public static Long getCounterOfUploadChunksPerFile(RedisManager redisManager, String fileId)
+            throws MetaloadException {
+        try {
+            String nbChunk = redisManager.getHgetString(RedisKeysEnum.FT_FILE.getKey(fileId),
+                    FileKeysEnum.MUL_NB_CHUNKS_DONE.getKey());
+            if (StringUtils.isBlank(nbChunk)) {
+                return Long.valueOf("0");
+            } else {
+                return Long.valueOf(nbChunk);
+            }
         } catch (Exception e) {
             throw new MetaloadException(
                     MessageFormat.format(

@@ -1,12 +1,5 @@
 /* 
- * Copyright (c) Ministère de la Culture (2022) 
- * 
- * SPDX-License-Identifier: Apache-2.0 
- * License-Filename: LICENSE.txt 
- */
-
-/* 
- * Copyright (c) Ministère de la Culture (2022) 
+ * Copyright (c) Direction Interministérielle du Numérique 
  * 
  * SPDX-License-Identifier: Apache-2.0 
  * License-Filename: LICENSE.txt 
@@ -50,6 +43,7 @@ public enum ValidationErrorEnum {
     FT023("fichiers.idFichier", "ERR_FTXX_005", "L’identifiant de fichier est obligatoire"),
     FT024("fichiers.cheminRelatif", "ERR_FT01_024", "Le chemin relatif d’accès au fichier est obligatoire"),
     FT025("fichiers.nomFichier", "ERR_FT01_025", "Le type d’un des fichiers du pli n’est pas autorisé"),
+    FT031("fichiers.nomFichier", "ERR_FT01_031", "Le nom du fichier doit être inférieur à 170 caractères"),
     FT026("destinataires", "ERR_FT01_026",
             "Le nombre de destinataires est limité à 100"),
     FT027("message", "ERR_FT01_027",

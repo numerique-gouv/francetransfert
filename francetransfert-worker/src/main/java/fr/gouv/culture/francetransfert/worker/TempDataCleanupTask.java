@@ -1,5 +1,5 @@
 /*
- *   * Copyright (c) Ministère de la Culture (2022) 
+ *   * Copyright (c) Direction Interministérielle du Numérique 
  * 
  * SPDX-License-Identifier: Apache-2.0 
  * License-Filename: LICENSE.txt 

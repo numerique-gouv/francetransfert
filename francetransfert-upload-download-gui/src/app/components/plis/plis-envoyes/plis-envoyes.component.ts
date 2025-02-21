@@ -1,14 +1,14 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { MatLegacyPaginator as MatPaginator, MatLegacyPaginatorIntl as MatPaginatorIntl } from '@angular/material/legacy-paginator';
 import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import { TranslateService } from '@ngx-translate/core';
+import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
 import { AdminService, ResponsiveService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { take } from 'rxjs';
@@ -19,6 +19,12 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { FormControl } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { FTTransferModel } from 'src/app/models';
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {CustomPaginatorService} from "../../../shared/custom-paginator/custom-paginator.service";
+import {LoaderService} from "../../../services/loader/loader.service";
+import {DateAdapter} from "@angular/material/core";
+import {MyDateAdapter, MyDefaultDateAdapter} from "../../upload/envelope/envelope-parameters-form/my-date-adapter";
+import * as moment from "moment";
 
 
 interface Type {
@@ -30,20 +36,26 @@ interface Type {
 @Component({
   selector: 'ft-plis-envoyes',
   templateUrl: './plis-envoyes.component.html',
-  styleUrls: ['./plis-envoyes.component.scss']
+  styleUrls: ['./plis-envoyes.component.scss'],
+  providers: [{provide: MatPaginatorIntl, useClass: CustomPaginatorService},{provide: DateAdapter, useClass: MyDefaultDateAdapter}],
 })
-export class PlisEnvoyesComponent {
+export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  //@ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   empList: PliModel[] = [];
   displayedColumns: string[] = ['dateEnvoi', 'type', 'objet', 'taille', 'finValidite', 'destinataires', 'expired'];
   dataSource = new MatTableDataSource<PliModel>(this.empList);
   subscriptions: Subscription[] = [];
+  hideSubscription: Subscription= new Subscription;
   isMobile;
   screenWidth;
 
   destinatairesFilter = new FormControl();
+  objet = new FormControl();
+  dateDebut = new FormControl();
+  dateFin = new FormControl();
   expiredFilter = new FormControl();
   filteredValues = { dateEnvoi: '', type: '', objet: '', finValidite: '', destinataires: '', expired: '' };
 
@@ -58,16 +70,64 @@ export class PlisEnvoyesComponent {
   public selectedDate: Date = new Date();
   destDownload: number;
   roots: string[] = [];
+  plisPaginated;
+  totalItems;
+  pageSize = 5;
+  pageIndex = 0;
+  urlExport;
+  donwloadKey: null;
+  exportEnCours;
+  exportTermine;
+  exportEnError;
+  interval;
 
   constructor(
     private _adminService: AdminService,
     private loginService: LoginService,
     private _router: Router,
     private responsiveService: ResponsiveService,
-    private _translate: TranslateService
+    private _translate: TranslateService, private loaderService: LoaderService,
+    private translateService:TranslateService
   ) {
     this.getListTypes();
+    this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.updateTranslations();
+    });
+  }
 
+  ngOnInit(): void {
+    this.updateTranslations();
+    this.subscriptions.push(this.responsiveService.getMobileStatus().subscribe(isMobile => {
+      this.isMobile = isMobile;
+      this.screenWidth = this.responsiveService.screenWidth;
+    }));
+
+    if (!this.loginService.isLoggedIn()) {
+      this.navigateToConnect();
+    } else {
+      //---------------get infos--------------
+      this.getPlisInfo(this.pageIndex,this.pageSize);
+
+    }
+    this.hideSubscription = this.loaderService.hideSubject.subscribe(hide => {
+      if (hide) {
+        clearInterval(this.interval);
+      }
+    });
+
+    this.dataSource.filterPredicate = this.customFilterPredicate();
+  }
+
+  private updateTranslations() {
+    this.translateService.get('ExportEnCours').subscribe((translation: string) => {
+      this.exportEnCours = translation;
+    });
+    this.translateService.get('ExportTerminé').subscribe((translation: string) => {
+      this.exportTermine = translation;
+    });
+    this.translateService.get('ExportEnError').subscribe((translation: string) => {
+      this.exportEnError = translation;
+    });
   }
 
   PdfGenerated(enclosureId: string): any {
@@ -88,6 +148,8 @@ export class PlisEnvoyesComponent {
       this.validUntilDate = new FormControl(new Date(this.fileInfos.validUntilDate));
       this.PDFinfo()
     });
+
+
   }
 
   navigateToConnect() {
@@ -98,106 +160,96 @@ export class PlisEnvoyesComponent {
     this._router.navigate(['/connect']);
   }
 
-  ngOnInit(): void {
+  reinitialiserFiltres(){
+    this.destinatairesFilter.setValue(null);
+    this.dateDebut.setValue(null);
+    this.dateFin.setValue(null);
+    this.objet.setValue(null);
+    this.expiredFilter.setValue(null);
+    this.pageIndex = 0;
+  }
 
-    this.subscriptions.push(this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-      this.screenWidth = this.responsiveService.screenWidth;
-    }));
+  getPlisInfo(page:number, pageSize: number){
+    this.loading = true;
+    this.dataSource.data = [];
+    this.empList = [];
+    this._adminService.getPlisSent(
+      {
+        senderMail: this.loginService.tokenInfo.getValue().senderMail,
+        senderToken: this.loginService.tokenInfo.getValue().senderToken
+      }, page, pageSize,this.destinatairesFilter.value,moment(this.dateDebut.value).utc(true).toISOString(), moment(this.dateFin.value).utc(true).toISOString(), this.objet.value, this.expiredFilter.value
+    ).pipe(take(1)).subscribe(
+      {
+        next: (response) => {
+          {
+            const fileInfos = response.plis;
+            this.plisPaginated = response;
+            this.pageSize = pageSize;
+            this.totalItems = this.plisPaginated.totalItems;
+            fileInfos?.forEach(t => {
+              this.destDownload = 0;
+              this.roots = [];
+              //-----------condition on type-----------
+              let type = "";
+              if (t.publicLink) {
+                type = 'Lien';
+              }
+              else {
+                type = 'Courriel';
+              }
+              //-----------condition on expired-----------
+              let expired = "";
+              let matTooltip = "";
+              if (t.expired) {
+                expired = 'remove_red_eye';
+                this._translate.stream('Details_Oeil').pipe(take(1)).subscribe(v => {
+                  matTooltip = v;
+                })
+              }
+              else {
+                expired = 'edit';
+                this._translate.stream('Details_Edit').pipe(take(1)).subscribe(v => {
+                  matTooltip = v;
+                })
+              }
 
-    if (!this.loginService.isLoggedIn()) {
-      this.navigateToConnect();
-    } else {
-      this.loading = true;
-      //---------------get infos--------------
-      this._adminService.getPlisSent(
-        {
-          senderMail: this.loginService.tokenInfo.getValue().senderMail,
-          senderToken: this.loginService.tokenInfo.getValue().senderToken
-        }
+              const destinataires = t.recipientsMails.map(n => n.recipientMail).join(", ");
 
-      ).pipe(take(1)).subscribe(
-        {
-          next: (fileInfos) => {
-            {
-              fileInfos.forEach(t => {
-                this.destDownload = 0;
-                this.roots = [];
-                //-----------condition on type-----------
-                let type = "";
-                if (t.publicLink) {
-                  type = 'Lien';
-                }
-                else {
-                  type = 'Courriel';
-                }
-                //-----------condition on expired-----------
-                let expired = "";
-                let matTooltip = "";
-                if (t.expired) {
-                  expired = 'remove_red_eye';
-                  this._translate.stream('Details_Oeil').pipe(take(1)).subscribe(v => {
-                    matTooltip = v;
-                  })
-                }
-                else {
-                  expired = 'edit';
-                  this._translate.stream('Details_Edit').pipe(take(1)).subscribe(v => {
-                    matTooltip = v;
-                  })
-                }
+              const taillePli = t.totalSize.split(" ");
 
-                const destinataires = t.recipientsMails.map(n => n.recipientMail).join(", ");
-
-                const taillePli = t.totalSize.split(" ");
-
-                 t.recipientsMails.forEach((element) => {
-                  element.numberOfDownloadPerRecipient>0 ? this.destDownload++: "";
-                });
-
-                t.rootFiles.forEach((element) => {
-                  this.roots.push(element.name);
-                });
-
-                t.rootDirs.forEach((element) => {
-                  this.roots.push(element.name);
-                });
-
-                //---------add to mat-table-------------
-                this.empList.push({
-                  dateEnvoi: t.timestamp, type: type, objet: t.subject,
-                  taille: taillePli[0], typeSize: taillePli[1], finValidite: t.validUntilDate, destinataires: destinataires,
-                  enclosureId: t.enclosureId, expired: expired, matTooltip: matTooltip, nombreDest: t.recipientsMails.length,
-                  destDownload: this.destDownload, roots: this.roots,
-                });
-                this.empList.sort((a,b) => Date.parse(b.dateEnvoi) - Date.parse(a.dateEnvoi))
-                this.dataSource.data = this.empList;
+              t.recipientsMails.forEach((element) => {
+                element.numberOfDownloadPerRecipient>0 ? this.destDownload++: "";
               });
 
-            }
-            this.loading = false;
-          },
-          error: (err) => {
-            console.error(err);
-            this.navigateToConnect();
+              t.rootFiles.forEach((element) => {
+                this.roots.push(element.name);
+              });
+
+              t.rootDirs.forEach((element) => {
+                this.roots.push(element.name);
+              });
+
+              //---------add to mat-table-------------
+              this.empList.push({
+                dateEnvoi: t.timestamp, type: type, objet: t.subject,
+                taille: taillePli[0], typeSize: taillePli[1], finValidite: t.validUntilDate, destinataires: destinataires,
+                enclosureId: t.enclosureId, expired: expired, matTooltip: matTooltip, nombreDest: t.recipientsMails.length,
+                destDownload: this.destDownload, roots: this.roots,
+              });
+              this.empList.sort((a,b) => Date.parse(b.dateEnvoi) - Date.parse(a.dateEnvoi))
+              this.dataSource.data = this.empList;
+
+            });
+
           }
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error(err);
+          this.navigateToConnect();
         }
-      );
-    }
-
-    this.subscriptions.push(this.destinatairesFilter.valueChanges.subscribe((nameFilterValue) => {
-      this.filteredValues['type'] = nameFilterValue;
-      this.filteredValues['objet'] = nameFilterValue;
-      this.filteredValues['destinataires'] = nameFilterValue;
-      this.dataSource.filter = JSON.stringify(this.filteredValues);
-    }));
-
-    this.subscriptions.push(this.expiredFilter.valueChanges.subscribe((expiredFilterValue) => {
-      this.filteredValues['expired'] = expiredFilterValue;
-      this.dataSource.filter = JSON.stringify(this.filteredValues);
-    }));
-
-    this.dataSource.filterPredicate = this.customFilterPredicate();
+      }
+    );
   }
 
   getListTypes() {
@@ -230,6 +282,7 @@ export class PlisEnvoyesComponent {
 
 
   //-------------navigate token------------
+
   navigateTo(enclosureId: String) {
 
     this._router.navigate(['/admin'], {
@@ -246,7 +299,7 @@ export class PlisEnvoyesComponent {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+    //this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -266,18 +319,82 @@ export class PlisEnvoyesComponent {
 
 
   exportCSV() {
-    this._adminService.exportCSV(this.empList, "sent")
+    this.loaderService.show(this.exportEnCours, undefined,true);
+    this.urlExport = null;
+    this.donwloadKey = null;
+    this._adminService.exportPlis({
+        senderMail: this.loginService.tokenInfo.getValue().senderMail,
+        senderToken: this.loginService.tokenInfo.getValue().senderToken
+      },
+      this.destinatairesFilter.value,
+      moment(this.dateDebut.value).utc(true).toISOString(),
+      moment(this.dateFin.value).utc(true).toISOString(),
+      this.objet.value,
+      this.expiredFilter.value,
+      true
+    ).pipe(take(1)).subscribe(
+      response => {
+        this.donwloadKey = response;
+      },
+      error => {
+        this.loaderService.show(this.exportEnError, undefined, false);
+        setTimeout(() => this.loaderService.hide(), 3000);
+      }
+    );
+
+
+    this.interval = setInterval(() => {
+      if(this.donwloadKey != null && this.donwloadKey != undefined){
+        this._adminService.getUrlExport({
+            senderMail: this.loginService.tokenInfo.getValue().senderMail,
+            senderToken: this.loginService.tokenInfo.getValue().senderToken
+          }, this.donwloadKey
+        ).pipe(take(1)).subscribe(
+          urlResult => {
+            if (urlResult != null && urlResult != "") {
+              this.urlExport = urlResult;
+              this.loaderService.show(this.exportTermine, this.donwloadKey, false);
+              clearInterval(this.interval); // Arrête l'intervalle une fois que l'URL est obtenue
+            }
+          },
+          error => {
+            this.loaderService.show(this.exportEnError, undefined, false);
+            setTimeout(() => this.loaderService.hide(), 5000);
+          }
+        );
+      }
+    }, 30000);
   }
+
 
   ngOnDestroy() {
     this.subscriptions.forEach(x => {
       x.unsubscribe();
     });
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+    if (this.hideSubscription) {
+      this.hideSubscription.unsubscribe();
+    }
   }
 
   PDFinfo(){
     this._adminService.generatePDF(this.fileInfos, "namePDF-sent")
   }
 
+  onPageChange(event: PageEvent, isEvent) {
+    if(isEvent){
+      this.pageSize = event.pageSize;
+      this.pageIndex = event.pageIndex;
+    }
+    this.getPlisInfo(this.pageIndex,this.pageSize);
+  }
+
+  filtrer(){
+    this.pageIndex = 0;
+    this.paginator.pageIndex = this.pageIndex;
+    this.onPageChange(null, false);
+  }
 }
 

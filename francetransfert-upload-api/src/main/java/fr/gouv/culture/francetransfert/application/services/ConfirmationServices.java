@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -190,6 +190,12 @@ public class ConfirmationServices {
 		// verify token in redis
 		LOGGER.debug("check token for sender mail {}", senderMail);
 		redisManager.validateToken(senderMail, token);
+	}
+
+	public void extendsToken(String senderMail, String token) throws MetaloadException {
+		// verify token in redis
+		LOGGER.debug("extend token for sender mail {}", senderMail);
+		redisManager.extendTokenValidity(senderMail, token);
 	}
 
 	public void validateAdminToken(String enclosureId, String token, String senderMail) {

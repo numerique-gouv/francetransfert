@@ -1,10 +1,9 @@
-.factorypath
 /target/
 /.settings/
 /.project
 /.classpath
 /francetransfert-worker.iml
-/ftr-worker-api.iml
+/FTR-worker-api.iml
 
 # IntelliJ
 .idea/

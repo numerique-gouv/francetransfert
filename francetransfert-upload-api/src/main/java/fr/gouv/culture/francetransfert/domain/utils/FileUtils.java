@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -22,6 +22,8 @@ import fr.gouv.culture.francetransfert.application.resources.model.FranceTransfe
 import fr.gouv.culture.francetransfert.domain.redis.entity.FileDomain;
 
 public class FileUtils {
+
+	public static final int MAX_FILENAME_LENGTH = 170;
 
 	private FileUtils() {
 		// private Constructor
@@ -143,5 +145,32 @@ public class FileUtils {
 					.collect(Collectors.toMap(file -> String.valueOf(file.getFid()), file -> file.getName()));
 		}
 		return files;
+	}
+
+	public static boolean hasFileNameTooLong(List<FileRepresentation> rootFiles,
+			List<DirectoryRepresentation> rootDirs) {
+		for (FileRepresentation rootFile : rootFiles) {
+			if (rootFile.getName().length() > MAX_FILENAME_LENGTH) {
+				return true;
+			}
+		}
+		for (DirectoryRepresentation rootDir : rootDirs) {
+			if (rootDir.getName().length() > MAX_FILENAME_LENGTH) {
+				return true;
+			}
+			if (hasFileNameTooLong(rootDir.getFiles(), rootDir.getDirs())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean hasFileNameTooLong(List<FileRepresentationApi> rootFiles) {
+		for (FileRepresentationApi rootFile : rootFiles) {
+			if (rootFile.getName().length() > MAX_FILENAME_LENGTH) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

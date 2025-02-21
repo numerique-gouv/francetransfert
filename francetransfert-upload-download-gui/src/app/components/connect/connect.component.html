@@ -3,21 +3,20 @@
     <div class="connect-parameters">
       <div *ngIf="isAgentConnect">
         <div>
-          <p class="center">AgentConnect vous permet d’accéder à de nombreux services en ligne en utilisant l’un de vos
+          <p class="center">ProConnect vous permet d’accéder à de nombreux services en ligne en utilisant l’un de vos
             comptes professionnels existants.</p>
         </div>
         <div class="resize center">
-          <a class="img" (click)="login()" href="javascript:void(0)">
-            <img src="assets/images/agentconnect-btn.png" alt="Logo Agent Connect" aria-hidden="true"
-              class="image resize-image resize" />
-            <img src="assets/images/agentconnect-btn-hover.png" alt="Logo Agent Connect Hover" aria-hidden="true"
-              class="image-hover resize-image resize" />
-          </a>
+          <button (click)="login()" class="proconnect-button">
+            <span class="proconnect-sr-only">{{'ProConnect' | translate}}</span>
+          </button>
         </div>
 
-        <div>
-          <a href="https://agentconnect.gouv.fr/" target="_blank" class="question-parameters">
-            {{'AgentConnect' | translate}}</a>
+        <div class="resize center">
+          <a href="https://www.proconnect.gouv.fr/" target="_blank" rel="noopener noreferrer"
+            title="Qu'est-ce que ProConnect ? - nouvelle fenêtre">
+            {{'AgentConnect' | translate}}
+          </a>
         </div>
 
         <div class="or">
@@ -35,7 +34,7 @@
         <mat-form-field>
           <mat-label> {{'VotreCourriel' | translate}} </mat-label>
           <input [readonly]="visible" [disabled]="visible" type="input" id="sendercourriel" name="email" matInput
-            placeholder="jean.dupont@domaine.fr" formControlName="email" autocomplete="email">
+            placeholder="camille.dupont@domaine.fr" formControlName="email" autocomplete="email">
           <mat-error role="alert" *ngIf="email.errors?.required && codeSent == false"> {{'ExpéditeurRequis' |
             translate}}
           </mat-error>

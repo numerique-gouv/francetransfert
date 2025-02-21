@@ -24,18 +24,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.core.enums.GlimpsHealthCheckEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
+import fr.gouv.culture.francetransfert.core.exception.RetryGlimpsException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.model.GlimpsInitResponse;
 import fr.gouv.culture.francetransfert.model.GlimpsResultResponse;
 import fr.gouv.culture.francetransfert.model.ScanInfo;
-import fr.gouv.culture.francetransfert.security.GlimpsException;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,6 +61,12 @@ public class GlimpsService {
 	@Value("${glimps.delay.seconds:120}")
 	private int glimpsDelay;
 
+	@Value("${glimps.send.sleep:500}")
+	private int sendSleep;
+
+	@Value("${glimps.send.modulo:1}")
+	private int sendModulo;
+
 	@Value("${glimps.enabled:false}")
 	private boolean glimpsEnabled;
 
@@ -83,16 +90,12 @@ public class GlimpsService {
 
 	public boolean glimpsUnitCheck(String enclosureId, String glimpsJson) {
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(glimpsTokenKey, glimpsTokenValue);
 		ScanInfo glimps = new Gson().fromJson(glimpsJson, ScanInfo.class);
-		LOGGER.info("Checking Glimps check for enclosure {} and uuid {}", enclosureId, glimps.getUuid());
-		LOGGER.debug("Glimps url : {}", glimpsCheckUrl + glimps.getUuid());
-		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
 		try {
-			ResponseEntity<GlimpsResultResponse> templateReturn = restTemplate.exchange(
-					glimpsCheckUrl + glimps.getUuid(), HttpMethod.GET, requestEntity, GlimpsResultResponse.class);
+
+			ResponseEntity<GlimpsResultResponse> templateReturn = glimpsCall(enclosureId, glimps.getUuid());
+
 			GlimpsResultResponse ret = templateReturn.getBody();
 
 			if ((ret.isDone() || StringUtils.isNotBlank(ret.getErrorCode()))
@@ -140,6 +143,18 @@ public class GlimpsService {
 		return true;
 	}
 
+	private ResponseEntity<GlimpsResultResponse> glimpsCall(String enclosureId, String uuid) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(glimpsTokenKey, glimpsTokenValue);
+
+		LOGGER.info("Checking Glimps check for enclosure {} and uuid {}", enclosureId, uuid);
+		LOGGER.debug("Glimps url : {}", glimpsCheckUrl + uuid);
+		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+		ResponseEntity<GlimpsResultResponse> templateReturn = restTemplate.exchange(glimpsCheckUrl + uuid,
+				HttpMethod.GET, requestEntity, GlimpsResultResponse.class);
+		return templateReturn;
+	}
+
 	/**
 	 * Check all remaining file from enclosure to glimps
 	 * 
@@ -174,6 +189,7 @@ public class GlimpsService {
 	public void sendToGlipms(ArrayList<String> list, String enclosureId) {
 
 		// Create file for length and glimps upload
+		int idx = 0;
 		list.stream().map(x -> {
 			if (!x.endsWith(File.separator) && !x.endsWith("\\") && !x.endsWith("/")) {
 				String baseFolderName = getBaseFolderName();
@@ -200,35 +216,48 @@ public class GlimpsService {
 		String currentfileName = file.getPath().replace(getBaseFolderNameWithEnclosurePrefix(enclosureId), "");
 		String hash = "UNKNOWN";
 		try (FileInputStream fs = new FileInputStream(file)) {
+
 			hash = RedisUtils.generateHashSha256(fs);
-			MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-			body.add("file", new FileSystemResource(file));
-			HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-			LOGGER.debug("Start sending file to glimps for enclosure {} - fileName {} - hash {}", enclosureId,
-					currentfileName, hash);
-			ResponseEntity<GlimpsInitResponse> initResponse = restTemplate.exchange(glimpsScanUrl, HttpMethod.POST,
-					requestEntity, GlimpsInitResponse.class);
-			String uuid = "";
 
-			if (StringUtils.isNotBlank(initResponse.getBody().getUuid())) {
-				uuid = initResponse.getBody().getUuid();
+			if (checkBeforeUpload(enclosureId, hash, currentfileName)) {
+
+				LOGGER.info("Hash already uploded {}",hash);
+				ScanInfo rec = ScanInfo.builder().filename(currentfileName).uuid(hash).build();
+				String jsonInString = new Gson().toJson(rec);
+				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId), hash, jsonInString, -1);
+
 			} else {
-				uuid = initResponse.getBody().getId();
+				MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+				body.add("file", new FileSystemResource(file));
+				HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+				LOGGER.debug("Start sending file to glimps for enclosure {} - fileName {} - hash {}", enclosureId,
+						currentfileName, hash);
+				ResponseEntity<GlimpsInitResponse> initResponse = restTemplate.exchange(glimpsScanUrl, HttpMethod.POST,
+						requestEntity, GlimpsInitResponse.class);
+				String uuid = "";
+
+				if (StringUtils.isNotBlank(initResponse.getBody().getUuid())) {
+					uuid = initResponse.getBody().getUuid();
+				} else {
+					uuid = initResponse.getBody().getId();
+				}
+
+				if (StringUtils.isBlank(uuid)) {
+					LOGGER.error("Glimps body : {}", initResponse.getBody());
+					throw new WorkerException(
+							"Not uuid for glimps file scan enclosure : " + enclosureId + ", file : " + currentfileName);
+				}
+
+				ScanInfo rec = ScanInfo.builder().filename(currentfileName).uuid(uuid).build();
+				String jsonInString = new Gson().toJson(rec);
+				LOGGER.info("File sended to glimps for enclosure {} - fileName {} - glimpsId {} - hash {}", enclosureId,
+						currentfileName, rec.getUuid(), hash);
+				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId), rec.getUuid(),
+						jsonInString, -1);
+				Thread.sleep(sendSleep);
 			}
 
-			if (StringUtils.isBlank(uuid)) {
-				LOGGER.error("Glimps body : {}", initResponse.getBody());
-				throw new WorkerException(
-						"Not uuid for glimps file scan enclosure : " + enclosureId + ", file : " + currentfileName);
-			}
-
-			ScanInfo rec = ScanInfo.builder().filename(currentfileName).uuid(uuid).build();
-			String jsonInString = new Gson().toJson(rec);
-			LOGGER.info("File sended to glimps for enclosure {} - fileName {} - glimpsId {} - hash {}", enclosureId,
-					currentfileName, rec.getUuid(), hash);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId), rec.getUuid(), jsonInString,
-					-1);
-		} catch (HttpClientErrorException re) {
+		} catch (HttpClientErrorException | HttpServerErrorException re) {
 			LOGGER.error("Hash : {}, Glimps body : {}, Status : {}, Enclosure: {}", hash, re.getResponseBodyAsString(),
 					re.getStatusText(), enclosureId);
 			LOGGER.error("Error while sending to glimps for enclosure " + enclosureId, re);
@@ -236,7 +265,7 @@ public class GlimpsService {
 					.errorCode("unknown").uuid("NONE").build();
 			String jsonInString = new Gson().toJson(glimps);
 			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId), "NONE", jsonInString, -1);
-			throw new GlimpsException("Error while sending to glimps enclosure :" + enclosureId, re);
+			throw new RetryGlimpsException("Error while sending to glimps enclosure :" + enclosureId, re);
 		} catch (Exception e) {
 			LOGGER.error("Error while sending file " + currentfileName + " with hash " + hash
 					+ " to glimps for enclosure " + enclosureId, e);
@@ -244,8 +273,22 @@ public class GlimpsService {
 					.errorCode("unknown").uuid("NONE").build();
 			String jsonInString = new Gson().toJson(glimps);
 			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId), "NONE", jsonInString, -1);
-			throw new GlimpsException("Error while sending to glimps enclosure :" + enclosureId, e);
+			throw new RetryGlimpsException("Error while sending to glimps enclosure :" + enclosureId, e);
 		}
+	}
+
+	private boolean checkBeforeUpload(String enclosureId, String hash, String currentfileName) {
+		LOGGER.debug("enclosure {} - Checking file {} - before upload {}", enclosureId, currentfileName, hash);
+		try {
+			ResponseEntity<GlimpsResultResponse> glpRet = glimpsCall(enclosureId, hash);
+			if (glpRet.getStatusCode().isError()) {
+				return false;
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+
 	}
 
 	private String getBaseFolderName() {
@@ -264,6 +307,7 @@ public class GlimpsService {
 	}
 
 	public void healthCheckGlimps() {
+		Boolean glimpsStat = true;
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(glimpsTokenKey, glimpsTokenValue);
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -293,10 +337,21 @@ public class GlimpsService {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Fail Glimps dummy check", e);
-			redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), Boolean.FALSE.toString());
+			glimpsStat = false;
+			redisManager.setString(GlimpsHealthCheckEnum.STATE_REAL.getKey(), glimpsStat.toString());
+			if (glimpsEnabled) {
+				redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), glimpsStat.toString());
+			} else {
+				redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), Boolean.TRUE.toString());
+			}
 			return;
 		}
-		redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), Boolean.TRUE.toString());
+		redisManager.setString(GlimpsHealthCheckEnum.STATE_REAL.getKey(), glimpsStat.toString());
+		if (glimpsEnabled) {
+			redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), glimpsStat.toString());
+		} else {
+			redisManager.setString(GlimpsHealthCheckEnum.STATE.getKey(), Boolean.TRUE.toString());
+		}
 	}
 
 }
