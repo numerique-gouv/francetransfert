@@ -189,6 +189,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
+    ENABLEMTLS: "false"
     SERVER_PORT: "8080"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
@@ -298,7 +299,7 @@ worker:
   persistentVolumeClaim:
     storage: 25Gi
     accessModes: ReadWriteOnce
-    storageClassName: bsu-sc
+    storageClassName: bsu-default
   podSecurityContext:
     runAsUser: 100104
     runAsGroup: 100104
@@ -319,7 +320,7 @@ ingress:
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 200m
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-production
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
   tls:
