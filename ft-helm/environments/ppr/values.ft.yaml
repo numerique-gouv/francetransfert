@@ -150,7 +150,7 @@ front:
   replicaCount: 1
   image:
     repository: jaubertaot/francetransfert-upload-download-gui
-    tag: 2ef4ed
+    tag: 4a10c5
     imagePullPolicy: IfNotPresent
   service:
     port: 8080
