@@ -107,7 +107,7 @@
 			<version>3.12.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
+			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.18.0</version>
 		</dependency>
