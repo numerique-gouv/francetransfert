@@ -17,13 +17,14 @@ for pod in $pods; do
     echo "failed to remove data from $pod"
     exit 1
   fi
-  kubectl cp $backup_folder/data $pod:/
+  kubectl cp $backup_folder/data $pod:/ &
   if [ $? -ne 0 ]; then
     echo "failed to copy data to $pod"
     exit 1
   fi
   echo "finish copy to $pod"
 done
+wait
 for pod in $pods; do
   echo "delete $pod"
   kubectl delete --force --grace-period=0 pod $pod
