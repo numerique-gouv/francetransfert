@@ -18,7 +18,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ft-backup
+          context: francetransfert-backup
           push: true
           tags: |
             lasuite/ft-backup:${{ github.ref_name }}
