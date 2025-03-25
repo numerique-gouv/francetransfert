@@ -80,8 +80,8 @@ spec:
                       type: tmpdata
                   spec:
                     accessModes: [ "ReadWriteOnce" ]
-                    {{ if .Values.backup.persistentVolumeClaim.storageClass }}
-                    storageClassName: {{ .Values.backup.persistentVolumeClaim.storageClass }}
+                    {{ if .Values.backup.persistentVolumeClaim.storageClassName }}
+                    storageClassName: {{ .Values.backup.persistentVolumeClaim.storageClassName }}
                     {{ end }}
                     resources:
                       requests:
