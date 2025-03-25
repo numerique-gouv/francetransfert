@@ -16,7 +16,7 @@ for pod in $pods; do
     echo "failed to remove data from $pod"
     exit 1
   fi
-  kubectl cp $backup_folder/backup/data $pod:/
+  kubectl cp $backup_folder/data $pod:/
   if [ $? -ne 0 ]; then
     echo "failed to copy data to $pod"
     exit 1
