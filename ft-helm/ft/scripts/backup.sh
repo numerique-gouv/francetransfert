@@ -8,7 +8,8 @@ month=$(date +"%m")
 backup_folder="/backup/backup-redis"
 
 echo "compress backup folder"
-zip -r $backup_folder/redis-dump.zip $backup_folder
+cd $backup_folder
+zip -r $backup_folder/redis-dump.zip .
 echo "upload redis dump to s3"
 aws --no-verify-ssl s3 cp $backup_folder/redis-dump.zip s3://$BACKUP_BUCKET_NAME/redis_backup_${now}.zip --endpoint-url $STORAGE_ENDPOINT
 if [ $? -ne 0 ]; then
