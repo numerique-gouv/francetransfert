@@ -34,7 +34,7 @@ spec:
                   mountPath: /scripts
               env:
                 - name: BACKUP_DATE
-                  value: "test"
+                  value: "20250324"
               envFrom:
                 - configMapRef:
                     name: app-config-map-{{ .Release.Name }}
