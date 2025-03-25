@@ -47,3 +47,5 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 .vscode
+
+ft-helm/testtest.yaml
