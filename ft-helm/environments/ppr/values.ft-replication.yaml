@@ -59,15 +59,15 @@ redis:
     compatibility:
       openshift:
         adaptSecurityContext: auto
-  architecture: standalone
+  architecture: replication
   sentinel:
-    enabled: false
+    enabled: true
     persistence:
       enabled: true
       size: 5Gi
   auth:
     enabled: true
-    sentinel: false
+    sentinel: true
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
