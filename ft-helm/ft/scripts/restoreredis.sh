@@ -23,5 +23,5 @@ for pod in $pods; do
     exit 1
   fi
   echo "finish copy to $pod"
-  kubectl delete pod $pod
+  kubectl delete --force --grace-period=0 pod $pod
 done

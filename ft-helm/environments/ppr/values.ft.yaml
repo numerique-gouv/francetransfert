@@ -47,7 +47,7 @@ clamav:
 
 redis:
   commonConfiguration: |-
-    appendonly no
+    appendonly yes
     save "7200 1 3600 10000"
     dbfilename ftr-data.rdb
     appendfilename appendonly.aof
