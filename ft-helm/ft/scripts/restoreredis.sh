@@ -12,7 +12,6 @@ echo "redis pods: $pods"
 for pod in $pods; do
   echo "copy dump file to $pod"
   kubectl exec $pod -- sh -c 'rm -rf /data/*'
-
   if [ $? -ne 0 ]; then
     echo "failed to remove data from $pod"
     exit 1
