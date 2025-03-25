@@ -11,9 +11,7 @@ echo "finish download"
 echo "extract redis dump"
 
 if [ -f "$backup_folder/redis-dump.zip" ]; then
-    echo `ls -al $backup_folder/**`
     unzip $backup_folder/redis-dump.zip -d $backup_folder/data
-    echo `ls -al $backup_folder/**`
     echo "finish extract"
 else
     echo "redis-dump.zip not found"
