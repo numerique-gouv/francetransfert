@@ -21,6 +21,7 @@ for pod in $pods; do
     echo "failed to copy data to $pod"
     exit 1
   fi
+  echo `kubectl exec $pod -- ls -la /data/**`
   echo "finish copy to $pod"
   kubectl delete pod $pod
 done
