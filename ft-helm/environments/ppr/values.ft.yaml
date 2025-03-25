@@ -319,3 +319,7 @@ backup:
   persistentVolumeClaim:
     storage: 5Gi
     storageClassName: bsu-default
+  securityContext:
+    runAsUser: 111102
+    runAsGroup: 111102
+    fsGroup: 111102

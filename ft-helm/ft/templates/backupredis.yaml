@@ -17,6 +17,8 @@ spec:
       backoffLimit: 0
       template:
         spec:
+          securityContext:
+            {{- toYaml .Values.backup.securityContext | nindent 12 }}
           serviceAccountName: backup
           restartPolicy: Never
           initContainers:
