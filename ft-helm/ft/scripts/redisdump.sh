@@ -4,14 +4,15 @@ pod=`kubectl get pods -o=name --field-selector status.phase=Running | grep "redi
 echo "exec save command on redis $pod"
 kubectl exec $pod -- redis-cli -a "$METALOAD_PASSWORD" save
 echo "finish saving redis $pod"
-echo "copy dump file from $pod to /backup/redis-dump"
-kubectl cp $pod:/data /backup/
+mkdir -p /backup/backup-redis
+echo "copy dump file from $pod to /backup/backup-redis"
+kubectl cp $pod:/data /backup/backup-redis
 if [ $? -ne 0 ]; then
   echo "failed to copy dump file"
   exit 1
 fi
 # check if backup folder is empty
-if [ -z "$(ls /backup/)" ]; then
+if [ -z "$(ls /backup/backup-redis)" ]; then
   echo "backup folder is empty"
   exit 1
 fi

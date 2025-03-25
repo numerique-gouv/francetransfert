@@ -5,7 +5,7 @@ year=$(date +"%Y")
 day=$(date +"%d")
 month=$(date +"%m")
 
-backup_folder="/backup"
+backup_folder="/backup/backup-redis"
 
 echo "compress backup folder"
 zip -r $backup_folder/redis-dump.zip $backup_folder
