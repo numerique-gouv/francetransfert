@@ -16,6 +16,7 @@ if [ $? -ne 0 ]; then
   echo "failed to upload redis dump to s3"
   exit 1
 fi
+delete_date=$(date -d '7 days ago' +%Y-%m-%d)
 echo "clean old redis dump in s3"
-aws --no-verify-ssl s3api list-objects --endpoint-url $STORAGE_ENDPOINT --bucket $REDIS_BUCKET --query 'Contents[?LastModified<=`'$(date -d '7 days ago' +%Y-%m-%d)`'].{Key:Key}' --output text | xargs -I {} aws s3 rm s3://$REDIS_BUCKET/{} --endpoint-url $STORAGE_ENDPOINT
+aws --no-verify-ssl s3api list-objects --endpoint-url $STORAGE_ENDPOINT --bucket $REDIS_BUCKET --query 'Contents[?LastModified<='$delete_date'].{Key:Key}' --output text | xargs -I {} aws s3 rm s3://$REDIS_BUCKET/{} --endpoint-url $STORAGE_ENDPOINT
 echo "finish backup"
