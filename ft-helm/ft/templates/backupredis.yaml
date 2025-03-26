@@ -23,7 +23,7 @@ spec:
           restartPolicy: Never
           initContainers:
             - name: kubectlcp
-              image: bitnami/kubectl
+              image: bitnami/redis:7.4.2
               resources:
                 requests:
                   memory: "256Mi"
@@ -38,7 +38,7 @@ spec:
                   mountPath: /scripts
               command:
                 - /bin/sh
-                - "/scripts/redisdump.sh"
+                - "/scripts/redisrdbbackup.sh"
               envFrom:
                 - configMapRef:
                     name: app-config-map-{{ .Release.Name }}
