@@ -57,6 +57,8 @@ spec:
               volumeMounts:
                 - name: data
                   mountPath: /backup
+                - name: emptydata
+                  mountPath: /data
                 - name: backup-script
                   mountPath: /scripts
               envFrom:
@@ -69,6 +71,8 @@ spec:
                 - "/scripts/backup.sh"
           restartPolicy: Never
           volumes:
+            - name: emptydata
+              emptydir: {}
             - name: backup-script
               configMap:
                 defaultMode: 0770
