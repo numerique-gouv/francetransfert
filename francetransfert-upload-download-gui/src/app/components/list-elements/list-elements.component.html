@@ -6,47 +6,57 @@
     <mat-card-header class="list-elements-card-header" *ngIf="(flow.transfers$ | async).transfers.length > 0">
         <mat-card-title *ngIf="(flow.transfers$ | async).transfers.length === 1">
             <span>{{(flow.transfers$ |
-                async).transfers.length}} {{'élément' | translate}} {{filesSize | filesize}} {{unitSize}} / {{filesSizeLimit | filesize}}  {{"GB" | translate}}</span>
-            <mat-icon *ngIf="screenWidth === 'sm' && !expanded" (click)="expandList()"  attr.aria-label="{{'Afficher_Liste' | translate}}">
+                async).transfers.length}} {{'élément' | translate}} {{filesSize | filesize}} {{unitSize}} /
+                {{filesSizeLimit | filesize}} {{"GB" | translate}}</span>
+            <mat-icon *ngIf="screenWidth === 'sm' && !expanded" (click)="expandList()"
+                attr.aria-label="{{'Afficher_Liste' | translate}}">
                 expand_less</mat-icon>
-            <mat-icon *ngIf="screenWidth === 'sm' && expanded" (click)="expandList()" attr.aria-label="{{'Masquer_Liste' | translate}}">
+            <mat-icon *ngIf="screenWidth === 'sm' && expanded" (click)="expandList()"
+                attr.aria-label="{{'Masquer_Liste' | translate}}">
                 expand_more</mat-icon>
         </mat-card-title>
         <mat-card-title *ngIf="(flow.transfers$ | async).transfers.length > 1">
             <span>{{(flow.transfers$ |
-                async).transfers.length}} {{'éléments' | translate}} {{filesSize | filesize}} {{unitSize}} / {{filesSizeLimit | filesize}} {{"GB"| translate}}</span>
-            <mat-icon *ngIf="screenWidth === 'sm'  && !expanded" (click)="expandList()"  attr.aria-label="{{'Afficher_Liste' | translate}}">
+                async).transfers.length}} {{'éléments' | translate}} {{filesSize | filesize}} {{unitSize}} /
+                {{filesSizeLimit | filesize}} {{"GB"| translate}}</span>
+            <mat-icon *ngIf="screenWidth === 'sm'  && !expanded" (click)="expandList()"
+                attr.aria-label="{{'Afficher_Liste' | translate}}">
                 expand_less</mat-icon>
-            <mat-icon *ngIf="screenWidth === 'sm' && expanded" (click)="expandList()" attr.aria-label="{{'Masquer_Liste' | translate}}">
+            <mat-icon *ngIf="screenWidth === 'sm' && expanded" (click)="expandList()"
+                attr.aria-label="{{'Masquer_Liste' | translate}}">
                 expand_more</mat-icon>
         </mat-card-title>
     </mat-card-header>
     <mat-card-header class="list-elements-card-header" *ngIf="errorMessage !== ''">
         <mat-card-title>
-            <span class="mat-error" role="alert">{{file | translate}} {{unauthorizedFile}}  {{errorMessage | translate}}</span>
+            <span class="mat-error" role="alert">{{file | translate}} {{unauthorizedFile}}</span>
+            <span class="mat-error" role="alert"> {{errorMessage | translate}}</span>
             <!-- <span class="mat-error" role="alert">{{file | translate}} {{unauthorizedFile}}  {{errorMessage | translate}}</span> -->
         </mat-card-title>
     </mat-card-header>
     <mat-card-content class="list-elements-card-content"
         *ngIf="(flow.transfers$ | async).transfers.length > 0 ; else emptyList">
         <ft-file-item class="file-item"
-            *ngFor="let transfer of (flow.transfers$ | async).transfers | tm; let index = index"
-            [transfer]="transfer" (itemAdded)="onItemAdded($event, index)" (deletedTransfer)="deleteTransfer($event)" >
+            *ngFor="let transfer of (flow.transfers$ | async).transfers | tm; let index = index" [transfer]="transfer"
+            (itemAdded)="onItemAdded($event, index)" (deletedTransfer)="deleteTransfer($event)">
         </ft-file-item>
         <div class="list-elements-add-elements-wrapper">
-            <button mat-icon-button flowButton [flow]="flow.flowJs"  class="upload-item-actions-btn">
-                <mat-icon class="list-elements-card-content-icon" attr.aria-label="{{'Ajout_Fichiers' | translate}}">add_circle
+            <button mat-icon-button flowButton [flow]="flow.flowJs" class="upload-item-actions-btn">
+                <mat-icon class="list-elements-card-content-icon"
+                    attr.aria-label="{{'Ajout_Fichiers' | translate}}">add_circle
                 </mat-icon>
             </button>
             <label>
-                <span class="list-elements-card-content-first-line">{{'AjoutDocument' | translate}}   {{'Dépot' | translate}}</span>
+                <span class="list-elements-card-content-first-line">{{'AjoutDocument' | translate}} {{'Dépot' |
+                    translate}}</span>
             </label>
         </div>
     </mat-card-content>
     <ng-template #emptyList>
         <mat-card-content class="list-elements-card-content empty">
-            <button mat-icon-button flowButton [flow]="flow.flowJs"  class="upload-item-actions-btn" id="Formulaire">
-                <mat-icon class="list-elements-card-content-icon"  attr.aria-label="{{'Ajout_Fichiers' | translate}}">add_circle
+            <button mat-icon-button flowButton [flow]="flow.flowJs" class="upload-item-actions-btn" id="Formulaire">
+                <mat-icon class="list-elements-card-content-icon"
+                    attr.aria-label="{{'Ajout_Fichiers' | translate}}">add_circle
                 </mat-icon>
             </button>
             <label>
@@ -58,10 +68,12 @@
 </mat-card>
 <mat-card class="list-elements-card" *ngIf="component === 'download'">
     <mat-card-header class="list-elements-card-header" *ngIf="transfers">
-        <mat-card-title *ngIf="transfers.length === 1"><span>{{transfers.length}} {{'élément' | translate}} {{filesSize |
+        <mat-card-title *ngIf="transfers.length === 1"><span>{{transfers.length}} {{'élément' | translate}} {{filesSize
+                |
                 filesize}} {{unitSize}}</span>
         </mat-card-title>
-        <mat-card-title *ngIf="transfers.length > 1"><span>{{transfers.length}} {{'éléments' | translate}} {{filesSize | filesize}} {{unitSize}}</span>
+        <mat-card-title *ngIf="transfers.length > 1"><span>{{transfers.length}} {{'éléments' | translate}} {{filesSize |
+                filesize}} {{unitSize}}</span>
         </mat-card-title>
     </mat-card-header>
     <mat-card-content class="list-elements-card-content">

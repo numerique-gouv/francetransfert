@@ -1,6 +1,11 @@
 FROM bitnami/java:21
-COPY target/*.jar app.jar
+
+RUN mkdir -p /app
+WORKDIR /app
+COPY target/*.jar /app/app.jar
+
+ENV TZ Europe/Paris
 
 # Lancer le script de démarrage
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /app/app.jar
 EXPOSE 8080

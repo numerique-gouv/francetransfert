@@ -19,6 +19,8 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
       {{ end }}
+      securityContext:
+        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
       containers:
       - name: {{ include "france-transfert.fullname" . }}-upload-app
         image: {{ .Values.upload.image.repository }}:{{ .Values.upload.image.tag }}
@@ -37,15 +39,60 @@ spec:
             mountPath: /opt/work/
         ports:
         - containerPort: {{ .Values.upload.service.port }}
+        {{- toYaml .Values.upload.readinessLiveness | nindent 8 }}
         resources:
           {{- toYaml .Values.upload.resources | nindent 10 }}
         securityContext:
           {{- toYaml .Values.upload.securityContext | nindent 10 }}
       volumes:
       - name: tmp-volume
-        emptyDir:
-          sizeLimit: 250Mi
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                type: uploadtmp
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              {{ if .Values.upload.persistentVolumeClaim.storageClassName }}
+              storageClassName: {{ .Values.upload.persistentVolumeClaim.storageClassName }}
+              {{ end }}
+              resources:
+                requests:
+                  storage: 5Gi
       - name: work-volume
-        emptyDir:
-          sizeLimit: 250Mi
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                type: uploadwork
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              {{ if .Values.upload.persistentVolumeClaim.storageClassName }}
+              storageClassName: {{ .Values.upload.persistentVolumeClaim.storageClassName }}
+              {{ end }}
+              resources:
+                requests:
+                  storage: 5Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-upload-app
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-upload-app
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: {{ include "france-transfert.fullname" . }}-upload-app
+                topologyKey: kubernetes.io/hostname
+              weight: 1
       

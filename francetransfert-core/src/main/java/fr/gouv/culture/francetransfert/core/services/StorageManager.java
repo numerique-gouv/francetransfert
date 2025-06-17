@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -8,6 +8,7 @@
 package fr.gouv.culture.francetransfert.core.services;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,16 +45,19 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ListBucketsRequest;
+import com.amazonaws.services.s3.model.ListPartsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
+import com.amazonaws.services.s3.model.PartListing;
+import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.amazonaws.util.StringUtils;
 
-import fr.gouv.culture.francetransfert.core.exception.RetryStorageException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.utils.AmazonS3Utils;
 import jakarta.annotation.PostConstruct;
@@ -80,6 +84,15 @@ public class StorageManager {
     @Value("${bucket.sequestre}")
     private String sequestreBucket;
 
+    @Value("${storage.request.timeout:120000}")
+    private int requestTimeout;
+
+    @Value("${storage.connection.timeout:60000}")
+    private int connectionTimeout;
+
+    @Value("${storage.max.error.retry:3}")
+    private int maxErrorRetry;
+
     private AmazonS3 conn;
 
     @PostConstruct
@@ -99,6 +112,11 @@ public class StorageManager {
         if (conn == null) {
             try {
                 ClientConfiguration opts = new ClientConfiguration();
+                opts.setRequestTimeout(requestTimeout);
+                opts.setSocketTimeout(requestTimeout);
+                opts.setConnectionTimeout(connectionTimeout);
+                opts.setMaxErrorRetry(maxErrorRetry);
+                opts.setClientExecutionTimeout(0);
                 opts.setSignerOverride("S3SignerType"); // NOT "AWS3SignerType"
                 AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
                 conn = new AmazonS3Client(credentials, opts);
@@ -202,6 +220,20 @@ public class StorageManager {
         conn.setObjectAcl(bucketName, escapedObjectKey, CannedAccessControlList.PublicReadWrite);
     }
 
+    public ObjectMetadata getObjectMetadataByName(String bucketName, String objectKey) throws StorageException {
+
+        ObjectMetadata obj = null;
+
+        try {
+            String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
+            obj = conn.getObjectMetadata(bucketName, escapedObjectKey);
+        } catch (Exception e) {
+            throw new StorageException(e);
+        }
+
+        return obj;
+    }
+
     public S3Object getObjectByName(String bucketName, String objectKey) throws StorageException {
 
         S3Object obj = null;
@@ -247,7 +279,7 @@ public class StorageManager {
         return list;
     }
 
-    public void deleteFilesWithPrefix(String bucketName, String prefix) throws RetryStorageException {
+    public void deleteFilesWithPrefix(String bucketName, String prefix) throws RetryException {
 
         try {
             // In this project the prefix passed to this method is usually a GUID, so not
@@ -272,7 +304,7 @@ public class StorageManager {
                 }
             } while (objects.isTruncated());
         } catch (Exception e) {
-            throw new RetryStorageException(e);
+            throw new RetryException(e);
         }
     }
 
@@ -359,6 +391,9 @@ public class StorageManager {
             UploadPartResult uploadResult = conn.uploadPart(uploadRequest);
             partETag = uploadResult.getPartETag();
         } catch (SdkClientException e) {
+            LOGGER.error(
+                    "Error while uploadMultiPartFileToOsuBucket: bucketName={}, partNumber={}, objectKey={}, uploadId={}",
+                    bucketName, partNumber, objectKey, uploadId);
             throw new StorageException(e);
         }
 
@@ -389,6 +424,7 @@ public class StorageManager {
             LOGGER.error("Error while generate multipart ID : " + e.getMessage(), e);
             throw new StorageException(e);
         }
+
     }
 
     public void generateBucketSequestre(String bucketName) throws StorageException {
@@ -406,7 +442,6 @@ public class StorageManager {
 
     public String completeMultipartUpload(String bucketName, String objectKey, String uploadId,
             List<PartETag> partETags) throws StorageException {
-
         try {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
             CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(bucketName,
@@ -414,12 +449,23 @@ public class StorageManager {
             conn.completeMultipartUpload(compRequest);
             return objectKey;
         } catch (Exception e) {
-            throw new StorageException(e);
+            try {
+                LOGGER.error("Failed while completeMultipartUpload retry using s3Part");
+                List<PartSummary> parts = listPart(bucketName, objectKey, uploadId);
+                List<PartETag> s3ETag = parts.stream().map(x -> new PartETag(x.getPartNumber(), x.getETag())).toList();
+                String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
+                CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(bucketName,
+                        escapedObjectKey, uploadId, s3ETag);
+                conn.completeMultipartUpload(compRequest);
+                return objectKey;
+            } catch (Exception e2) {
+                throw new StorageException(e2);
+            }
         }
     }
 
     public void uploadMultipartForZip(String bucketName, String objectKey, String localFilePath)
-            throws RetryStorageException {
+            throws RetryException {
         File file = new File(localFilePath);
         long contentLength = file.length();
         long partSize = 10L * 1024L * 1024L; // Set part size to 10 MB.
@@ -468,12 +514,12 @@ public class StorageManager {
             // The call was transmitted successfully, but OSU couldn't process
             // it, so it returned an error response.
             // TODO: add log
-            throw new RetryStorageException("The call was transmitted successfully, but OSU couldn't process", e);
+            throw new RetryException("The call was transmitted successfully, but OSU couldn't process", e);
         } catch (SdkClientException e) {
             // OSU couldn't be contacted for a response, or the client
             // couldn't parse the response from OSU.
             // TODO: add log
-            throw new RetryStorageException("OSU couldn't be contacted for a response, or the client", e);
+            throw new RetryException("OSU couldn't be contacted for a response, or the client", e);
         }
     }
 
@@ -531,6 +577,77 @@ public class StorageManager {
         ListBucketsRequest listBucketsRequest = new ListBucketsRequest();
         List<Bucket> bucketList = conn.listBuckets(listBucketsRequest);
         return !CollectionUtils.isEmpty(bucketList);
+    }
+
+    public String setExportToS3(String bucketName, String objectKey, ByteArrayOutputStream outputStream, String mail) {
+
+        // Envoi sur S3
+        try {
+            if (!conn.listBuckets().stream().filter(bucket -> bucketName != null && bucketName.equals(bucket.getName()))
+                    .findFirst().isPresent()) {
+                conn.createBucket(bucketName);
+            }
+        } catch (Exception e) {
+            LOGGER.info("generateUploadIdOsu Error while creating bucket : " + e.getMessage(), e);
+        }
+
+        try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+
+            // Créer des métadonnées pour l'objet
+            ObjectMetadata data = new ObjectMetadata();
+            data.setContentLength(outputStream.size());
+
+            // Mettre l'objet en ligne sur S3
+            conn.putObject(bucketName, objectKey, inputStream, data);
+            // redisManager.saddString(RedisKeysEnum.FT_EXPORT.getKey(mail), objectKey);
+
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 2 * 60 * 1000; // 2 minutes
+        expiration.setTime(expTimeMillis);
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey)
+                .withMethod(HttpMethod.GET)
+                .withExpiration(expiration);
+        URL url = conn.generatePresignedUrl(generatePresignedUrlRequest);
+        return url.toString();
+    }
+
+    public boolean existChunk(String bucketName, String key, String uploadId, int chunkNumber) {
+        List<PartSummary> parts = listPart(bucketName, key, uploadId);
+        return parts.stream().filter(x -> x.getPartNumber() == chunkNumber).findFirst().isPresent();
+    }
+
+    public List<PartSummary> listPart(String bucketName, String key, String uploadId) {
+        ListPartsRequest listPartsRequest = new ListPartsRequest(bucketName,
+                AmazonS3Utils.escapeProblemCharsForObjectKey(key), uploadId);
+        PartListing partList = conn.listParts(listPartsRequest);
+        return partList.getParts();
+    }
+
+    public String getUrlExport(String bucketName, String objectKey, RedisManager redisManager) {
+        boolean exist = conn.doesObjectExist(bucketName, objectKey);
+        if (exist) {
+            Date expiration = new Date();
+            long expTimeMillis = expiration.getTime();
+            expTimeMillis += 2 * 60 * 1000; // 2 minutes
+            expiration.setTime(expTimeMillis);
+
+            GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName,
+                    objectKey)
+                    .withMethod(HttpMethod.GET)
+                    .withExpiration(expiration);
+            URL url = conn.generatePresignedUrl(generatePresignedUrlRequest);
+            return url.toString();
+        } else {
+            return null;
+        }
+
     }
 
 }

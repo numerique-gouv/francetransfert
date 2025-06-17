@@ -1,0 +1,91 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronbackup
+  labels:
+    tier: back
+spec:
+  schedule: {{ .Values.backup.schedule | default "20 4 * * *" }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  {{- if not .Values.backup.enabled }}
+  suspend: true
+  {{- end }}
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          securityContext:
+            {{- toYaml .Values.backup.podSecurityContext | nindent 12 }}
+          serviceAccountName: backup
+          restartPolicy: Never
+          initContainers:
+            - name: kubectlcp
+              image: bitnami/kubectl
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "512Mi"
+              volumeMounts:
+                - name: data
+                  mountPath: /backup
+                - name: backup-script
+                  mountPath: /scripts
+              command:
+                - /bin/sh
+                - "/scripts/redisdump.sh"
+              envFrom:
+                - configMapRef:
+                    name: app-config-map-{{ .Release.Name }}
+                - secretRef:
+                    name: ft-secret-app
+              securityContext:
+                {{- toYaml .Values.backup.securityContext | nindent 16 }}
+          containers:
+            - name: s3
+              image: lasuite/ft-backup:main
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "512Mi"
+              volumeMounts:
+                - name: data
+                  mountPath: /backup
+                - name: backup-script
+                  mountPath: /scripts
+              envFrom:
+                - configMapRef:
+                    name: app-config-map-{{ .Release.Name }}
+                - secretRef:
+                    name: ft-secret-app
+              command:
+                - /bin/sh
+                - "/scripts/backup.sh"
+              securityContext:
+                {{- toYaml .Values.backup.securityContext | nindent 16 }}
+          restartPolicy: Never
+          volumes:
+            - name: backup-script
+              configMap:
+                defaultMode: 0770
+                name: backup-script
+            - name: data
+              ephemeral:
+                volumeClaimTemplate:
+                  metadata:
+                    labels:
+                      type: tmpdata
+                  spec:
+                    accessModes: [ "ReadWriteOnce" ]
+                    {{ if .Values.backup.persistentVolumeClaim.storageClassName }}
+                    storageClassName: {{ .Values.backup.persistentVolumeClaim.storageClassName }}
+                    {{ end }}
+                    resources:
+                      requests:
+                        storage: {{ .Values.backup.persistentVolumeClaim.storage }}

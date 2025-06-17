@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 import { LinkInfosModel, MailInfosModel, ParametersModel } from 'src/app/models';
 import { FileManagerService, UploadManagerService, UploadService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
-import { majChar, minChar, numChar, sizeControl, specialChar, noSpecial } from 'src/app/shared/validators/forms-validator';
+import { majChar, minChar, numChar, sizeControl, specialChar, noSpecial, isDayNumberValid } from 'src/app/shared/validators/forms-validator';
 
 @Component({
   selector: 'ft-envelope',
@@ -86,18 +86,25 @@ export class EnvelopeComponent implements OnInit, OnDestroy {
 
   onParametersFormGroupChangeEvent(event) {
     this.parametersFormValues = event.values;
+    this.cdr.detectChanges();
   }
 
   isParamFromValid() {
+
+    let checkpassword = true;
+    let checkdate = true;
     if (this.parametersFormValues && this.parametersFormValues.password && this.parametersFormValues.password != '' && this.parametersFormValues.password != null && this.parametersFormValues.password != undefined) {
-      return minChar(this.parametersFormValues.password)
+      checkpassword = minChar(this.parametersFormValues.password)
         && majChar(this.parametersFormValues.password)
         && specialChar(this.parametersFormValues.password)
         && numChar(this.parametersFormValues.password)
         && sizeControl(this.parametersFormValues.password)
-        && !noSpecial(this.parametersFormValues.password);
+        && !noSpecial(this.parametersFormValues.password)
     }
-    return true;
+    if (this.parametersFormValues && this.parametersFormValues.expiryDays) {
+      checkdate = isDayNumberValid(this.parametersFormValues.expiryDays);
+    }
+    return checkpassword && checkdate;
   }
 
   checkCanSend() {

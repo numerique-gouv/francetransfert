@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-script
+data:
+{{ (tpl (.Files.Glob "scripts/backup.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redisdump.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/getbackup.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/restoreredis.sh").AsConfig .) | indent 2 }}

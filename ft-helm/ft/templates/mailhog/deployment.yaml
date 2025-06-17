@@ -24,4 +24,6 @@ spec:
         - containerPort: {{ .Values.mailhog.service.portHttp }}
         resources:
           {{- toYaml .Values.mailhog.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.mailhog.securityContext | nindent 10 }}
 {{- end }}

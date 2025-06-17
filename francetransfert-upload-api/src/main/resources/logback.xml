@@ -2,47 +2,16 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
-                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level %logger{36} - %msg%n
-            </Pattern>
-        </layout>
-    </appender>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                      
+        </encoder> 
+	</appender>
 
-    <appender name="system" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>INFO</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rotate every day for log collection and archiving -->
-            <fileNamePattern>target/logs/system.%d{yyyyMMdd}.log</fileNamePattern>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <appender name="errors" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <!-- only log problems, not debugging info -->
-            <level>WARN</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rotate every day for log collection and archiving -->
-            <fileNamePattern>target/logs/errors-log.%d{yyyyMMdd}.log</fileNamePattern>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <root level="INFO">
+    <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="fr.gouv.culture.francetransfert" level="info" additivity="false">
+    <logger name="fr.gouv.culture.francetransfert" level="${FT_LOG_LEVEL}" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

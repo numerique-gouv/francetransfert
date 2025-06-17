@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -549,6 +549,9 @@ public class DownloadServices {
 		}
 		if (!recipientDeleted) {
 
+			validateNumberOfDownload(recipientId, enclosureId);
+			LocalDate expirationDate = validateExpirationDate(enclosureId);
+
 			String fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
 			String hashFileFromS3 = storageManager.getEtag(bucketName, fileToDownload);
 			String hashFileFromRedis = RedisUtils.getHashFileFromredis(redisManager, enclosureId);
@@ -557,8 +560,7 @@ public class DownloadServices {
 				LOGGER.warn("msgtype: INVALID_HASH || enclosure: {} || recipient: {}", enclosureId, recipientMail);
 				throw new InvalidHashException("Hash incorrect pour le pli " + enclosureId);
 			}
-			validateNumberOfDownload(recipientId, enclosureId);
-			LocalDate expirationDate = validateExpirationDate(enclosureId);
+			
 			return expirationDate;
 		} else {
 			throw new ExpirationEnclosureException("Vous ne pouvez plus telecharger les fichiers de l'enclosure : "

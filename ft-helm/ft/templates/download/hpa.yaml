@@ -1,0 +1,22 @@
+{{- if .Values.download.hpa.enabled }}
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-download-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "france-transfert.fullname" . }}-download-app
+  minReplicas: {{ .Values.download.hpa.minReplicas }}
+  maxReplicas: {{ .Values.download.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.download.hpa.cpu.averageUtilization }}
+  behavior:
+    {{- toYaml .Values.download.hpa.behavior | nindent 4 }}
+{{- end }}

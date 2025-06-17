@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.gouv.culture.francetransfert.application.error.UnauthorizedAccessException;
-import fr.gouv.culture.francetransfert.application.resources.model.HealthCheckRepresentation;
 import fr.gouv.culture.francetransfert.application.services.HealthCheckService;
+import fr.gouv.culture.francetransfert.core.model.HealthCheckRepresentation;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

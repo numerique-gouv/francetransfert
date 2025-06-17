@@ -1,11 +1,11 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
-import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, PLATFORM_ID, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, OnInit, Output, PLATFORM_ID, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -35,6 +35,7 @@ export class ContactComponent implements OnInit {
   CaptchaAudio: string;
   CaptchaVisuel: string;
   ChangerCaptcha: string;
+  @Output() sidenavToggle = new EventEmitter();
 
   @ViewChild('nom') nom: ElementRef;
   @ViewChildren('myInput') myInput: QueryList<ElementRef>;
@@ -72,6 +73,19 @@ export class ContactComponent implements OnInit {
 
   }
 
+  goToExternalLink(link: string, newTab: boolean = false) {
+    if (newTab) {
+      window.open(link, '_blank');
+    } else {
+      window.location.href = link;
+    }
+  }
+
+
+  goToLink(url) {
+    this._router.navigate([url]);
+    this.sidenavToggle.emit();
+  }
 
 
   initForm() {

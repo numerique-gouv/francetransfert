@@ -1,17 +1,17 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { TranslateService } from '@ngx-translate/core';
 import jsPDF from 'jspdf';
-import { BehaviorSubject, Observable, Subject, take } from 'rxjs';
+import {BehaviorSubject, Observable, of, Subject, take, throwError, timer} from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { map } from 'rxjs/internal/operators/map';
 import { FTTransferModel } from 'src/app/models';
@@ -22,6 +22,7 @@ import { environment } from 'src/environments/environment';
 import { LoginService } from '../login/login.service';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { switchMap,  takeWhile} from 'rxjs/operators';
 //import autoTable from 'jspdf-autotable';
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
@@ -88,17 +89,84 @@ export class AdminService {
       catchError(this.handleError('file-info-reciever'))
     );
   }
-  getPlisSent(body: any): Observable<any> {
+  getPlisSent(body: any, page: number, size: number,  searshedMail, dateDebut, dateFin, objet, statut): Observable<any> {
     const treeBody = {
       senderMail: body.senderMail,
       senderToken: body.senderToken,
     };
+
+    let params = new HttpParams()
+      .set('page', page?.toString())
+      .set('size', size?.toString());
+
+    if (searshedMail) {
+      params = params.set('searchedMail', searshedMail.toString());
+    }
+
+    if (dateDebut ) {
+      params = params.set('dateDebut', dateDebut);
+    }
+
+    if (dateFin ) {
+      params = params.set('dateFin', dateFin);
+    }
+
+    if (objet) {
+      params = params.set('objet', objet);
+    }
+
+    if (statut) {
+      params = params.set('statut', statut);
+    }
     return this._httpClient.post(
       `${environment.host}${environment.apis.admin.getPlisSent}`,
-      treeBody
+      treeBody, { params: params }
     ).pipe(map((response) => {
       return response;
     }));
+  }
+
+  exportPlis(body: any,  searshedMail, dateDebut, dateFin, objet, statut, isPliSent): Observable<any> {
+    const treeBody = {
+      senderMail: body.senderMail,
+      senderToken: body.senderToken,
+    };
+
+    let params = new HttpParams();
+
+    if (searshedMail) {
+      params = params.set('searchedMail', searshedMail.toString());
+    }
+
+    if (dateDebut ) {
+      params = params.set('dateDebut', dateDebut);
+    }
+
+    if (dateFin ) {
+      params = params.set('dateFin', dateFin);
+    }
+
+
+    if (objet) {
+      params = params.set('objet', objet);
+    }
+
+    if (statut) {
+      params = params.set('statut', statut);
+    }
+
+    params = params.set('isPliSent', isPliSent);
+
+    return this._httpClient.post(`${environment.host}${environment.apis.admin.export}`, treeBody, { params: params, responseType: 'text' }).pipe(
+      map((response: string) => {
+        return response;
+      }),
+      catchError(error => {
+        console.error('Error in getUrlExport:', error);
+        return of('');
+      })
+    );
+
   }
 
 
@@ -185,17 +253,73 @@ export class AdminService {
     );
   }
 
-  getPlisReceived(body: any): Observable<any> {
+  getPlisReceived(body: any, page, size, searshedMail, dateDebut, dateFin, objet, statut): Observable<any> {
     const treeBody = {
       senderMail: body.receiverMail,
       senderToken: body.senderToken,
     };
+    debugger
+    let params = new HttpParams()
+      .set('page', page?.toString())
+      .set('size', size?.toString());
+
+    if (searshedMail) {
+      params = params.set('searchedMail', searshedMail.toString());
+    }
+
+    if (dateDebut ) {
+      params = params.set('dateDebut', dateDebut);
+    }
+
+    if (dateFin ) {
+      params = params.set('dateFin', dateFin);
+    }
+
+
+
+    if (objet) {
+      params = params.set('objet', objet);
+    }
+
+    if (statut) {
+      params = params.set('statut', statut);
+    }
+
     return this._httpClient.post(
       `${environment.host}${environment.apis.admin.getPlisReceived}`,
-      treeBody
+      treeBody, { params: params }
     ).pipe(map((response) => {
       return response;
     }));
+  }
+
+  getUrlExport(body: any,  downloadKey): Observable<any> {
+    const treeBody = {
+      senderMail: body.senderMail,
+      senderToken: body.senderToken,
+    };
+    let params = new HttpParams()
+      .set('objectKey', downloadKey);
+
+    return this._httpClient.post(`${environment.host}${environment.apis.admin.urlExport}?objectKey=${downloadKey}`, treeBody, {  responseType: 'text' }).pipe(
+      map((response: string) => {
+        return response;
+      }),
+      catchError(error => {
+        console.error('Error in getUrlExport:', error);
+        return of('');
+      })
+    );
+  }
+
+
+  private isValidUrl(url: string): boolean {
+    try {
+      new URL(url); // Vérifie si la chaîne est une URL valide
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   setDestinatairesList(destinatairesData) {

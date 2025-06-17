@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -16,13 +16,16 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,7 @@ import fr.gouv.culture.francetransfert.core.enums.RecipientKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.StatutEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
-import fr.gouv.culture.francetransfert.core.exception.RetryStorageException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.services.StorageManager;
@@ -58,6 +61,10 @@ public class CleanUpServices {
 
 	private static final DateTimeFormatter DATE_FORMAT_BUCKET = DateTimeFormatter.ofPattern("yyyyMMdd");
 
+	List<String> failState = Arrays.asList(StatutEnum.INI.getCode(), StatutEnum.ECC.getCode(),
+			StatutEnum.ECH.getCode(), StatutEnum.CHT.getCode(), StatutEnum.ANA.getCode(), StatutEnum.ETF.getCode(),
+			StatutEnum.EAV.getCode(), StatutEnum.APT.getCode(), StatutEnum.EDC.getCode(), StatutEnum.EEC.getCode());
+
 	@Value("${bucket.prefix}")
 	private String bucketPrefix;
 
@@ -66,6 +73,9 @@ public class CleanUpServices {
 
 	@Value("${deepclean.weekday:7}")
 	private int deepCleanWeekDay;
+
+	@Value("${bucket.export}")
+	private String bucketExport;
 
 	@Autowired
 	MailEnclosureNoLongerAvailbleServices mailEnclosureNoLongerAvailbleServices;
@@ -142,12 +152,15 @@ public class CleanUpServices {
 
 			ScanParams scanParams = new ScanParams().count(1000).match("enclosure:*");
 			ScanParams scanFilesParams = new ScanParams().count(1000).match("file:*");
+			ScanParams scanTokensParams = new ScanParams().count(1000).match("sender:*");
+			ScanParams scanSendParams = new ScanParams().count(1000).match("send:*");
+			ScanParams scanReceiveParams = new ScanParams().count(1000).match("receive:*");
 			String cur = scanParams.SCAN_POINTER_START;
 			LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
+			LocalDate deleteFailBefore = LocalDate.now().minusDays(2);
 			int cpt = 0;
 			LOGGER.info("Clean Old Enclosure");
 			do {
-
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanParams);
 
 				for (String enclosureKey : scanResult.getResult()) {
@@ -168,8 +181,8 @@ public class CleanUpServices {
 
 							LOGGER.debug("Enclosure {} at date {} / {}", enclosureId,
 									enclosureExipireDateRedis.toString(), enclosureInDate.toString());
-							if (enclosureExipireDateRedis.isBefore(deleteBefore)
-									|| enclosureInDate.isBefore(deleteBefore)) {
+							if (deleteBefore(deleteBefore, enclosureExipireDateRedis, enclosureInDate)
+									|| deleteFail(enclosureId, deleteFailBefore, enclosureInDate)) {
 								LOGGER.info("Deleting {}", enclosureId);
 								cleanUpEnclosureTempDataInRedis(enclosureId, true);
 								cleanUpEnclosureCoreInRedis(enclosureId);
@@ -186,13 +199,14 @@ public class CleanUpServices {
 
 			LOGGER.info("Clean fail files");
 			cpt = 0;
-			cur = scanParams.SCAN_POINTER_START;
+			cur = scanFilesParams.SCAN_POINTER_START;
 			do {
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanFilesParams);
 
 				for (String file : scanResult.getResult()) {
 					try {
 						redisManager.deleteKey(file);
+						cpt++;
 					} catch (Exception e) {
 						LOGGER.info("Unable to clean {}", file, e);
 					}
@@ -200,10 +214,80 @@ public class CleanUpServices {
 				cur = scanResult.getCursor();
 			} while (!cur.equals(scanFilesParams.SCAN_POINTER_START));
 			LOGGER.info("Cleaned files {}", cpt);
+
+			LOGGER.info("Clean old token");
+			cpt = 0;
+			cur = scanTokensParams.SCAN_POINTER_START;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanTokensParams);
+
+				for (String token : scanResult.getResult()) {
+					try {
+						redisManager.expire(token, 3600);
+						cpt++;
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", token, e);
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanTokensParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned token {}", cpt);
+
+			LOGGER.info("Clean receive");
+			cur = scanReceiveParams.SCAN_POINTER_START;
+			cpt = 0;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanReceiveParams);
+				for (String receive : scanResult.getResult()) {
+					if (redisManager.scardString(receive) == 0) {
+						redisManager.deleteKey(receive);
+						cpt++;
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanReceiveParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned receive {}", cpt);
+
+			LOGGER.info("Clean send");
+			cur = scanSendParams.SCAN_POINTER_START;
+			cpt = 0;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanSendParams);
+				for (String send : scanResult.getResult()) {
+					if (redisManager.scardString(send) == 0) {
+						redisManager.deleteKey(send);
+						cpt++;
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanSendParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned send {}", cpt);
 		} else {
 			LOGGER.info("Next deep clean on {}", dayOfWeek);
 		}
 
+	}
+
+	private boolean deleteFail(String enclosureId, LocalDate deleteFailBefore, LocalDate enclosureInDate) {
+		try {
+			Map<String, String> enclosureRedis = RedisUtils.getEnclosure(redisManager, enclosureId);
+			String statut = enclosureRedis.get(EnclosureKeysEnum.STATUS_CODE.getKey());
+
+			if ((StringUtils.isEmpty(statut) || failState.contains(statut))
+					&& enclosureInDate.isBefore(deleteFailBefore)) {
+				return true;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Cannot get enclosure during deep clean {} : {}", enclosureId, e.getMessage(), e);
+			return true;
+		}
+		return false;
+	}
+
+	private boolean deleteBefore(LocalDate deleteBefore, LocalDate enclosureExipireDateRedis,
+			LocalDate enclosureInDate) {
+		return enclosureExipireDateRedis.isBefore(deleteBefore)
+				|| enclosureInDate.isBefore(deleteBefore);
 	}
 
 	public void cleanEnclosure(String enclosureId, boolean archive) throws MetaloadException {
@@ -287,7 +371,7 @@ public class CleanUpServices {
 	 * @param enclosureId
 	 * @throws StorageException
 	 */
-	private void cleanUpOSU(String bucketName, String enclosureId) throws RetryStorageException {
+	private void cleanUpOSU(String bucketName, String enclosureId) throws RetryException {
 		storageManager.deleteFilesWithPrefix(bucketName, storageManager.getZippedEnclosureName(enclosureId));
 	}
 
@@ -313,6 +397,10 @@ public class CleanUpServices {
 			// Delete received list
 			enclosure.getRecipients().stream().forEach(x -> {
 				redisManager.srem(RedisKeysEnum.FT_RECEIVE.getKey(x.getMail()), enclosureId);
+				long receiveCount = redisManager.scardString(RedisKeysEnum.FT_RECEIVE.getKey(x.getMail()));
+				if (receiveCount == 0) {
+					redisManager.deleteKey(RedisKeysEnum.FT_RECEIVE.getKey(x.getMail()));
+				}
 			});
 		}
 		// delete list and HASH root-files
@@ -333,6 +421,10 @@ public class CleanUpServices {
 
 		// delete enclosureid from sendlist
 		redisManager.srem(RedisKeysEnum.FT_SEND.getKey(enclosure.getSender()), enclosureId);
+		long sendCount = redisManager.scardString(RedisKeysEnum.FT_SEND.getKey(enclosure.getSender()));
+		if (sendCount == 0) {
+			redisManager.deleteKey(RedisKeysEnum.FT_SEND.getKey(enclosure.getSender()));
+		}
 		LOGGER.debug("clean enclosure HASH {}", RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId));
 
 	}
@@ -413,7 +505,8 @@ public class CleanUpServices {
 		// delete Hash root-dirs info
 		LOGGER.debug("clean up root-dirs: {}", RedisKeysEnum.FT_ROOT_DIRS.getKey(enclosureId));
 		for (String rootDirId : listRootDirIds) {
-//            redisManager.hmgetAllString(RedisKeysEnum.FT_ROOT_DIR.getKey(RedisUtils.generateHashsha1(enclosureId + ":" + rootDirId)))
+			// redisManager.hmgetAllString(RedisKeysEnum.FT_ROOT_DIR.getKey(RedisUtils.generateHashsha1(enclosureId
+			// + ":" + rootDirId)))
 			redisManager.deleteKey(
 					RedisKeysEnum.FT_ROOT_DIR.getKey(RedisUtils.generateHashsha1(enclosureId + ":" + rootDirId)));
 			LOGGER.debug("clean up root-dir: {}", RedisKeysEnum.FT_ROOT_DIR.getKey(rootDirId));
@@ -429,6 +522,9 @@ public class CleanUpServices {
 		for (String fileId : listFileIds) {
 			redisManager.deleteKey(RedisKeysEnum.FT_PART_ETAGS.getKey(fileId));
 			LOGGER.debug("clean part-etags {}", RedisKeysEnum.FT_PART_ETAGS.getKey(fileId));
+			String filekey = RedisKeysEnum.FT_ENCLOSURE_UPLOAD_FILE.getKey(enclosureId) + fileId;
+			LOGGER.debug("clean up enclosure {} filekey {}", enclosureId, filekey);
+			redisManager.deleteKey(filekey);
 		}
 	}
 
@@ -514,15 +610,22 @@ public class CleanUpServices {
 			}
 		});
 
+		try {
+			LOGGER.info("Clean export bucket");
+			storageManager.deleteFilesWithPrefix(bucketExport, "");
+		} catch (Exception e) {
+			LOGGER.error("cannot delete export bucket content {} ", bucketExport, e);
+		}
+
 	}
 
-	public void deleteContentBucket(String bucketName) throws StorageException, RetryStorageException {
+	public void deleteContentBucket(String bucketName) throws StorageException, RetryException {
 		ArrayList<String> objectListing = storageManager.listBucketContent(bucketName);
 
 		objectListing.forEach(file -> {
 			try {
 				storageManager.deleteFilesWithPrefix(bucketName, file);
-			} catch (RetryStorageException e) {
+			} catch (RetryException e) {
 				LOGGER.error("unable to delete file {} ", file, e.getMessage(), e);
 			}
 		});

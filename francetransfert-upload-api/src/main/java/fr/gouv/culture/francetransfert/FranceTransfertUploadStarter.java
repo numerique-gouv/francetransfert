@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.models.info.License;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @SpringBootApplication
 @ComponentScan(basePackages = { "fr.gouv.culture" })
+@EnableAsync
 public class FranceTransfertUploadStarter {
 
 	@Autowired

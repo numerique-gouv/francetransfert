@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -46,13 +46,15 @@ export const environment = {
       deleteRecipient: '8080/api-private/upload-module/delete-recipient',
       getPlisSent: '8080/api-private/upload-module/get-plis-sent',
       getPlisReceived: '8080/api-private/upload-module/get-plis-received',
-      resendLink: '8080/api-private/upload-module/resend-download-link'
+      resendLink: '8080/api-private/upload-module/resend-download-link',
+      export: '8080/api-private/upload-module/get-export',
+      urlExport: '8080/api-private/upload-module/get-url-export',
     },
     captcha: {
       url: 'https://test-francetransfert.aot.agency/captcha/captcha/'
     }
   },
-  version: '3.12.9'
+  version: '4.0.0'
 };
 
 /*

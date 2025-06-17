@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -32,6 +32,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
   filesSize: number = 0;
   fileSizeLimit: number = 1024 * 1024 * 1024 * 2;
   filesSizeLimit: number = 1024 * 1024 * 1024 * 20;
+  maxFilenameLength: number = 150;
   errorMessage: string = '';
   expanded: boolean = false;
   mimetype: string[] = [];
@@ -261,12 +262,28 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
             this.unauthorizedFile = child.name;
             return false;
           }
+          //check file name too long
+          if (child.name.length > this.maxFilenameLength
+            || child.flowFile.file.relativePath.length > this.maxFilenameLength) {
+            this.file = 'TypeFichier';
+            this.errorMessage = 'NomFichierLong';
+            this.unauthorizedFile = child.flowFile?.file?.relativePath ? child.flowFile.file.relativePath : child.name;
+            return false;
+          }
         }
         valid = true;
       } else {
         const fileExt = event.name.split('.').pop();
         if (!this.extension.includes(fileExt)) {
           valid = true;
+          if (event.name.length > this.maxFilenameLength || event.flowFile?.file?.relativePath?.length > this.maxFilenameLength) {
+            console.log('event', event);
+            this.flow.cancelFile(event);
+            this.file = 'TypeFichier';
+            this.errorMessage = 'NomFichierLong';
+            this.unauthorizedFile = event.flowFile?.file?.relativePath ? event.flowFile.file.relativePath : event.name;
+            return false;
+          }
         }
         else {
           this.flow.cancelFile(event);

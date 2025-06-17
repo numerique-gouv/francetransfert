@@ -15,6 +15,7 @@ spec:
         release: {{ .Release.Name }}
         tier: back
     spec:
+      terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }}
       {{ if .Values.imagePullSecrets }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
@@ -53,8 +54,19 @@ spec:
           secret:
             secretName: ft-keystore
         - name: work-volume
-          emptyDir:
-            sizeLimit: 250Mi
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                labels:
+                  type: workworker
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
+                {{ end }}
+                resources:
+                  requests:
+                    storage: 5Gi
         - name: {{ include "france-transfert.fullname" . }}-worker-data
           ephemeral:
             volumeClaimTemplate:
@@ -63,9 +75,31 @@ spec:
                   type: tmpworker
               spec:
                 accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.persistentVolumeClaim.storageClass }}
-                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClass }}
+                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
                 {{ end }}
                 resources:
                   requests:
                     storage: {{ .Values.worker.persistentVolumeClaim.storage }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-worker-app
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: {{ include "france-transfert.fullname" . }}-worker-app
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: {{ include "france-transfert.fullname" . }}-worker-app
+                topologyKey: kubernetes.io/hostname
+              weight: 1

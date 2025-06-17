@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022)
+  * Copyright (c) Direction Interministérielle du Numérique
   *
-  * SPDX-License-Identifier: MIT
+  * SPDX-License-Identifier: Apache-2.0
   * License-Filename: LICENSE.txt
   */
 
@@ -12,8 +12,14 @@ export const FLOW_CONFIG: Flow.FlowOptions = {
   chunkSize: 1024 * 1024 * 5, // 5 Mo
   testChunks: true,
   maxChunkRetries: 5,
-  chunkRetryInterval: 5000,
+  chunkRetryInterval: 90000,
   prioritizeFirstAndLastChunk: true,
   allowDuplicateUploads: false,
+  simultaneousUploads: 2,
   //withCredentials : true,
+  generateUniqueIdentifier: (file) => {
+    var uuid = Math.random().toString(36).slice(-6).replace(/[^0-9a-zA-Z_-]/img, '');
+    const relativePath = file.relativePath || file.webkitRelativePath || file.fileName || file.name;
+    return file.size + '-' + relativePath.replace(/[^0-9a-zA-Z_-]/img, '') + '-' + uuid;
+  }
 };

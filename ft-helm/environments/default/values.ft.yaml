@@ -5,6 +5,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 overrideGlobalConf:
+  ROOT_LOG_LEVEL: "INFO"
+  FT_LOG_LEVEL: "INFO"
   UPLOAD_LIMIT: "21474836480"
   UPLOAD_FILE_LIMIT: "2147483648"
   APPLICATION_COOKIES_DOMAIN: ""
@@ -75,8 +77,9 @@ clamav:
     # Scan
     ###############
 
-    MaxScanSize 150M
-    MaxFileSize 30M
+    MaxFileSize 2000M
+    MaxScanSize 2000M
+    MaxScanTime 1200000
     MaxRecursion 10
     MaxFiles 15000
     MaxEmbeddedPE 10M
@@ -90,6 +93,8 @@ clamav:
     PCRERecMatchLimit 10000
 
 redis:
+  commonLabels:
+    tier: back
   # networkPolicy:
   #   allowExternal: false
   global:
@@ -108,6 +113,14 @@ redis:
     sentinel: true
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
+  commonConfiguration: |-
+    appendonly yes
+    save "7200 1 3600 10000"
+    dbfilename ftr-data.rdb
+    appendfilename appendonly.aof
+    aof-use-rdb-preamble yes
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 2048mb
   master:
     persistence:
       size: 10Gi
@@ -138,7 +151,7 @@ mailhog:
   resources: {}
 
 front:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-front
     tag: "local"
@@ -163,9 +176,15 @@ front:
     runAsNonRoot: true
     runAsUser: 100101
     runAsGroup: 100101
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 upload:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-upload
     tag: "local"
@@ -180,6 +199,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SERVER_PORT: "8080"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
@@ -192,7 +212,7 @@ upload:
     EXPIRE_TOKEN_INITAPI: "120"
     CAPTCHA_URL: "https://transfert-127-0-0-1.xip.lhjmmc.cn/captcha/services/v1.2/captchaService"
     CAPTCHA_SECURE: "false"
-    URL_DOWNLOAD_PUBLIC: "https://transfert-127-0-0-1.xip.lhjmmc.cn/download/download-info-public?enclosure"
+    URL_DOWNLOAD_PUBLIC: "https://transfert-127-0-0-1.xip.lhjmmc.cn/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
     AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
     AGENTCONNECT_CLIENTID: francetransfert
@@ -208,9 +228,15 @@ upload:
     runAsNonRoot: true
     runAsUser: 100102
     runAsGroup: 100102
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 download:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-download
     tag: "local"
@@ -241,9 +267,15 @@ download:
     runAsNonRoot: true
     runAsUser: 100103
     runAsGroup: 100103
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 worker:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: ft-worker
     tag: "local"
@@ -264,6 +296,7 @@ worker:
     GLIMPS_RETRYCODE: "504,512"
     GLIMPS_KNOWNCODE: "4001,5001,5000"
     TMP_FOLDER_PATH: "/tmp/"
+    SERVER_TOMCAT_BASEDIR: "/opt/work/"
     WORKER_EXPIRED_LIMIT: "90"
     POOL_SIZE: "40"
     SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "5"
@@ -301,6 +334,12 @@ worker:
     runAsNonRoot: true
     runAsUser: 100104
     runAsGroup: 100104
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpu:
+      averageUtilization: 80
 
 ingress:
   enabled: true
@@ -316,3 +355,8 @@ ingress:
     - secretName: transfert-tls
       hosts:
         - transfert-127-0-0-1.xip.lhjmmc.cn
+
+backup:
+  backupDate: "2025_05_20_115432"
+  enabled: true
+  schedule: "20 4 * * *"

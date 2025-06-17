@@ -1,7 +1,7 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
-  * SPDX-License-Identifier: MIT 
+  * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
   */
 
@@ -34,11 +34,12 @@ export const environment = {
       fileInfos: 'api-private/upload-module/file-info',
       fileInfosConnect: 'api-private/upload-module/file-info-connect',
       getPlisSent: 'api-private/upload-module/get-plis-sent',
-      getPlisReceived: 'api-private/upload-module/get-plis-received'
+      getPlisReceived: 'api-private/upload-module/get-plis-received',
+      export: 'api-private/upload-module/get-export',
     },
     captcha: {
       url: '/captcha/captcha/'
     }
   },
-  version: '3.12.9'
+  version: '4.0.0'
 };

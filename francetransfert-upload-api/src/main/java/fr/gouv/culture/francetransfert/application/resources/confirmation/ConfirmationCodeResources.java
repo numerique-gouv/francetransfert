@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 @RestController
 @RequestMapping("/api-private/confirmation-module")
 @Tag(name = "Confirmation code resources")
@@ -42,8 +41,8 @@ public class ConfirmationCodeResources {
 
 	@GetMapping("/generate-code")
 	@Operation(method = "GET", description = "Generate code")
-	public void generateCode(HttpServletResponse response, @RequestParam("senderMail") String senderMail, @RequestParam("currentLanguage") String currentLanguage)
-			throws UploadException {
+	public void generateCode(HttpServletResponse response, @RequestParam("senderMail") String senderMail,
+			@RequestParam("currentLanguage") String currentLanguage) throws UploadException {
 		try {
 			confirmationServices.generateCodeConfirmation(senderMail.toLowerCase(), currentLanguage);
 			response.setStatus(HttpStatus.OK.value());
@@ -57,7 +56,8 @@ public class ConfirmationCodeResources {
 	@GetMapping("/validate-code")
 	@Operation(method = "GET", description = "validate code")
 	public ValidateCodeResponse validateCode(HttpServletResponse response,
-			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code, @RequestParam("currentLanguage") String currentLanguage) {
+			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code,
+			@RequestParam("currentLanguage") String currentLanguage) {
 		return confirmationServices.validateCodeConfirmationAndGenerateToken(senderMail.toLowerCase(), code.trim());
 	}
 }

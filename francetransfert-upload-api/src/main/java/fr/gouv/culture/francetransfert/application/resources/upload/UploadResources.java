@@ -1,5 +1,5 @@
 /*
-  * Copyright (c) Ministère de la Culture (2022) 
+  * Copyright (c) Direction Interministérielle du Numérique 
   * 
   * SPDX-License-Identifier: Apache-2.0 
   * License-Filename: LICENSE.txt 
@@ -7,9 +7,11 @@
 
 package fr.gouv.culture.francetransfert.application.resources.upload;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,7 @@ import fr.gouv.culture.francetransfert.application.resources.model.DeleteRequest
 import fr.gouv.culture.francetransfert.application.resources.model.EnclosureRepresentation;
 import fr.gouv.culture.francetransfert.application.resources.model.FileInfoRepresentation;
 import fr.gouv.culture.francetransfert.application.resources.model.FranceTransfertDataRepresentation;
+import fr.gouv.culture.francetransfert.application.resources.model.PlisPaginated;
 import fr.gouv.culture.francetransfert.application.resources.model.ValidateCodeResponse;
 import fr.gouv.culture.francetransfert.application.services.ConfigService;
 import fr.gouv.culture.francetransfert.application.services.ConfirmationServices;
@@ -199,8 +202,7 @@ public class UploadResources {
 	public FileInfoRepresentation fileInfoConnect(HttpServletResponse response,
 			@RequestParam("enclosure") String enclosureId, @RequestBody ValidateCodeResponse metadata)
 			throws UnauthorizedAccessException, MetaloadException {
-		confirmationServices.validateAdminToken(enclosureId, metadata.getSenderToken(),
-				metadata.getSenderMail());
+		confirmationServices.validateAdminToken(enclosureId, metadata.getSenderToken(), metadata.getSenderMail());
 		// add validate token service b body
 		LOGGER.debug("-----------file-info connect-------- : {}", enclosureId);
 		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlis(enclosureId);
@@ -214,6 +216,7 @@ public class UploadResources {
 			@RequestParam("enclosure") String enclosureId, @RequestParam("token") String token,
 			@RequestParam("senderMail") String senderMail) throws UnauthorizedAccessException, MetaloadException {
 		confirmationServices.validateToken(senderMail.toLowerCase(), token);
+		confirmationServices.extendsToken(senderMail.toLowerCase(), token);
 		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlisForReciever(enclosureId, senderMail);
 		response.setStatus(HttpStatus.OK.value());
 		return fileInfoRepresentation;
@@ -221,24 +224,70 @@ public class UploadResources {
 
 	@PostMapping("/get-plis-sent")
 	@Operation(method = "POST", description = "Download Info without URL ")
-	public List<FileInfoRepresentation> getPlisSent(HttpServletResponse response,
-			@RequestBody ValidateCodeResponse metadata) throws UnauthorizedAccessException, MetaloadException {
+	public PlisPaginated getPlisSent(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
+			@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String searchedMail,
+			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
+			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut)
+			throws UnauthorizedAccessException, MetaloadException {
 		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
-		List<FileInfoRepresentation> listPlis = uploadServices.getSenderPlisList(metadata);
+		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+		PlisPaginated listPlis = uploadServices.getSenderPlisList(metadata, page, size, searchedMail, dateDebut,
+				dateFin, objet, statut);
 		response.setStatus(HttpStatus.OK.value());
 		return listPlis;
 	}
 
 	@PostMapping("/get-plis-received")
 	@Operation(method = "POST", description = "Download Info without URL ")
-	public List<FileInfoRepresentation> getPliReceived(HttpServletResponse response,
-			@RequestBody ValidateCodeResponse metadata) throws UnauthorizedAccessException, MetaloadException {
+	public PlisPaginated getPliReceived(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
+			@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String searchedMail,
+			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
+			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut)
+			throws UnauthorizedAccessException, MetaloadException {
 		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 
-		List<FileInfoRepresentation> listPlis = uploadServices.getReceivedPlisList(metadata);
+		PlisPaginated listPlis = uploadServices.getReceivedPlisList(metadata, page, size, searchedMail, dateDebut,
+				dateFin, objet, statut);
 
 		response.setStatus(HttpStatus.OK.value());
 		return listPlis;
+	}
+
+	@PostMapping("/get-export")
+	@Operation(method = "POST", description = "Download Info without URL ")
+	public CompletableFuture<String> getExportPlis(HttpServletResponse response,
+			@RequestBody ValidateCodeResponse metadata, @RequestParam(required = false) String searchedMail,
+			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
+			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut,
+			@RequestParam boolean isPliSent) throws UnauthorizedAccessException, MetaloadException, IOException {
+		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+
+		CompletableFuture<String> futureObjectKey = uploadServices.exportToS3(metadata, searchedMail, dateDebut,
+				dateFin, objet, statut, isPliSent);
+
+		return futureObjectKey.thenApply(objectKey -> {
+			return objectKey;
+		});
+	}
+
+	@PostMapping("/get-url-export")
+	@Operation(method = "POST", description = "Download Info without URL ")
+	public String getUrlExport(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
+			@RequestParam String objectKey) throws UnauthorizedAccessException, MetaloadException, IOException {
+		if (metadata.getSenderMail() != null && metadata.getSenderToken() != null && objectKey != null
+				&& objectKey != "") {
+			confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+			confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
+			uploadServices.validateCheckExport(metadata.getSenderMail().toLowerCase(), objectKey);
+
+			String url = uploadServices.getUrlExport(metadata, objectKey);
+
+			response.setStatus(HttpStatus.OK.value());
+			return url;
+		}
+		return null;
 	}
 
 	@PostMapping("/add-recipient")
@@ -285,8 +334,7 @@ public class UploadResources {
 		response.setStatus(HttpStatus.OK.value());
 		return res;
 	}
-	
-	
+
 	@RequestMapping(value = "/satisfaction", method = RequestMethod.POST)
 	@Operation(method = "POST", description = "Rates the app on a scvale of 1 to 4")
 	public boolean createSatisfactionFT(HttpServletResponse response,
