@@ -45,9 +45,9 @@ clamav:
   resources:
     requests:
       cpu: 250m
-      memory: 2048Mi
+      memory: 3Gi
     limits:
-      memory: 2048Mi
+      memory: 3Gi
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 100101
@@ -132,7 +132,8 @@ redis:
         labelSelector:
           matchLabels:
             app.kubernetes.io/name: redis
-      - maxSkew: 1
+      - minDomains: 3
+        maxSkew: 1
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
@@ -210,12 +211,14 @@ upload:
   replicaCount: 2
   readinessLiveness:
     readinessProbe:
-      tcpSocket:
+      httpGet:
+        path: /actuator/health
         port: 8080
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
-      tcpSocket:
+      httpGet:
+        path: /actuator/health
         port: 8080
       initialDelaySeconds: 5
       periodSeconds: 10
@@ -287,12 +290,14 @@ download:
   replicaCount: 2
   readinessLiveness:
     readinessProbe:
-      tcpSocket:
+      httpGet:
+        path: /actuator/health
         port: 8081
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
-      tcpSocket:
+      httpGet:
+        path: /actuator/health
         port: 8081
       initialDelaySeconds: 5
       periodSeconds: 10
@@ -357,7 +362,7 @@ worker:
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"
     GLIMPS_DELAY_SECONDS: "30"
     GLIMPS_MAXTRY: "10"
-    GLIMPS_ENABLED: "true"
+    GLIMPS_ENABLED: "false"
     GLIMPS_RETRYCODE: "504,512"
     GLIMPS_KNOWNCODE: "5001,5000"
     GLIMPS_ALLOWCODE: "4001"

@@ -16,30 +16,15 @@ jobs:
     steps:
       - name: Checks-out repository
         uses: actions/checkout@v4
-      ##DO RELEASE
-  build-core:
-    needs: release
-    uses: ./.github/workflows/core.yml
-    secrets: inherit
-  build-projects:
-    needs: [build-core, release]
-    strategy:
-      matrix:
-        project:
-          [
-            francetransfert-download-api,
-            francetransfert-upload-api,
-            francetransfert-worker,
-          ]
-    uses: ./.github/workflows/generic-build.yml
-    secrets: inherit
-    with:
-      project: ${{ matrix.project }}
-      tag: ${{ inputs.TAG }}
-  build-front:
-    needs: release
-    uses: ./.github/workflows/build-front.yml
-    secrets: inherit
-    with:
-      project: francetransfert-upload-download-gui
-      tag: ${{ inputs.TAG }}
+      - name: Create Release
+        id: create_release
+        uses: comnoco/create-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.TAG }}
+          release_name: Release ${{ inputs.TAG }}
+          body: |
+            Release of ${{ inputs.TAG }}
+          draft: false
+          prerelease: false
