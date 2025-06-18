@@ -3,8 +3,10 @@ creation_rules:
   # - Jaub key-id: age1lxduvqtglrdj38m27gsa4akdu82keqwgh7r57ep3dcwf7uaref4qtafwy5
   # - Fcoh key-id: age1udkf02y0z9g3nk5yd4jxlkfu03lzmzlvv6uy30eq2mfa9n3fyu7su4mghy
   # - PPR key-id: age1xvckqrat9q6lfh24ax6y65qzde6krm4a2s0uc83ursr7gas8eavswf5kpl
+  # - Prod key: age1nef2pmuzen5zrgd5k2ek5tvtch43l22dektr5a274kyq5ts0yggs5e0xk6
   - age:
       age1qy04neuzwpasmvljqrcvhwnf0kz5cpyteze38c8avp0czewskasszv9pyw,
       age1lxduvqtglrdj38m27gsa4akdu82keqwgh7r57ep3dcwf7uaref4qtafwy5,
       age1udkf02y0z9g3nk5yd4jxlkfu03lzmzlvv6uy30eq2mfa9n3fyu7su4mghy,
-      age1xvckqrat9q6lfh24ax6y65qzde6krm4a2s0uc83ursr7gas8eavswf5kpl
+      age1xvckqrat9q6lfh24ax6y65qzde6krm4a2s0uc83ursr7gas8eavswf5kpl,
+      age1nef2pmuzen5zrgd5k2ek5tvtch43l22dektr5a274kyq5ts0yggs5e0xk6
