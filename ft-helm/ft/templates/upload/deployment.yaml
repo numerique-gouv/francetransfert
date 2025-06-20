@@ -80,7 +80,8 @@ spec:
           labelSelector:
             matchLabels:
               app: {{ include "france-transfert.fullname" . }}-upload-app
-        - maxSkew: 1
+        - minDomains: 3
+          maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
