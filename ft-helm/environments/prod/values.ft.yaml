@@ -62,7 +62,6 @@ clamav:
     capabilities:
       drop:
         - ALL
-  
 
 redis:
   commonConfiguration: |-
@@ -228,12 +227,12 @@ upload:
     targetPort: 8080
   resources:
     requests:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 1
+      memory: 1024Mi
     limits:
-      memory: 512Mi
+      memory: 1024Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -284,7 +283,7 @@ upload:
     storageClassName: bsu-gp2
 
 download:
-  replicaCount: 2
+  replicaCount: 3
   readinessLiveness:
     readinessProbe:
       tcpSocket:
@@ -305,12 +304,12 @@ download:
     targetPort: 8081
   resources:
     requests:
-      cpu: 150m
-      memory: 256Mi
+      cpu: 500m
+      memory: 512Mi
     limits:
-      memory: 256Mi
+      memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
     SERVER_PORT: "8081"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
@@ -346,11 +345,11 @@ worker:
   resources:
     requests:
       cpu: 2
-      memory: 1Gi
+      memory: 2Gi
     limits:
-      memory: 1Gi
+      memory: 2Gi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
@@ -388,6 +387,10 @@ worker:
     SCHEDULED_SYNC_HEALTHCHECK: "10 */2 * * * ?"
     SCHEDULED_HEALTHCHECK: "0 */2 * * * ?"
     DEEPCLEAN_WEEKDAY: "7"
+    QUEUE_SIZE: "2"
+    QUEUE_SLEEP: "200"
+    DISABLESSL: "false"
+    ENABLEMTLS: "false"
   persistentVolumeClaim:
     storage: 200Gi
     accessModes: ReadWriteOnce
