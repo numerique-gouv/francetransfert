@@ -28,3 +28,29 @@ jobs:
             Release of ${{ inputs.TAG }}
           draft: false
           prerelease: false
+  build-core:
+    needs: release
+    uses: ./.github/workflows/core.yml
+    secrets: inherit
+  build-projects:
+    needs: [build-core, release]
+    strategy:
+      matrix:
+        project:
+          [
+            francetransfert-download-api,
+            francetransfert-upload-api,
+            francetransfert-worker,
+          ]
+    uses: ./.github/workflows/generic-build.yml
+    secrets: inherit
+    with:
+      project: ${{ matrix.project }}
+      tag: ${{ inputs.TAG }}
+  build-front:
+    needs: release
+    uses: ./.github/workflows/build-front.yml
+    secrets: inherit
+    with:
+      project: francetransfert-upload-download-gui
+      tag: ${{ inputs.TAG }}
