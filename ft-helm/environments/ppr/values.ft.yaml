@@ -62,6 +62,48 @@ clamav:
     capabilities:
       drop:
         - ALL
+  clamdConfigDict:
+    ###############
+    # General
+    ###############
+    DatabaseDirectory: /data
+    TemporaryDirectory: /tmp
+    LogTime: "yes"
+    # CUSTOM: Use pid file in tmp
+    PidFile: /tmp/clamd.pid
+    LocalSocket: /tmp/clamd.sock
+    TCPSocket: 3310
+    Foreground: "yes"
+
+    ###############
+    # Results
+    ###############
+    DetectPUA: "yes"
+    ExcludePUA:
+      - NetTool
+      - PWTool
+    HeuristicAlerts: "yes"
+    Bytecode: "yes"
+
+    ###############
+    # Scan
+    ###############
+    ScanPE: "yes"
+    DisableCertCheck: "yes"
+    ScanELF: "yes"
+    AlertBrokenExecutables: "yes"
+    ScanOLE2: "yes"
+    ScanPDF: "yes"
+    ScanSWF: "yes"
+    ScanMail: "yes"
+    PhishingSignatures: "yes"
+    PhishingScanURLs: "yes"
+    ScanHTML: "yes"
+    ScanArchive: "yes"
+    MaxScanSize: 2000M
+    StreamMaxLength: 2000M
+    MaxFileSize: 2000M
+    MaxRecursion: 10
   
 
 redis:
