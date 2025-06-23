@@ -1,4 +1,4 @@
-environnement: &environnement prod
+environnement: &environnement production
 
 rootUrl: &rootUrl francetransfert.numerique.gouv.fr
 
