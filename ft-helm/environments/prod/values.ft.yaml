@@ -471,14 +471,14 @@ ingress:
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
   hosts:
     - francetransfert.numerique.gouv.fr
-    - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.cloud.incubateur.net
+    - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.opicloud.numerique.gouv.fr
   tls:
     - secretName: transfert-tls
       hosts:
         - francetransfert.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.cloud.incubateur.net
+        - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.opicloud.numerique.gouv.fr
 
 backup:
   backupDate: "2025_06_11_131853"
