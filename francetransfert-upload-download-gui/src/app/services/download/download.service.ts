@@ -22,8 +22,16 @@ export class DownloadService {
   constructor(private _httpClient: HttpClient, private downloadManagerService: DownloadManagerService, private loginService: LoginService) { }
 
   getDownloadInfos(params: Array<{ string: string }>) {
-    return this._httpClient.get(
-      `${environment.host}${environment.apis.download.download}?enclosure=${params['enclosure']}&recipient=${params['recipient']}&token=${params['token']}`
+
+    const body = {
+      enclosure: params['enclosure'],
+      recipient: params['recipient'],
+      token: params['token'],
+    };
+
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.download}`,
+      body
     ).pipe(map(response => {
       this.downloadManagerService.downloadError$.next(null);
       return response;
@@ -56,8 +64,16 @@ export class DownloadService {
   }
 
   getDownloadInfosConnect(enclosureId: string, senderToken: string, recipient: string) {
-    return this._httpClient.get(
-      `${environment.host}${environment.apis.download.downloadConnect}?enclosure=${enclosureId}&token=${senderToken}&recipient=${recipient}`
+
+    const body = {
+      enclosure: enclosureId,
+      token: senderToken,
+      recipient: recipient,
+    };
+
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.downloadConnect}`,
+      body
     ).pipe(map(response => {
       this.downloadManagerService.downloadError$.next(null);
       return response;

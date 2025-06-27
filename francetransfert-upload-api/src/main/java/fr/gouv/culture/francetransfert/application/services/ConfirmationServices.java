@@ -70,7 +70,7 @@ public class ConfirmationServices {
 		if (stringUploadUtils.isValidEmail(senderMail)) {
 			if (StringUtils.isBlank(redisManager.getString(
 					RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail.toLowerCase()))))) {
-				String confirmationCode = RandomStringUtils.randomNumeric(lengthCode);
+				String confirmationCode = RandomStringUtils.secure().nextNumeric(lengthCode);
 
 				// insert confirmation code in REDIS
 				redisManager.setNxString(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)),

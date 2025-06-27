@@ -36,6 +36,7 @@ import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
+import fr.gouv.culture.francetransfert.core.model.TokenEnclosureDataDownload;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,27 +96,29 @@ public class DownloadRessources {
 		return representation;
 	}
 
-	@GetMapping("/download-info")
-	@Operation(method = "GET", description = "Download Info without URL ")
+	@PostMapping("/download-info")
+	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfo(HttpServletResponse response,
-			@RequestParam("enclosure") String enclosure, @RequestParam("recipient") String recipient,
-			@RequestParam("token") String token)
+			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
 		LOGGER.info("start donlowad info ");
-		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(enclosure, token, recipient);
+		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(
+				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}
 
-	@GetMapping("/download-info-connect")
-	@Operation(method = "GET", description = "Download Info without URL ")
+	@PostMapping("/download-info-connect")
+	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfoConnect(HttpServletResponse response,
-			@RequestParam("enclosure") String enclosure, @RequestParam("token") String token,
-			@RequestParam("recipient") String recipient)
+			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
-		confirmationServices.validateToken(recipient.toLowerCase(), token);
-		LOGGER.info("start donwlowad info connect for recipient: {} and enclosure: {}", recipient, enclosure);
-		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfoConnect(enclosure, recipient);
+		confirmationServices.validateToken(tokenEnclosureData.getRecipient().toLowerCase(),
+				tokenEnclosureData.getToken());
+		LOGGER.info("start donwlowad info connect for recipient: {} and enclosure: {}",
+				tokenEnclosureData.getRecipient(), tokenEnclosureData.getEnclosure());
+		DownloadRepresentation downloadRepresentation = downloadServices
+				.getDownloadInfoConnect(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getRecipient());
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}

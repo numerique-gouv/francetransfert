@@ -88,6 +88,7 @@ import { AuthInterceptor } from './shared/interceptors/auth-interceptor';
 import { LoginService } from './services/login/login.service';
 import { MyDateAdapter } from './components/upload/envelope/envelope-parameters-form/my-date-adapter';
 import { RouterModule, Routes } from '@angular/router';
+import { SafeHtmlPipe } from "./shared/pipes/safe-html.pipe";
 
 registerLocaleData(localeEn, 'en', localeEnExtra);
 registerLocaleData(localeEs, 'es', localeEsExtra);
@@ -170,24 +171,25 @@ const initializer = (pwaService: PwaService) => () =>
     ReactiveFormsModule,
     MatPaginatorModule,
     MatSortModule,
-    RouterModule.forRoot(routes, {anchorScrolling: 'enabled'}),
+    RouterModule.forRoot(routes, { anchorScrolling: 'enabled' }),
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the app is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
+        enabled: environment.production,
+        // Register the ServiceWorker as soon as the app is stable
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: 'registerWhenStable:30000'
     }),
     NgxFlowModule,
     FormsModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (translateHttpLoaderFactory),
-        deps: [HttpBackend]
-      }
+        loader: {
+            provide: TranslateLoader,
+            useFactory: (translateHttpLoaderFactory),
+            deps: [HttpBackend]
+        }
     }),
-    OAuthModule.forRoot()
-  ],
+    OAuthModule.forRoot(),
+    SafeHtmlPipe
+],
   providers: [
     {
       provide: MatPaginatorIntl,

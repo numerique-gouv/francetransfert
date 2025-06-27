@@ -16,14 +16,15 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import fr.gouv.culture.francetransfert.application.error.UnauthorizedAccessException;
 import fr.gouv.culture.francetransfert.application.resources.model.AddNewRecipientRequest;
 import fr.gouv.culture.francetransfert.application.resources.model.ConfigRepresentation;
+import fr.gouv.culture.francetransfert.application.resources.model.ConfigUpdate;
 import fr.gouv.culture.francetransfert.application.resources.model.DateUpdateRequest;
 import fr.gouv.culture.francetransfert.application.resources.model.DeleteRequest;
 import fr.gouv.culture.francetransfert.application.resources.model.EnclosureRepresentation;
@@ -48,6 +50,7 @@ import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
+import fr.gouv.culture.francetransfert.core.model.TokenEnclosureData;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import fr.gouv.culture.francetransfert.validator.EmailsFranceTransfert;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,6 +79,9 @@ public class UploadResources {
 
 	@Autowired
 	private ConfirmationServices confirmationServices;
+
+	@Value("${config.api.key}")
+	String apiKeyConfig;
 
 	@GetMapping("/upload")
 	@Operation(method = "GET", description = "Upload")
@@ -187,12 +193,12 @@ public class UploadResources {
 
 	// ---
 
-	@GetMapping("/file-info")
-	@Operation(method = "GET", description = "Download Info without URL ")
-	public FileInfoRepresentation fileInfo(HttpServletResponse response, @RequestParam("enclosure") String enclosureId,
-			@RequestParam("token") String token) throws UnauthorizedAccessException, MetaloadException {
-		confirmationServices.validateAdminToken(enclosureId, token, null);
-		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlis(enclosureId);
+	@PostMapping("/file-info")
+	@Operation(method = "POST", description = "Download Info without URL ")
+	public FileInfoRepresentation fileInfo(HttpServletResponse response,
+			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
+		confirmationServices.validateAdminToken(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), null);
+		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlis(tokenEnclosureData.getEnclosure());
 		response.setStatus(HttpStatus.OK.value());
 		return fileInfoRepresentation;
 	}
@@ -210,14 +216,16 @@ public class UploadResources {
 		return fileInfoRepresentation;
 	}
 
-	@GetMapping("/file-info-reciever")
-	@Operation(method = "GET", description = "Download Info without URL ")
+	@PostMapping("/file-info-reciever")
+	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfoReciever(HttpServletResponse response,
-			@RequestParam("enclosure") String enclosureId, @RequestParam("token") String token,
-			@RequestParam("senderMail") String senderMail) throws UnauthorizedAccessException, MetaloadException {
-		confirmationServices.validateToken(senderMail.toLowerCase(), token);
-		confirmationServices.extendsToken(senderMail.toLowerCase(), token);
-		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlisForReciever(enclosureId, senderMail);
+			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
+		confirmationServices.validateToken(tokenEnclosureData.getSenderMail().toLowerCase(),
+				tokenEnclosureData.getToken());
+		confirmationServices.extendsToken(tokenEnclosureData.getSenderMail().toLowerCase(),
+				tokenEnclosureData.getToken());
+		FileInfoRepresentation fileInfoRepresentation = uploadServices
+				.getInfoPlisForReciever(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getSenderMail());
 		response.setStatus(HttpStatus.OK.value());
 		return fileInfoRepresentation;
 	}
@@ -366,6 +374,16 @@ public class UploadResources {
 	@Operation(method = "GET", description = "Get Config")
 	public ConfigRepresentation getConfig() {
 		return configService.getConfig();
+	}
+
+	@RequestMapping(value = "/config", method = RequestMethod.POST)
+	@Operation(method = "POST", description = "Update Config")
+	public void updateConfig(@RequestBody ConfigUpdate configUpdate, @RequestHeader("X-Api-Key") String apiKey) {
+		if (apiKeyConfig.equals(apiKey)) {
+			configService.updateConfig(configUpdate);
+		} else {
+			throw new UnauthorizedAccessException("Invalid Header");
+		}
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.POST)
