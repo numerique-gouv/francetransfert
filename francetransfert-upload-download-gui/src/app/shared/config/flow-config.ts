@@ -12,7 +12,7 @@ export const FLOW_CONFIG: Flow.FlowOptions = {
   chunkSize: 1024 * 1024 * 5, // 5 Mo
   testChunks: true,
   maxChunkRetries: 5,
-  chunkRetryInterval: 90000,
+  chunkRetryInterval: 40000,
   prioritizeFirstAndLastChunk: true,
   allowDuplicateUploads: false,
   simultaneousUploads: 2,
