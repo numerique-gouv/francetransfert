@@ -65,6 +65,7 @@ clamav:
     ScanELF yes
     AlertBrokenExecutables yes
     ScanOLE2 yes
+    OLE2BlockMacros yes
     ScanPDF yes
     ScanSWF yes
     ScanMail yes

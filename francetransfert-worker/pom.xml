@@ -2,12 +2,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.gouv.culture.francetransfert</groupId>
 	<artifactId>ftr-worker-api</artifactId>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>4.0.2-SNAPSHOT</version>
 	<name>France Transfert Task Worker</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.5.3</version>
 	</parent>
 	<properties>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
@@ -225,7 +225,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.4.3</version>
+				<version>3.5.3</version>
 				<configuration>
 					<profiles>
 						<profile>dev</profile>

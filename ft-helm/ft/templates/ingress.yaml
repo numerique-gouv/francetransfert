@@ -32,6 +32,13 @@ spec:
                 name: {{ include "france-transfert.fullname" $ }}-upload-service
                 port:
                   number: {{ $.Values.upload.service.port}}
+          - path: /api-private/heathcheck/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-upload-service
+                port:
+                  number: {{ $.Values.upload.service.port}}
           - path: /api-private/download-module/
             pathType: Prefix
             backend:

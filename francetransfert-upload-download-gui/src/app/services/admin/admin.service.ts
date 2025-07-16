@@ -11,7 +11,7 @@ import { FormControl } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { TranslateService } from '@ngx-translate/core';
 import jsPDF from 'jspdf';
-import {BehaviorSubject, Observable, of, Subject, take, throwError, timer} from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, take, throwError, timer } from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { map } from 'rxjs/internal/operators/map';
 import { FTTransferModel } from 'src/app/models';
@@ -22,7 +22,7 @@ import { environment } from 'src/environments/environment';
 import { LoginService } from '../login/login.service';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { switchMap,  takeWhile} from 'rxjs/operators';
+import { switchMap, takeWhile } from 'rxjs/operators';
 //import autoTable from 'jspdf-autotable';
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
@@ -80,8 +80,16 @@ export class AdminService {
 
 
   getFileInfosReciever(params: any) {
-    return this._httpClient.get(
-      `${environment.host}${environment.apis.admin.fileInfosReciever}?enclosure=${params['enclosure']}&token=${params['senderToken']}&senderMail=${params['senderMail']}`
+
+    const body = {
+      enclosure: params['enclosure'],
+      token: params['senderToken'],
+      senderMail: params['senderMail'],
+    };
+
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.admin.fileInfosReciever}`,
+      body
     ).pipe(map(response => {
       this.adminError$.next(null);
       return response;
@@ -89,7 +97,7 @@ export class AdminService {
       catchError(this.handleError('file-info-reciever'))
     );
   }
-  getPlisSent(body: any, page: number, size: number,  searshedMail, dateDebut, dateFin, objet, statut): Observable<any> {
+  getPlisSent(body: any, page: number, size: number, searshedMail, dateDebut, dateFin, objet, statut): Observable<any> {
     const treeBody = {
       senderMail: body.senderMail,
       senderToken: body.senderToken,
@@ -103,11 +111,11 @@ export class AdminService {
       params = params.set('searchedMail', searshedMail.toString());
     }
 
-    if (dateDebut ) {
+    if (dateDebut) {
       params = params.set('dateDebut', dateDebut);
     }
 
-    if (dateFin ) {
+    if (dateFin) {
       params = params.set('dateFin', dateFin);
     }
 
@@ -126,7 +134,7 @@ export class AdminService {
     }));
   }
 
-  exportPlis(body: any,  searshedMail, dateDebut, dateFin, objet, statut, isPliSent): Observable<any> {
+  exportPlis(body: any, searshedMail, dateDebut, dateFin, objet, statut, isPliSent): Observable<any> {
     const treeBody = {
       senderMail: body.senderMail,
       senderToken: body.senderToken,
@@ -138,11 +146,11 @@ export class AdminService {
       params = params.set('searchedMail', searshedMail.toString());
     }
 
-    if (dateDebut ) {
+    if (dateDebut) {
       params = params.set('dateDebut', dateDebut);
     }
 
-    if (dateFin ) {
+    if (dateFin) {
       params = params.set('dateFin', dateFin);
     }
 
@@ -171,8 +179,15 @@ export class AdminService {
 
 
   getFileInfos(params: Array<{ string: string }>) {
-    return this._httpClient.get(
-      `${environment.host}${environment.apis.admin.fileInfos}?enclosure=${params['enclosure']}&token=${params['token']}`
+
+    const body = {
+      enclosure: params['enclosure'],
+      token: params['token'],
+    }
+
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.admin.fileInfos}`,
+      body
     ).pipe(map(response => {
       this.adminError$.next(null);
       return response;
@@ -267,11 +282,11 @@ export class AdminService {
       params = params.set('searchedMail', searshedMail.toString());
     }
 
-    if (dateDebut ) {
+    if (dateDebut) {
       params = params.set('dateDebut', dateDebut);
     }
 
-    if (dateFin ) {
+    if (dateFin) {
       params = params.set('dateFin', dateFin);
     }
 
@@ -293,7 +308,7 @@ export class AdminService {
     }));
   }
 
-  getUrlExport(body: any,  downloadKey): Observable<any> {
+  getUrlExport(body: any, downloadKey): Observable<any> {
     const treeBody = {
       senderMail: body.senderMail,
       senderToken: body.senderToken,
@@ -301,7 +316,7 @@ export class AdminService {
     let params = new HttpParams()
       .set('objectKey', downloadKey);
 
-    return this._httpClient.post(`${environment.host}${environment.apis.admin.urlExport}?objectKey=${downloadKey}`, treeBody, {  responseType: 'text' }).pipe(
+    return this._httpClient.post(`${environment.host}${environment.apis.admin.urlExport}?objectKey=${downloadKey}`, treeBody, { responseType: 'text' }).pipe(
       map((response: string) => {
         return response;
       }),

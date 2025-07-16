@@ -5,6 +5,11 @@
     <mat-card class="upload-title-card" *ngIf="screenWidth === 'lg'">
         <mat-card-content class="upload-title-card-content">
             <span>{{'UploadTitre' | translate}}</span>
+            <ng-container *ngIf="config && config.messages">
+                <br />
+                <span *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]"
+                    [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
+            </ng-container>
         </mat-card-content>
     </mat-card>
     <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
@@ -22,8 +27,9 @@
             *ngIf="!uploadStarted && (screenWidth !== 'sm' || (screenWidth === 'sm' && hasFiles && !listExpanded))"
             (uploadStarted)="onUploadStarted($event)" class="envelope-wrapper" [ngClass]="{'reduced': listExpanded}">
         </ft-envelope>
-        <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed" [publicLink]="publicLink"
-            [availabilityDate]="availabilityDate" *ngIf="uploadFinished && uploadStarted" class="end-message-wrapper">
+        <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed"
+            [publicLink]="publicLink" [availabilityDate]="availabilityDate" *ngIf="uploadFinished && uploadStarted"
+            class="end-message-wrapper">
         </ft-end-message>
         <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
             *ngIf="uploadFinished && uploadStarted" class="satisfaction-check-wrapper"></ft-satisfaction-check>

@@ -18,6 +18,7 @@ import { SatisfactionMessageComponent } from "../satisfaction-message/satisfacti
 import { Router } from "@angular/router";
 import { LoginService } from 'src/app/services/login/login.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfigService } from '../../services/config/config.service';
 
 @Component({
   selector: 'ft-upload',
@@ -56,6 +57,8 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   showCode: boolean = false;
   langueCourriels: any;
   refreshUpdateSubscription: Subscription = new Subscription;
+  config: any;
+  configSubscription: Subscription;
 
 
   constructor(private responsiveService: ResponsiveService,
@@ -66,6 +69,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     private uploadService: UploadService,
     private loginService: LoginService,
     private languageSelectionService: LanguageSelectionService,
+    private configService: ConfigService,
     private titleService: Title,
     private _snackBar: MatSnackBar,
     private router: Router) { }
@@ -98,6 +102,10 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.langSubscription = this.uploadService.langueCourriels.subscribe(langueCourriels => {
       this.langueCourriels = langueCourriels;
+    });
+
+    this.configSubscription = this.configService.configInfo.subscribe(config => {
+      this.config = config;
     });
 
 
@@ -377,5 +385,6 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.langSubscription.unsubscribe();
     this.uploadSubscription.unsubscribe();
     this.refreshUpdateSubscription.unsubscribe();
+    this.configSubscription.unsubscribe();
   }
 }

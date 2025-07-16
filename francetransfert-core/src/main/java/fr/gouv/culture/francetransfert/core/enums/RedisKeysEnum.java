@@ -31,7 +31,8 @@ public enum RedisKeysEnum {
     FT_ENCLOSURE_VIRUS("enclosure:", ":virus"), FT_ENCLOSURE_SCAN_DELAY("enclosure:", ":scans-delay"),
     FT_ENCLOSURE_SCAN_RETRY("enclosure:", ":scans-retry"),
     FT_TOKEN_INITAPI("enclosureId:", ":upload-token"),
-    HEALTHCHECK("healthcheck", "");
+    HEALTHCHECK("healthcheck", ""),
+    FT_CONFIG("config", "");
 
     private String firstKeyPart;
     private String lastKeyPart;

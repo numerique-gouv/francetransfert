@@ -62,6 +62,16 @@ clamav:
     capabilities:
       drop:
         - ALL
+  freshclamConfig: |
+    Bytecode yes
+    DatabaseDirectory /data
+    DatabaseMirror database.clamav.net
+    DatabaseOwner 100101
+    LogTime yes
+    NotifyClamd /etc/clamav/clamd.conf
+    PidFile /tmp/freshclam.pid        
+    ScriptedUpdates yes
+    SafeBrowsing "yes"
   clamdConfigDict:
     ###############
     # General
@@ -93,6 +103,7 @@ clamav:
     ScanELF: "yes"
     AlertBrokenExecutables: "yes"
     ScanOLE2: "yes"
+    OLE2BlockMacros: "yes"
     ScanPDF: "yes"
     ScanSWF: "yes"
     ScanMail: "yes"
@@ -141,9 +152,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 8Gi
+        memory: 1Gi
       limits:
-        memory: 8Gi
+        memory: 1Gi
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -164,9 +175,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 8Gi
+        memory: 1Gi
       limits:
-        memory: 8Gi
+        memory: 1Gi
     topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
@@ -282,6 +293,8 @@ upload:
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
+    SERVER_TOMCAT_MAX-PART-COUNT: "-1"
+    SERVER_TOMCAT_MAX-PART-HEADER-SIZE: "1000000KB"
     ENABLEMTLS: "false"
     DISABLESSL: "false"
     SERVER_PORT: "8080"
@@ -465,11 +478,13 @@ ingress:
   className: "nginx"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
     nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
   upload:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200M"
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+      nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
       nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
