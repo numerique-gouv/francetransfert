@@ -38,7 +38,7 @@
     "pdfkit": "0.13.0",
     "pdfmake": "0.2.7",
     "rxjs": "7.8.1",
-    "tarteaucitronjs": "1.11.0",
+    "tarteaucitronjs": "1.22.0",
     "tslib": "2.5.0",
     "zone.js": "0.13.0"
   },
