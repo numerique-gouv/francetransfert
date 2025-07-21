@@ -5,10 +5,9 @@
     <mat-card class="upload-title-card" *ngIf="screenWidth === 'lg'">
         <mat-card-content class="upload-title-card-content">
             <span>{{'UploadTitre' | translate}}</span>
-            <ng-container *ngIf="config && config.messages">
+            <ng-container *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]">
                 <br />
-                <span *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]"
-                    [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
+                <span [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
             </ng-container>
         </mat-card-content>
     </mat-card>

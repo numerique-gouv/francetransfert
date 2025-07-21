@@ -5,7 +5,7 @@
   * License-Filename: LICENSE.txt
   */
 
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { FlowDirective, UploadState } from '@flowjs/ngx-flow';
 import { Subject } from 'rxjs/internal/Subject';
@@ -72,7 +72,8 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     private configService: ConfigService,
     private titleService: Title,
     private _snackBar: MatSnackBar,
-    private router: Router) { }
+    private router: Router,
+    private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
 
@@ -102,10 +103,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.langSubscription = this.uploadService.langueCourriels.subscribe(langueCourriels => {
       this.langueCourriels = langueCourriels;
+      this.changeDetectorRef.detectChanges();
     });
 
     this.configSubscription = this.configService.configInfo.subscribe(config => {
       this.config = config;
+      this.changeDetectorRef.detectChanges();
     });
 
 
