@@ -224,7 +224,7 @@ mailhog:
     runAsGroup: 100101
 
 front:
-  replicaCount: 3
+  replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
     tag: 4.0.4
@@ -338,7 +338,7 @@ upload:
     storageClassName: bsu-gp2
 
 download:
-  replicaCount: 3
+  replicaCount: 2
   readinessLiveness:
     readinessProbe:
       tcpSocket:
