@@ -62,6 +62,16 @@ clamav:
     capabilities:
       drop:
         - ALL
+  freshclamConfig: |
+    Bytecode yes
+    DatabaseDirectory /data
+    DatabaseMirror database.clamav.net
+    DatabaseOwner 100101
+    LogTime yes
+    NotifyClamd /etc/clamav/clamd.conf
+    PidFile /tmp/freshclam.pid        
+    ScriptedUpdates yes
+    SafeBrowsing "yes"
   clamdConfigDict:
     ###############
     # General
@@ -217,7 +227,7 @@ front:
   replicaCount: 3
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 4.0.3
+    tag: 4.0.4
     imagePullPolicy: Always
   service:
     port: 8080
@@ -263,7 +273,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 4.0.3
+    tag: 4.0.4
     imagePullPolicy: Always
   service:
     port: 8080
@@ -342,7 +352,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: 4.0.3
+    tag: 4.0.4
     imagePullPolicy: Always
   service:
     port: 8081
@@ -385,7 +395,7 @@ worker:
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: 4.0.3
+    tag: 4.0.4
     imagePullPolicy: Always
   resources:
     requests:
