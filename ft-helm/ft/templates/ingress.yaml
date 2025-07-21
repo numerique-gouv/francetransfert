@@ -1,4 +1,3 @@
-{{- if not .Values.maintenance.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -24,6 +23,7 @@ spec:
     {{- range $value := .Values.ingress.hosts }}
     - host: {{ $value }}
       http:
+        {{- if not $.Values.maintenance.enabled }}
         paths:
           - path: /api-private/confirmation-module/
             pathType: Prefix
@@ -53,6 +53,17 @@ spec:
                 name: {{ include "france-transfert.fullname" $ }}-angular-service
                 port:
                   number: {{ $.Values.front.service.port}}
+        {{- end }}
+        {{- if $.Values.maintenance.enabled }}
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maintenance
+                port:
+                  number: 8080
+        {{- end }}
     {{- end }}
 
 ---
@@ -72,6 +83,7 @@ spec:
     - host: {{ $value }}
       http:
         paths:
+        {{- if not $.Values.maintenance.enabled }}
           - path: /api-private/upload-module/
             pathType: Prefix
             backend:
@@ -93,5 +105,15 @@ spec:
                 name: {{ include "france-transfert.fullname" $ }}-download-service
                 port:
                   number: {{ $.Values.download.service.port}}
+        {{- end }}
+        {{- if $.Values.maintenance.enabled }}
+        paths:
+          - path: /maintenance
+            pathType: Prefix
+            backend:
+              service:
+                name: maintenance
+                port:
+                  number: 8080
+        {{- end }}
     {{- end }}
-{{- end }}
