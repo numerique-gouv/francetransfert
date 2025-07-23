@@ -133,12 +133,12 @@ public class RestClientUtils {
 			LOGGER.info("Worker sendfile to ignimission : " + file.getName());
 			response = restTemplate.exchange(requestUri, httpMethod, requestEntity, Object.class);
 			if (!response.getStatusCode().equals(HttpStatus.OK)) {
-				throw new WorkerException("Ignimission error while sending file" + response.toString());
+				// throw new WorkerException("Ignimission error while sending file" + response.toString());
 			}
 
 		} catch (HttpMessageNotReadableException e) {
-			LOGGER.error("Worker Ignimission domain update ERROR {} ", e.getMessage(), e);
-			throw new WorkerException("Ignimission error" + response.toString());
+			// LOGGER.error("Worker Ignimission domain update ERROR {} ", e.getMessage(), e);
+			// throw new WorkerException("Ignimission error" + response.toString());
 		}
 
 		return;

@@ -29,7 +29,7 @@ public class IgnimissionErrorHandler implements ResponseErrorHandler {
 
 		if (response.getStatusCode().is5xxServerError() || response.getStatusCode().is4xxClientError()) {
 			// http status code e.g. `500 INTERNAL_SERVER_ERROR`
-			LOGGER.error("============> Ignimission ERROR {}", response.getStatusCode());
+			// LOGGER.error("============> Ignimission ERROR {}", response.getStatusCode());
 		}
 	}
 }
