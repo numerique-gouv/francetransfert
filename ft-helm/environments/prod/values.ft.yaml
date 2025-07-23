@@ -370,6 +370,10 @@ download:
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
     ENCLOSURE_MAX_DOWNLOAD: "5"
     ENCLOSURE_MAX_PASSWORD_TRY: "5"
+    AGENTCONNECT_ENABLED: "true"
+    AGENTCONNECT_ISSUERURL: https://auth-apps.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_CLIENTID: francetransfert
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-apps.numerique.gouv.fr/realms/applications
   podSecurityContext: {}
   securityContext:
     privileged: false
