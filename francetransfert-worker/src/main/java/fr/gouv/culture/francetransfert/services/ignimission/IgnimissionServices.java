@@ -134,33 +134,33 @@ public class IgnimissionServices {
 				files.filter(x -> x.getFileName().toString().endsWith(".csv")).forEach(x -> {
 					try {
 						// Check auth before sending file 1 auth for all file
-						IgnimissionAuthenticationResponse ignimissionAuth = null;
-						if (Objects.isNull(ignimissionAuth)) {
-							ignimissionAuth = getAuthentication();
-						}
-						String idStat = "0";
+						// IgnimissionAuthenticationResponse ignimissionAuth = null;
+						// if (Objects.isNull(ignimissionAuth)) {
+						// 	ignimissionAuth = getAuthentication();
+						// }
+						// String idStat = "0";
 						File file = x.toFile();
-						// Check file type
-						if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "satisfaction")) {
-							if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "download")) {
-								LOGGER.debug("Igni Stat : " + x.getFileName() + " - satisfaction download");
-								idStat = idClientSatisfactionDownload;
-							} else {
-								LOGGER.debug("Igni Stat : " + x.getFileName() + " - satisfaction upload");
-								idStat = idClientSatisfactionUpload;
-							}
-						} else {
-							if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "download")) {
-								LOGGER.debug("Igni Stat : " + x.getFileName() + " - stat download");
-								idStat = idClientDownloadStat;
-							} else {
-								LOGGER.debug("Igni Stat : " + x.getFileName() + " - stat upload");
-								idStat = idClientUploadStat;
-							}
-						}
-						// Send file to ignimission
-						restClientUtils.sendIgniStat(ignimissionAuth.getAccessToken(), baseUri + statPath,
-								HttpMethod.POST, file, idStat);
+						// // Check file type
+						// if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "satisfaction")) {
+						// 	if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "download")) {
+						// 		LOGGER.debug("Igni Stat : " + x.getFileName() + " - satisfaction download");
+						// 		idStat = idClientSatisfactionDownload;
+						// 	} else {
+						// 		LOGGER.debug("Igni Stat : " + x.getFileName() + " - satisfaction upload");
+						// 		idStat = idClientSatisfactionUpload;
+						// 	}
+						// } else {
+						// 	if (StringUtils.containsIgnoreCase(x.getFileName().toString(), "download")) {
+						// 		LOGGER.debug("Igni Stat : " + x.getFileName() + " - stat download");
+						// 		idStat = idClientDownloadStat;
+						// 	} else {
+						// 		LOGGER.debug("Igni Stat : " + x.getFileName() + " - stat upload");
+						// 		idStat = idClientUploadStat;
+						// 	}
+						// }
+						// // Send file to ignimission
+						// restClientUtils.sendIgniStat(ignimissionAuth.getAccessToken(), baseUri + statPath,
+						// 		HttpMethod.POST, file, idStat);
 						// Delete file ton success
 						file.delete();
 					} catch (Exception ex) {
