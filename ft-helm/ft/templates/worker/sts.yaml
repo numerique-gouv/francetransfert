@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "france-transfert.fullname" . }}-worker-app 
 spec:
@@ -67,20 +67,6 @@ spec:
                 resources:
                   requests:
                     storage: 5Gi
-        - name: {{ include "france-transfert.fullname" . }}-worker-data
-          ephemeral:
-            volumeClaimTemplate:
-              metadata:
-                labels:
-                  type: tmpworker
-              spec:
-                accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
-                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
-                {{ end }}
-                resources:
-                  requests:
-                    storage: {{ .Values.worker.persistentVolumeClaim.storage }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -104,3 +90,14 @@ spec:
                     app: {{ include "france-transfert.fullname" . }}-worker-app
                 topologyKey: kubernetes.io/hostname
               weight: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "france-transfert.fullname" . }}-worker-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
+        storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
+        {{ end }}
+        resources:
+          requests:
+            storage: {{ .Values.worker.persistentVolumeClaim.storage }}
