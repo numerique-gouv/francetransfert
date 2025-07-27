@@ -521,3 +521,9 @@ backup:
     runAsNonRoot: true
     runAsUser: 110101
     runAsGroup: 110101
+
+benchmark:
+  schedule: "0 0 0 1 * ?"
+  persistentVolumeClaim:
+    storage: 200Gi
+    storageClassName: bsu-gp2

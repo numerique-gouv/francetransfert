@@ -412,7 +412,7 @@ worker:
       memory: 512Mi
   overrideConf:
     JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
-    SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"
