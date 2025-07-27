@@ -286,7 +286,7 @@ upload:
       memory: 1024Mi
   overrideConf:
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
-    SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
     SERVER_TOMCAT_MAX-PART-COUNT: "-1"
