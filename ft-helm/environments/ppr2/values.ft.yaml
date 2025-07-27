@@ -12,7 +12,6 @@ overrideGlobalConf:
   UPLOAD_LIMIT: "21474836480"
   UPLOAD_FILE_LIMIT: "2147483648"
   APPLICATION_COOKIES_DOMAIN: ""
-  API_KEY: "{}"
   ENCLOSURE_EXPIRE_DAYS: "30"
   ENCLOSURE_MAX_PASSWORD_TRY: "5"
   ENVIRONNEMENT: "PPR"
@@ -30,6 +29,9 @@ overrideGlobalConf:
   MAIL_IMAGE_FT_FOLDER: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/Dossier_white.png"
   MAIL_IMAGE_FT_ACCESSBUTTON: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
 
+maintenance:
+  enabled: false
+
 clamav:
   enabled: true
   startupProbe:
@@ -43,9 +45,9 @@ clamav:
   resources:
     requests:
       cpu: 250m
-      memory: 2048Mi
+      memory: 3Gi
     limits:
-      memory: 2048Mi
+      memory: 3Gi
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 100101
@@ -60,6 +62,59 @@ clamav:
     capabilities:
       drop:
         - ALL
+  freshclamConfig: |
+    Bytecode yes
+    DatabaseDirectory /data
+    DatabaseMirror database.clamav.net
+    DatabaseOwner 100101
+    LogTime yes
+    NotifyClamd /etc/clamav/clamd.conf
+    PidFile /tmp/freshclam.pid        
+    ScriptedUpdates yes
+    SafeBrowsing "yes"
+  clamdConfigDict:
+    ###############
+    # General
+    ###############
+    DatabaseDirectory: /data
+    TemporaryDirectory: /tmp
+    LogTime: "yes"
+    # CUSTOM: Use pid file in tmp
+    PidFile: /tmp/clamd.pid
+    LocalSocket: /tmp/clamd.sock
+    TCPSocket: 3310
+    Foreground: "yes"
+
+    ###############
+    # Results
+    ###############
+    DetectPUA: "yes"
+    ExcludePUA:
+      - NetTool
+      - PWTool
+    HeuristicAlerts: "yes"
+    Bytecode: "yes"
+
+    ###############
+    # Scan
+    ###############
+    ScanPE: "yes"
+    DisableCertCheck: "yes"
+    ScanELF: "yes"
+    AlertBrokenExecutables: "yes"
+    ScanOLE2: "yes"
+    OLE2BlockMacros: "yes"
+    ScanPDF: "yes"
+    ScanSWF: "yes"
+    ScanMail: "yes"
+    PhishingSignatures: "yes"
+    PhishingScanURLs: "yes"
+    ScanHTML: "yes"
+    ScanArchive: "yes"
+    MaxScanSize: 2000M
+    StreamMaxLength: 2000M
+    MaxFileSize: 2000M
+    MaxRecursion: 10
   
 
 redis:
@@ -96,20 +151,47 @@ redis:
       enabled: true
     resources:
       requests:
-        cpu: 1
-        memory: 8Gi
+        cpu: 500m
+        memory: 1Gi
       limits:
-        memory: 8Gi
+        memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
   replica:
     persistence:
       size: 50Gi
       enabled: true
     resources:
       requests:
-        cpu: 1
-        memory: 8Gi
+        cpu: 500m
+        memory: 1Gi
       limits:
-        memory: 8Gi
+        memory: 1Gi
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+      - minDomains: 3
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
 
 mailhog:
   enable: true
@@ -180,6 +262,19 @@ front:
 
 upload:
   replicaCount: 2
+  readinessLiveness:
+    readinessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
     tag: ppr
@@ -194,7 +289,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0"
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -247,7 +342,20 @@ upload:
     storageClassName: bsu-gp2
 
 download:
-  replicaCount: 1
+  replicaCount: 2
+  readinessLiveness:
+    readinessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8081
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8081
+      initialDelaySeconds: 5
+      periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
     tag: ppr
@@ -262,7 +370,7 @@ download:
     limits:
       memory: 256Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0"
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_PORT: "8081"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
@@ -289,7 +397,8 @@ download:
       averageUtilization: 80
 
 worker:
-  replicaCount: 1
+  type: sts
+  replicaCount: 2
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
@@ -302,7 +411,7 @@ worker:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0"
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
@@ -329,7 +438,7 @@ worker:
     SCHEDULED_APP_SYNC_CLEANUP: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "20 0 */1 * * *"
-    SCHEDULED_IGNIMISSION_DOMAIN: "2 45 3 * * *"
+    SCHEDULED_IGNIMISSION_DOMAIN: "0 45 3 * * *"
     SCHEDULED_SEND_STAT: "0 */30 * * * *"
     SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
@@ -370,23 +479,27 @@ ingress:
   className: "nginx"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
+    nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
   upload:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200M"
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+      nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
+      nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
-    - ft-ppr2.beta.numerique.gouv.fr
+    - ft-ppr1.beta.numerique.gouv.fr
   tls:
     - secretName: transfert-tls
       hosts:
         - ft-ppr.beta.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft-ppr2.beta.numerique.gouv.fr
+        - ft-ppr1.beta.numerique.gouv.fr
 
 backup:
-  backupDate: "2025_06_02_test"
+  backupDate: "2025_06_11_131853"
   enabled: true
   schedule: "20 4 * * *"
   persistentVolumeClaim:
