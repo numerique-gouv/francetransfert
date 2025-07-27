@@ -174,15 +174,15 @@ public class CleanUpServices {
 											EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()))
 									.toLocalDate();
 
-							LocalDate enclosureInDate = DateUtils.convertStringToLocalDateTime(
+							LocalDate enclosureUploadDate = DateUtils.convertStringToLocalDateTime(
 									redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
 											EnclosureKeysEnum.TIMESTAMP.getKey()))
 									.toLocalDate();
 
 							LOGGER.debug("Enclosure {} at date {} / {}", enclosureId,
-									enclosureExipireDateRedis.toString(), enclosureInDate.toString());
-							if (deleteBefore(deleteBefore, enclosureExipireDateRedis, enclosureInDate)
-									|| deleteFail(enclosureId, deleteFailBefore, enclosureInDate)) {
+									enclosureExipireDateRedis.toString(), enclosureUploadDate.toString());
+							if (deleteBefore(enclosureId, deleteBefore, enclosureExipireDateRedis, enclosureUploadDate)
+									|| deleteFail(enclosureId, deleteFailBefore, enclosureUploadDate)) {
 								LOGGER.info("Deleting {}", enclosureId);
 								cleanUpEnclosureTempDataInRedis(enclosureId, true);
 								cleanUpEnclosureCoreInRedis(enclosureId);
@@ -275,6 +275,8 @@ public class CleanUpServices {
 
 			if ((StringUtils.isEmpty(statut) || failState.contains(statut))
 					&& enclosureInDate.isBefore(deleteFailBefore)) {
+				LOGGER.info("Deleting fail enclosure {} with statut {} and enclosureInDate {}", enclosureId, statut,
+						enclosureInDate);
 				return true;
 			}
 		} catch (Exception e) {
@@ -284,10 +286,16 @@ public class CleanUpServices {
 		return false;
 	}
 
-	private boolean deleteBefore(LocalDate deleteBefore, LocalDate enclosureExipireDateRedis,
-			LocalDate enclosureInDate) {
-		return enclosureExipireDateRedis.isBefore(deleteBefore)
-				|| enclosureInDate.isBefore(deleteBefore);
+	private boolean deleteBefore(String enclosureId, LocalDate deleteBefore, LocalDate enclosureExipireDateRedis,
+			LocalDate enclosureUploadDate) {
+
+		if (enclosureExipireDateRedis.isBefore(deleteBefore) || enclosureUploadDate.isBefore(deleteBefore)) {
+			LOGGER.info("Deleting enclosure {} with enclosureExipireDateRedis {} and enclosureInDate {}", enclosureId,
+					enclosureExipireDateRedis, enclosureUploadDate);
+			return true;
+		}
+
+		return false;
 	}
 
 	public void cleanEnclosure(String enclosureId, boolean archive) throws MetaloadException {
