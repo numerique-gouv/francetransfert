@@ -6,7 +6,11 @@ metadata:
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
+    {{- if eq .Values.worker.type "sts" }}
     kind: StatefulSet
+    {{- else if eq .Values.worker.type "deploy" }}
+    kind: Deployment
+    {{- end }}
     name: {{ include "france-transfert.fullname" . }}-worker-app
   minReplicas: {{ .Values.worker.hpa.minReplicas }}
   maxReplicas: {{ .Values.worker.hpa.maxReplicas }}
