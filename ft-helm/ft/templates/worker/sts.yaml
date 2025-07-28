@@ -38,7 +38,7 @@ spec:
         volumeMounts:
           - name: {{ include "france-transfert.fullname" . }}-worker-data
             mountPath: /tmp/
-          - name: work-volume
+          - name: {{ include "france-transfert.fullname" . }}-worker-data
             mountPath: /opt/work/
           - name: config-volume
             mountPath: /dummy/
@@ -55,20 +55,6 @@ spec:
         - name: ft-keystore
           secret:
             secretName: ft-keystore
-        - name: work-volume
-          ephemeral:
-            volumeClaimTemplate:
-              metadata:
-                labels:
-                  type: workworker
-              spec:
-                accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
-                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
-                {{ end }}
-                resources:
-                  requests:
-                    storage: 5Gi
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
