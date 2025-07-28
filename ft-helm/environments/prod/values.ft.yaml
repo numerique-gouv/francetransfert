@@ -34,6 +34,10 @@ maintenance:
 
 clamav:
   enabled: true
+  hpa:
+    enabled: true
+    maxReplicas: 3
+    cpu: 80
   startupProbe:
     failureThreshold: 60
     initialDelaySeconds: 60
