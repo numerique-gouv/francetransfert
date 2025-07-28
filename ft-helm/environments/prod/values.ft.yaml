@@ -409,9 +409,9 @@ worker:
   resources:
     requests:
       cpu: 1
-      memory: 4Gi
+      memory: 3Gi
     limits:
-      memory: 4Gi
+      memory: 3Gi
   overrideConf:
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
