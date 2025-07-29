@@ -37,9 +37,7 @@ spec:
             name: ft-secret-app
         volumeMounts:
           - name: {{ include "france-transfert.fullname" . }}-worker-data
-            mountPath: /tmp/
-          - name: {{ include "france-transfert.fullname" . }}-worker-data
-            mountPath: /opt/work/
+            mountPath: /data/
           - name: config-volume
             mountPath: /dummy/
           - name: ft-keystore
