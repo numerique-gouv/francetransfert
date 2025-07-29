@@ -399,8 +399,8 @@ download:
       averageUtilization: 80
 
 worker:
-  type: sts
-  replicaCount: 4
+  type: deploy
+  replicaCount: 5
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
