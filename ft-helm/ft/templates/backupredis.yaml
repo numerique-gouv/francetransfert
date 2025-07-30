@@ -14,6 +14,7 @@ spec:
   {{- end }}
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 120
       backoffLimit: 0
       template:
         spec:
