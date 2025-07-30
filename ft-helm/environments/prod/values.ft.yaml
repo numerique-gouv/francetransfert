@@ -399,7 +399,7 @@ download:
       averageUtilization: 80
 
 worker:
-  type: sts
+  type: deploy
   replicaCount: 6
   terminationGracePeriodSeconds: 180
   image:
