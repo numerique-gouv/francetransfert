@@ -413,9 +413,8 @@ worker:
     limits:
       memory: 3Gi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\" -Djava.io.tmpdir=/data/"
-    SERVER_TOMCAT_BASEDIR: "/data/work/"
-    TMP_FOLDER_PATH: "/data/"
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
+    SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"
@@ -425,6 +424,7 @@ worker:
     GLIMPS_RETRYCODE: "504,512"
     GLIMPS_KNOWNCODE: "5001,5000"
     GLIMPS_ALLOWCODE: "4001"
+    TMP_FOLDER_PATH: /tmp/
     WORKER_EXPIRED_LIMIT: "90"
     POOL_SIZE: "50"
     SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "2"
