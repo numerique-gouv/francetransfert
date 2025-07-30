@@ -455,6 +455,7 @@ worker:
     QUEUE_SLEEP: "200"
     DISABLESSL: "false"
     ENABLEMTLS: "false"
+    STORAGE_REQUEST_TIMEOUT: 300000
   persistentVolumeClaim:
     storage: 200Gi
     accessModes: ReadWriteOnce
