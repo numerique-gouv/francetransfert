@@ -12,6 +12,7 @@ spec:
   suspend: true
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 120
       backoffLimit: 0
       template:
         spec:
