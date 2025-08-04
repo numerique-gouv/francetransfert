@@ -399,6 +399,7 @@ download:
       averageUtilization: 80
 
 worker:
+  # type: deploy/sts
   type: deploy
   replicaCount: 6
   terminationGracePeriodSeconds: 180
@@ -415,7 +416,7 @@ worker:
   overrideConf:
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
-    TMP_FOLDER_PATH: /tmp/
+    TMP_FOLDER_PATH: /data/
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"

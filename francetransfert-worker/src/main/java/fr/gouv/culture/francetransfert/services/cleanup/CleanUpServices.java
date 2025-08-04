@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -574,12 +575,7 @@ public class CleanUpServices {
 	 */
 	public void deleteEnclosureTempDirectory(String path) {
 		LOGGER.info(" clean up Enclosure temp directory {} ", path);
-		Path pathToBeDeleted = Paths.get(path);
-		try (Stream<Path> walk = Files.walk(pathToBeDeleted)) {
-			walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-		} catch (Exception ex) {
-			LOGGER.error("unable to delete Enclosure temp directory [{}] / {} ", path, ex.getMessage(), ex);
-		}
+		FileUtils.deleteQuietly(new File(path));
 	}
 
 	public void deleteBucketOutOfTime() throws StorageException {
