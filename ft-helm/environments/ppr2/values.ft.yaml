@@ -397,6 +397,7 @@ download:
       averageUtilization: 80
 
 worker:
+  # type: deploy/sts
   type: sts
   replicaCount: 2
   terminationGracePeriodSeconds: 180
@@ -412,7 +413,7 @@ worker:
       memory: 512Mi
   overrideConf:
     JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
-    SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
     SCAN_CLAMAV_MAXFILESIZE: "2147483648"
@@ -422,9 +423,10 @@ worker:
     GLIMPS_RETRYCODE: "504,512"
     GLIMPS_KNOWNCODE: "5001,5000"
     GLIMPS_ALLOWCODE: "4001"
-    TMP_FOLDER_PATH: /tmp/
+    TMP_FOLDER_PATH: /data/
     WORKER_EXPIRED_LIMIT: "90"
     POOL_SIZE: "50"
+    DEEPCLEAN_WEEKDAY: "5"
     SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "5"
     SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: "5"
     TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: "5"
@@ -447,10 +449,17 @@ worker:
     SCHEDULED_CHECKGLIMPS: "0 */2 * * * ?"
     SCHEDULED_SYNC_HEALTHCHECK: "10 */2 * * * ?"
     SCHEDULED_HEALTHCHECK: "0 */2 * * * ?"
-  persistentVolumeClaim:
-    storage: 75Gi
-    accessModes: ReadWriteOnce
-    storageClassName: bsu-gp2
+    STORAGE_REQUEST_TIMEOUT: "300000"
+  data:
+    persistentVolumeClaim:
+      storage: 75Gi
+      accessModes: ReadWriteOnce
+      storageClassName: bsu-gp2
+  tmp:
+    persistentVolumeClaim:
+      storage: 15Gi
+      accessModes: ReadWriteOnce
+      storageClassName: bsu-gp2
   podSecurityContext:
     runAsUser: 100104
     runAsGroup: 100104
@@ -489,14 +498,14 @@ ingress:
       nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
-    - ft-ppr1.beta.numerique.gouv.fr
+    - ft-ppr2.beta.numerique.gouv.fr
   tls:
     - secretName: transfert-tls
       hosts:
         - ft-ppr.beta.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft-ppr1.beta.numerique.gouv.fr
+        - ft-ppr2.beta.numerique.gouv.fr
 
 backup:
   backupDate: "2025_06_11_131853"
