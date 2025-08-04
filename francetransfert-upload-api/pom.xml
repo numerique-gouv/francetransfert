@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.gouv.culture.francetransfert</groupId>
 	<artifactId>ftr-upload-api</artifactId>
-	<version>4.0.4-SNAPSHOT</version>
+	<version>4.0.6-SNAPSHOT</version>
 	<description>France Transfert Upload API</description>
 	<packaging>jar</packaging>
 	<parent>

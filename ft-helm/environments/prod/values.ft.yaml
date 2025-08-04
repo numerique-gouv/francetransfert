@@ -457,10 +457,16 @@ worker:
     DISABLESSL: "false"
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
-  persistentVolumeClaim:
-    storage: 200Gi
-    accessModes: ReadWriteOnce
-    storageClassName: bsu-gp2
+  data:
+    persistentVolumeClaim:
+      storage: 200Gi
+      accessModes: ReadWriteOnce
+      storageClassName: bsu-gp2
+  tmp:
+    persistentVolumeClaim:
+      storage: 15Gi
+      accessModes: ReadWriteOnce
+      storageClassName: bsu-gp2
   podSecurityContext:
     runAsUser: 100104
     runAsGroup: 100104

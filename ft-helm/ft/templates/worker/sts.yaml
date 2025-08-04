@@ -65,12 +65,12 @@ spec:
                   type: worker-tmp
               spec:
                 accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
-                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
+                {{ if .Values.worker.tmp.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.tmp.persistentVolumeClaim.storageClassName }}
                 {{ end }}
                 resources:
                   requests:
-                    storage: 15Gi
+                    storage: {{ .Values.worker.tmp.persistentVolumeClaim.storage }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -99,10 +99,10 @@ spec:
         name: {{ include "france-transfert.fullname" . }}-worker-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
-        {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
-        storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
+        {{ if .Values.worker.data.persistentVolumeClaim.storageClassName }}
+        storageClassName: {{ .Values.worker.data.persistentVolumeClaim.storageClassName }}
         {{ end }}
         resources:
           requests:
-            storage: {{ .Values.worker.persistentVolumeClaim.storage }}
+            storage: {{ .Values.worker.data.persistentVolumeClaim.storage }}
 {{- end }}
