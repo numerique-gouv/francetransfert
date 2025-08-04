@@ -397,7 +397,8 @@ download:
       averageUtilization: 80
 
 worker:
-  type: deploy
+  # type: deploy/sts
+  type: sts
   replicaCount: 2
   terminationGracePeriodSeconds: 180
   image:
@@ -422,7 +423,7 @@ worker:
     GLIMPS_RETRYCODE: "504,512"
     GLIMPS_KNOWNCODE: "5001,5000"
     GLIMPS_ALLOWCODE: "4001"
-    TMP_FOLDER_PATH: /tmp/
+    TMP_FOLDER_PATH: /data/
     WORKER_EXPIRED_LIMIT: "90"
     POOL_SIZE: "50"
     DEEPCLEAN_WEEKDAY: "5"

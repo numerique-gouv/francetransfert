@@ -37,8 +37,10 @@ spec:
             name: ft-secret-app
         volumeMounts:
           - name: {{ include "france-transfert.fullname" . }}-worker-data
+            mountPath: /data/
+          - name: {{ include "france-transfert.fullname" . }}-worker-tmp
             mountPath: /tmp/
-          - name: {{ include "france-transfert.fullname" . }}-worker-data
+          - name: {{ include "france-transfert.fullname" . }}-worker-tmp
             mountPath: /opt/work/
           - name: config-volume
             mountPath: /dummy/
@@ -55,6 +57,20 @@ spec:
         - name: ft-keystore
           secret:
             secretName: ft-keystore
+        - name: {{ include "france-transfert.fullname" . }}-worker-tmp
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                labels:
+                  type: worker-tmp
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                {{ if .Values.worker.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.persistentVolumeClaim.storageClassName }}
+                {{ end }}
+                resources:
+                  requests:
+                    storage: 15Gi
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
