@@ -400,7 +400,7 @@ download:
 
 worker:
   # type: deploy/sts
-  type: deploy
+  type: sts
   replicaCount: 6
   terminationGracePeriodSeconds: 180
   image:
