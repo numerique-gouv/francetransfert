@@ -9,3 +9,15 @@ data:
 kind: ConfigMap
 metadata:
   name: csp-headers
+---
+apiVersion: v1
+data:
+  Referrer-Policy: "strict-origin-when-cross-origin;"
+  Strict-Transport-Security: "\"max-age=31449600; includeSubDomains\" always;"
+  X-Content-Type-Options: "nosniff;"
+  X-Frame-Options: "\"ALLOW-FROM https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr\";"
+  X-XSS-Protection: "\"1; mode=block\";"
+  Content-Security-Policy: "\"default-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat ; connect-src *; script-src-elem 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' ; font-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat ; frame-ancestors 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat; frame-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat https://francetransfert.crisp.help ; style-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat 'unsafe-inline'; img-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat https://image.crisp.chat data: ;\" always;"
+kind: ConfigMap
+metadata:
+  name: csp-header
