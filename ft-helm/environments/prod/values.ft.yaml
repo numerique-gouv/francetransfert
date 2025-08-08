@@ -289,7 +289,7 @@ upload:
     limits:
       memory: 1024Mi
   overrideConf:
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -368,7 +368,7 @@ download:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_PORT: "8081"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
@@ -414,7 +414,7 @@ worker:
     limits:
       memory: 3Gi
   overrideConf:
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     TMP_FOLDER_PATH: /data/
     SCAN_CLAMAV_TIMEOUT: "20000"
