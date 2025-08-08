@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-worker-service
+  labels:
+    app: {{ include "france-transfert.fullname" . }}-worker-app
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    app: {{ include "france-transfert.fullname" . }}-worker-app
+    release: {{ .Release.Name }}
+  ports:
+  - port: {{ .Values.worker.service.managementPort }}
+    targetPort: {{ .Values.worker.service.managementPort }}
+    name: management

@@ -176,8 +176,7 @@ public class StorageManager {
 
     public void createFile(String bucketName, File fileToUpload, String objectKey) throws StorageException {
 
-        try {
-            ByteArrayInputStream input = new ByteArrayInputStream(Files.readAllBytes(fileToUpload.toPath()));
+        try (InputStream input = new ByteArrayInputStream(Files.readAllBytes(fileToUpload.toPath()))) {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
             conn.putObject(bucketName, escapedObjectKey, input, new ObjectMetadata());
         } catch (Exception e) {

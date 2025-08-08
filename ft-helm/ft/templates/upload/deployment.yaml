@@ -39,6 +39,9 @@ spec:
             mountPath: /opt/work/
         ports:
         - containerPort: {{ .Values.upload.service.port }}
+          name: http
+        - containerPort: {{ .Values.upload.service.managementPort }}
+          name: management
         {{- toYaml .Values.upload.readinessLiveness | nindent 8 }}
         resources:
           {{- toYaml .Values.upload.resources | nindent 10 }}
