@@ -28,22 +28,22 @@ Enfin pour les agents de l'Etat, il y a un salon "France transfert" dans TCHAP q
 ## Description des répertoires
 
 - **francetransfert-core/** : Composants centraux et logique métier principale de FranceTransfert
-  - Technologies : Node.js, Express
+  - Technologies : Java
 
 - **francetransfert-upload-api/** : API dédiée à la gestion des téléversements de fichiers
-  - Technologies : Node.js, Express
+  - Technologies : Java
 
 - **francetransfert-download-api/** : API dédiée à la gestion des téléchargements de fichiers
-  - Technologies : Node.js, Express
+  - Technologies : Java
 
 - **francetransfert-upload-download-gui/** : Interface utilisateur web pour le téléversement et téléchargement de fichiers
-  - Technologies : React, TypeScript
+  - Technologies : Angular
 
 - **francetransfert-worker/** : Service de traitement asynchrone des tâches en arrière-plan
-  - Technologies : Node.js
+  - Technologies : Java
 
 - **francetransfert-backup/** : Scripts et outils pour la gestion des sauvegardes
-  - Technologies : Scripts shell, PostgreSQL
+  - Technologies : Docker
 
 - **ft-helm/** : Charts Helm pour le déploiement sur Kubernetes
   - Technologies : Helm, Kubernetes

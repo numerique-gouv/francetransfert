@@ -65,6 +65,32 @@ public class AsyncConfig {
 	@Value("${deleteEnclosureExecutor.pool.size:2}")
 	private int deleteEnclosureWorkerExecutorPoolSize;
 
+	@Value("${downloadExecutor.pool.size:0}")
+	private int downloadExecutorPoolSize;
+
+	@Value("${downloadExecutor.enabled:false}")
+	private boolean downloadExecutorEnabled;
+
+	@Bean(name = "downloadExecutor")
+	public Executor downloadExecutor() {
+		ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+		if (!downloadExecutorEnabled) {
+			exec.setCorePoolSize(0);
+			exec.setMaxPoolSize(1);
+			return exec;
+		}
+
+		if (downloadExecutorPoolSize == 0) {
+			exec.setMaxPoolSize(zipWorkerExecutorPoolSize * 3);
+			exec.setCorePoolSize(zipWorkerExecutorPoolSize * 3);
+		} else {
+			exec.setMaxPoolSize(downloadExecutorPoolSize);
+			exec.setCorePoolSize(downloadExecutorPoolSize);
+		}
+		exec.setKeepAliveSeconds(0);
+		return exec;
+	}
+
 	@Bean(name = "formuleContactWorkerExecutor")
 	public Executor formuleContactWorkerExecutor() {
 		return generateThreadPoolTaskExecutor(formuleContactWorkerExecutorPoolSize);

@@ -34,6 +34,33 @@ maintenance:
 
 clamav:
   enabled: true
+  hpa:
+    enabled: false
+    custom:
+      enabled: true
+    maxReplicas: 2
+    minReplicas: 1
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 180
+        selectPolicy: Max
+        policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      scaleUp:
+        stabilizationWindowSeconds: 90
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 90
   startupProbe:
     failureThreshold: 60
     initialDelaySeconds: 60
@@ -118,6 +145,8 @@ clamav:
   
 
 redis:
+  image:
+    repository: bitnamilegacy/redis
   commonConfiguration: |-
     appendonly yes
     save "7200 1 3600 10000"
@@ -137,6 +166,8 @@ redis:
   architecture: replication
   sentinel:
     enabled: true
+    image:
+      repository: bitnamilegacy/redis-sentinel
     persistence:
       enabled: true
       size: 5Gi
@@ -266,13 +297,13 @@ upload:
     readinessProbe:
       httpGet:
         path: /actuator/health
-        port: 8080
+        port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
       httpGet:
         path: /actuator/health
-        port: 8080
+        port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
   image:
@@ -282,6 +313,7 @@ upload:
   service:
     port: 8080
     targetPort: 8080
+    managementPort: 8880
   resources:
     requests:
       cpu: 500m
@@ -289,7 +321,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_OPTS: "-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -298,6 +330,8 @@ upload:
     ENABLEMTLS: "false"
     DISABLESSL: "false"
     SERVER_PORT: "8080"
+    MANAGEMENT_SERVER_PORT: "8880"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
     UPLOAD_LIMIT_SENDERMAIL: "10"
@@ -347,13 +381,13 @@ download:
     readinessProbe:
       httpGet:
         path: /actuator/health
-        port: 8081
+        port: 8180
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
       httpGet:
         path: /actuator/health
-        port: 8081
+        port: 8180
       initialDelaySeconds: 5
       periodSeconds: 10
   image:
@@ -370,8 +404,10 @@ download:
     limits:
       memory: 256Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_PORT: "8081"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics"
+    MANAGEMENT_SERVER_PORT: "8180"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
     ENCLOSURE_MAX_DOWNLOAD: "5"
@@ -398,8 +434,21 @@ download:
 
 worker:
   # type: deploy/sts
-  type: sts
+  type: deploy
   replicaCount: 2
+  readinessLiveness:
+    readinessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8380
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8380
+      initialDelaySeconds: 5
+      periodSeconds: 10
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
@@ -407,12 +456,17 @@ worker:
     imagePullPolicy: Always
   resources:
     requests:
-      cpu: 1
+      cpu: 500m
       memory: 512Mi
     limits:
       memory: 512Mi
+  service:
+    managementPort: 8380
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -Duser.timezone=\"Europe/Paris\""
+    MANAGEMENT_SERVER_PORT: "8380"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
+    SERVER_PORT: "8083"
+    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
@@ -439,9 +493,9 @@ worker:
     SCHEDULED_CLEAN_UP: "0 0 10 * * *"
     SCHEDULED_APP_SYNC_CLEANUP: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
-    SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "20 0 */1 * * *"
-    SCHEDULED_IGNIMISSION_DOMAIN: "0 45 3 * * *"
-    SCHEDULED_SEND_STAT: "0 */30 * * * *"
+    SCHEDULED_APP_SYNC_REF_DOMAIN: "20 0 */1 * * *"
+    SCHEDULED_REF_DOMAIN: "0 45 4 * * *"
+    SCHEDULED_SEND_STAT: "0 45 2 * * *"
     SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_SYNC_CHECKMAIL: "20 */45 * * * ?"
@@ -482,6 +536,20 @@ worker:
     maxReplicas: 4
     cpu:
       averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 180
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+        selectPolicy: Max
 
 ingress:
   enabled: true
@@ -489,13 +557,13 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
     nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
-    nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   upload:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200M"
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       nginx.ingress.kubernetes.io/custom-headers: francetransfert-ppr1/csp-headers
-      nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32"
+      nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
     - ft-ppr1.beta.numerique.gouv.fr

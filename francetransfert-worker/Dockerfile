@@ -1,4 +1,4 @@
-FROM bitnami/java:21
+FROM bitnamilegacy/java:21
 
 RUN mkdir -p /app
 WORKDIR /app
