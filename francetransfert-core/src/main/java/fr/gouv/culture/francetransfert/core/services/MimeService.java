@@ -40,7 +40,6 @@ public class MimeService {
             authorised = false;
         } else {
             String ext = FilenameUtils.getExtension(filename);
-            String mimeType = tika.detect(filename);
             if (extensionList.contains(ext)) {
                 authorised = false;
             } else {
