@@ -70,6 +70,7 @@
   "TooltipExpéditeurCourriel": "If the sender is an official, the recipients may be either officials or individuals. If the sender is an individual, the recipients can only be officials.",
   "PlaceholderDestinataires": "Email addresses of recipients",
   "DestinataireRequis": "A recipient address is required.",
+  "ObjetMaxLength": "The subject must not exceed 250 characters",
   "ExpéditeurNécessaire": "Either the sender or all recipients must be officials.",
   "ListeContacts": "Use a contact list",
   "SupprimerDestinataire": "Delete a recipient",

@@ -365,7 +365,7 @@ public class RedisForUploadUtils {
 
 	public static String getUploadIdBlocking(RedisManager redisManager, String hashFid) throws UploadException {
 		String keySource = RedisKeysEnum.FT_ID_CONTAINER.getKey(hashFid);
-		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, 30);
+		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, 10);
 		if (uploadOsuId == null || uploadOsuId.isBlank() || uploadOsuId.isEmpty()) {
 			String uuid = UUID.randomUUID().toString();
 			throw new UploadException("Error getting uploadOsuId for hash : " + hashFid, uuid);

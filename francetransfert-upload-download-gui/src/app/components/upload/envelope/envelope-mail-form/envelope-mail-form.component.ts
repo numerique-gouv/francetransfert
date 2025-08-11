@@ -80,7 +80,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     this.envelopeMailForm = this.fb.group({
       from: [this.loginService.tokenInfo.getValue() && this.loginService.tokenInfo.getValue().senderMail ? this.loginService.tokenInfo.getValue().senderMail : this.mailFormValues?.from, { validators: [Validators.required, Validators.email], asyncValidators: [QuotaAsyncValidator.createValidator(this.uploadService)], updateOn: 'blur' }],
       to: ['', { validators: [Validators.email], updateOn: 'blur' }],
-      subject: [this.mailFormValues?.subject],
+      subject: [this.mailFormValues?.subject, { validators: [Validators.maxLength(250)]}],
       message: [this.mailFormValues?.message, { validators: [Validators.maxLength(2500)] }],
       cguCheck: [this.mailFormValues?.cguCheck, { validators: [Validators.requiredTrue] }]
     }, { asyncValidators: MailAsyncValidator.createValidator(this.uploadService, 'from', 'to', this.destinatairesList) });

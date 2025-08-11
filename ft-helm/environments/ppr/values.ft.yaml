@@ -407,7 +407,7 @@ download:
 
 worker:
   # type: deploy/sts
-  type: sts
+  type: deploy
   replicaCount: 2
   readinessLiveness:
     readinessProbe:
@@ -466,9 +466,9 @@ worker:
     SCHEDULED_CLEAN_UP: "0 0 10 * * *"
     SCHEDULED_APP_SYNC_CLEANUP: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
-    SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "20 0 */1 * * *"
-    SCHEDULED_IGNIMISSION_DOMAIN: "0 45 3 * * *"
-    SCHEDULED_SEND_STAT: "0 */30 * * * *"
+    SCHEDULED_APP_SYNC_REF_DOMAIN: "20 0 */1 * * *"
+    SCHEDULED_REF_DOMAIN: "0 45 4 * * *"
+    SCHEDULED_SEND_STAT: "0 45 2 * * *"
     SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_SYNC_CHECKMAIL: "20 */45 * * * ?"

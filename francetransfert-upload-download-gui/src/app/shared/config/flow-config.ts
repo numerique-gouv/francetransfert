@@ -12,10 +12,10 @@ export const FLOW_CONFIG: Flow.FlowOptions = {
   chunkSize: 1024 * 1024 * 5, // 5 Mo
   testChunks: true,
   maxChunkRetries: 5,
-  chunkRetryInterval: 40000,
+  chunkRetryInterval: 30000,
   prioritizeFirstAndLastChunk: true,
   allowDuplicateUploads: false,
-  simultaneousUploads: 2,
+  simultaneousUploads: 3,
   //withCredentials : true,
   generateUniqueIdentifier: (file) => {
     var uuid = Math.random().toString(36).slice(-6).replace(/[^0-9a-zA-Z_-]/img, '');

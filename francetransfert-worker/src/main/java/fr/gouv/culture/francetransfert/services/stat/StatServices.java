@@ -47,8 +47,6 @@ public class StatServices {
 	private static final String[] HEADER = { "ID_PLIS", "DATE", "DOMAINE_EXPEDITEUR", "DOMAINE_DESTINATAIRE", "TAILLE",
 			"HASH_EXPE", "TYPE_ACTION" };
 
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
-
 	public boolean saveDataUpload(String enclosureId) throws WorkerException {
 		try {
 			LOGGER.info("STEP SAVE UPLOAD STATS");
@@ -95,8 +93,6 @@ public class StatServices {
 		try {
 			LOGGER.info("STEP SAVE STATS DOWNLOAD");
 			boolean isSaved = true;
-
-			Map<String, String> enclosureRedis = RedisUtils.getEnclosure(redisManager, enclosureId);
 
 			String sender = RedisUtils.getEmailSenderEnclosure(redisManager, enclosureId).toLowerCase();
 			double plisSize = RedisUtils.getTotalSizeEnclosure(redisManager, enclosureId);

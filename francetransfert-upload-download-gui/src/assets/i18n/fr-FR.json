@@ -71,6 +71,7 @@
   "TooltipExpéditeurCourriel": "si l'expéditeur est un agent de l'Etat, le ou les destinataires peuvent être un agent de l'Etat ou un particulier. Si l'expéditeur est un particulier, les destinataires ne peuvent être que des agents de l'Etat.",
   "PlaceholderDestinataires": "les adresses courriels des destinataires",
   "DestinataireRequis": "Un destinataire est requis.",
+  "ObjetMaxLength": "L'objet ne doit pas dépasser 250 caractères",
   "ExpéditeurNécessaire": "Il est nécessaire que l'expéditeur ou que l'ensemble des destinataires soi(en)t un/des agent(s) de l'Etat",
   "ListeContacts": "Utiliser une liste de contacts",
   "SupprimerDestinataire": "Supprimer un destinataire",
