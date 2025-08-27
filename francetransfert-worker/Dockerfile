@@ -1,10 +1,9 @@
-FROM bitnamilegacy/java:21
+FROM gcr.io/distroless/java21:nonroot
 
-RUN mkdir -p /app
 WORKDIR /app
 COPY target/*.jar /app/app.jar
 
-ENV TZ Europe/Paris
+ENV TZ=Europe/Paris
 
 # Lancer le script de démarrage
-ENTRYPOINT exec java $JAVA_OPTS -jar /app/app.jar
+CMD ["-jar", "/app/app.jar"]
