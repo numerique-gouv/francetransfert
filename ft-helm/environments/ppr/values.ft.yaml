@@ -321,7 +321,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: "-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -404,7 +404,7 @@ download:
     limits:
       memory: 256Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_PORT: "8081"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics"
     MANAGEMENT_SERVER_PORT: "8180"
@@ -431,6 +431,19 @@ download:
     maxReplicas: 4
     cpu:
       averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 180
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
 
 worker:
   # type: deploy/sts
@@ -473,7 +486,7 @@ worker:
     MANAGEMENT_SERVER_PORT: "8380"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     SERVER_PORT: "8083"
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
