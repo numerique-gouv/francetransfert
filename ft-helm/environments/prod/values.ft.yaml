@@ -35,9 +35,32 @@ maintenance:
 clamav:
   enabled: true
   hpa:
-    enabled: true
-    maxReplicas: 3
-    cpu: 80
+    enabled: false
+    custom:
+      enabled: true
+    maxReplicas: 4
+    minReplicas: 1
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 180
+        selectPolicy: Max
+        policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      scaleUp:
+        stabilizationWindowSeconds: 90
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 90
   startupProbe:
     failureThreshold: 60
     initialDelaySeconds: 60
@@ -121,6 +144,8 @@ clamav:
     MaxRecursion: 10
 
 redis:
+  image:
+    repository: bitnamilegacy/redis
   commonConfiguration: |-
     appendonly yes
     save "7200 1 3600 10000"
@@ -139,6 +164,8 @@ redis:
         adaptSecurityContext: auto
   architecture: replication
   sentinel:
+    image:
+      repository: bitnamilegacy/redis-sentinel
     enabled: true
     persistence:
       enabled: true
@@ -266,13 +293,15 @@ upload:
   replicaCount: 4
   readinessLiveness:
     readinessProbe:
-      tcpSocket:
-        port: 8080
+      httpGet:
+        path: /actuator/health
+        port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
-      tcpSocket:
-        port: 8080
+      httpGet:
+        path: /actuator/health
+        port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
   image:
@@ -282,6 +311,7 @@ upload:
   service:
     port: 8080
     targetPort: 8080
+    managementPort: 8880
   resources:
     requests:
       cpu: 500m
@@ -289,7 +319,7 @@ upload:
     limits:
       memory: 1024Mi
   overrideConf:
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=50.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -298,6 +328,8 @@ upload:
     ENABLEMTLS: "false"
     DISABLESSL: "false"
     SERVER_PORT: "8080"
+    MANAGEMENT_SERVER_PORT: "8880"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript
     UPLOAD_LIMIT_SENDERMAIL: "10"
@@ -345,13 +377,15 @@ download:
   replicaCount: 2
   readinessLiveness:
     readinessProbe:
-      tcpSocket:
-        port: 8081
+      httpGet:
+        path: /actuator/health
+        port: 8180
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
-      tcpSocket:
-        port: 8081
+      httpGet:
+        path: /actuator/health
+        port: 8180
       initialDelaySeconds: 5
       periodSeconds: 10
   image:
@@ -370,6 +404,7 @@ download:
   overrideConf:
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_PORT: "8081"
+    MANAGEMENT_SERVER_PORT: "8180"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
     ENCLOSURE_MAX_DOWNLOAD: "5"
@@ -403,6 +438,19 @@ worker:
   type: sts
   replicaCount: 6
   terminationGracePeriodSeconds: 180
+  readinessLiveness:
+    readinessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8380
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8380
+      initialDelaySeconds: 5
+      periodSeconds: 10
   image:
     repository: lasuite/francetransfert-worker
     tag: 4.0.4
@@ -413,7 +461,11 @@ worker:
       memory: 3Gi
     limits:
       memory: 3Gi
+  service:
+    managementPort: 8380
   overrideConf:
+    MANAGEMENT_SERVER_PORT: "8380"
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     TMP_FOLDER_PATH: /data/
@@ -443,7 +495,9 @@ worker:
     SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: "20 0 */1 * * *"
     SCHEDULED_IGNIMISSION_DOMAIN: "0 45 3 * * *"
-    SCHEDULED_SEND_STAT: "0 45 4 * * *"
+    SCHEDULED_APP_SYNC_REF_DOMAIN: "20 0 */1 * * *"
+    SCHEDULED_REF_DOMAIN: "0 45 2 * * *"
+    SCHEDULED_SEND_STAT: "0 0 0 25 9 ?"
     SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_SYNC_CHECKMAIL: "20 */45 * * * ?"

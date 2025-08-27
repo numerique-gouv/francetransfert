@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-worker-app 
+  labels:
+    app: {{ include "france-transfert.fullname" . }}-worker-app
+    release: {{ .Release.Name }}
+spec:
+  endpoints:
+  - port: "management"
+    scheme: "http"
+    path: "/actuator/prometheus"
+    interval: "30s"
+    scrapeTimeout: "30s"
+  selector:
+    matchLabels:
+      app: {{ include "france-transfert.fullname" . }}-worker-app
+      release: {{ .Release.Name }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}

@@ -40,7 +40,7 @@ public class AppSyncServices {
 		}
 	}
 
-	public void appSyncIgnimissionDomain() {
+	public void appSyncRefDomain() {
 		try {
 			redisManager.deleteKey(AppSyncKeysEnum.APP_SYNC_IGNIMISSION_DOMAIN.getKey());
 		} catch (Exception e) {
@@ -98,7 +98,7 @@ public class AppSyncServices {
 		return shouldCleanup;
 	}
 
-	public boolean shouldUpdateIgnimissionDomain() {
+	public boolean shouldUpdateRefDomain() {
 		boolean shouldUpdateDomain = false;
 		try {
 			if (redisManager.incr(AppSyncKeysEnum.APP_SYNC_IGNIMISSION_DOMAIN.getKey()) == 1) {

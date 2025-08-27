@@ -1,0 +1,21 @@
+{{- if .Values.clamav.hpa.custom.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-clamav-hpa
+spec:
+  maxReplicas: {{ .Values.clamav.hpa.maxReplicas }}
+  minReplicas: {{ .Values.clamav.hpa.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: {{ include "france-transfert.fullname" . }}-clamav
+  {{- if .Values.clamav.hpa.metrics }}
+  metrics:
+    {{ toYaml .Values.clamav.hpa.metrics | nindent 4 }}
+  {{- end }}
+  {{- if .Values.clamav.hpa.behavior }}
+  behavior:
+    {{- toYaml .Values.clamav.hpa.behavior | nindent 4 }}
+  {{- end }}
+{{- end }}

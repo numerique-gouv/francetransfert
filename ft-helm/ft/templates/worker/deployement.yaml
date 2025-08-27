@@ -46,6 +46,11 @@ spec:
             mountPath: /dummy/
           - name: ft-keystore
             mountPath: /ft-keystore/
+        {{- toYaml .Values.worker.readinessLiveness | nindent 8 }}
+        ports:
+        - name: management
+          containerPort: {{ .Values.worker.service.managementPort }}
+          protocol: TCP
         resources:
           {{- toYaml .Values.worker.resources | nindent 10 }}
         securityContext:

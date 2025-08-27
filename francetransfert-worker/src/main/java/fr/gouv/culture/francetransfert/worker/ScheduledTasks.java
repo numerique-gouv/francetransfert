@@ -36,13 +36,13 @@ import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.app.sync.AppSyncServices;
 import fr.gouv.culture.francetransfert.services.cleanup.CleanUpServices;
 import fr.gouv.culture.francetransfert.services.glimps.GlimpsService;
-import fr.gouv.culture.francetransfert.services.ignimission.IgnimissionServices;
 import fr.gouv.culture.francetransfert.services.mail.SnapService;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailAvailbleEnclosureServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailConfirmationCodeServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailDownloadServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailFormulaireContactServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailRelaunchServices;
+import fr.gouv.culture.francetransfert.services.referentiel.ReferentielServices;
 import fr.gouv.culture.francetransfert.services.satisfaction.SatisfactionService;
 import fr.gouv.culture.francetransfert.services.sequestre.SequestreService;
 import fr.gouv.culture.francetransfert.services.stat.StatServices;
@@ -94,7 +94,7 @@ public class ScheduledTasks {
 	private SatisfactionService satisfactionService;
 
 	@Autowired
-	private IgnimissionServices ignimissionServices;
+	private ReferentielServices referentielServices;
 
 	@Autowired
 	private SnapService snapServices;
@@ -108,8 +108,8 @@ public class ScheduledTasks {
 	@Autowired
 	private RedisManager redisManager;
 
-//	@Autowired
-//	private MailCheckService mailCheckService;
+	// @Autowired
+	// private MailCheckService mailCheckService;
 
 	@Autowired
 	private GlimpsService glimpsService;
@@ -200,26 +200,26 @@ public class ScheduledTasks {
 		LOGGER.debug("Worker : finished Application synchronization relaunch");
 	}
 
-	@Scheduled(cron = "${scheduled.ignimission.domain}")
-	public void ignimissionDomainUpdate() throws WorkerException {
-		if (appSyncServices.shouldUpdateIgnimissionDomain()) {
-			LOGGER.info("Worker : start Application ignimission/resana/osmose/rizomo domain update");
-			ignimissionServices.updateDomains();
+	@Scheduled(cron = "${scheduled.ref.domain:0 45 2 * * *}")
+	public void refDomainUpdate() throws WorkerException {
+		if (appSyncServices.shouldUpdateRefDomain()) {
+			LOGGER.info("Worker : start Application Ref update");
+			referentielServices.updateDomains();
 			snapServices.updateOsmose();
 			snapServices.updateResana();
 			snapServices.updateRizomo();
-			LOGGER.info("Worker : finished Application ignimission/resana/osmose/rizomo update");
+			LOGGER.info("Worker : finished Application Ref update");
 		}
 	}
 
-//	@Scheduled(cron = "${scheduled.sendcheckmail}")
-//	public void checkMailSend() throws WorkerException {
-//		if (appSyncServices.shouldSendCheckMail()) {
-//			LOGGER.info("Worker : start checkMailSend");
-//			mailCheckService.sendMail();
-//			LOGGER.info("Worker : finished checkMailSend");
-//		}
-//	}
+	// @Scheduled(cron = "${scheduled.sendcheckmail}")
+	// public void checkMailSend() throws WorkerException {
+	// if (appSyncServices.shouldSendCheckMail()) {
+	// LOGGER.info("Worker : start checkMailSend");
+	// mailCheckService.sendMail();
+	// LOGGER.info("Worker : finished checkMailSend");
+	// }
+	// }
 
 	@Scheduled(cron = "${scheduled.healthcheck}")
 	public void checkGlimps() throws WorkerException {
@@ -247,14 +247,14 @@ public class ScheduledTasks {
 		LOGGER.debug("Worker : finished Application synchronization appSyncHealthcheck");
 	}
 
-//	@Scheduled(cron = "${scheduled.checkmail}")
-//	public void checkMailCheck() throws WorkerException {
-//		if (appSyncServices.shouldCheckMailCheck()) {
-//			LOGGER.info("Worker : start checkMail");
-//			mailCheckService.mailCheck();
-//			LOGGER.info("Worker : finished checkMail");
-//		}
-//	}
+	// @Scheduled(cron = "${scheduled.checkmail}")
+	// public void checkMailCheck() throws WorkerException {
+	// if (appSyncServices.shouldCheckMailCheck()) {
+	// LOGGER.info("Worker : start checkMail");
+	// mailCheckService.mailCheck();
+	// LOGGER.info("Worker : finished checkMail");
+	// }
+	// }
 
 	@Scheduled(cron = "${scheduled.sync.checkmail}")
 	public void appSyncCheckMailCheck() {
@@ -270,18 +270,18 @@ public class ScheduledTasks {
 		LOGGER.debug("Worker : finished Application synchronization CheckMailSend");
 	}
 
-	@Scheduled(cron = "${scheduled.send.stat}")
-	public void ignimissionSendStat() throws WorkerException {
-		LOGGER.info("Worker : start Application ignimissionSendStat");
-		ignimissionServices.sendStats();
-		LOGGER.info("Worker : finished Application ignimissionSendStat");
+	@Scheduled(cron = "${scheduled.send.stat:0 45 4 * * *}")
+	public void referentielSendStat() throws WorkerException {
+		LOGGER.info("Worker : start Application referentielSendStat");
+		referentielServices.sendStats();
+		LOGGER.info("Worker : finished Application referentielSendStat");
 	}
 
-	@Scheduled(cron = "${scheduled.app.sync.ignimission.domain}")
-	public void appSyncIgnimissionDomain() {
-		LOGGER.debug("Worker : start Application synchronization ignimission domain");
-		appSyncServices.appSyncIgnimissionDomain();
-		LOGGER.debug("Worker : finished Application synchronization ignimission domain");
+	@Scheduled(cron = "${scheduled.app.sync.ref.domain:20 0 */1 * * *}")
+	public void appSyncRefDomain() {
+		LOGGER.debug("Worker : start Application synchronization Ref domain");
+		appSyncServices.appSyncRefDomain();
+		LOGGER.debug("Worker : finished Application synchronization Ref domain");
 	}
 
 	@PostConstruct
@@ -432,7 +432,6 @@ public class ScheduledTasks {
 				executorList.add(SendEmailNotificationUploadDownloadWorkerExecutor);
 				while (runningThread) {
 					try {
-						String email = "";
 						List<String> returnedBLPOPList = redisManager
 								.subscribeFT(RedisQueueEnum.MAIL_NEW_RECIPIENT_QUEUE.getValue());
 						NewRecipient dataRecipient = new Gson().fromJson(returnedBLPOPList.get(1), NewRecipient.class);
@@ -469,10 +468,10 @@ public class ScheduledTasks {
 								zipWorkerExecutor.execute(
 										new MonitorRunnable(task, RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId));
 							}
-//						else {
-//								LOGGER.debug("Worker full putting back enclosure to queue {}", enclosureId);
-//								redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId);
-//							}
+							// else {
+							// LOGGER.debug("Worker full putting back enclosure to queue {}", enclosureId);
+							// redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId);
+							// }
 						} else {
 							// Sleep 60s
 							Thread.sleep(queueSleep);

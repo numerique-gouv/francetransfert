@@ -27,7 +27,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 100101
             runAsGroup: 100101
-          image: bitnami/nginx:1.28.0
+          image: bitnamilegacy/nginx:1.29.0
           imagePullPolicy: IfNotPresent
           env:
             - name: NGINX_PORT

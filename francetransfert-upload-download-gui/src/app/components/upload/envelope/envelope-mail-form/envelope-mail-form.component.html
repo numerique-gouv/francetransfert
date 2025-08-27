@@ -63,6 +63,7 @@
       <mat-label>{{'Objet' | translate}}</mat-label>
       <input matInput placeholder="(Facultatif)" formControlName="subject" autocomplete="off" #objet
         (keyup.enter)="enterMessage()">
+        <mat-error role="alert" *ngIf="f.subject.errors?.maxlength">{{'ObjetMaxLength' | translate}}</mat-error>
     </mat-form-field>
   </div>
 

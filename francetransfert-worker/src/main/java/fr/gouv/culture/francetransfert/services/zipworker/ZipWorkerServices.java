@@ -23,6 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,6 +36,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +70,7 @@ import fr.gouv.culture.francetransfert.services.cleanup.CleanUpServices;
 import fr.gouv.culture.francetransfert.services.glimps.GlimpsService;
 import fr.gouv.culture.francetransfert.services.mail.notification.MailNotificationServices;
 import fr.gouv.culture.francetransfert.services.mail.notification.enums.NotificationTemplateEnum;
+import fr.gouv.culture.francetransfert.services.metrics.CustomMetricsService;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.io.outputstream.ZipOutputStream;
 import net.lingala.zip4j.model.ZipParameters;
@@ -93,6 +99,9 @@ public class ZipWorkerServices {
 
 	@Autowired
 	ClamAVScannerManager clamAVScannerManager;
+
+	@Autowired
+	CustomMetricsService customMetricsService;
 
 	@Value("${tmp.folder.path}")
 	private String tmpFolderPath;
@@ -127,6 +136,9 @@ public class ZipWorkerServices {
 	@Value("${glimps.delay.seconds:30}")
 	private int glimpsDelay;
 
+	@Value("${glimps.error.delay.seconds:60}")
+	private int glimpsErrorDelay;
+
 	@Value("${glimps.maxTry:10}")
 	private Long glipmsMaxTry;
 
@@ -141,6 +153,13 @@ public class ZipWorkerServices {
 
 	@Autowired
 	GlimpsService glimpsService;
+
+	@Autowired
+	@Qualifier("downloadExecutor")
+	Executor downloadExecutor;
+
+	@Value("${downloadExecutor.enabled:false}")
+	private boolean downloadExecutorEnabled;
 
 	List<String> inProgressList = Arrays.asList(StatutEnum.ANA.getCode(), StatutEnum.CHT.getCode());
 
@@ -176,7 +195,7 @@ public class ZipWorkerServices {
 				LOGGER.debug(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
 						bucketName, list, enclosureId, bucketPrefix);
 
-				downloadFilesToTempFolder(manager, bucketName, list);
+				downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
 				sizeCheck(list);
 
 				if (glimpsEnabled && glimpsState) {
@@ -248,7 +267,7 @@ public class ZipWorkerServices {
 				LOGGER.info("Finished scan start zipping for enclosure {}", enclosureId);
 
 				if (StatutEnum.ANA.getCode().equals(encStatut)) {
-					downloadFilesToTempFolder(manager, bucketName, list);
+					downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
 				}
 
 				String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
@@ -325,6 +344,10 @@ public class ZipWorkerServices {
 
 					LOGGER.warn("Finish enclosure {} in seconds | {} ", enclosureId,
 							ChronoUnit.SECONDS.between(uploadTime, depotDate));
+
+					customMetricsService.incrementFinishedPliCounter();
+					customMetricsService.recordPliTime(ChronoUnit.SECONDS.between(uploadTime, depotDate),
+							TimeUnit.SECONDS);
 				}
 
 			} else if (!isClean && finishedScan) {
@@ -394,6 +417,9 @@ public class ZipWorkerServices {
 				LOGGER.error("Retry GlimpsError putting enclosure back to queue " + enclosureId + " : "
 						+ exGlimps.getMessage(), exGlimps);
 				cleanUpServices.deleteEnclosureTempDirectory(getBaseFolderNameWithEnclosurePrefix(enclosureId));
+				// add 1mn delay if glimps error
+				redisManager.setString(RedisKeysEnum.FT_ENCLOSURE_SCAN_DELAY.getKey(enclosureId),
+						LocalDateTime.now().plus(glimpsErrorDelay, ChronoUnit.SECONDS).toString());
 				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosure.getGuid());
 			} else {
 				LOGGER.error("Too many Retry GlimpsError for enclosure " + enclosureId + " : " + exGlimps.getMessage(),
@@ -564,19 +590,71 @@ public class ZipWorkerServices {
 		}
 	}
 
-	private void downloadFilesToTempFolder(StorageManager manager, String bucketName, ArrayList<String> list)
-			throws RetryException {
+	private void downloadFilesToTempFolder(StorageManager manager, String bucketName, ArrayList<String> list,
+			String enclosureId) throws RetryException {
+		try {
+
+			if (!downloadExecutorEnabled) {
+				parallelDownload(manager, bucketName, list, enclosureId);
+			} else {
+				sequentialDownload(manager, bucketName, list, enclosureId);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error During File Dowload from OSU to Temp Folder : " + e.getMessage(), e);
+			throw new RetryException("Error During File Dowload from OSU to Temp Folder ", e);
+		}
+	}
+
+	private void parallelDownload(StorageManager manager, String bucketName, ArrayList<String> list,
+			String enclosureId) throws RetryException {
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+		LOGGER.info("Start download for enclosure {}", enclosureId);
+		for (String fileName : list) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				S3Object object = null;
+				try {
+					object = manager.getObjectByName(bucketName, fileName);
+					if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
+						writeFile(object, fileName);
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error during file download {} : {}", fileName, e.getMessage(), e);
+					throw new CompletionException(e);
+				} finally {
+					if (object != null) {
+						try {
+							object.close();
+						} catch (IOException ioe) {
+						}
+					}
+				}
+			}, downloadExecutor);
+			futures.add(future);
+		}
+
+		try {
+			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+		} catch (CompletionException ce) {
+			throw new RetryException("Error during parallel file download", ce.getCause());
+		}
+	}
+
+	private void sequentialDownload(StorageManager manager, String bucketName, ArrayList<String> list,
+			String enclosureId) throws RetryException {
+
 		try {
 			for (String fileName : list) {
 				S3Object object = manager.getObjectByName(bucketName, fileName);
-				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
+				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") &&
+						!fileName.endsWith("/")) {
 					writeFile(object, fileName);
 				}
 				object.close();
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error During File Dowload from OSU to Temp Folder : " + e.getMessage(), e);
-			throw new RetryException("Error During File Dowload from OSU to Temp Folder ", e);
+			LOGGER.error("Error during sequential file download", e);
+			throw new RetryException("Error during sequential file download", e);
 		}
 	}
 
@@ -706,7 +784,7 @@ public class ZipWorkerServices {
 	 * @param bucketName
 	 * @param prefix
 	 */
-	private void cleanUpEnclosure(String bucketName, String prefix, Enclosure enclosure, String emailTemplateName,
+	private void cleanUpEnclosure(String bucketName, String enclosureId, Enclosure enclosure, String emailTemplateName,
 			String emailSubject) {
 		try {
 			// Notify sender
@@ -737,29 +815,29 @@ public class ZipWorkerServices {
 		} catch (Exception e) {
 			LOGGER.error("Error while sending mail for Enclosure " + enclosure.getGuid() + " : " + e.getMessage(), e);
 		} finally {
-
+			customMetricsService.incrementFinishedPliCounter();
 			try {
 				/** Clean : OSU, REDIS, UPLOADER FOLDER, and NOTIFY SNDER **/
 				LOGGER.info("Processing clean up for enclosure{} - {} / {} - {} ", enclosure.getGuid(), bucketName,
-						prefix, bucketPrefix);
+						enclosureId, bucketPrefix);
 				LOGGER.debug("clean up OSU");
-				deleteFilesFromOSU(manager, bucketName, prefix);
+				deleteFilesFromOSU(manager, bucketName, enclosureId);
 
 				// clean temp data in REDIS for Enclosure
 				LOGGER.debug("clean up REDIS temp data");
-				cleanUpServices.cleanUpEnclosureTempDataInRedis(prefix, true);
+				cleanUpServices.cleanUpEnclosureTempDataInRedis(enclosureId, true);
 
 				LOGGER.debug("clean up REDIS");
 				// Keep enclosure envelope for mail api check if from mail
-				String sourceCode = RedisUtils.getEnclosure(redisManager, prefix)
+				String sourceCode = RedisUtils.getEnclosure(redisManager, enclosureId)
 						.get(EnclosureKeysEnum.SOURCE.getKey());
 				if (SourceEnum.PUBLIC.getValue().equals(sourceCode)) {
-					cleanUpServices.cleanUpEnclosurePartiallyCoreInRedis(prefix);
+					cleanUpServices.cleanUpEnclosurePartiallyCoreInRedis(enclosureId);
 				} else {
-					cleanUpServices.cleanUpEnclosureCoreInRedis(prefix);
+					cleanUpServices.cleanUpEnclosureCoreInRedis(enclosureId);
 				}
 				// clean up for Upload directory
-				cleanUpServices.deleteEnclosureTempDirectory(getBaseFolderNameWithEnclosurePrefix(prefix));
+				cleanUpServices.deleteEnclosureTempDirectory(getBaseFolderNameWithEnclosurePrefix(enclosureId));
 			} catch (Exception e) {
 				LOGGER.error("Error while cleaning up Enclosure " + enclosure.getGuid() + " : " + e.getMessage(), e);
 			}
