@@ -24,7 +24,7 @@ spec:
           restartPolicy: Never
           initContainers:
             - name: kubectlcp
-              image: bitnami/kubectl
+              image: bitnamisecure/kubectl
               resources:
                 requests:
                   memory: "512Mi"
