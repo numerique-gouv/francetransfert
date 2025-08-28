@@ -182,7 +182,7 @@ redis:
   master:
     extraVolumeMounts: 
       - name: ft-scripts
-        mountPath: /opt/bitnami/scripts/redis
+        mountPath: /opt/bitnami/scripts/
         readOnly: true
     extraVolumes:
       - name: ft-scripts
@@ -213,7 +213,7 @@ redis:
   replica:
     extraVolumeMounts: 
       - name: ft-scripts
-        mountPath: /opt/bitnami/scripts/redis
+        mountPath: /opt/bitnami/scripts/
         readOnly: true
     extraVolumes:
       - name: ft-scripts
