@@ -180,6 +180,14 @@ redis:
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
+    extraVolumeMounts: 
+      - name: ft-scripts
+        mountPath: /opt/bitnami/scripts/redis
+        readOnly: true
+    extraVolumes:
+      - name: ft-scripts
+        configMap:
+          name: redis-ft-scripts
     persistence:
       size: 50Gi
       enabled: true
@@ -203,6 +211,14 @@ redis:
             matchLabels:
               app.kubernetes.io/name: redis
   replica:
+    extraVolumeMounts: 
+      - name: ft-scripts
+        mountPath: /opt/bitnami/scripts/redis
+        readOnly: true
+    extraVolumes:
+      - name: ft-scripts
+        configMap:
+          name: redis-ft-scripts
     persistence:
       size: 50Gi
       enabled: true

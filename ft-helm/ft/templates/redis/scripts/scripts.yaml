@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-ft-scripts
+data:
+{{ (tpl (.Files.Glob "scripts/redis/libos.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redis/liblog.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redis/libvalidations.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redis/libfs.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redis/libservice.sh").AsConfig .) | indent 2 }}
