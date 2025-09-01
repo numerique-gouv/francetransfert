@@ -435,7 +435,7 @@ download:
 
 worker:
   # type: deploy/sts
-  type: sts
+  type: deploy
   replicaCount: 6
   terminationGracePeriodSeconds: 180
   readinessLiveness:
@@ -511,6 +511,11 @@ worker:
     DISABLESSL: "false"
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
+  # data:
+  #   persistentVolumeClaim:
+  #     storage: 130Gi
+  #     accessModes: ReadWriteOnce
+  #     storageClassName: bsu-io1
   data:
     persistentVolumeClaim:
       storage: 200Gi
