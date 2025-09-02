@@ -34,7 +34,7 @@ public class FileUtils {
 		Map<String, String> files = new HashMap<>();
 		if (!CollectionUtils.isEmpty(metadata.getRootFiles())) {
 			files = metadata.getRootFiles().stream()
-					.collect(Collectors.toMap(file -> file.getName(), file -> String.valueOf(file.getSize())));
+					.collect(Collectors.toMap(file -> file.getName(), file -> String.valueOf(file.getSize()), (a, b) -> a));
 		}
 		return files;
 	}
