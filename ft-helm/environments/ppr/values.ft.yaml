@@ -146,9 +146,7 @@ clamav:
 
 redis:
   image:
-    registry: docker.io
-    repository: redis
-    tag: 8.2.1
+    repository: bitnamilegacy/redis
   commonConfiguration: |-
     appendonly yes
     save "7200 1 3600 10000"
@@ -170,7 +168,6 @@ redis:
     enabled: true
     image:
       repository: bitnamilegacy/redis-sentinel
-      tag: 8.2.1
     persistence:
       enabled: true
       size: 5Gi
