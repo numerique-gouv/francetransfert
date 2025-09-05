@@ -511,16 +511,16 @@ worker:
     DISABLESSL: "false"
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
-  # data:
-  #   persistentVolumeClaim:
-  #     storage: 130Gi
-  #     accessModes: ReadWriteOnce
-  #     storageClassName: bsu-io1
   data:
     persistentVolumeClaim:
-      storage: 200Gi
+      storage: 160Gi
       accessModes: ReadWriteOnce
-      storageClassName: bsu-gp2
+      storageClassName: bsu-io1
+  # data:
+  #   persistentVolumeClaim:
+  #     storage: 200Gi
+  #     accessModes: ReadWriteOnce
+  #     storageClassName: bsu-gp2
   tmp:
     persistentVolumeClaim:
       storage: 15Gi
