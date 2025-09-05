@@ -576,7 +576,7 @@ ingress:
         - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.opicloud.numerique.gouv.fr
 
 backup:
-  backupDate: "20250723"
+  backupDate: "2025_09_05_042501"
   enabled: true
   schedule: "20 4 * * *"
   persistentVolumeClaim:
