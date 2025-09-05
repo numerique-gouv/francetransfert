@@ -30,7 +30,7 @@ overrideGlobalConf:
   MAIL_IMAGE_FT_ACCESSBUTTON: "https://francetransfert.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
 
 maintenance:
-  enabled: true
+  enabled: false
 
 clamav:
   enabled: true
