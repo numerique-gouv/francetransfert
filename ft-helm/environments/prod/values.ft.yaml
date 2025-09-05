@@ -436,7 +436,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 6
+  replicaCount: 4
   terminationGracePeriodSeconds: 180
   readinessLiveness:
     readinessProbe:
