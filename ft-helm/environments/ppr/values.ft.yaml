@@ -260,7 +260,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: ppr
+    tag: 4.0.7
     imagePullPolicy: Always
   service:
     port: 8080
@@ -308,7 +308,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: ppr
+    tag: 4.0.7
     imagePullPolicy: Always
   service:
     port: 8080
@@ -392,7 +392,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: ppr
+    tag: 4.0.7
     imagePullPolicy: Always
   service:
     port: 8081
@@ -465,7 +465,7 @@ worker:
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: ppr
+    tag: 4.0.7
     imagePullPolicy: Always
   resources:
     requests:
