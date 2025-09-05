@@ -594,7 +594,7 @@ public class ZipWorkerServices {
 			String enclosureId) throws RetryException {
 		try {
 
-			if (!downloadExecutorEnabled) {
+			if (downloadExecutorEnabled) {
 				parallelDownload(manager, bucketName, list, enclosureId);
 			} else {
 				sequentialDownload(manager, bucketName, list, enclosureId);

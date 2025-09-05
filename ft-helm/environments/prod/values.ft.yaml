@@ -539,6 +539,8 @@ worker:
     DISABLESSL: "false"
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
+    DOWNLOADEXECUTOR_ENABLED: "true"
+    DOWNLOADEXECUTOR_POOL_SIZE: "1"
   data:
     persistentVolumeClaim:
       storage: 160Gi
