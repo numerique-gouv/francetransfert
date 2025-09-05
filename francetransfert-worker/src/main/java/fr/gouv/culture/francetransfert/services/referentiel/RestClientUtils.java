@@ -100,7 +100,7 @@ public class RestClientUtils {
 
 			LOGGER.debug("stat response : {}", response.getBody());
 
-			if (!response.getStatusCode().equals(HttpStatus.OK)) {
+			if (!response.getStatusCode().is2xxSuccessful()) {
 				LOGGER.error("stat response : {}", response.getBody());
 				throw new WorkerException("error while sending file" + response.toString());
 			}
