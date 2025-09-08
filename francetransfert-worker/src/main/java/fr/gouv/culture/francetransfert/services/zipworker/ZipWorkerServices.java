@@ -503,7 +503,7 @@ public class ZipWorkerServices {
 
 	private void deleteFilesFromTemp(File file) {
 		if (!FileUtils.deleteQuietly(file)) {
-			LOGGER.error("unable to delete file");
+			LOGGER.error("unable to delete file {}", file.getAbsolutePath());
 		}
 	}
 
