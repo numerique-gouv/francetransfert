@@ -7,3 +7,4 @@ data:
 {{ (tpl (.Files.Glob "scripts/redisdump.sh").AsConfig .) | indent 2 }}
 {{ (tpl (.Files.Glob "scripts/getbackup.sh").AsConfig .) | indent 2 }}
 {{ (tpl (.Files.Glob "scripts/restoreredis.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/redisdump_delta.sh").AsConfig .) | indent 2 }}
