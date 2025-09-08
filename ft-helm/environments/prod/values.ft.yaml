@@ -464,7 +464,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 3
+  replicaCount: 6
   terminationGracePeriodSeconds: 180
   readinessLiveness:
     readinessProbe:
@@ -541,16 +541,16 @@ worker:
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "true"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
-  data:
-    persistentVolumeClaim:
-      storage: 160Gi
-      accessModes: ReadWriteOnce
-      storageClassName: bsu-io1
   # data:
   #   persistentVolumeClaim:
-  #     storage: 200Gi
+  #     storage: 160Gi
   #     accessModes: ReadWriteOnce
-  #     storageClassName: bsu-gp2
+  #     storageClassName: bsu-io1
+  data:
+    persistentVolumeClaim:
+      storage: 200Gi
+      accessModes: ReadWriteOnce
+      storageClassName: bsu-gp2
   tmp:
     persistentVolumeClaim:
       storage: 15Gi
