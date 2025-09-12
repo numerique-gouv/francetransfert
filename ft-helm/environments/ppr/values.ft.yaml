@@ -435,7 +435,14 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 2
+  replicaCount: 1
+  io:
+    replicaCount: 1
+    data:
+      persistentVolumeClaim:
+        storage: 25Gi
+        accessModes: ReadWriteOnce
+        storageClassName: bsu-gp2
   readinessLiveness:
     readinessProbe:
       httpGet:
@@ -532,7 +539,7 @@ worker:
     runAsGroup: 100104
   hpa:
     enabled: true
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 4
     cpu:
       averageUtilization: 80

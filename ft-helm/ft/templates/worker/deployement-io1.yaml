@@ -3,18 +3,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "france-transfert.fullname" . }}-worker-app 
+  name: {{ include "france-transfert.fullname" . }}-worker-io1 
 spec:
-  replicas: {{ .Values.worker.replicaCount }}
+  replicas: {{ .Values.worker.io.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "france-transfert.fullname" . }}-worker-app
+      app: {{ include "france-transfert.fullname" . }}-worker-io1
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         appfamily: worker
-        app: {{ include "france-transfert.fullname" . }}-worker-app
+        app: {{ include "france-transfert.fullname" . }}-worker-io1
         release: {{ .Release.Name }}
         tier: back
     spec:
@@ -26,7 +26,7 @@ spec:
       securityContext:
         {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
       containers:
-      - name: {{ include "france-transfert.fullname" . }}-worker-app
+      - name: {{ include "france-transfert.fullname" . }}-worker-io1
         image: {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
         imagePullPolicy: {{ .Values.worker.image.imagePullPolicy }}
         envFrom:
@@ -71,12 +71,12 @@ spec:
                   type: worker-data
               spec:
                 accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.data.persistentVolumeClaim.storageClassName }}
-                storageClassName: {{ .Values.worker.data.persistentVolumeClaim.storageClassName }}
+                {{ if .Values.worker.io.data.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.io.data.persistentVolumeClaim.storageClassName }}
                 {{ end }}
                 resources:
                   requests:
-                    storage: {{ .Values.worker.data.persistentVolumeClaim.storage }}
+                    storage: {{ .Values.worker.io.data.persistentVolumeClaim.storage }}
         - name: {{ include "france-transfert.fullname" . }}-worker-tmp
           ephemeral:
             volumeClaimTemplate:

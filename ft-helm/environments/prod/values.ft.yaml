@@ -541,11 +541,13 @@ worker:
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "true"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
-  # data:
-  #   persistentVolumeClaim:
-  #     storage: 160Gi
-  #     accessModes: ReadWriteOnce
-  #     storageClassName: bsu-io1
+  io:
+    replicaCount: 0
+    data:
+      persistentVolumeClaim:
+        storage: 160Gi
+        accessModes: ReadWriteOnce
+        storageClassName: bsu-io1
   data:
     persistentVolumeClaim:
       storage: 200Gi
