@@ -545,7 +545,7 @@ worker:
     replicaCount: 0
     data:
       persistentVolumeClaim:
-        storage: 160Gi
+        storage: 140Gi
         accessModes: ReadWriteOnce
         storageClassName: bsu-io1
   data:
