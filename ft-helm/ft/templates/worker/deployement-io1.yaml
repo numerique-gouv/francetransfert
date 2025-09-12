@@ -8,13 +8,15 @@ spec:
   replicas: {{ .Values.worker.io.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "france-transfert.fullname" . }}-worker-io1
+      app: {{ include "france-transfert.fullname" . }}-worker-app
+      type: io1
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         appfamily: worker
-        app: {{ include "france-transfert.fullname" . }}-worker-io1
+        type: io1
+        app: {{ include "france-transfert.fullname" . }}-worker-app
         release: {{ .Release.Name }}
         tier: back
     spec:

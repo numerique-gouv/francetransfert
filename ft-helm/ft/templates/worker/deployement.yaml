@@ -9,11 +9,13 @@ spec:
   selector:
     matchLabels:
       app: {{ include "france-transfert.fullname" . }}-worker-app
+      type: gp2
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         appfamily: worker
+        type: gp2
         app: {{ include "france-transfert.fullname" . }}-worker-app
         release: {{ .Release.Name }}
         tier: back
