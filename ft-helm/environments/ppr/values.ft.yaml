@@ -171,6 +171,14 @@ redis:
     persistence:
       enabled: true
       size: 5Gi
+    resources:
+      limits:
+        ephemeral-storage: 1Gi
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        ephemeral-storage: 50Mi
+        memory: 256Mi
   auth:
     enabled: true
     sentinel: true
