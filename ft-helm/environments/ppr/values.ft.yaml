@@ -171,12 +171,34 @@ redis:
     persistence:
       enabled: true
       size: 5Gi
+    resources:
+      limits:
+        ephemeral-storage: 1Gi
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        ephemeral-storage: 50Mi
+        memory: 256Mi
   auth:
     enabled: true
     sentinel: true
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 5
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
     persistence:
       size: 50Gi
       enabled: true
@@ -200,6 +222,20 @@ redis:
             matchLabels:
               app.kubernetes.io/name: redis
   replica:
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 10
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 10
     persistence:
       size: 50Gi
       enabled: true
@@ -321,7 +357,8 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
-    JAVA_OPTS: "-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: '-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -404,7 +441,8 @@ download:
     limits:
       memory: 256Mi
   overrideConf:
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_PORT: "8081"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics"
     MANAGEMENT_SERVER_PORT: "8180"
@@ -431,18 +469,24 @@ download:
     maxReplicas: 4
     cpu:
       averageUtilization: 80
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 180
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
 
 worker:
   # type: deploy/sts
   type: deploy
   replicaCount: 1
-  io:
-    replicaCount: 1
-    data:
-      persistentVolumeClaim:
-        storage: 25Gi
-        accessModes: ReadWriteOnce
-        storageClassName: bsu-gp2
   readinessLiveness:
     readinessProbe:
       httpGet:
@@ -473,7 +517,8 @@ worker:
     MANAGEMENT_SERVER_PORT: "8380"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     SERVER_PORT: "8083"
-    JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone=\"Europe/Paris\""
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     SCAN_CLAMAV_TIMEOUT: "20000"
     SCAN_CLAMAV_CHUNKSIZE: "655360"
@@ -502,7 +547,7 @@ worker:
     SCHEDULED_APP_SYNC_RELAUNCH: "20 0 */1 * * *"
     SCHEDULED_APP_SYNC_REF_DOMAIN: "20 0 */1 * * *"
     SCHEDULED_REF_DOMAIN: "0 45 4 * * *"
-    SCHEDULED_SEND_STAT: "0 45 2 * * *"
+    SCHEDULED_SEND_STAT: "0 */5 * * * *"
     SCHEDULED_SENDCHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_CHECKMAIL: "0 0 0 1 * ?"
     SCHEDULED_SYNC_CHECKMAIL: "20 */45 * * * ?"
@@ -511,6 +556,15 @@ worker:
     SCHEDULED_SYNC_HEALTHCHECK: "10 */2 * * * ?"
     SCHEDULED_HEALTHCHECK: "0 */2 * * * ?"
     STORAGE_REQUEST_TIMEOUT: "300000"
+    DOWNLOADEXECUTOR_ENABLED: "true"
+    DOWNLOADEXECUTOR_POOL_SIZE: "12"
+  io:
+    replicaCount: 1
+    data:
+      persistentVolumeClaim:
+        storage: 75Gi
+        accessModes: ReadWriteOnce
+        storageClassName: bsu-gp2
   data:
     persistentVolumeClaim:
       storage: 75Gi

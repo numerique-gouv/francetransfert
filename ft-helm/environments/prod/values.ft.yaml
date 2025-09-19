@@ -170,6 +170,14 @@ redis:
     persistence:
       enabled: true
       size: 5Gi
+    resources:
+      limits:
+        ephemeral-storage: 2Gi
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        ephemeral-storage: 50Mi
+        memory: 256Mi
   auth:
     enabled: true
     sentinel: true
@@ -347,7 +355,8 @@ upload:
     limits:
       memory: 1024Mi
   overrideConf:
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=50.0 -Duser.timezone="Europe/Paris"'
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
@@ -431,6 +440,7 @@ download:
       memory: 512Mi
   overrideConf:
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_PORT: "8081"
     MANAGEMENT_SERVER_PORT: "8180"
     SERVER_COMPRESSION_ENABLED: "true"
@@ -495,6 +505,7 @@ worker:
     MANAGEMENT_SERVER_PORT: "8380"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     TMP_FOLDER_PATH: /data/
     SCAN_CLAMAV_TIMEOUT: "20000"
