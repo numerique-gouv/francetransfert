@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -594,10 +595,10 @@ public class ZipWorkerServices {
 			String enclosureId) throws RetryException {
 		try {
 
-			if (downloadExecutorEnabled) {
-				parallelDownload(manager, bucketName, list, enclosureId);
-			} else {
+			if (!downloadExecutorEnabled) {
 				sequentialDownload(manager, bucketName, list, enclosureId);
+			} else {
+				parallelDownload(manager, bucketName, list, enclosureId);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error During File Dowload from OSU to Temp Folder : " + e.getMessage(), e);
@@ -610,24 +611,20 @@ public class ZipWorkerServices {
 		List<CompletableFuture<Void>> futures = new ArrayList<>();
 
 		LOGGER.info("Start download for enclosure {}", enclosureId);
+		AtomicBoolean failed = new AtomicBoolean(false);
 		for (String fileName : list) {
 			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-				S3Object object = null;
-				try {
-					object = manager.getObjectByName(bucketName, fileName);
+				if (failed.get()) {
+					return;
+				}
+				try (S3Object object = manager.getObjectByName(bucketName, fileName)) {
 					if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
 						writeFile(object, fileName);
 					}
 				} catch (Exception e) {
+					failed.set(true);
 					LOGGER.error("Error during file download {} : {}", fileName, e.getMessage(), e);
 					throw new CompletionException(e);
-				} finally {
-					if (object != null) {
-						try {
-							object.close();
-						} catch (IOException ioe) {
-						}
-					}
 				}
 			}, downloadExecutor);
 			futures.add(future);
@@ -636,6 +633,7 @@ public class ZipWorkerServices {
 		try {
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 		} catch (CompletionException ce) {
+			futures.forEach(cf -> cf.cancel(true));
 			throw new RetryException("Error during parallel file download", ce.getCause());
 		}
 	}
@@ -645,12 +643,12 @@ public class ZipWorkerServices {
 
 		try {
 			for (String fileName : list) {
-				S3Object object = manager.getObjectByName(bucketName, fileName);
-				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") &&
-						!fileName.endsWith("/")) {
-					writeFile(object, fileName);
+				try (S3Object object = manager.getObjectByName(bucketName, fileName)) {
+					if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") &&
+							!fileName.endsWith("/")) {
+						writeFile(object, fileName);
+					}
 				}
-				object.close();
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error during sequential file download", e);
