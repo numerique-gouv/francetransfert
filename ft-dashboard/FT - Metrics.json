@@ -50,10 +50,16 @@
           "type": "grafana",
           "uid": "-- Grafana --"
         },
-        "enable": true,
+        "enable": false,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
@@ -121,6 +127,10 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "min(ft_jcop_state{app=\"ft-worker\"})",
@@ -129,11 +139,7 @@
           "legendFormat": "JcopStatus",
           "range": true,
           "refId": "A",
-          "useBackend": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "useBackend": false
         },
         {
           "datasource": {
@@ -172,10 +178,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -209,6 +211,10 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "disableTextWrap": false,
           "editorMode": "code",
           "expr": "sum by(app) (increase(ft_uploaded_pli_total[$__range]))",
@@ -217,11 +223,7 @@
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
-          "useBackend": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "useBackend": false
         }
       ],
       "title": "PLIs uploadés",
@@ -240,10 +242,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -277,15 +275,15 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "expr": "sum by (app) (increase(ft_finished_pli_total[$__range]))",
           "legendFormat": "{{app}}",
           "range": true,
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "A"
         }
       ],
       "title": "PLIs terminés",
@@ -341,15 +339,15 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "expr": "sum by (app) (rate(ft_finished_pli_total[$__rate_interval])) * 60",
           "legendFormat": "{{app}}",
           "range": true,
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "A"
         }
       ],
       "title": "Débit PLI (par min, agrégé)",
@@ -405,17 +403,17 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "exemplar": false,
           "expr": "max by (app) (max_over_time(ft_queue_zip_size[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{app}}",
           "range": true,
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "A"
         }
       ],
       "title": "Taille file ZIP",
@@ -434,10 +432,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -471,15 +465,15 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "expr": "sum(rate(ft_pli_timer_seconds_sum[$__range])) / sum(rate(ft_pli_timer_seconds_count[$__range]))",
           "legendFormat": "avg",
           "range": true,
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "A"
         }
       ],
       "title": "Latence moyenne (s, agrégé)",
@@ -498,10 +492,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -535,15 +525,15 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "expr": "max by (app)(\r\n  max_over_time(ft_pli_timer_seconds_max[$__range])\r\n)",
           "legendFormat": "max",
           "range": true,
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "A"
         }
       ],
       "title": "Latence max observée (s, agrégé)",
@@ -696,37 +686,37 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "editorMode": "code",
           "expr": "sum by (app) (increase(ft_uploaded_pli_total[30m]))",
           "legendFormat": "Uploads",
           "range": true,
-          "refId": "A",
+          "refId": "A"
+        },
+        {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
-          }
-        },
-        {
+          },
           "editorMode": "code",
           "expr": "sum by (app) (increase(ft_finished_pli_total[30m]))",
           "legendFormat": "Finished",
           "range": true,
-          "refId": "B",
+          "refId": "B"
+        },
+        {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
-          }
-        },
-        {
+          },
           "editorMode": "code",
           "expr": "sum(increase(ft_uploaded_pli_total[30m])) - sum(increase(ft_finished_pli_total[30m]))",
           "legendFormat": "Diff",
           "range": true,
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "refId": "C"
         }
       ],
       "title": "Uploads vs Finished (avec Diff)",
@@ -814,6 +804,10 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "disableTextWrap": false,
           "editorMode": "code",
           "expr": "ceil(\r\n  sum by (pod) (\r\n    avg_over_time(executor_active_threads{service=\"ft-worker-service\", name=\"zipWorkerExecutor\"}[$__interval])\r\n  )\r\n)\r\n",
@@ -822,11 +816,7 @@
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
-          "useBackend": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "useBackend": false
         }
       ],
       "title": "Worker Thread By Instance",
@@ -914,6 +904,10 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
           "disableTextWrap": false,
           "editorMode": "code",
           "expr": "ceil(sum by(pod) (rate(ft_pli_timer_seconds_sum[$__range])) / sum by(pod) (rate(ft_pli_timer_seconds_count[$__range])))",
@@ -922,11 +916,7 @@
           "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
-          "useBackend": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
+          "useBackend": false
         }
       ],
       "title": "Latence moyenne par instance (s)",
@@ -981,13 +971,10 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -997,7 +984,8 @@
         "x": 12,
         "y": 13
       },
-      "id": 6,
+      "id": 14,
+      "interval": "5m",
       "options": {
         "legend": {
           "calcs": [],
@@ -1015,39 +1003,17 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
-          "legendFormat": "p50",
+          "expr": "avg_over_time(\r\n  (\r\n    sum by (workload_group) (\r\n      label_replace(\r\n        rate(container_network_receive_bytes_total{\r\n          job=\"kubelet\",\r\n          metrics_path=\"/metrics/cadvisor\",\r\n          cluster=\"\",\r\n          namespace=~\"francetransfert-prd1\"\r\n        }[5m])\r\n        * on (namespace,pod)\r\n          group_left(workload)\r\n          namespace_workload_pod:kube_pod_owner:relabel{\r\n            cluster=\"\",\r\n            namespace=~\"francetransfert-prd1\",\r\n            workload=~\"ft-worker-(app|io1)\"\r\n          },\r\n        \"workload_group\", \"ft-worker\", \"workload\", \"ft-worker-(app|io1)\"\r\n      )\r\n    )\r\n  )[$__interval:]\r\n)\r\n",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           }
-        },
-        {
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
-          "legendFormat": "p95",
-          "range": true,
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
-        },
-        {
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
-          "legendFormat": "p99",
-          "range": true,
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          }
         }
       ],
-      "title": "Latence PLI p50 / p95 / p99 (s, agrégé)",
+      "title": "Debit download",
       "type": "timeseries"
     },
     {
@@ -1116,6 +1082,7 @@
         "y": 22
       },
       "id": 4,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -1132,18 +1099,140 @@
       "pluginVersion": "11.6.1",
       "targets": [
         {
-          "editorMode": "builder",
-          "expr": "sum by (pod) (\r\n  rate(ft_finished_pli_total[$__rate_interval])\r\n)\r\n",
-          "legendFormat": "{{pod}}",
-          "range": true,
-          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
-          }
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(pod) (rate(ft_finished_pli_total[1m]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{pod}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Débit PLI (req/s par instance)",
+      "title": "Débit PLI (pli/min par instance)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
+          "legendFormat": "p50",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
+          "legendFormat": "p95",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(ft_pli_timer_seconds_bucket[$__range])))",
+          "legendFormat": "p99",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Latence PLI p50 / p95 / p99 (s, agrégé)",
       "type": "timeseries"
     }
   ],
@@ -1170,6 +1259,6 @@
   "timezone": "browser",
   "title": "FT Worker Metrics",
   "uid": "aeue4tmyt08hse",
-  "version": 53,
+  "version": 11,
   "weekStart": ""
 }
