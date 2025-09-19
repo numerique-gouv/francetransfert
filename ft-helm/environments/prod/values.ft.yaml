@@ -551,7 +551,7 @@ worker:
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "true"
-    DOWNLOADEXECUTOR_POOL_SIZE: "1"
+    DOWNLOADEXECUTOR_POOL_SIZE: "16"
   io:
     replicaCount: 0
     data:
