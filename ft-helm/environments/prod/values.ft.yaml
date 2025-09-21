@@ -491,7 +491,7 @@ worker:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-worker
-    tag: 4.0.7
+    tag: 4.0.8
     imagePullPolicy: Always
   resources:
     requests:
@@ -550,9 +550,14 @@ worker:
     DISABLESSL: "false"
     ENABLEMTLS: "false"
     STORAGE_REQUEST_TIMEOUT: "300000"
-    DOWNLOADEXECUTOR_ENABLED: "true"
-    DOWNLOADEXECUTOR_POOL_SIZE: "16"
+    DOWNLOADEXECUTOR_ENABLED: "false"
+    DOWNLOADEXECUTOR_POOL_SIZE: "1"
   io:
+    env:
+      - name: DOWNLOADEXECUTOR_ENABLED
+        value: "true"
+      - name: DOWNLOADEXECUTOR_POOL_SIZE
+        value: "16"
     replicaCount: 0
     data:
       persistentVolumeClaim:

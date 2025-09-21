@@ -38,6 +38,10 @@ spec:
             name: app-config-map-{{ .Release.Name }}
         - secretRef:
             name: ft-secret-app
+        {{ if .Values.worker.env }}
+        - env:
+          {{- toYaml .Values.worker.env | nindent 10 }}
+        {{ end }}
         volumeMounts:
           - name: {{ include "france-transfert.fullname" . }}-worker-data
             mountPath: /data/
