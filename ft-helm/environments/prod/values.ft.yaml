@@ -552,7 +552,8 @@ worker:
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
-  io:
+  scaler:
+    enabled: true
     env:
       - name: DOWNLOADEXECUTOR_ENABLED
         value: "true"

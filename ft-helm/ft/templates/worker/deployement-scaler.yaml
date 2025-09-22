@@ -1,21 +1,22 @@
 ---
+{{- if .Values.worker.scaler.enabled }}
 {{- if eq .Values.worker.type "deploy" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "france-transfert.fullname" . }}-worker-io1 
+  name: {{ include "france-transfert.fullname" . }}-worker-scaler 
 spec:
-  replicas: {{ .Values.worker.io.replicaCount }}
+  replicas: {{ .Values.worker.scaler.replicaCount }}
   selector:
     matchLabels:
       app: {{ include "france-transfert.fullname" . }}-worker-app
-      type: io1
+      type: scaler
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         appfamily: worker
-        type: io1
+        type: scaler
         app: {{ include "france-transfert.fullname" . }}-worker-app
         release: {{ .Release.Name }}
         tier: back
@@ -28,19 +29,19 @@ spec:
       securityContext:
         {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
       containers:
-      - name: {{ include "france-transfert.fullname" . }}-worker-io1
+      - name: {{ include "france-transfert.fullname" . }}-worker-scaler
         image: {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
         imagePullPolicy: {{ .Values.worker.image.imagePullPolicy }}
         envFrom:
-        - configMapRef:
-            name: worker-override-conf-{{ .Release.Name }}
-        - configMapRef:
-            name: app-config-map-{{ .Release.Name }}
-        - secretRef:
-            name: ft-secret-app
-        {{ if .Values.worker.io.env }}
-        - env:
-          {{- toYaml .Values.worker.io.env | nindent 10 }}
+          - configMapRef:
+              name: worker-override-conf-{{ .Release.Name }}
+          - configMapRef:
+              name: app-config-map-{{ .Release.Name }}
+          - secretRef:
+              name: ft-secret-app
+        {{ if .Values.worker.scaler.env }}
+        env:
+          {{- toYaml .Values.worker.scaler.env | nindent 10 }}
         {{ end }}
         volumeMounts:
           - name: {{ include "france-transfert.fullname" . }}-worker-data
@@ -77,12 +78,12 @@ spec:
                   type: worker-data
               spec:
                 accessModes: [ "ReadWriteOnce" ]
-                {{ if .Values.worker.io.data.persistentVolumeClaim.storageClassName }}
-                storageClassName: {{ .Values.worker.io.data.persistentVolumeClaim.storageClassName }}
+                {{ if .Values.worker.scaler.data.persistentVolumeClaim.storageClassName }}
+                storageClassName: {{ .Values.worker.scaler.data.persistentVolumeClaim.storageClassName }}
                 {{ end }}
                 resources:
                   requests:
-                    storage: {{ .Values.worker.io.data.persistentVolumeClaim.storage }}
+                    storage: {{ .Values.worker.scaler.data.persistentVolumeClaim.storage }}
         - name: {{ include "france-transfert.fullname" . }}-worker-tmp
           ephemeral:
             volumeClaimTemplate:
@@ -120,4 +121,5 @@ spec:
                     appfamily: worker
                 topologyKey: kubernetes.io/hostname
               weight: 1
+{{- end }}
 {{- end }}

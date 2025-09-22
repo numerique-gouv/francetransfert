@@ -9,13 +9,13 @@ spec:
   selector:
     matchLabels:
       app: {{ include "france-transfert.fullname" . }}-worker-app
-      type: gp2
+      type: app
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         appfamily: worker
-        type: gp2
+        type: app
         app: {{ include "france-transfert.fullname" . }}-worker-app
         release: {{ .Release.Name }}
         tier: back
@@ -32,14 +32,14 @@ spec:
         image: {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
         imagePullPolicy: {{ .Values.worker.image.imagePullPolicy }}
         envFrom:
-        - configMapRef:
-            name: worker-override-conf-{{ .Release.Name }}
-        - configMapRef:
-            name: app-config-map-{{ .Release.Name }}
-        - secretRef:
-            name: ft-secret-app
+          - configMapRef:
+              name: worker-override-conf-{{ .Release.Name }}
+          - configMapRef:
+              name: app-config-map-{{ .Release.Name }}
+          - secretRef:
+              name: ft-secret-app
         {{ if .Values.worker.env }}
-        - env:
+        env:
           {{- toYaml .Values.worker.env | nindent 10 }}
         {{ end }}
         volumeMounts:
