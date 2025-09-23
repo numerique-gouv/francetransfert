@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,9 @@ public class ScheduledTasks {
 
 	@Value("${queue.sleep:1500}")
 	private int queueSleep;
+
+	@Value("${shutdown.seconds:20}")
+	private int shutdownSeconds;
 
 	@Autowired
 	private MailAvailbleEnclosureServices mailAvailbleEnclosureServices;
@@ -576,7 +580,8 @@ public class ScheduledTasks {
 		executorList.forEach(executor -> {
 			try {
 				executor.setQueueCapacity(0);
-				executor.initiateShutdown();
+				executor.shutdown();
+				executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				LOGGER.error("Cannot stop executor ", e);
 			}
