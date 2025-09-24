@@ -161,6 +161,10 @@ public class ScheduledTasks {
 	@Qualifier("deleteEnclosureWorkerExecutor")
 	Executor deleteEnclosureWorkerExecutorFromBean;
 
+	@Autowired
+	@Qualifier("downloadExecutor")
+	Executor downloadExecutorFromBean;
+
 	boolean runningThread = true;
 
 	List<ThreadPoolTaskExecutor> executorList = Collections.synchronizedList(new ArrayList<>());
@@ -581,11 +585,14 @@ public class ScheduledTasks {
 			try {
 				executor.setQueueCapacity(0);
 				executor.shutdown();
-				executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS);
+				if (!executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS)) {
+					executor.getThreadPoolExecutor().shutdownNow();
+				}
 			} catch (Exception e) {
 				LOGGER.error("Cannot stop executor ", e);
 			}
 		});
+
 		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
 			LOGGER.info("Active tasks found, waiting 10 seconds");
 			try {
