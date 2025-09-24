@@ -559,7 +559,7 @@ worker:
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
   scaler:
-    enabled: false
+    enabled: true
     replicaCount: 1
     env:
       - name: DOWNLOADEXECUTOR_ENABLED
