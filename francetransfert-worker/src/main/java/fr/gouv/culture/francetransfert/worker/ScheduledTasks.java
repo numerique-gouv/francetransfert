@@ -586,10 +586,18 @@ public class ScheduledTasks {
 				LOGGER.error("Cannot stop executor ", e);
 			}
 		});
-		WorkerUtils.activeTasks.forEach(task -> {
-			LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
-			redisManager.publishFT(task.getQueue(), task.getData());
-		});
+		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
+			LOGGER.info("Active tasks found, waiting 10 seconds");
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				LOGGER.error("Error sleep", e);
+			}
+			WorkerUtils.activeTasks.forEach(task -> {
+				LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
+				redisManager.publishFT(task.getQueue(), task.getData());
+			});
+		}
 		LOGGER.info("Finished putting task back to queue");
 
 	}
