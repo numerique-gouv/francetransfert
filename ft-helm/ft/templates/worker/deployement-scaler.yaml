@@ -121,5 +121,13 @@ spec:
                     appfamily: worker
                 topologyKey: kubernetes.io/hostname
               weight: 1
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: node
+                    app.kubernetes.io/instance: ft
+                    app.kubernetes.io/name: redis
+                topologyKey: kubernetes.io/hostname
+              weight: 1
 {{- end }}
 {{- end }}
