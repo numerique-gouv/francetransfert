@@ -486,7 +486,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 1
+  replicaCount: 2
   readinessLiveness:
     readinessProbe:
       httpGet:
@@ -559,7 +559,7 @@ worker:
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
   scaler:
-    enabled: true
+    enabled: false
     replicaCount: 1
     env:
       - name: DOWNLOADEXECUTOR_ENABLED
