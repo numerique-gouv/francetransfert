@@ -19,6 +19,7 @@
     align-self: center;
     align-content: center;
     justify-content: center;
+    max-height: 5vh;
   }
   .check-validation-code-card-content-icon {
     overflow: visible;
@@ -108,7 +109,7 @@
     .verification-code-form-container {
       .check-validation-code-card-content {
         &-text {
-          margin-top: 30%;
+          margin-top: 5vh;
         }
       }
     }
