@@ -559,7 +559,7 @@ worker:
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
   scaler:
-    enabled: false
+    enabled: true
     replicaCount: 1
     env:
       - name: DOWNLOADEXECUTOR_ENABLED
@@ -598,7 +598,7 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 4
     cpu:
