@@ -1003,7 +1003,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "avg_over_time(\r\n  (\r\n    sum by (workload_group) (\r\n      label_replace(\r\n        rate(container_network_receive_bytes_total{\r\n          job=\"kubelet\",\r\n          metrics_path=\"/metrics/cadvisor\",\r\n          cluster=\"\",\r\n          namespace=~\"francetransfert-prd1\"\r\n        }[5m])\r\n        * on (namespace,pod)\r\n          group_left(workload)\r\n          namespace_workload_pod:kube_pod_owner:relabel{\r\n            cluster=\"\",\r\n            namespace=~\"francetransfert-prd1\",\r\n            workload=~\"ft-worker-(app|io1)\"\r\n          },\r\n        \"workload_group\", \"ft-worker\", \"workload\", \"ft-worker-(app|io1)\"\r\n      )\r\n    )\r\n  )[$__interval:]\r\n)\r\n",
+          "expr": "avg_over_time(\r\n  (\r\n    sum by (workload_group) (\r\n      label_replace(\r\n        rate(container_network_receive_bytes_total{\r\n          job=\"kubelet\",\r\n          metrics_path=\"/metrics/cadvisor\",\r\n          cluster=\"\",\r\n          namespace=~\"francetransfert-prd1\"\r\n        }[5m])\r\n        * on (namespace,pod)\r\n          group_left(workload)\r\n          namespace_workload_pod:kube_pod_owner:relabel{\r\n            cluster=\"\",\r\n            namespace=~\"francetransfert-prd1\",\r\n            workload=~\"ft-worker-(.*)\"\r\n          },\r\n        \"workload_group\", \"ft-worker\", \"workload\", \"ft-worker-(.*)\"\r\n      )\r\n    )\r\n  )[$__interval:]\r\n)\r\n",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
