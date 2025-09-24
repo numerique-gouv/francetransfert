@@ -474,7 +474,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 6
+  replicaCount: 2
   terminationGracePeriodSeconds: 180
   readinessLiveness:
     readinessProbe:
@@ -558,8 +558,8 @@ worker:
       - name: DOWNLOADEXECUTOR_ENABLED
         value: "true"
       - name: DOWNLOADEXECUTOR_POOL_SIZE
-        value: "12"
-    replicaCount: 0
+        value: "14"
+    replicaCount: 2
     data:
       persistentVolumeClaim:
         storage: 140Gi
