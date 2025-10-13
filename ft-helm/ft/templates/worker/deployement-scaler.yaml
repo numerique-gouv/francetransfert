@@ -128,6 +128,6 @@ spec:
                     app.kubernetes.io/instance: ft
                     app.kubernetes.io/name: redis
                 topologyKey: kubernetes.io/hostname
-              weight: 1
+              weight: 100
 {{- end }}
 {{- end }}
