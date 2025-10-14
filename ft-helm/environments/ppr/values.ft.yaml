@@ -34,7 +34,7 @@ maintenance:
 
 clamav:
   image:
-    tag: "1.5.0-4"
+    tag: "1.5_base"
   enabled: true
   hpa:
     enabled: false
