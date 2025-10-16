@@ -32,6 +32,8 @@ spec:
         volumeMounts:
           - name: tmp-volume
             mountPath: /opt/bitnami/nginx/tmp/
+          - name: tmp-volume
+            mountPath: /tmp
       volumes:
       - name: tmp-volume
         emptyDir:
