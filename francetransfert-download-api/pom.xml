@@ -114,7 +114,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.17</version>
+			<version>1.5.19</version>
 		</dependency>
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
@@ -420,7 +420,7 @@
 				<dependency>
 					<groupId>com.squareup.okio</groupId>
 					<artifactId>okio</artifactId>
-					<version>3.3.0</version>
+					<version>3.4.0</version>
 				</dependency>
 				<dependency>
 					<groupId>org.glassfish.jersey.media</groupId>
