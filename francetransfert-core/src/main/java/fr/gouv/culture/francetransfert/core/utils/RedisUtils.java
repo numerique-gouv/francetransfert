@@ -519,12 +519,12 @@ public class RedisUtils {
         String currentStatus = redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
                 EnclosureKeysEnum.STATUS_CODE.getKey());
 
-        if ((StatutEnum.ECH.equals(status) || StatutEnum.ECC.equals(status))
-                && StatutEnum.CHT.getCode().equalsIgnoreCase(currentStatus)) {
+        if (currentStatus != null && StatutEnum.getFromCode(currentStatus).isAfter(status)) {
             LOGGER.info("Enclosure {} is already in status {} cannot rollback to {}", enclosureId, currentStatus,
                     status.getWord());
             return;
         }
+
         redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
                 EnclosureKeysEnum.STATUS_CODE.getKey(), status.getCode(), -1);
         redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
