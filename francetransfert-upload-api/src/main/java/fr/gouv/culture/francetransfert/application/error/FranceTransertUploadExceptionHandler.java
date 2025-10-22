@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -44,6 +45,7 @@ import fr.gouv.culture.francetransfert.domain.exceptions.InvalidCaptchaException
 import fr.gouv.culture.francetransfert.domain.exceptions.MaxTryException;
 import fr.gouv.culture.francetransfert.domain.exceptions.UnauthorizedMailAddressException;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -178,6 +180,13 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 		return new ResponseEntity<>(
 				new ApiError(HttpStatus.UNAUTHORIZED.value(), ErrorEnum.TECHNICAL_ERROR.getValue(), errorId),
 				HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex,
+			HttpServletRequest request) {
+		LOG.error("Handle error type MissingServletRequestParameterException : {}", ex.getMessage(), ex);
+		return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
 	}
 
 	@ExceptionHandler(JedisDataException.class)
