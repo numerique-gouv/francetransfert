@@ -474,7 +474,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 6
+  replicaCount: 2
   terminationGracePeriodSeconds: 180
   readinessLiveness:
     readinessProbe:
@@ -483,12 +483,18 @@ worker:
         port: 8380
       initialDelaySeconds: 5
       periodSeconds: 10
+      timeoutSeconds: 60
+      successThreshold: 1
+      failureThreshold: 5
     livenessProbe:
       httpGet:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
       periodSeconds: 10
+      timeoutSeconds: 60
+      successThreshold: 1
+      failureThreshold: 5
   image:
     repository: lasuite/francetransfert-worker
     tag: 4.0.8
@@ -559,9 +565,11 @@ worker:
       - name: DOWNLOADEXECUTOR_ENABLED
         value: "true"
       - name: DOWNLOADEXECUTOR_POOL_SIZE
-        value: "12"
+        value: "10"
       - name: QUEUE_SIZE
         value: "5"
+      - name: ZIPWORKEREXECUTOR_POOL_SIZE
+        value: "2"
     replicaCount: 0
     data:
       persistentVolumeClaim:
