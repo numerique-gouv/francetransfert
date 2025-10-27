@@ -569,7 +569,7 @@ worker:
       - name: QUEUE_SIZE
         value: "5"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
-        value: "2"
+        value: "3"
     replicaCount: 0
     data:
       persistentVolumeClaim:
