@@ -2,7 +2,7 @@
 
 backup_folder="/backup"
 echo "getting redis pods"
-pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-node" | sed "s/^.\{4\}//")
+pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//")
 if [ $? -ne 0 ]; then
   echo "failed to get redis pods"
   exit 1
@@ -11,7 +11,8 @@ echo "redis pods: $pods"
 #for each pod, restore the dump file
 for pod in $pods; do
   echo "copy dump file to $pod"
-  kubectl exec $pod -- sh -c 'rm -rf /data/*'
+  kubectl exec $pod -- sh -c 'rm -rf /data/*.rdb'
+  kubectl exec $pod -- sh -c 'rm -rf /data/appendonlydir'
   if [ $? -ne 0 ]; then
     echo "failed to remove data from $pod"
     exit 1
@@ -22,6 +23,8 @@ for pod in $pods; do
     exit 1
   fi
   echo "finish copy to $pod"
+  kubectl exec $pod -- sh -c 'ls -lrt /data'
+  kubectl exec $pod -- sh -c 'ls -lrt /data/**'
 done
 wait
 for pod in $pods; do
