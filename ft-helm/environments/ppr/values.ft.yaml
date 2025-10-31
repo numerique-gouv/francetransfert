@@ -152,7 +152,7 @@ redis:
   topologySpreadConstraints:
     enabled: true
     maxSkew: 1
-    topologyKey: kubernetes.io/zone
+    topologyKey: topology.kubernetes.io/zone
     whenUnsatisfiable: DoNotSchedule
   redis:
     port: 6379
