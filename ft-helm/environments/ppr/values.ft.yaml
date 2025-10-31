@@ -146,29 +146,42 @@ clamav:
     MaxRecursion: 10
 
 redis:
-  image:
-    repository: bitnamilegacy/redis
-  commonConfiguration: |-
-    appendonly yes
-    save "7200 1 3600 10000"
-    dbfilename ftr-data.rdb
-    appendfilename appendonly.aof
-    aof-use-rdb-preamble yes
-    auto-aof-rewrite-percentage 100
-    auto-aof-rewrite-min-size 2048mb
-  networkPolicy:
-    enabled: false
-    allowExternal: false
-  global:
-    storageClass: bsu-gp2
-    compatibility:
-      openshift:
-        adaptSecurityContext: auto
-  architecture: replication
+  auth: true
+  existingSecret: "ft-secret-app"
+  authKey: METALOAD_PASSWORD
+  topologySpreadConstraints:
+    enabled: true
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+  redis:
+    port: 6379
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        memory: 1Gi
+    config:
+      appendonly: "yes"
+      appendfsync: "everysec"
+      maxmemory: "0"
+      maxmemory-policy: "volatile-lru"
+      save: "7200 1 3600 10000"
+      aof-use-rdb-preamble: "yes"
+      dbfilename: "ftr-data.rdb"
+      appendfilename: "appendonly.aof"
+      auto-aof-rewrite-percentage: "100"
+      auto-aof-rewrite-min-size: "2048mb"
+    disableCommands:
+      - FLUSHDB
+      - FLUSHALL
   sentinel:
     enabled: true
-    image:
-      repository: bitnamilegacy/redis-sentinel
+    port: 26379
+    auth: true
+    existingSecret: "ft-secret-app"
+    authKey: METALOAD_PASSWORD
     persistence:
       enabled: true
       size: 5Gi
@@ -180,86 +193,21 @@ redis:
         cpu: 250m
         ephemeral-storage: 50Mi
         memory: 256Mi
-  auth:
+  networkPolicy:
+    enabled: false
+    allowExternal: false
+  global:
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  persistentVolume:
     enabled: true
-    sentinel: true
-    existingSecret: ft-secret-app
-    existingSecretPasswordKey: METALOAD_PASSWORD
-  master:
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 5
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 1
-      successThreshold: 1
-      failureThreshold: 5
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        memory: 1Gi
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-        - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-  replica:
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 1
-      successThreshold: 1
-      failureThreshold: 10
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        memory: 1Gi
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
-      - minDomains: 3
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
+    storageClass: bsu-gp2
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+  podDisruptionBudget:
+    maxUnavailable: 1
 
 mailhog:
   enable: true
