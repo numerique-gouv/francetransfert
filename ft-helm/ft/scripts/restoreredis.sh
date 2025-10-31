@@ -2,7 +2,7 @@
 
 backup_folder="/backup"
 echo "getting redis pods"
-pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-node" | sed "s/^.\{4\}//")
+pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//")
 if [ $? -ne 0 ]; then
   echo "failed to get redis pods"
   exit 1
