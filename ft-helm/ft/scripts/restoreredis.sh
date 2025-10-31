@@ -23,6 +23,7 @@ for pod in $pods; do
     exit 1
   fi
   echo "finish copy to $pod"
+  kubectl exec $pod -- sh -c 'ls -lrt /data'
 done
 wait
 for pod in $pods; do
