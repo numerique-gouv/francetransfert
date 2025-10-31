@@ -1,6 +1,6 @@
 #!/bin/sh
 # get one redis pod
-pod=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-node" | sed "s/^.\{4\}//" | head -n 1)
+pod=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//" | head -n 1)
 mkdir -p /backup/backup-redis
 
 echo "copy dump file from $pod to /backup/backup-redis"
