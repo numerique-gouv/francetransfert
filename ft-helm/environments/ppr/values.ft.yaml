@@ -435,7 +435,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 2
+  replicaCount: 0
   readinessLiveness:
     readinessProbe:
       httpGet:
