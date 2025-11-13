@@ -507,6 +507,8 @@ worker:
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
+    QUEUE_SIZE: "1"
+    QUEUE_SLEEP: "200"
   scaler:
     enabled: true
     replicaCount: 1
