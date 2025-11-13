@@ -15,13 +15,13 @@ spec:
   minReplicas: {{ .Values.worker.hpa.minReplicas }}
   maxReplicas: {{ .Values.worker.hpa.maxReplicas }}
   metrics:
-    - type: Pods
-      pods:
-        metric:
-          name: ft_queue_zip_size
-        target:
-          type: AverageValue
-          averageValue: "1"
+  - type: Pods
+    pods:
+      metric:
+        name: ft_queue_zip_size
+      target:
+        type: AverageValue
+        averageValue: "1"
   behavior:
     {{- toYaml .Values.worker.hpa.behavior | nindent 4 }}
 {{- end }}
