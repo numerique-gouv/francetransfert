@@ -548,7 +548,7 @@ worker:
     runAsGroup: 100104
   hpa:
     enabled: true
-    minReplicas: 0
+    minReplicas: 1
     maxReplicas: 4
     behavior:
       scaleDown:
