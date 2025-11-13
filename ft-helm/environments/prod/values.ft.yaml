@@ -625,11 +625,31 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: false
-    minReplicas: 4
-    maxReplicas: 4
-    cpu:
-      averageUtilization: 80
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 6
+    metrics:
+      - type: Pods
+        pods:
+          metric:
+            name: scale_ft_queue_zip_size
+          target:
+            type: AverageValue
+            averageValue: "20"
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 180
+        policies:
+          - type: Pods
+            value: 2
+            periodSeconds: 180
+        selectPolicy: Max
+      scaleDown:
+        stabilizationWindowSeconds: 600
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 600
 
 ingress:
   enabled: true

@@ -558,6 +558,8 @@ worker:
     STORAGE_REQUEST_TIMEOUT: "300000"
     DOWNLOADEXECUTOR_ENABLED: "false"
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
+    QUEUE_SIZE: "1"
+    QUEUE_SLEEP: "2000"
   scaler:
     enabled: false
     replicaCount: 1
@@ -600,16 +602,16 @@ worker:
   hpa:
     enabled: true
     minReplicas: 1
-    maxReplicas: 4
-    cpu:
-      averageUtilization: 80
+    maxReplicas: 3
+    metrics:
+      - type: Pods
+        pods:
+          metric:
+            name: scale_ft_queue_zip_size
+          target:
+            type: AverageValue
+            averageValue: "20"
     behavior:
-      scaleDown:
-        stabilizationWindowSeconds: 300
-        policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 180
       scaleUp:
         stabilizationWindowSeconds: 180
         policies:
@@ -617,6 +619,12 @@ worker:
           value: 1
           periodSeconds: 180
         selectPolicy: Max
+      scaleDown:
+        stabilizationWindowSeconds: 600
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 600
 
 ingress:
   enabled: true
@@ -671,3 +679,27 @@ benchmark:
   persistentVolumeClaim:
     storage: 200Gi
     storageClassName: bsu-gp2
+
+scaler:
+  enabled: false
+  schedule: "0 7,23 * * 1-5" # week day at 7:00 and 23:00
+  scalerminReplicaCount: 0
+  workerminReplicaCount: 0
+  scalermaxReplicaCount: 1
+  workermaxReplicaCount: 1
+  podSecurityContext:
+    runAsUser: 110101
+    runAsGroup: 110101
+    fsGroup: 110101
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 110101
+    runAsGroup: 110101
