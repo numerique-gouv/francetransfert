@@ -11,16 +11,11 @@ spec:
     {{- else if eq .Values.worker.type "deploy" }}
     kind: Deployment
     {{- end }}
-    name: {{ include "france-transfert.fullname" . }}-worker-app
+    name: {{ include "france-transfert.fullname" . }}-worker-scaler
   minReplicas: {{ .Values.worker.hpa.minReplicas }}
   maxReplicas: {{ .Values.worker.hpa.maxReplicas }}
   metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.worker.hpa.cpu.averageUtilization }}
+    {{- toYaml .Values.worker.hpa.metrics | nindent 4 }}
   behavior:
     {{- toYaml .Values.worker.hpa.behavior | nindent 4 }}
 {{- end }}
