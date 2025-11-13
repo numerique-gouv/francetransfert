@@ -18,7 +18,7 @@ spec:
   - type: Pods
     pods:
       metric:
-        name: ft_queue_zip_size
+        name: scale_ft_queue_zip_size
       target:
         type: AverageValue
         averageValue: "1"
