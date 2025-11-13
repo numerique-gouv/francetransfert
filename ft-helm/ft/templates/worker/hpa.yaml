@@ -11,16 +11,17 @@ spec:
     {{- else if eq .Values.worker.type "deploy" }}
     kind: Deployment
     {{- end }}
-    name: {{ include "france-transfert.fullname" . }}-worker-app
+    name: {{ include "france-transfert.fullname" . }}-worker-scaler
   minReplicas: {{ .Values.worker.hpa.minReplicas }}
   maxReplicas: {{ .Values.worker.hpa.maxReplicas }}
   metrics:
-    - type: Resource
-      resource:
-        name: cpu
+    - type: Pods
+      pods:
+        metric:
+          name: ft_queue_zip_size
         target:
-          type: Utilization
-          averageUtilization: {{ .Values.worker.hpa.cpu.averageUtilization }}
+          type: AverageValue
+          averageValue: "1"
   behavior:
     {{- toYaml .Values.worker.hpa.behavior | nindent 4 }}
 {{- end }}

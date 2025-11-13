@@ -547,11 +547,9 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: false
-    minReplicas: 1
+    enabled: true
+    minReplicas: 0
     maxReplicas: 4
-    cpu:
-      averageUtilization: 80
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 300
