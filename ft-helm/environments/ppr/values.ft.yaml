@@ -435,7 +435,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 2
+  replicaCount: 1
   readinessLiveness:
     readinessProbe:
       httpGet:
@@ -549,7 +549,7 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 3
     metrics:
