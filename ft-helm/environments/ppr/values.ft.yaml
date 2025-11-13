@@ -622,7 +622,7 @@ benchmark:
     storageClassName: bsu-gp2
 
 scaler:
-  enabled: true
+  enabled: false
   schedule: "0 7,23 * * 1-5" # week day at 7:00 and 23:00
   scalerminReplicaCount: 0
   workerminReplicaCount: 0
