@@ -243,9 +243,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 8Gi
+        memory: 9Gi
       limits:
-        memory: 8Gi
+        memory: 9Gi
     topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
