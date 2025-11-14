@@ -146,6 +146,7 @@ clamav:
 redis:
   image:
     repository: bitnamilegacy/redis
+    digest: sha256:d9ea623adf73717b37bac4bae995fbbae5ce3efd6bf2f30f9ee7cfb950848a75
   commonConfiguration: |-
     appendonly yes
     save "7200 1 3600 10000"
@@ -166,6 +167,7 @@ redis:
   sentinel:
     image:
       repository: bitnamilegacy/redis-sentinel
+      digest: sha256:2ee5b0df0fd9fb41f3aa78749f15d3cd170289da23da2446594b7acad07e475d
     enabled: true
     persistence:
       enabled: true
@@ -204,9 +206,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 8Gi
+        memory: 9Gi
       limits:
-        memory: 8Gi
+        memory: 9Gi
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
