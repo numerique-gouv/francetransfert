@@ -435,7 +435,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 0
+  replicaCount: 1
   readinessLiveness:
     readinessProbe:
       httpGet:
@@ -551,14 +551,16 @@ worker:
   hpa:
     enabled: true
     minReplicas: 1
-    maxReplicas: 4
+    maxReplicas: 3
+    metrics:
+      - type: Pods
+        pods:
+          metric:
+            name: scale_ft_queue_zip_size
+          target:
+            type: AverageValue
+            averageValue: "20"
     behavior:
-      scaleDown:
-        stabilizationWindowSeconds: 300
-        policies:
-          - type: Pods
-            value: 1
-            periodSeconds: 180
       scaleUp:
         stabilizationWindowSeconds: 180
         policies:
@@ -566,6 +568,12 @@ worker:
             value: 1
             periodSeconds: 180
         selectPolicy: Max
+      scaleDown:
+        stabilizationWindowSeconds: 600
+        policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 600
 
 ingress:
   enabled: true
