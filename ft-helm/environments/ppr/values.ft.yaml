@@ -331,9 +331,9 @@ upload:
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://ft-ppr.beta.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://ft-ppr.beta.numerique.gouv.fr/dex
+    AGENTCONNECT_ISSUERURL: https://ft-ppr.beta.numerique.gouv.fr/auth
     AGENTCONNECT_CLIENTID: angular-spa
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/dex
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/auth
   podSecurityContext:
     runAsUser: 100102
     runAsGroup: 100102
@@ -624,6 +624,7 @@ backup:
     runAsGroup: 110101
 
 dex:
+  enabled: true
   service:
     ports:
       http:
@@ -666,6 +667,19 @@ dex:
   volumeMounts:
     - name: tmp
       mountPath: /tmp
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
 
 benchmark:
   schedule: "0 0 0 1 * ?"
