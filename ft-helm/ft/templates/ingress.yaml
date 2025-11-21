@@ -105,6 +105,15 @@ spec:
                 name: {{ include "france-transfert.fullname" $ }}-download-service
                 port:
                   number: {{ $.Values.download.service.port}}
+          {{- if $.Values.dex.enabled }}
+          - path: /auth/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "france-transfert.fullname" $ }}-dex
+                port:
+                  number: {{ $.Values.dex.service.ports.http.port}}
+          {{- end }}
         {{- end }}
         {{- if $.Values.maintenance.enabled }}
         paths:

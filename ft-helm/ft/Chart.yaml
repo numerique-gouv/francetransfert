@@ -32,3 +32,7 @@ dependencies:
   alias: redis
   version: "4.35.2"
   repository: "https://dandydeveloper.github.io/charts"
+- name: dex
+  version: "0.24.0"
+  repository: "https://charts.dexidp.io"
+  condition: dex.enabled
