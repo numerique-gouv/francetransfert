@@ -331,9 +331,9 @@ upload:
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://ft-ppr.beta.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
-    AGENTCONNECT_CLIENTID: francetransfert
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_ISSUERURL: https://ft-ppr.beta.numerique.gouv.fr/auth
+    AGENTCONNECT_CLIENTID: angular-spa
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/auth
   podSecurityContext:
     runAsUser: 100102
     runAsGroup: 100102
@@ -622,6 +622,64 @@ backup:
     runAsNonRoot: true
     runAsUser: 110101
     runAsGroup: 110101
+
+dex:
+  enabled: true
+  service:
+    ports:
+      http:
+        port: 5556
+  replicaCount: 2
+  configSecret:
+    create: false
+    name: ft-secret-dex
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  podSecurityContext:
+    runAsUser: 120101
+    runAsGroup: 120101
+    fsGroup: 120101
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 120101
+    runAsGroup: 120101
+  serviceMonitor:
+    enabled: true
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  volumes: 
+    - name: tmp
+      emptyDir:
+        sizeLimit: 250Mi
+  volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
 
 benchmark:
   schedule: "0 0 0 1 * ?"

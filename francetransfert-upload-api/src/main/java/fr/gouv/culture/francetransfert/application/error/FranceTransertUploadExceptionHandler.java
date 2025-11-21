@@ -182,12 +182,12 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 				HttpStatus.UNAUTHORIZED);
 	}
 
-	@ExceptionHandler(MissingServletRequestParameterException.class)
-	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex,
-			HttpServletRequest request) {
-		LOG.error("Handle error type MissingServletRequestParameterException : {}", ex.getMessage(), ex);
-		return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
-	}
+	// @ExceptionHandler(MissingServletRequestParameterException.class)
+	// public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex,
+	// 		HttpServletRequest request) {
+	// 	LOG.error("Handle error type MissingServletRequestParameterException : {}", ex.getMessage(), ex);
+	// 	return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+	// }
 
 	@ExceptionHandler(JedisDataException.class)
 	public ResponseEntity<Object> handleRedisException(Exception ex) {

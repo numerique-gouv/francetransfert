@@ -49,3 +49,5 @@ buildNumber.properties
 .vscode
 
 ft-helm/testtest.yaml
+
+ignore
