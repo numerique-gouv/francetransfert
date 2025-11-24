@@ -155,22 +155,38 @@ redis:
     topologyKey: topology.kubernetes.io/zone
     whenUnsatisfiable: DoNotSchedule
   redis:
+    terminationGracePeriodSeconds: 300
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      timeoutSeconds: 15
+      successThreshold: 1
+      failureThreshold: 30
     port: 6379
     resources:
       requests:
         cpu: 500m
-        memory: 1Gi
+        memory: 2Gi
       limits:
-        memory: 1Gi
+        memory: 2Gi
     config:
+      # # restoration
+      # appendonly: "no"
+      # aof-use-rdb-preamble: "no"
+      # dbfilename: "init-ftr-data.rdb"
+      # appendfilename: "init-appendonly.aof"
+      # appendfsync: "no"
+      # --------------------------------
+      # normal
       appendonly: "yes"
+      aof-use-rdb-preamble: "yes"
+      dbfilename: "ftr-data.rdb"
+      appendfilename: "appendonly.aof"
       appendfsync: "everysec"
       maxmemory: "0"
       maxmemory-policy: "volatile-lru"
       save: "7200 1 3600 10000"
-      aof-use-rdb-preamble: "yes"
-      dbfilename: "ftr-data.rdb"
-      appendfilename: "appendonly.aof"
       auto-aof-rewrite-percentage: "100"
       auto-aof-rewrite-min-size: "2048mb"
     disableCommands:
@@ -435,20 +451,24 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 1
+  replicaCount: 0
   readinessLiveness:
     readinessProbe:
       httpGet:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
-      periodSeconds: 10
+      periodSeconds: 10 
+      timeoutSeconds: 15
+      failureThreshold: 15
     livenessProbe:
       httpGet:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
       periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 15
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
