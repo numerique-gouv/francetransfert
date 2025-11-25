@@ -408,7 +408,7 @@ upload:
     cpu:
       averageUtilization: 80
   persistentVolumeClaim:
-    storage: 5Gi
+    storage: 20Gi
     accessModes: ReadWriteOnce
     storageClassName: bsu-gp2
 
