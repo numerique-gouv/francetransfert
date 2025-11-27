@@ -23,6 +23,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -46,6 +47,7 @@ import fr.gouv.culture.francetransfert.domain.exceptions.MaxTryException;
 import fr.gouv.culture.francetransfert.domain.exceptions.UnauthorizedMailAddressException;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -182,13 +184,6 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 				HttpStatus.UNAUTHORIZED);
 	}
 
-	// @ExceptionHandler(MissingServletRequestParameterException.class)
-	// public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex,
-	// 		HttpServletRequest request) {
-	// 	LOG.error("Handle error type MissingServletRequestParameterException : {}", ex.getMessage(), ex);
-	// 	return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
-	// }
-
 	@ExceptionHandler(JedisDataException.class)
 	public ResponseEntity<Object> handleRedisException(Exception ex) {
 		LOG.error("Handle error type JedisDataException : " + ex.getMessage(), ex);
@@ -257,6 +252,26 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 		ApiValidationErrorReturn ret = new ApiValidationErrorReturn();
 		ret.setErreurs(ex.getErreurs());
 		return new ResponseEntity<ApiValidationErrorReturn>(ret, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+
+	@Override
+	public ResponseEntity<Object> handleMissingServletRequestParameter(
+			MissingServletRequestParameterException ex,
+			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		if (request instanceof ServletWebRequest servletWebRequest) {
+			HttpServletResponse resp = servletWebRequest.getResponse();
+			if (resp != null && resp.isCommitted()) {
+				LOG.debug("Response already committed, ignoring MissingServletRequestParameterException", ex);
+				return null;
+			}
+		}
+
+		String paramName = ex.getParameterName();
+		return new ResponseEntity<>(
+				new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(),
+						"Missing required request parameter: " + paramName, ""),
+				HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 }
