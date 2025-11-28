@@ -186,6 +186,7 @@ redis:
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
+    terminationGracePeriodSeconds: 300
     startupProbe:
       enabled: true
       initialDelaySeconds: 40
@@ -230,6 +231,7 @@ redis:
             matchLabels:
               app.kubernetes.io/name: redis
   replica:
+    terminationGracePeriodSeconds: 300
     startupProbe:
       enabled: true
       initialDelaySeconds: 40
