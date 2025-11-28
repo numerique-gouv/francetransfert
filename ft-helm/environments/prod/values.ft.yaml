@@ -186,20 +186,27 @@ redis:
     existingSecret: ft-secret-app
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 40
+      periodSeconds: 20
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
     livenessProbe:
       enabled: true
       initialDelaySeconds: 20
       periodSeconds: 5
       timeoutSeconds: 5
       successThreshold: 1
-      failureThreshold: 5
+      failureThreshold: 10
     readinessProbe:
       enabled: true
       initialDelaySeconds: 20
       periodSeconds: 5
-      timeoutSeconds: 1
+      timeoutSeconds: 5
       successThreshold: 1
-      failureThreshold: 5
+      failureThreshold: 10
     persistence:
       size: 50Gi
       enabled: true
@@ -223,18 +230,25 @@ redis:
             matchLabels:
               app.kubernetes.io/name: redis
   replica:
-    livenessProbe:
+    startupProbe:
       enabled: true
       initialDelaySeconds: 40
+      periodSeconds: 20
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 20
       periodSeconds: 5
       timeoutSeconds: 5
       successThreshold: 1
       failureThreshold: 10
     readinessProbe:
       enabled: true
-      initialDelaySeconds: 40
+      initialDelaySeconds: 20
       periodSeconds: 5
-      timeoutSeconds: 1
+      timeoutSeconds: 5
       successThreshold: 1
       failureThreshold: 10
     persistence:
