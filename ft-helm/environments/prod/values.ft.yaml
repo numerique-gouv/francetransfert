@@ -179,7 +179,7 @@ redis:
       requests:
         cpu: 250m
         ephemeral-storage: 50Mi
-        memory: 256Mi
+        memory: 128Mi
   auth:
     enabled: true
     sentinel: true
