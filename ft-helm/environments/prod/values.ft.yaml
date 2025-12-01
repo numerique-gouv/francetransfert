@@ -187,6 +187,8 @@ redis:
     existingSecretPasswordKey: METALOAD_PASSWORD
   master:
     terminationGracePeriodSeconds: 300
+    updateStrategy:
+      type: OnDelete
     startupProbe:
       enabled: true
       initialDelaySeconds: 40
@@ -232,6 +234,8 @@ redis:
               app.kubernetes.io/name: redis
   replica:
     terminationGracePeriodSeconds: 300
+    updateStrategy:
+      type: OnDelete
     startupProbe:
       enabled: true
       initialDelaySeconds: 40
