@@ -589,7 +589,7 @@ worker:
       - name: DOWNLOADEXECUTOR_POOL_SIZE
         value: "10"
       - name: QUEUE_SIZE
-        value: "5"
+        value: "1"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
         value: "3"
     replicaCount: 4
@@ -626,7 +626,7 @@ worker:
     runAsGroup: 100104
   hpa:
     enabled: true
-    minReplicas: 4
+    minReplicas: 2
     maxReplicas: 6
     metrics:
       - type: Pods
