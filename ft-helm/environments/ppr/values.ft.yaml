@@ -610,14 +610,14 @@ ingress:
       nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
-    - ft-ppr1.beta.numerique.gouv.fr
+    - ft-ppr2.beta.numerique.gouv.fr
   tls:
     - secretName: transfert-tls
       hosts:
         - ft-ppr.beta.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft-ppr1.beta.numerique.gouv.fr
+        - ft-ppr2.beta.numerique.gouv.fr
 
 backup:
   backupDate: "2025_06_11_131853"
