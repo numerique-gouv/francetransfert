@@ -592,7 +592,7 @@ worker:
         value: "5"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
         value: "3"
-    replicaCount: 2
+    replicaCount: 4
     data:
       persistentVolumeClaim:
         storage: 140Gi
