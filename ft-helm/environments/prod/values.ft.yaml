@@ -625,7 +625,7 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 6
     metrics:
