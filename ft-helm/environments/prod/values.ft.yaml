@@ -496,7 +496,7 @@ download:
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 2
+  replicaCount: 0
   terminationGracePeriodSeconds: 180
   readinessLiveness:
     readinessProbe:
@@ -592,7 +592,7 @@ worker:
         value: "5"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
         value: "3"
-    replicaCount: 0
+    replicaCount: 2
     data:
       persistentVolumeClaim:
         storage: 140Gi
@@ -625,8 +625,8 @@ worker:
     runAsUser: 100104
     runAsGroup: 100104
   hpa:
-    enabled: false
-    minReplicas: 1
+    enabled: true
+    minReplicas: 4
     maxReplicas: 6
     metrics:
       - type: Pods
