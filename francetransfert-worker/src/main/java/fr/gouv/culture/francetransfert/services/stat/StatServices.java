@@ -75,7 +75,7 @@ public class StatServices {
 
 			// PLIS,DATE,Expediteur,destinataire,poids,hash_sender,type
 			csvPrinter.printRecord(enclosureId, date.format(DateTimeFormatter.ISO_LOCAL_DATE), sender.split("@")[1],
-					recipientList, plisSize, base64CryptoService.encodedHash(sender),
+					recipientList, Double.valueOf(plisSize).longValue(), base64CryptoService.encodedHash(sender),
 					TypeStat.UPLOAD.getValue());
 
 			csvPrinter.flush();
@@ -117,7 +117,7 @@ public class StatServices {
 
 			// PLIS,DATE,Expediteur,destinataire,poids,hash_reciever,type
 			csvPrinter.printRecord(enclosureId, date.format(DateTimeFormatter.ISO_LOCAL_DATE), sender.split("@")[1],
-					recipientList, plisSize, hashedMail, TypeStat.DOWNLOAD.getValue());
+					recipientList, Double.valueOf(plisSize).longValue(), hashedMail, TypeStat.DOWNLOAD.getValue());
 
 			csvPrinter.flush();
 			csvPrinter.close();
