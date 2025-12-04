@@ -641,15 +641,15 @@ worker:
         stabilizationWindowSeconds: 180
         policies:
           - type: Pods
-            value: 2
+            value: 1
             periodSeconds: 180
         selectPolicy: Max
       scaleDown:
-        stabilizationWindowSeconds: 900
+        stabilizationWindowSeconds: 1500
         policies:
           - type: Pods
             value: 1
-            periodSeconds: 900
+            periodSeconds: 1500
 
 ingress:
   enabled: true
