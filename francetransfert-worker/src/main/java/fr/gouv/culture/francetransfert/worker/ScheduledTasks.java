@@ -70,6 +70,9 @@ public class ScheduledTasks {
 	@Value("${shutdown.seconds:20}")
 	private int shutdownSeconds;
 
+	@Value("${shutdown.timeout:10000}")
+	private int shutdownTimeout;
+
 	@Autowired
 	private MailAvailbleEnclosureServices mailAvailbleEnclosureServices;
 
@@ -596,7 +599,7 @@ public class ScheduledTasks {
 		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
 			LOGGER.info("Active tasks found, waiting 10 seconds");
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(shutdownTimeout);
 			} catch (InterruptedException e) {
 				LOGGER.error("Error sleep", e);
 			}
