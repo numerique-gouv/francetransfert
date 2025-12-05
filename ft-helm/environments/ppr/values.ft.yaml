@@ -707,26 +707,3 @@ benchmark:
     storage: 200Gi
     storageClassName: bsu-gp2
 
-scaler:
-  enabled: false
-  schedule: "0 7,23 * * 1-5" # week day at 7:00 and 23:00
-  scalerminReplicaCount: 0
-  workerminReplicaCount: 0
-  scalermaxReplicaCount: 1
-  workermaxReplicaCount: 1
-  podSecurityContext:
-    runAsUser: 110101
-    runAsGroup: 110101
-    fsGroup: 110101
-  securityContext:
-    privileged: false
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
-    runAsNonRoot: true
-    runAsUser: 110101
-    runAsGroup: 110101
