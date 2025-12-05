@@ -635,7 +635,7 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "20"
+            averageValue: "30"
     behavior:
       scaleUp:
         stabilizationWindowSeconds: 90
