@@ -638,14 +638,14 @@ worker:
             averageValue: "20"
     behavior:
       scaleUp:
-        stabilizationWindowSeconds: 180
+        stabilizationWindowSeconds: 90
         policies:
           - type: Pods
             value: 1
-            periodSeconds: 180
+            periodSeconds: 300
         selectPolicy: Max
       scaleDown:
-        stabilizationWindowSeconds: 1500
+        stabilizationWindowSeconds: 900
         policies:
           - type: Pods
             value: 1
