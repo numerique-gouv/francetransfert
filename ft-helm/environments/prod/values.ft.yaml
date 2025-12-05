@@ -153,6 +153,8 @@ redis:
     topologyKey: topology.kubernetes.io/zone
     whenUnsatisfiable: DoNotSchedule
   redis:
+    updateStrategy:
+      type: OnDelete
     terminationGracePeriodSeconds: 300
     startupProbe:
       enabled: true
