@@ -626,7 +626,7 @@ backup:
   schedule: "20 4 * * *"
   persistentVolumeClaim:
     storage: 25Gi
-    storageClassName: bsu-gp2
+    storageClassName: bsu-io1
   podSecurityContext:
     runAsUser: 110101
     runAsGroup: 110101
