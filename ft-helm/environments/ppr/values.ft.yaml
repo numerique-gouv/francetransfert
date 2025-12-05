@@ -172,18 +172,18 @@ redis:
         memory: 2Gi
     config:
       # # restoration
-      # appendonly: "no"
-      # aof-use-rdb-preamble: "no"
-      # dbfilename: "init-ftr-data.rdb"
-      # appendfilename: "init-appendonly.aof"
-      # appendfsync: "no"
+      appendonly: "no"
+      aof-use-rdb-preamble: "no"
+      dbfilename: "init-ftr-data.rdb"
+      appendfilename: "init-appendonly.aof"
+      appendfsync: "no"
       # --------------------------------
       # normal
-      appendonly: "yes"
-      aof-use-rdb-preamble: "yes"
-      dbfilename: "ftr-data.rdb"
-      appendfilename: "appendonly.aof"
-      appendfsync: "everysec"
+      # appendonly: "yes"
+      # aof-use-rdb-preamble: "yes"
+      # dbfilename: "ftr-data.rdb"
+      # appendfilename: "appendonly.aof"
+      # appendfsync: "everysec"
       maxmemory: "0"
       maxmemory-policy: "volatile-lru"
       save: "7200 1 3600 10000"
