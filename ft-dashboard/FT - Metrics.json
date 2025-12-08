@@ -407,13 +407,17 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "max by (app) (max_over_time(ft_queue_zip_size[$__rate_interval]))",
+          "expr": "max by(app) (last_over_time(ft_queue_zip_size[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "{{app}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Taille file ZIP",
@@ -985,7 +989,7 @@
         "y": 13
       },
       "id": 14,
-      "interval": "5m",
+      "interval": "15m",
       "options": {
         "legend": {
           "calcs": [],
@@ -1003,7 +1007,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "avg_over_time(\r\n  (\r\n    sum by (workload_group) (\r\n      label_replace(\r\n        rate(container_network_receive_bytes_total{\r\n          job=\"kubelet\",\r\n          metrics_path=\"/metrics/cadvisor\",\r\n          cluster=\"\",\r\n          namespace=~\"francetransfert-prd1\"\r\n        }[5m])\r\n        * on (namespace,pod)\r\n          group_left(workload)\r\n          namespace_workload_pod:kube_pod_owner:relabel{\r\n            cluster=\"\",\r\n            namespace=~\"francetransfert-prd1\",\r\n            workload=~\"ft-worker-(.*)\"\r\n          },\r\n        \"workload_group\", \"ft-worker\", \"workload\", \"ft-worker-(.*)\"\r\n      )\r\n    )\r\n  )[$__interval:]\r\n)\r\n",
+          "expr": "avg_over_time(\r\n  (\r\n    sum by (workload_group) (\r\n      label_replace(\r\n        rate(container_network_receive_bytes_total{\r\n          job=\"kubelet\",\r\n          metrics_path=\"/metrics/cadvisor\",\r\n          cluster=\"\",\r\n          namespace=~\"francetransfert-prd1\"\r\n        }[15m])\r\n        * on (namespace,pod)\r\n          group_left(workload)\r\n          namespace_workload_pod:kube_pod_owner:relabel{\r\n            cluster=\"\",\r\n            namespace=~\"francetransfert-prd1\",\r\n            workload=~\"ft-worker-(app|io1|scaler)\"\r\n          },\r\n        \"workload_group\", \"ft-worker\", \"workload\", \"ft-worker-(app|io1|scaler)\"\r\n      )\r\n    )\r\n  )[$__interval:]\r\n)\r\n",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
@@ -1082,7 +1086,7 @@
         "y": 22
       },
       "id": 4,
-      "interval": "1m",
+      "interval": "5m",
       "options": {
         "legend": {
           "calcs": [],
@@ -1104,13 +1108,30 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(pod) (rate(ft_finished_pli_total[1m]))",
+          "editorMode": "code",
+          "expr": "ceil(avg_over_time(\r\n  sum by(pod) (increase(ft_finished_pli_total[1m]))\r\n[1m:]))\r\n",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "ceil(avg_over_time(\r\n  sum by(app) (increase(ft_finished_pli_total[1m]))\r\n[1m:]))\r\n",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "All",
+          "range": true,
+          "refId": "B",
           "useBackend": false
         }
       ],
@@ -1259,6 +1280,6 @@
   "timezone": "browser",
   "title": "FT Worker Metrics",
   "uid": "aeue4tmyt08hse",
-  "version": 11,
+  "version": 16,
   "weekStart": ""
 }

@@ -583,7 +583,7 @@ worker:
             averageValue: "30"
     behavior:
       scaleUp:
-        stabilizationWindowSeconds: 90
+        stabilizationWindowSeconds: 400
         policies:
           - type: Pods
             value: 1
