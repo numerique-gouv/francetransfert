@@ -267,9 +267,7 @@ public class ZipWorkerServices {
 			if (isClean && finishedScan) {
 				LOGGER.info("Finished scan start zipping for enclosure {}", enclosureId);
 
-				if (StatutEnum.ANA.getCode().equals(encStatut)) {
-					downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
-				}
+				downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
 
 				String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
 						EnclosureKeysEnum.PASSWORD.getKey());
@@ -504,7 +502,7 @@ public class ZipWorkerServices {
 
 	private void deleteFilesFromTemp(File file) {
 		if (!FileUtils.deleteQuietly(file)) {
-			LOGGER.error("unable to delete file {}", file.getAbsolutePath());
+			LOGGER.debug("unable to delete file {}", file.getAbsolutePath());
 		}
 	}
 

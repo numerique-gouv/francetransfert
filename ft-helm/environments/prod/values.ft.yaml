@@ -144,141 +144,86 @@ clamav:
     MaxRecursion: 10
 
 redis:
-  image:
-    repository: bitnamilegacy/redis
-    digest: sha256:d9ea623adf73717b37bac4bae995fbbae5ce3efd6bf2f30f9ee7cfb950848a75
-  commonConfiguration: |-
-    appendonly yes
-    save "7200 1 3600 10000"
-    dbfilename ftr-data.rdb
-    appendfilename appendonly.aof
-    aof-use-rdb-preamble yes
-    auto-aof-rewrite-percentage 100
-    auto-aof-rewrite-min-size 2048mb
-  networkPolicy:
-    enabled: false
-    allowExternal: false
-  global:
-    storageClass: bsu-gp2
-    compatibility:
-      openshift:
-        adaptSecurityContext: auto
-  architecture: replication
-  sentinel:
-    image:
-      repository: bitnamilegacy/redis-sentinel
-      digest: sha256:2ee5b0df0fd9fb41f3aa78749f15d3cd170289da23da2446594b7acad07e475d
+  auth: true
+  existingSecret: "ft-secret-app"
+  authKey: METALOAD_PASSWORD
+  topologySpreadConstraints:
     enabled: true
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+  redis:
+    updateStrategy:
+      type: OnDelete
+    terminationGracePeriodSeconds: 300
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      timeoutSeconds: 15
+      successThreshold: 1
+      failureThreshold: 30
+    port: 6379
+    resources:
+      requests:
+        cpu: 500m
+        memory: 8Gi
+      limits:
+        memory: 8Gi
+    config:
+      # # restoration
+      # appendonly: "no"
+      # aof-use-rdb-preamble: "no"
+      # dbfilename: "init-ftr-data.rdb"
+      # appendfilename: "init-appendonly.aof"
+      # appendfsync: "no"
+      # --------------------------------
+      # normal
+      appendonly: "yes"
+      aof-use-rdb-preamble: "yes"
+      dbfilename: "ftr-data.rdb"
+      appendfilename: "appendonly.aof"
+      appendfsync: "everysec"
+      maxmemory: "0"
+      maxmemory-policy: "volatile-lru"
+      save: "7200 1 3600 10000"
+      auto-aof-rewrite-percentage: "100"
+      auto-aof-rewrite-min-size: "2048mb"
+    disableCommands:
+      - FLUSHDB
+      - FLUSHALL
+  sentinel:
+    enabled: true
+    port: 26379
+    auth: true
+    existingSecret: "ft-secret-app"
+    authKey: METALOAD_PASSWORD
     persistence:
       enabled: true
       size: 5Gi
     resources:
       limits:
-        ephemeral-storage: 2Gi
+        ephemeral-storage: 1Gi
         memory: 512Mi
       requests:
         cpu: 250m
         ephemeral-storage: 50Mi
         memory: 128Mi
-  auth:
+  networkPolicy:
+    enabled: false
+    allowExternal: false
+  global:
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  persistentVolume:
     enabled: true
-    sentinel: true
-    existingSecret: ft-secret-app
-    existingSecretPasswordKey: METALOAD_PASSWORD
-  master:
-    terminationGracePeriodSeconds: 300
-    updateStrategy:
-      type: OnDelete
-    startupProbe:
-      enabled: true
-      initialDelaySeconds: 40
-      periodSeconds: 20
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 60
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 9Gi
-      limits:
-        memory: 9Gi
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-        - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-  replica:
-    terminationGracePeriodSeconds: 300
-    updateStrategy:
-      type: OnDelete
-    startupProbe:
-      enabled: true
-      initialDelaySeconds: 40
-      periodSeconds: 20
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 60
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 9Gi
-      limits:
-        memory: 9Gi
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
-      - maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
+    storageClass: bsu-gp2
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+  podDisruptionBudget:
+    maxUnavailable: 1
 
 mailhog:
   enable: false
@@ -316,7 +261,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 4.0.7
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8080
@@ -364,7 +309,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 4.0.7
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8080
@@ -402,9 +347,9 @@ upload:
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://francetransfert.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://auth-apps.numerique.gouv.fr/realms/applications
-    AGENTCONNECT_CLIENTID: francetransfert
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-apps.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_ISSUERURL: https://francetransfert.numerique.gouv.fr/auth
+    AGENTCONNECT_CLIENTID: angular-spa
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://francetransfert.numerique.gouv.fr/auth
   podSecurityContext:
     runAsUser: 100102
     runAsGroup: 100102
@@ -449,7 +394,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: 4.0.7
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8081
@@ -470,9 +415,9 @@ download:
     ENCLOSURE_MAX_DOWNLOAD: "5"
     ENCLOSURE_MAX_PASSWORD_TRY: "5"
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://auth-apps.numerique.gouv.fr/realms/applications
-    AGENTCONNECT_CLIENTID: francetransfert
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-apps.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_ISSUERURL: https://francetransfert.numerique.gouv.fr/auth
+    AGENTCONNECT_CLIENTID: angular-spa
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://francetransfert.numerique.gouv.fr/auth
   podSecurityContext: {}
   securityContext:
     privileged: false
@@ -519,7 +464,7 @@ worker:
       failureThreshold: 5
   image:
     repository: lasuite/francetransfert-worker
-    tag: 4.0.8
+    tag: 4.0.9
     imagePullPolicy: Always
   resources:
     requests:
@@ -635,10 +580,10 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "30"
+            averageValue: "35"
     behavior:
       scaleUp:
-        stabilizationWindowSeconds: 90
+        stabilizationWindowSeconds: 500
         policies:
           - type: Pods
             value: 1
@@ -668,14 +613,14 @@ ingress:
       nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   hosts:
     - francetransfert.numerique.gouv.fr
-    - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.opicloud.numerique.gouv.fr
+    - ft.lasuite-blo-prd-osc-cgw1-wapp-02.k8s.opicloud.numerique.gouv.fr
   tls:
     - secretName: transfert-tls
       hosts:
         - francetransfert.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft.lasuite-blo-prd-osc-cgw1-wapp-01.k8s.opicloud.numerique.gouv.fr
+        - ft.lasuite-blo-prd-osc-cgw1-wapp-02.k8s.opicloud.numerique.gouv.fr
 
 backup:
   backupDate: "2025_09_05_042501"
@@ -683,7 +628,7 @@ backup:
   schedule: "20 4 * * *"
   persistentVolumeClaim:
     storage: 25Gi
-    storageClassName: bsu-gp2
+    storageClassName: bsu-io1
   podSecurityContext:
     runAsUser: 110101
     runAsGroup: 110101
@@ -706,3 +651,61 @@ benchmark:
   persistentVolumeClaim:
     storage: 200Gi
     storageClassName: bsu-gp2
+
+dex:
+  enabled: true
+  service:
+    ports:
+      http:
+        port: 5556
+  replicaCount: 2
+  configSecret:
+    create: false
+    name: ft-secret-dex
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  podSecurityContext:
+    runAsUser: 120101
+    runAsGroup: 120101
+    fsGroup: 120101
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 120101
+    runAsGroup: 120101
+  serviceMonitor:
+    enabled: true
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  volumes: 
+    - name: tmp
+      emptyDir:
+        sizeLimit: 250Mi
+  volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex

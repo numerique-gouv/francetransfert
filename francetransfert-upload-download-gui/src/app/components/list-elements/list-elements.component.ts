@@ -107,14 +107,17 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
    * @returns {void}
    */
   deleteFolder(event) {
-    for (let child of event.childs) {
-      this.flow.cancelFile(child);
-    }
+    this.flow.cancelFile(event);
+    this.flow.flowJs.removeFile(event);
+    // for (let child of event.childs) {
+    //   this.flow.cancelFile(child);
+    // }
   }
 
   deleteTransfer(transfer: any): void {
     if (!transfer.folder) {
       this.flow.cancelFile(transfer);
+      this.flow.flowJs.removeFile(transfer);
       this.filesSize -= transfer.size;
       this.fileManagerService.hasFiles.next(this.filesSize > 0);
       this.cdr.detectChanges();
@@ -137,7 +140,8 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onItemAdded(event, index) {
 
-    if (!this.checkExisteFile(event)) {
+    if (!this.checkExisteFile()) {
+
       if (!this.checkExtentionValid(event)) {
         if (event.folder) {
           for (let child of event.childs) {
@@ -199,6 +203,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     } else {
+      // this.flow.flowJs.removeFile(event);
       if (!this.hasError) {
         this.openSnackBar(4000);
       }
@@ -211,6 +216,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.translate.stream(this.newUnit).subscribe(v => {
       this.unitSize = v;
     })
+    this.cdr.detectChanges();
   }
 
   expandList() {
@@ -218,7 +224,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.listExpanded.emit(this.expanded);
   }
 
-  checkExisteFile(file) {
+  checkExisteFile() {
     let existe = false;
     //si c'est le premier fichier length egal à 1
     if (this.firstFile) {
@@ -231,21 +237,26 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         existe = true;
       }
     } else {
+      let hasDuplicates = false;
       let seen = new Set();
-      let dup = undefined;
-      const hasDuplicates = this.flow.flowJs.files.some(function (file) {
-        const check = seen.size === seen.add(file.relativePath).size;
-        if (check) {
-          dup = file;
+      let dup = [];
+      this.flow.flowJs.files.forEach(file => {
+        if (seen.has(file.relativePath + '::' + file.size)) {
+          hasDuplicates = true;
+          dup.push(file);
+        } else {
+          seen.add(file.relativePath + '::' + file.size);
         }
-        return check;
       });
       if (hasDuplicates) {
-        this.flow.flowJs.removeFile(dup);
+        dup.forEach(file => {
+          this.flow.flowJs.removeFile(file);
+        });
       }
       existe = hasDuplicates;
     }
     this.firstFile = false;
+    this.cdr.detectChanges();
     return existe;
   }
 
@@ -277,7 +288,6 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.extension.includes(fileExt)) {
           valid = true;
           if (event.name.length > this.maxFilenameLength || event.flowFile?.file?.relativePath?.length > this.maxFilenameLength) {
-            console.log('event', event);
             this.flow.cancelFile(event);
             this.file = 'TypeFichier';
             this.errorMessage = 'NomFichierLong';

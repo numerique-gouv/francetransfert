@@ -64,6 +64,7 @@
             "cellOptions": {
               "type": "auto"
             },
+            "filterable": true,
             "inspect": false
           },
           "mappings": [],
@@ -126,6 +127,18 @@
               {
                 "id": "custom.width",
                 "value": 1295
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pod"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 266
               }
             ]
           }
@@ -299,10 +312,10 @@
       {
         "current": {
           "text": [
-            "$__all"
+            "ERROR"
           ],
           "value": [
-            "$__all"
+            "ERROR"
           ]
         },
         "description": "loglevel",
@@ -327,7 +340,7 @@
             "value": "INFO"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "ERROR",
             "value": "ERROR"
           }
@@ -345,6 +358,6 @@
   "timezone": "browser",
   "title": "FT - Logs Dashboard",
   "uid": "feilps0a5ue4gd",
-  "version": 8,
+  "version": 4,
   "weekStart": ""
 }

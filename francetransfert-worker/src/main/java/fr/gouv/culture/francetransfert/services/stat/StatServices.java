@@ -56,7 +56,6 @@ public class StatServices {
 
 			String sender = RedisUtils.getEmailSenderEnclosure(redisManager, enclosureId).toLowerCase();
 			double plisSize = RedisUtils.getTotalSizeEnclosure(redisManager, enclosureId);
-			String totalSizeEnclosure = FTFileUtils.byteCountToDisplaySize(plisSize);
 			Map<String, String> recipient = RedisUtils.getRecipientsEnclosure(redisManager, enclosureId);
 
 			String recipientList = recipient.keySet().stream().map(x -> x.toLowerCase().split("@")[1]).distinct()
@@ -76,7 +75,7 @@ public class StatServices {
 
 			// PLIS,DATE,Expediteur,destinataire,poids,hash_sender,type
 			csvPrinter.printRecord(enclosureId, date.format(DateTimeFormatter.ISO_LOCAL_DATE), sender.split("@")[1],
-					recipientList, totalSizeEnclosure, base64CryptoService.encodedHash(sender),
+					recipientList, Double.valueOf(plisSize).longValue(), base64CryptoService.encodedHash(sender),
 					TypeStat.UPLOAD.getValue());
 
 			csvPrinter.flush();
@@ -96,7 +95,6 @@ public class StatServices {
 
 			String sender = RedisUtils.getEmailSenderEnclosure(redisManager, enclosureId).toLowerCase();
 			double plisSize = RedisUtils.getTotalSizeEnclosure(redisManager, enclosureId);
-			String totalSizeEnclosure = FTFileUtils.byteCountToDisplaySize(plisSize);
 
 			String recipientList = "";
 			String hashedMail = "";
@@ -119,7 +117,7 @@ public class StatServices {
 
 			// PLIS,DATE,Expediteur,destinataire,poids,hash_reciever,type
 			csvPrinter.printRecord(enclosureId, date.format(DateTimeFormatter.ISO_LOCAL_DATE), sender.split("@")[1],
-					recipientList, totalSizeEnclosure, hashedMail, TypeStat.DOWNLOAD.getValue());
+					recipientList, Double.valueOf(plisSize).longValue(), hashedMail, TypeStat.DOWNLOAD.getValue());
 
 			csvPrinter.flush();
 			csvPrinter.close();

@@ -156,6 +156,8 @@ public class CleanUpServices {
 			ScanParams scanTokensParams = new ScanParams().count(1000).match("sender:*");
 			ScanParams scanSendParams = new ScanParams().count(1000).match("send:*");
 			ScanParams scanReceiveParams = new ScanParams().count(1000).match("receive:*");
+			ScanParams scanRecipientParams = new ScanParams().count(1000).match("recipient:*");
+
 			String cur = scanParams.SCAN_POINTER_START;
 			LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
 			LocalDate deleteFailBefore = LocalDate.now().minusDays(2);
@@ -263,6 +265,30 @@ public class CleanUpServices {
 				cur = scanResult.getCursor();
 			} while (!cur.equals(scanSendParams.SCAN_POINTER_START));
 			LOGGER.info("Cleaned send {}", cpt);
+
+			LOGGER.info("Clean recipient");
+			cur = scanRecipientParams.SCAN_POINTER_START;
+			cpt = 0;
+			do {
+				ScanResult<String> scanResult = redisManager.sscan(cur, scanRecipientParams);
+				for (String recipient : scanResult.getResult()) {
+					try {
+						LOGGER.debug("recipient {}", recipient);
+						if (StringUtils.countMatches(recipient, ":") == 2) {
+							String recipientId = recipient.split(":")[1];
+							if (!redisManager.exists(RedisKeysEnum.FT_RECIPIENT.getKey(recipientId))) {
+								redisManager.deleteKey(RedisKeysEnum.FT_Download_Date.getKey(recipientId));
+								cpt++;
+							}
+						}
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", recipient, e);
+					}
+				}
+				cur = scanResult.getCursor();
+			} while (!cur.equals(scanRecipientParams.SCAN_POINTER_START));
+			LOGGER.info("Cleaned recipient {}", cpt);
+
 		} else {
 			LOGGER.info("Next deep clean on {}", dayOfWeek);
 		}
@@ -410,6 +436,7 @@ public class CleanUpServices {
 				if (receiveCount == 0) {
 					redisManager.deleteKey(RedisKeysEnum.FT_RECEIVE.getKey(x.getMail()));
 				}
+				redisManager.deleteKey(RedisKeysEnum.FT_Download_Date.getKey(x.getId()));
 			});
 		}
 		// delete list and HASH root-files

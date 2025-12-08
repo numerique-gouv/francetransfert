@@ -33,6 +33,8 @@ maintenance:
   enabled: false
 
 clamav:
+  image:
+    tag: "1.5_base"
   enabled: true
   hpa:
     enabled: false
@@ -52,15 +54,15 @@ clamav:
         stabilizationWindowSeconds: 180
         selectPolicy: Max
         policies:
-        - type: Percent
-          value: 100
-          periodSeconds: 60
+          - type: Percent
+            value: 100
+            periodSeconds: 60
       scaleUp:
         stabilizationWindowSeconds: 90
         policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 90
+          - type: Pods
+            value: 1
+            periodSeconds: 90
   startupProbe:
     failureThreshold: 60
     initialDelaySeconds: 60
@@ -142,32 +144,62 @@ clamav:
     StreamMaxLength: 2000M
     MaxFileSize: 2000M
     MaxRecursion: 10
-  
 
 redis:
-  image:
-    repository: bitnamilegacy/redis
-  commonConfiguration: |-
-    appendonly yes
-    save "7200 1 3600 10000"
-    dbfilename ftr-data.rdb
-    appendfilename appendonly.aof
-    aof-use-rdb-preamble yes
-    auto-aof-rewrite-percentage 100
-    auto-aof-rewrite-min-size 2048mb
-  networkPolicy:
-    enabled: false
-    allowExternal: false
-  global:
-    storageClass: bsu-gp2
-    compatibility:
-      openshift:
-        adaptSecurityContext: auto
-  architecture: replication
+  auth: true
+  existingSecret: "ft-secret-app"
+  authKey: METALOAD_PASSWORD
+  topologySpreadConstraints:
+    enabled: true
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+  redis:
+    updateStrategy:
+      type: OnDelete
+    terminationGracePeriodSeconds: 300
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      timeoutSeconds: 15
+      successThreshold: 1
+      failureThreshold: 30
+    port: 6379
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        memory: 2Gi
+    config:
+      # # restoration
+      # appendonly: "no"
+      # aof-use-rdb-preamble: "no"
+      # dbfilename: "init-ftr-data.rdb"
+      # appendfilename: "init-appendonly.aof"
+      # appendfsync: "no"
+      # --------------------------------
+      # normal
+      appendonly: "yes"
+      aof-use-rdb-preamble: "yes"
+      dbfilename: "ftr-data.rdb"
+      appendfilename: "appendonly.aof"
+      appendfsync: "everysec"
+      maxmemory: "0"
+      maxmemory-policy: "volatile-lru"
+      save: "7200 1 3600 10000"
+      auto-aof-rewrite-percentage: "100"
+      auto-aof-rewrite-min-size: "2048mb"
+    disableCommands:
+      - FLUSHDB
+      - FLUSHALL
   sentinel:
     enabled: true
-    image:
-      repository: bitnamilegacy/redis-sentinel
+    port: 26379
+    auth: true
+    existingSecret: "ft-secret-app"
+    authKey: METALOAD_PASSWORD
     persistence:
       enabled: true
       size: 5Gi
@@ -178,87 +210,22 @@ redis:
       requests:
         cpu: 250m
         ephemeral-storage: 50Mi
-        memory: 256Mi
-  auth:
+        memory: 128Mi
+  networkPolicy:
+    enabled: false
+    allowExternal: false
+  global:
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  persistentVolume:
     enabled: true
-    sentinel: true
-    existingSecret: ft-secret-app
-    existingSecretPasswordKey: METALOAD_PASSWORD
-  master:
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 5
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 1
-      successThreshold: 1
-      failureThreshold: 5
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        memory: 1Gi
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-        - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: redis
-  replica:
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 1
-      successThreshold: 1
-      failureThreshold: 10
-    persistence:
-      size: 50Gi
-      enabled: true
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        memory: 1Gi
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
-      - minDomains: 3
-        maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: redis
+    storageClass: bsu-gp2
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+  podDisruptionBudget:
+    maxUnavailable: 1
 
 mailhog:
   enable: true
@@ -296,7 +263,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: ppr
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8080
@@ -344,7 +311,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: ppr
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8080
@@ -360,10 +327,10 @@ upload:
     JAVA_TOOL_OPTIONS: '-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
-    SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "1000000KB"
-    SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "1000000KB"
-    SERVER_TOMCAT_MAX-PART-COUNT: "-1"
-    SERVER_TOMCAT_MAX-PART-HEADER-SIZE: "1000000KB"
+    SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "20MB"
+    SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "20MB"
+    SERVER_TOMCAT_MAX-PART-COUNT: "50"
+    SERVER_TOMCAT_MAX-PART-HEADER-SIZE: "20MB"
     ENABLEMTLS: "false"
     DISABLESSL: "false"
     SERVER_PORT: "8080"
@@ -382,9 +349,9 @@ upload:
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://ft-ppr.beta.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
-    AGENTCONNECT_CLIENTID: francetransfert
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://auth-preprod-apps.beta.numerique.gouv.fr/realms/applications
+    AGENTCONNECT_ISSUERURL: https://ft-ppr.beta.numerique.gouv.fr/auth
+    AGENTCONNECT_CLIENTID: angular-spa
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/auth
   podSecurityContext:
     runAsUser: 100102
     runAsGroup: 100102
@@ -429,7 +396,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: ppr
+    tag: 4.0.9
     imagePullPolicy: Always
   service:
     port: 8081
@@ -473,37 +440,41 @@ download:
       scaleDown:
         stabilizationWindowSeconds: 300
         policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 180
+          - type: Pods
+            value: 1
+            periodSeconds: 180
       scaleUp:
         stabilizationWindowSeconds: 180
         policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 180
+          - type: Pods
+            value: 1
+            periodSeconds: 180
 
 worker:
   # type: deploy/sts
   type: deploy
-  replicaCount: 1
+  replicaCount: 0
   readinessLiveness:
     readinessProbe:
       httpGet:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
-      periodSeconds: 10
+      periodSeconds: 10 
+      timeoutSeconds: 15
+      failureThreshold: 15
     livenessProbe:
       httpGet:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
       periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 15
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: ppr
+    tag: 4.0.9
     imagePullPolicy: Always
   resources:
     requests:
@@ -536,7 +507,7 @@ worker:
     SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "5"
     SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: "5"
     TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: "5"
-    ZIPWORKEREXECUTOR_POOL_SIZE: "3"
+    ZIPWORKEREXECUTOR_POOL_SIZE: "1"
     SENDEMAILDOWNLOADINPROGRESSWORKEREXECUTOR_POOL_SIZE: "5"
     UPLOADDOWNLOADWORKEREXECUTOR_POOL_SIZE: "5"
     STATWORKEREXECUTOR_POOL_SIZE: "5"
@@ -561,7 +532,7 @@ worker:
     QUEUE_SIZE: "1"
     QUEUE_SLEEP: "2000"
   scaler:
-    enabled: false
+    enabled: true
     replicaCount: 1
     env:
       - name: DOWNLOADEXECUTOR_ENABLED
@@ -615,9 +586,9 @@ worker:
       scaleUp:
         stabilizationWindowSeconds: 180
         policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 180
+          - type: Pods
+            value: 1
+            periodSeconds: 180
         selectPolicy: Max
       scaleDown:
         stabilizationWindowSeconds: 600
@@ -641,14 +612,14 @@ ingress:
       nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   hosts:
     - ft-ppr.beta.numerique.gouv.fr
-    - ft-ppr1.beta.numerique.gouv.fr
+    - ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
   tls:
     - secretName: transfert-tls
       hosts:
         - ft-ppr.beta.numerique.gouv.fr
     - secretName: transfert1-tls
       hosts:
-        - ft-ppr1.beta.numerique.gouv.fr
+        - ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
 
 backup:
   backupDate: "2025_06_11_131853"
@@ -674,23 +645,23 @@ backup:
     runAsUser: 110101
     runAsGroup: 110101
 
-benchmark:
-  schedule: "0 0 0 1 * ?"
-  persistentVolumeClaim:
-    storage: 200Gi
-    storageClassName: bsu-gp2
-
-scaler:
-  enabled: false
-  schedule: "0 7,23 * * 1-5" # week day at 7:00 and 23:00
-  scalerminReplicaCount: 0
-  workerminReplicaCount: 0
-  scalermaxReplicaCount: 1
-  workermaxReplicaCount: 1
+dex:
+  enabled: true
+  service:
+    ports:
+      http:
+        port: 5556
+  replicaCount: 2
+  configSecret:
+    create: false
+    name: ft-secret-dex
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
   podSecurityContext:
-    runAsUser: 110101
-    runAsGroup: 110101
-    fsGroup: 110101
+    runAsUser: 120101
+    runAsGroup: 120101
+    fsGroup: 120101
   securityContext:
     privileged: false
     allowPrivilegeEscalation: false
@@ -701,5 +672,40 @@ scaler:
     seccompProfile:
       type: RuntimeDefault
     runAsNonRoot: true
-    runAsUser: 110101
-    runAsGroup: 110101
+    runAsUser: 120101
+    runAsGroup: 120101
+  serviceMonitor:
+    enabled: true
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  volumes: 
+    - name: tmp
+      emptyDir:
+        sizeLimit: 250Mi
+  volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: dex
+
+benchmark:
+  schedule: "0 0 0 1 * ?"
+  persistentVolumeClaim:
+    storage: 200Gi
+    storageClassName: bsu-gp2
+

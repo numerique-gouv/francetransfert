@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,12 @@ public class ScheduledTasks {
 
 	@Value("${queue.sleep:1500}")
 	private int queueSleep;
+
+	@Value("${shutdown.seconds:20}")
+	private int shutdownSeconds;
+
+	@Value("${shutdown.timeout:10000}")
+	private int shutdownTimeout;
 
 	@Autowired
 	private MailAvailbleEnclosureServices mailAvailbleEnclosureServices;
@@ -156,6 +163,10 @@ public class ScheduledTasks {
 	@Autowired
 	@Qualifier("deleteEnclosureWorkerExecutor")
 	Executor deleteEnclosureWorkerExecutorFromBean;
+
+	@Autowired
+	@Qualifier("downloadExecutor")
+	Executor downloadExecutorFromBean;
 
 	boolean runningThread = true;
 
@@ -576,15 +587,27 @@ public class ScheduledTasks {
 		executorList.forEach(executor -> {
 			try {
 				executor.setQueueCapacity(0);
-				executor.initiateShutdown();
+				executor.shutdown();
+				if (!executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS)) {
+					executor.getThreadPoolExecutor().shutdownNow();
+				}
 			} catch (Exception e) {
 				LOGGER.error("Cannot stop executor ", e);
 			}
 		});
-		WorkerUtils.activeTasks.forEach(task -> {
-			LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
-			redisManager.publishFT(task.getQueue(), task.getData());
-		});
+
+		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
+			LOGGER.info("Active tasks found, waiting 10 seconds");
+			try {
+				Thread.sleep(shutdownTimeout);
+			} catch (InterruptedException e) {
+				LOGGER.error("Error sleep", e);
+			}
+			WorkerUtils.activeTasks.forEach(task -> {
+				LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
+				redisManager.publishFT(task.getQueue(), task.getData());
+			});
+		}
 		LOGGER.info("Finished putting task back to queue");
 
 	}
