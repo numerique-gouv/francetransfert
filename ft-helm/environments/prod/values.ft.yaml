@@ -580,10 +580,10 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "30"
+            averageValue: "35"
     behavior:
       scaleUp:
-        stabilizationWindowSeconds: 400
+        stabilizationWindowSeconds: 500
         policies:
           - type: Pods
             value: 1
