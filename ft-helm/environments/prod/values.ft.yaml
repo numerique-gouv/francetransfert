@@ -30,7 +30,7 @@ overrideGlobalConf:
   MAIL_IMAGE_FT_ACCESSBUTTON: "https://francetransfert.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
 
 maintenance:
-  enabled: true
+  enabled: false
 
 clamav:
   enabled: true
@@ -602,15 +602,15 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
     nginx.ingress.kubernetes.io/custom-headers: francetransfert-prd1/csp-headers
-    nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
-    #nginx.ingress.kubernetes.io/whitelist-source-range: "195.216.140.106/32,94.231.41.182/32"
+    #nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "195.216.140.106/32,94.231.41.182/32"
   upload:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200M"
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       nginx.ingress.kubernetes.io/custom-headers: francetransfert-prd1/csp-headers
-      #nginx.ingress.kubernetes.io/whitelist-source-range: "195.216.140.106/32,94.231.41.182/32"
-      nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
+      nginx.ingress.kubernetes.io/whitelist-source-range: "195.216.140.106/32,94.231.41.182/32"
+      #nginx.ingress.kubernetes.io/whitelist-source-range: "178.33.22.0/26,185.179.148.0/22,185.231.164.0/22,195.216.140.106/32,94.231.41.182/32,199.83.128.0/21,198.143.32.0/19,149.126.72.0/21,103.28.248.0/22,185.11.124.0/22,192.230.64.0/18,45.64.64.0/22,107.154.0.0/16,45.60.0.0/16,45.223.0.0/16,131.125.128.0/17"
   hosts:
     - francetransfert.numerique.gouv.fr
     - ft.lasuite-blo-prd-osc-cgw1-wapp-02.k8s.opicloud.numerique.gouv.fr
