@@ -210,7 +210,7 @@ redis:
       requests:
         cpu: 250m
         ephemeral-storage: 50Mi
-        memory: 256Mi
+        memory: 128Mi
   networkPolicy:
     enabled: false
     allowExternal: false
