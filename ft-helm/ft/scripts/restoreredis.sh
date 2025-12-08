@@ -22,12 +22,12 @@ for pod in $pods; do
     echo "failed to copy data to $pod"
     exit 1
   fi
-  echo "finish copy to $pod"
-  kubectl exec $pod -- sh -c 'ls -lrt /data'
-  kubectl exec $pod -- sh -c 'ls -lrt /data/**'
 done
 wait
 for pod in $pods; do
+  echo "finish copy to $pod"
+  kubectl exec $pod -- sh -c 'ls -lrt /data'
+  kubectl exec $pod -- sh -c 'ls -lrt /data/**'
   echo "delete $pod"
   kubectl delete --force --grace-period=0 pod $pod
 done
