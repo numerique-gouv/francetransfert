@@ -653,6 +653,8 @@ benchmark:
     storageClassName: bsu-gp2
 
 dex:
+  rbac:
+    createClusterScoped: false
   enabled: true
   service:
     ports:
