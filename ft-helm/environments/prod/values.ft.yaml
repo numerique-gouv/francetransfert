@@ -532,7 +532,7 @@ worker:
       - name: DOWNLOADEXECUTOR_ENABLED
         value: "true"
       - name: DOWNLOADEXECUTOR_POOL_SIZE
-        value: "10"
+        value: "4"
       - name: QUEUE_SIZE
         value: "1"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
