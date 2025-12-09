@@ -589,7 +589,13 @@ public class ScheduledTasks {
 				executor.setQueueCapacity(0);
 				executor.shutdown();
 				if (!executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS)) {
-					executor.getThreadPoolExecutor().shutdownNow();
+					List<Runnable> notStarted = executor.getThreadPoolExecutor().shutdownNow();
+					for (Runnable r : notStarted) {
+						if (r instanceof MonitorRunnable task) {
+							redisManager.publishFT(task.getQueue(), task.getData());
+							WorkerUtils.activeTasks.remove(task);
+						}
+					}
 				}
 			} catch (Exception e) {
 				LOGGER.error("Cannot stop executor ", e);
@@ -597,7 +603,7 @@ public class ScheduledTasks {
 		});
 
 		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
-			LOGGER.info("Active tasks found, waiting 10 seconds");
+			LOGGER.info("Active tasks found, waiting" + shutdownTimeout + "ms");
 			try {
 				Thread.sleep(shutdownTimeout);
 			} catch (InterruptedException e) {
