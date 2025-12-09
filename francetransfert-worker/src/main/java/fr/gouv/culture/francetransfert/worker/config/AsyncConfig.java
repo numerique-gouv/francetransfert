@@ -24,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.utils.MonitorRunnable;
+import fr.gouv.culture.francetransfert.utils.WorkerUtils;
 
 @Configuration
 @EnableAsync
@@ -148,9 +149,11 @@ public class AsyncConfig {
 		exec.setKeepAliveSeconds(0);
 		exec.setRejectedExecutionHandler(new RejectedExecutionHandler() {
 			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-				MonitorRunnable mr = (MonitorRunnable) r;
-				LOGGER.info("ThreadPool is full Putting back to queue {} - {}", mr.getQueue(), mr.getData());
-				redisManager.publishFT(mr.getQueue(), mr.getData());
+				if (r instanceof MonitorRunnable mr) {
+					LOGGER.info("ThreadPool is full Putting back to queue {} - {}", mr.getQueue(), mr.getData());
+					WorkerUtils.activeTasks.remove(mr);
+					redisManager.publishFT(mr.getQueue(), mr.getData());
+				}
 				throw new RejectedExecutionException("Queue is full");
 			}
 		});
