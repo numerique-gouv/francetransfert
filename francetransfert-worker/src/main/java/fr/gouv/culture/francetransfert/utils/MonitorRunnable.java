@@ -36,7 +36,10 @@ public class MonitorRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		runnable.run();
-		WorkerUtils.activeTasks.remove(this);
+		try {
+			runnable.run();
+		} finally {
+			WorkerUtils.activeTasks.remove(this);
+		}
 	}
 }
