@@ -322,8 +322,8 @@ upload:
     limits:
       memory: 1024Mi
   overrideConf:
-    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -Duser.timezone="Europe/Paris"'
+    JAVA_OPTS: '-XX:+UseContainerSupport -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
     SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "20MB"
     SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "20MB"
@@ -373,7 +373,7 @@ upload:
     cpu:
       averageUtilization: 80
   persistentVolumeClaim:
-    storage: 20Gi
+    storage: 30Gi
     accessModes: ReadWriteOnce
     storageClassName: bsu-gp2
 
