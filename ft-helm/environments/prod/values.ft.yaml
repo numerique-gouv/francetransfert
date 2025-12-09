@@ -536,7 +536,7 @@ worker:
       - name: QUEUE_SIZE
         value: "1"
       - name: ZIPWORKEREXECUTOR_POOL_SIZE
-        value: "3"
+        value: "2"
     replicaCount: 2
     data:
       persistentVolumeClaim:
