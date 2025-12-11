@@ -8,7 +8,7 @@ month=$(date +"%m")
 backup_folder="/backup/backup-redis"
 
 echo "compress backup folder"
-rm $backup_folder/conf
+rm -rf $backup_folder/conf
 cd $backup_folder
 zip -r $backup_folder/redis-dump.zip .
 echo "upload redis dump to s3"
