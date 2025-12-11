@@ -592,6 +592,7 @@ public class ScheduledTasks {
 					List<Runnable> notStarted = executor.getThreadPoolExecutor().shutdownNow();
 					for (Runnable r : notStarted) {
 						if (r instanceof MonitorRunnable task) {
+							LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
 							redisManager.publishFT(task.getQueue(), task.getData());
 							WorkerUtils.activeTasks.remove(task);
 						}

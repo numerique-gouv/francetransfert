@@ -647,6 +647,8 @@ backup:
 
 dex:
   enabled: true
+  rbac:
+    createClusterScoped: false
   service:
     ports:
       http:
