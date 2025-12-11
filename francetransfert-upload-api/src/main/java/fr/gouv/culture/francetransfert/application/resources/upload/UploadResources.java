@@ -83,6 +83,9 @@ public class UploadResources {
 	@Value("${config.api.key}")
 	String apiKeyConfig;
 
+	@Value("${upload.file.limit}")
+	private long uploadFileLimitSize;
+
 	@GetMapping("/upload")
 	@Operation(method = "GET", description = "Upload")
 	public boolean chunkExists(HttpServletResponse response, @RequestParam("flowChunkNumber") int flowChunkNumber,
@@ -108,6 +111,11 @@ public class UploadResources {
 			@RequestParam("flowFilename") String flowFilename, @RequestParam("file") MultipartFile file,
 			@RequestParam("enclosureId") String enclosureId, @RequestParam("senderId") String senderId,
 			@RequestParam("senderToken") String senderToken) throws MetaloadException, StorageException {
+
+		if (flowTotalSize > uploadFileLimitSize) {
+			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
+			return;
+		}
 
 		uploadServices.processPrivateUpload(flowChunkNumber, flowTotalChunks, flowIdentifier, file, enclosureId,
 				senderId, senderToken);
