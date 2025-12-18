@@ -136,16 +136,6 @@ public class UploadResources {
 		return enclosureRepresentation;
 	}
 
-	@PostMapping("/sender-contact")
-	@Operation(method = "POST", description = "sender contact")
-	public boolean senderContact(HttpServletRequest request, HttpServletResponse response,
-			@Valid @RequestBody FormulaireContactData metadata) {
-		LOGGER.info("start sending message ");
-		boolean formulaire = uploadServices.senderContact(metadata);
-		response.setStatus(HttpStatus.OK.value());
-		return formulaire;
-	}
-
 	@PostMapping("/delete-file")
 	@Operation(method = "GET", description = "Generate delete URL ")
 	public EnclosureRepresentation deleteFile(HttpServletResponse response, @RequestBody DeleteRequest deleteRequest)
