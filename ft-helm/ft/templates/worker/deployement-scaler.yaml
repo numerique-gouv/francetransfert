@@ -124,9 +124,9 @@ spec:
             - podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app.kubernetes.io/component: node
-                    app.kubernetes.io/instance: ft
-                    app.kubernetes.io/name: redis
+                    app: redis
+                    ft-redis: replica
+                    release: ft
                 topologyKey: kubernetes.io/hostname
               weight: 100
 {{- end }}

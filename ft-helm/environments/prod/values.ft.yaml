@@ -318,9 +318,9 @@ upload:
   resources:
     requests:
       cpu: 500m
-      memory: 1024Mi
+      memory: 2048Mi
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
   overrideConf:
     JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -Duser.timezone="Europe/Paris"'
     JAVA_OPTS: '-XX:+UseContainerSupport -Duser.timezone="Europe/Paris"'
@@ -572,7 +572,7 @@ worker:
   hpa:
     enabled: true
     minReplicas: 2
-    maxReplicas: 6
+    maxReplicas: 8
     metrics:
       - type: Pods
         pods:
