@@ -532,7 +532,7 @@ worker:
     QUEUE_SIZE: "1"
     QUEUE_SLEEP: "2000"
     ENABLEMTLS: "false"
-    DISABLESSL: "true"
+    DISABLESSL: "false"
   scaler:
     enabled: true
     replicaCount: 1
