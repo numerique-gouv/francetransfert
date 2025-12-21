@@ -531,6 +531,8 @@ worker:
     DOWNLOADEXECUTOR_POOL_SIZE: "1"
     QUEUE_SIZE: "1"
     QUEUE_SLEEP: "2000"
+    ENABLEMTLS: "false"
+    DISABLESSL: "true"
   scaler:
     enabled: true
     replicaCount: 1
