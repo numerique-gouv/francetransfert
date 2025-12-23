@@ -261,7 +261,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 4.0.9
+    tag: 4.0.10
     imagePullPolicy: Always
   service:
     port: 8080
