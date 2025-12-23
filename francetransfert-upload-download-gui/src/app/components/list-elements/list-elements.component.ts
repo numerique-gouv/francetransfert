@@ -241,11 +241,11 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       let seen = new Set();
       let dup = [];
       this.flow.flowJs.files.forEach(file => {
-        if (seen.has(file.relativePath + '::' + file.size)) {
+        if (seen.has(file.relativePath)) {
           hasDuplicates = true;
           dup.push(file);
         } else {
-          seen.add(file.relativePath + '::' + file.size);
+          seen.add(file.relativePath);
         }
       });
       if (hasDuplicates) {
