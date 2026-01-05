@@ -34,7 +34,7 @@ maintenance:
 
 clamav:
   image:
-    tag: "1.5_base"
+    tag: "1.5.1"
   enabled: true
   hpa:
     enabled: false
@@ -146,6 +146,8 @@ clamav:
     MaxRecursion: 10
 
 redis:
+  image:
+    tag: 8.2.3-alpine
   auth: true
   existingSecret: "ft-secret-app"
   authKey: METALOAD_PASSWORD
@@ -649,6 +651,8 @@ backup:
 
 dex:
   enabled: true
+  image:
+    tag: v2.44.0-distroless
   rbac:
     createClusterScoped: false
   service:
