@@ -34,7 +34,7 @@ export class LoginService {
           clientId: configInfo.clientId,
           responseType: 'code',
           oidc: true,
-          scope: 'openid profile email',
+          scope: 'openid profile email offline_access',
           strictDiscoveryDocumentValidation: true,
           //showDebugInformation: !environment.production,
           postLogoutRedirectUri: window.location.origin + '/upload',
