@@ -12,7 +12,7 @@
 			<strong
 				th:if="${enclosure.get('publicLink').getAsString().equals('true')}" th:text="#{nom.pli}"></strong>&nbsp; <strong
 				th:if="${enclosure.get('publicLink').getAsString().equals('false')}" th:text="#{objet}"></strong>&nbsp; 
-				<span th:text="${enclosure.get('subject').getAsString()}"></span>
+				<span th:utext="${enclosure.get('subject').getAsString()}"></span>
 		</p>
 	</div>
 		

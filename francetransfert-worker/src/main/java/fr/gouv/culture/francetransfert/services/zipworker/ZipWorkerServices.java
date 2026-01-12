@@ -291,9 +291,7 @@ public class ZipWorkerServices {
 				LOGGER.debug(" start delete zip file in local disk");
 				deleteFilesFromTemp(fileToDelete);
 				File fileZip = new File(getBaseFolderNameWithZipPrefix(enclosureId));
-				if (!fileZip.delete()) {
-					throw new WorkerException("error delete zip file");
-				}
+				FileUtils.deleteQuietly(fileZip);
 				LOGGER.debug(" start delete zip file in OSU");
 				try {
 					deleteFilesFromOSU(manager, bucketName, enclosureId);
@@ -511,7 +509,8 @@ public class ZipWorkerServices {
 		manager.uploadMultipartForZip(bucketName, fileName, fileZipPath);
 	}
 
-	private void zipDownloadedContent(String zippedFileName, String password, String zipPassword) throws IOException {
+	private void zipDownloadedContent(String zippedFileName, String password, String zipPassword)
+			throws IOException, RetryException {
 
 		if (zipPassword.equalsIgnoreCase("true")) {
 			String sourceFile = getBaseFolderNameWithEnclosurePrefix(zippedFileName);
@@ -530,7 +529,7 @@ public class ZipWorkerServices {
 
 	}
 
-	private void zipDownloadedContentWithoutPassword(String zippedFileName) throws IOException {
+	private void zipDownloadedContentWithoutPassword(String zippedFileName) throws IOException, RetryException {
 		String sourceFile = getBaseFolderNameWithEnclosurePrefix(zippedFileName);
 		try (FileOutputStream fos = new FileOutputStream(getBaseFolderNameWithZipPrefix(zippedFileName));
 				ZipOutputStream zipOut = new ZipOutputStream(fos);) {
@@ -544,7 +543,7 @@ public class ZipWorkerServices {
 	}
 
 	private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut, boolean crypted)
-			throws IOException {
+			throws IOException, RetryException {
 		try {
 			ZipParameters parameters = new ZipParameters();
 			parameters.setCompressionMethod(CompressionMethod.DEFLATE);
@@ -585,7 +584,7 @@ public class ZipWorkerServices {
 
 		} catch (Exception e) {
 			log.error("Error During ZipFile", e);
-			throw new WorkerException("Error During ZipFile");
+			throw new RetryException("Error During ZipFile");
 		}
 	}
 
