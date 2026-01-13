@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -25,7 +25,7 @@ import io.swagger.v3.oas.models.info.License;
  * The type Demo application.
  */
 
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @SpringBootApplication
 @ComponentScan(basePackages = { "fr.gouv.culture" })
 @EnableAsync

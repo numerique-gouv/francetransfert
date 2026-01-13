@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21:nonroot
+FROM gcr.io/distroless/java25:nonroot
 
 WORKDIR /app
 COPY target/*.jar /app/app.jar
