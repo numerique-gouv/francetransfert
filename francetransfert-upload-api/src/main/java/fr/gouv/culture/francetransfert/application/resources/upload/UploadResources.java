@@ -177,7 +177,6 @@ public class UploadResources {
 			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code,
 			@Valid @EmailsFranceTransfert @RequestBody FranceTransfertDataRepresentation metadata) {
 		EnclosureRepresentation enclosureRepresentation = null;
-		LOGGER.info("start validate confirmation code : " + code);
 		code = code.trim();
 		String cookieTocken = confirmationServices
 				.validateCodeConfirmationAndGenerateToken(metadata.getSenderEmail().toLowerCase(), code)

@@ -2,6 +2,7 @@ package fr.gouv.culture.francetransfert.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
+import tools.jackson.databind.DeserializationFeature;
+
 @Configuration
 public class SecurityConfiguration {
 
@@ -19,15 +22,21 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
-				.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and().csrf().disable()
-				.headers().frameOptions().disable();
+		http
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+				.csrf(csrf -> csrf.disable())
+				.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
 		if (agentConnect) {
-			http.authorizeRequests(authz -> authz.anyRequest().permitAll()).oauth2ResourceServer().jwt()
-					.jwtAuthenticationConverter(jwtAuthenticationConverter());
+			http
+					.authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
+					.oauth2ResourceServer(oauth2 -> oauth2
+							.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 		} else {
-			http.authorizeRequests(authz -> authz.anyRequest().permitAll());
+			http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
 		}
+
 		return http.build();
 	}
 
@@ -37,6 +46,12 @@ public class SecurityConfiguration {
 		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 		converter.setPrincipalClaimName("email");
 		return converter;
+	}
+
+	@Bean
+	public JsonMapperBuilderCustomizer customizer() {
+		return builder -> builder
+				.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 	}
 
 }
