@@ -1021,7 +1021,7 @@ public class UploadServices {
 	public LocalDate validateExpirationDate(String enclosureId) throws MetaloadException {
 		LocalDate expirationDate = DateUtils.convertStringToLocalDate(
 				RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()));
-		if (LocalDate.now().isAfter(expirationDate)) {
+		if (LocalDateTime.now().isAfter(expirationDate.atStartOfDay())) {
 			throw new UploadException("Vous ne pouvez plus accéder à ces fichiers", enclosureId);
 		}
 		return expirationDate;

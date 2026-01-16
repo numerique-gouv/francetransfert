@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
-import org.owasp.encoder.Encode;
 
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -93,7 +93,7 @@ public class FranceTransfertDataRepresentation {
 
 	public String getMessage() {
 		if (StringUtils.isNotBlank(message)) {
-			return Encode.forHtml(message);
+			return SanitizerUtil.sanitize(message);
 		} else {
 			return "";
 		}
@@ -121,7 +121,7 @@ public class FranceTransfertDataRepresentation {
 
 	public String getSubject() {
 		if (StringUtils.isNotBlank(subject)) {
-			return Encode.forHtml(subject);
+			return SanitizerUtil.sanitize(subject);
 		} else {
 			return "";
 		}

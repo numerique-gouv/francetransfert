@@ -26,7 +26,7 @@ public class ApiError {
 	/**
 	 * TYPE ERROR
 	 */
-	private String Type;
+	private String type;
 	/**
 	 * ID ERROR
 	 */

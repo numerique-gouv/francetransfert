@@ -10,6 +10,7 @@ package fr.gouv.culture.francetransfert.application.resources.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,4 +36,8 @@ public class DownloadRepresentation {
 	private boolean checkRESANA;
 	private String urlOsmose;
 	private String urlResana;
+
+	public String getMessage() {
+		return SanitizerUtil.sanitize(message);
+	}
 }

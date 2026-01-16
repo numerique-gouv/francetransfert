@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -145,7 +146,7 @@ public class UploadResources {
 				deleteRequest.getSenderMail());
 		uploadServices.validateExpirationDate(deleteRequest.getEnclosureId());
 		EnclosureRepresentation enclosureRepresentation = uploadServices
-				.updateExpiredTimeStamp(deleteRequest.getEnclosureId(), LocalDate.now().minusDays(1));
+				.updateExpiredTimeStamp(deleteRequest.getEnclosureId(), LocalDate.now().atStartOfDay().toLocalDate());
 		return enclosureRepresentation;
 	}
 
