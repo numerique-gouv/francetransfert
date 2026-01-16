@@ -23,10 +23,12 @@
           </ng-container>
           <mat-list-item role="listitem"><span>{{'Emetteur' | translate}} {{fileInfos.senderEmail}}</span>
           </mat-list-item>
-          <mat-list-item role="listitem"><span>{{'Object' | translate}} {{fileInfos.subject}}</span>
+          <mat-list-item role="listitem"><span>{{'Object' | translate}}&nbsp;<span
+                [innerHTML]="fileInfos.subject"></span></span>
           </mat-list-item>
-          <mat-list-item role="listitem" style="white-space: pre-line"><span>{{'Message' | translate}}
-              {{fileInfos.message}}</span></mat-list-item>
+          <mat-list-item role="listitem" style="white-space: pre-line"><span>{{'Message'
+              | translate}}&nbsp;<span [innerHTML]="fileInfos.message"></span></span>
+          </mat-list-item>
           <mat-list-item role="listitem"><span>{{'Date_Emission' | translate}}
 
               <!-- {{fileInfos.timestamp | date: 'medium'}} -->
@@ -224,13 +226,15 @@
               </mat-accordion>
             </ng-container>
             <button type="button" mat-icon-button class="upload-item-actions-btn"
-              matTooltip="{{'Renvoyer_Lien_Téléchargement' | translate}}" *ngIf="!fileInfos?.expired && !reciever" (click)="resendLink(dest.recipientMail)">
+              matTooltip="{{'Renvoyer_Lien_Téléchargement' | translate}}" *ngIf="!fileInfos?.expired && !reciever"
+              (click)="resendLink(dest.recipientMail)">
               <mat-icon attr.aria-label="{{'Renvoyer_Lien_Téléchargement' | translate}}">
                 email</mat-icon>
             </button>
             <button type="button" mat-icon-button class="upload-item-actions-btn"
-              matTooltip="{{'Supprimer_Destinataire' | translate}}" *ngIf="!fileInfos?.expired && !reciever" (click)="deleteRecipient(index, dest)">
-              <mat-icon  attr.aria-label="{{'Supprimer_Destinataire' | translate}}">delete
+              matTooltip="{{'Supprimer_Destinataire' | translate}}" *ngIf="!fileInfos?.expired && !reciever"
+              (click)="deleteRecipient(index, dest)">
+              <mat-icon attr.aria-label="{{'Supprimer_Destinataire' | translate}}">delete
               </mat-icon>
             </button>
           </mat-list-item>
@@ -294,8 +298,9 @@
     <mat-card-actions class="admin-card-actions" *ngIf="fileInfos && !reciever" style="flex-wrap: wrap;">
 
       <div style="display: flex; justify-content: start;">
-        <button type="button" *ngIf="(fileInfos?.recipientsMails.length != 0 || fileInfos?.deletedRecipients.length != 0)"
-          type="button" mat-raised-button class="admin-card-actions-btn margin-auto" (click)="DupliquerDestinataires()"
+        <button type="button"
+          *ngIf="(fileInfos?.recipientsMails.length != 0 || fileInfos?.deletedRecipients.length != 0)" type="button"
+          mat-raised-button class="admin-card-actions-btn margin-auto" (click)="DupliquerDestinataires()"
           attr.aria-label="{{'Dupliquer-destinataires' | translate}}">{{'Dupliquer-destinataires'
           | translate}}</button>
         <button type="button" mat-raised-button attr.aria-label="{{'Exporter_PDF' | translate}}"

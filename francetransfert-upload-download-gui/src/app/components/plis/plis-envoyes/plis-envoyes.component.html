@@ -11,20 +11,20 @@
     <div class="container">
       <mat-form-field>
         <mat-label>{{'Dest' | translate}}</mat-label>
-        <input matInput class="form-field" [formControl]="destinatairesFilter" placeholder="Ex. camille.dupond@domaine.fr">
+        <input matInput class="form-field" [formControl]="destinatairesFilter"
+          placeholder="Ex. camille.dupond@domaine.fr">
       </mat-form-field>
 
       <mat-form-field class="space">
         <mat-label>{{'Object' | translate}}</mat-label>
-        <input matInput class="form-field" [formControl]="objet" >
+        <input matInput class="form-field" [formControl]="objet">
       </mat-form-field>
 
       <mat-form-field class="space">
         <mat-label> {{'Date-Debut' | translate}}</mat-label>
-        <input matInput [matDatepicker]="picker" [formControl]="dateDebut"  autocomplete="off">
+        <input matInput [matDatepicker]="picker" [formControl]="dateDebut" autocomplete="off">
         <mat-datepicker #picker></mat-datepicker>
-        <button mat-icon-button matSuffix mat-stroked-button
-                (click)="picker.open()" class="backgroundColor">
+        <button mat-icon-button matSuffix mat-stroked-button (click)="picker.open()" class="backgroundColor">
           <mat-icon matSuffix aria-hidden="true">event</mat-icon>
         </button>
 
@@ -32,10 +32,9 @@
 
       <mat-form-field class="space">
         <mat-label> {{'Date-Fin' | translate}}</mat-label>
-        <input matInput [matDatepicker]="picker2" [formControl]="dateFin"  autocomplete="off">
+        <input matInput [matDatepicker]="picker2" [formControl]="dateFin" autocomplete="off">
         <mat-datepicker #picker2></mat-datepicker>
-        <button mat-icon-button matSuffix mat-stroked-button
-                (click)="picker2.open()" class="backgroundColor">
+        <button mat-icon-button matSuffix mat-stroked-button (click)="picker2.open()" class="backgroundColor">
           <mat-icon matSuffix aria-hidden="true">event</mat-icon>
         </button>
 
@@ -49,10 +48,10 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <button type="button"  mat-raised-button class="filtred-button " (click)="reinitialiserFiltres()"
-                attr.aria-label="{{'Reinitialiser' | translate}}">{{'Reinitialiser' |translate}}</button>
-      <button type="button"  mat-raised-button class="filtred-button " (click)="filtrer()"
-                attr.aria-label="{{'Filtrer' | translate}}">{{'Filtrer' |translate}}</button>
+      <button type="button" mat-raised-button class="filtred-button " (click)="reinitialiserFiltres()"
+        attr.aria-label="{{'Reinitialiser' | translate}}">{{'Reinitialiser' |translate}}</button>
+      <button type="button" mat-raised-button class="filtred-button " (click)="filtrer()"
+        attr.aria-label="{{'Filtrer' | translate}}">{{'Filtrer' |translate}}</button>
 
 
 
@@ -62,9 +61,8 @@
       <div *ngIf="loading" class="spinner">
         <mat-spinner></mat-spinner>
       </div>
-      <mat-table [dataSource]="dataSource" matSort class="mat-width" attr.aria-label="{{'Liste_Plis' | translate}}" matSort matSortActive="dateEnvoi"
-
-        matSortDirection="desc">
+      <mat-table [dataSource]="dataSource" matSort class="mat-width" attr.aria-label="{{'Liste_Plis' | translate}}"
+        matSort matSortActive="dateEnvoi" matSortDirection="desc">
 
         <!-- Date d'envoi Column -->
         <ng-container matColumnDef="dateEnvoi" class="padding">
@@ -85,8 +83,7 @@
         <ng-container matColumnDef="objet">
           <mat-header-cell *matHeaderCellDef class="overflow-clip-header"> {{'Objet' | translate}}</mat-header-cell>
           <mat-cell *matCellDef="let element" attr.data-label="{{'Objet' | translate}}">
-            <div class="overflow-clip">
-              {{element.objet}}
+            <div class="overflow-clip" [innerHTML]="element.objet">
             </div>
           </mat-cell>
         </ng-container>
@@ -122,12 +119,12 @@
           <mat-header-cell *matHeaderCellDef> {{'Action' | translate}}</mat-header-cell>
           <mat-cell *matCellDef="let element" attr.data-label="{{'Action' | translate}}">
             <button class="but" (click)="navigateTo(element.enclosureId)" matTooltip={{element.matTooltip}}>
-              <mat-icon  style="color: black;cursor: pointer;"
-               attr.aria-label={{element.matTooltip}}>{{element.expired}}
+              <mat-icon style="color: black;cursor: pointer;" attr.aria-label={{element.matTooltip}}>{{element.expired}}
               </mat-icon>
             </button>
             <button class="but" (click)="PdfGenerated(element.enclosureId)" matTooltip="{{'Export_PDF' | translate}}">
-              <mat-icon  style="color: black;cursor: pointer;" attr.aria-label="{{'Export_PDF' | translate}}">picture_as_pdf</mat-icon>
+              <mat-icon style="color: black;cursor: pointer;"
+                attr.aria-label="{{'Export_PDF' | translate}}">picture_as_pdf</mat-icon>
             </button>
 
           </mat-cell>
@@ -137,19 +134,18 @@
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
       </mat-table>
 
-      <mat-paginator
-        [length]="totalItems"
-        [pageSizeOptions]="[5, 10, 20, 50, 100]"
-        attr.aria-label="{{'Elément_Récurrent' | translate}}"
-        (page)="onPageChange($event, true)">
+      <mat-paginator [length]="totalItems" [pageSizeOptions]="[5, 10, 20, 50, 100]"
+        attr.aria-label="{{'Elément_Récurrent' | translate}}" (page)="onPageChange($event, true)">
       </mat-paginator>
     </div>
 
   </div>
 
   <mat-card-actions class="admin-card-actions">
-    <button type="button" mat-raised-button class="admin-card-actions-btn" (click)="backToHome()"  attr.aria-label="{{'Accueil' | translate}}">{{'Accueil' | translate}}</button>
-    <button type="button" *ngIf="isLoggedIn()" mat-raised-button class="admin-card-actions-btn" (click)="exportCSV()"  attr.aria-label="{{'Exporter_CSV' | translate}}">{{'Exporter_CSV' |
+    <button type="button" mat-raised-button class="admin-card-actions-btn" (click)="backToHome()"
+      attr.aria-label="{{'Accueil' | translate}}">{{'Accueil' | translate}}</button>
+    <button type="button" *ngIf="isLoggedIn()" mat-raised-button class="admin-card-actions-btn" (click)="exportCSV()"
+      attr.aria-label="{{'Exporter_CSV' | translate}}">{{'Exporter_CSV' |
       translate}}</button>
   </mat-card-actions>
 

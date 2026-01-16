@@ -28,6 +28,7 @@ import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.utils.Base64CryptoService;
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import fr.gouv.culture.francetransfert.model.Enclosure;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.mail.notification.enums.NotificationTemplateEnum;
@@ -86,8 +87,7 @@ public class MailNotificationServices {
 			}
 
 			if (StringUtils.isNotBlank(subject)) {
-				String s = StringEscapeUtils.unescapeHtml4(subject);
-				s = s.replaceAll("[<>]", "");
+				String s = StringEscapeUtils.unescapeHtml4(SanitizerUtil.sanitize(subject));
 				helper.setSubject(s);
 			}
 

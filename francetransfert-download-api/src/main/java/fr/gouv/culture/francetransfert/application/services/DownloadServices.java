@@ -560,7 +560,7 @@ public class DownloadServices {
 				LOGGER.warn("msgtype: INVALID_HASH || enclosure: {} || recipient: {}", enclosureId, recipientMail);
 				throw new InvalidHashException("Hash incorrect pour le pli " + enclosureId);
 			}
-			
+
 			return expirationDate;
 		} else {
 			throw new ExpirationEnclosureException("Vous ne pouvez plus telecharger les fichiers de l'enclosure : "
@@ -573,7 +573,7 @@ public class DownloadServices {
 			throws ExpirationEnclosureException, MetaloadException {
 		LocalDate expirationDate = DateUtils.convertStringToLocalDate(
 				RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()));
-		if (LocalDate.now().isAfter(expirationDate)) {
+		if (LocalDateTime.now().isAfter(expirationDate.atStartOfDay())) {
 			throw new ExpirationEnclosureException("Vous ne pouvez plus telecharger ces fichiers");
 		}
 		return expirationDate;

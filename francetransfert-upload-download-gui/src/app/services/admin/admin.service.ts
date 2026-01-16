@@ -762,7 +762,7 @@ export class AdminService {
   getInfoObject(info: string) {
     if (info != "" && info != null) {
       return {
-        text: `${info}`,
+        text: `${new DOMParser().parseFromString(info, 'text/html').body.textContent}`,
         alignment: 'right',
         margin: [0, 10, 0, 0],
       };
