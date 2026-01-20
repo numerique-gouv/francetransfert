@@ -51,3 +51,6 @@ buildNumber.properties
 ft-helm/testtest.yaml
 
 ignore
+package-lock.json
+Chart.lock
+**/*.dec.yaml
