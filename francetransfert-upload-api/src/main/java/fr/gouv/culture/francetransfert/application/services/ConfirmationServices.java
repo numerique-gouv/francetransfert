@@ -10,6 +10,7 @@ package fr.gouv.culture.francetransfert.application.services;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -225,6 +226,10 @@ public class ConfirmationServices {
 		redisManager.deleteKey(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)));
 		redisManager.deleteKey(RedisKeysEnum.FT_CODE_TRY.getKey(RedisUtils.generateHashsha1(senderMail)));
 		throw new MaxTryException("Unauthorized");
+	}
+
+	public boolean isSender(String plis, String mailAdress) {
+		return redisManager.sexists(RedisKeysEnum.FT_SEND.getKey(mailAdress.toLowerCase()), plis);
 	}
 
 }

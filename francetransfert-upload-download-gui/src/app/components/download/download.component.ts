@@ -189,7 +189,10 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
   onSatisfactionCheckDone(event) {
     if (event) {
-      this._downloadService.rate({ plis: this.params['enclosure'], mail: this.downloadInfos.recipientMail, message: event.message, satisfaction: event.satisfaction }).pipe(take(1))
+      this._downloadService.rate({
+        plis: this.params['enclosure'], mail: this.downloadInfos.recipientMail, message: event.message, satisfaction: event.satisfaction,
+        ...this.loginService.tokenInfo.getValue()?.senderToken ? { token: this.loginService.tokenInfo.getValue()?.senderToken } : { token: this.params['token'] },
+      }).pipe(take(1))
         .subscribe((result) => {
           if (result) {
             this.openSnackBar(4000);

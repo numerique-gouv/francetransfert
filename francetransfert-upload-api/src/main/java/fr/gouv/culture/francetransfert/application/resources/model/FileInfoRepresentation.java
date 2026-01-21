@@ -30,6 +30,7 @@ import lombok.Setter;
 public class FileInfoRepresentation {
 	private LocalDate validUntilDate;
 	private String senderEmail;
+	@Size(max = 101)
 	private List<RecipientInfo> recipientsMails;
 	private List<RecipientInfo> deletedRecipients;
 	@Size(max = 2500)

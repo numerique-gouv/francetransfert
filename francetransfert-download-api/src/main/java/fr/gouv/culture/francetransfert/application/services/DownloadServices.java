@@ -103,6 +103,9 @@ public class DownloadServices {
 	@Value("${osmose.mail.url:test}")
 	private String urlPatternOsmose;
 
+	@Autowired
+	private ConfirmationServices confirmationServices;
+
 	public Download getTelechargementPli(DownloadPasswordMetaData downloadMeta, String headerAddr, String remoteAddr)
 			throws ApiValidationException, MetaloadException, StatException {
 
@@ -543,7 +546,7 @@ public class DownloadServices {
 		Boolean recipientDeleted = false;
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 
-		validateRecipientId(enclosureId, recipientMail, recipientId);
+		confirmationServices.validateRecipientId(enclosureId, recipientMail, recipientId);
 
 		if (StringUtils.isNotBlank(recipientMail)) {
 			recipientDeleted = RedisUtils.isRecipientDeleted(redisManager, recipientId);
@@ -587,19 +590,6 @@ public class DownloadServices {
 			throw new DownloadException(ErrorEnum.DOWNLOAD_LIMIT.getValue(), enclosureId);
 		}
 		return numberOfDownload;
-	}
-
-	private void validateRecipientId(String enclosureId, String recipientMail, String recipientId) {
-		try {
-			Map<String, String> recList = RedisUtils.getRecipientsEnclosure(redisManager, enclosureId);
-			String recipientIdRedis = recList.get(recipientMail);
-			if (!recipientIdRedis.equals(recipientId)) {
-				throw new DownloadException("NewRecipient id send not equals to Redis recipient id for this enclosure",
-						enclosureId);
-			}
-		} catch (Exception e) {
-			throw new DownloadException("Error while validating recipient Id : " + e.getMessage(), enclosureId, e);
-		}
 	}
 
 	public String getRecipientId(String enclosureId, String recipientParam)

@@ -129,7 +129,7 @@ public class UploadResources {
 	@PostMapping("/sender-info")
 	@Operation(method = "POST", description = "sender Info ")
 	public EnclosureRepresentation senderInfo(HttpServletRequest request, HttpServletResponse response,
-			@RequestBody FranceTransfertDataRepresentation metadata) {
+			@RequestBody @Valid @EmailsFranceTransfert FranceTransfertDataRepresentation metadata) {
 		LOGGER.info("start upload enclosure ");
 		String token = metadata.getSenderToken();
 		metadata.setConfirmedSenderId(metadata.getSenderId());
@@ -346,7 +346,13 @@ public class UploadResources {
 	@RequestMapping(value = "/satisfaction", method = RequestMethod.POST)
 	@Operation(method = "POST", description = "Rates the app on a scvale of 1 to 4")
 	public boolean createSatisfactionFT(HttpServletResponse response,
-			@Valid @RequestBody RateRepresentation rateRepresentation) throws UploadException {
+			@Valid @RequestBody RateRepresentation rateRepresentation) throws UploadException, MetaloadException {
+		confirmationServices.validateToken(rateRepresentation.getMailAdress().toLowerCase(),
+				rateRepresentation.getToken());
+		if (!confirmationServices.isSender(rateRepresentation.getPlis(),
+				rateRepresentation.getMailAdress().toLowerCase())) {
+			throw new UnauthorizedAccessException("Unauthorized access");
+		}
 		return rateServices.createSatisfactionFT(rateRepresentation);
 	}
 

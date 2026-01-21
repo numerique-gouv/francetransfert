@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class FranceTransfertDataRepresentation {
 	private String confirmedSenderId;
 	private String senderEmail;
-	@Size(min = 1, max = 101)
+	@Size(max = 101)
 	private List<String> recipientEmails;
 	private String password;
 	private Boolean passwordGenerated;

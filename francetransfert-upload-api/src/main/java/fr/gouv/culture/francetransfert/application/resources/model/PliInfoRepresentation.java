@@ -28,7 +28,7 @@ public class PliInfoRepresentation {
 	    private StatusRepresentation statutPli;
 	    private String typePli;
 	    private String courrielExpediteur;
-	    @Size(min = 1, max = 101)
+	    @Size(max = 101)
 	    private RecipientInfoApi destinataires;
 		private String dateDepot;
 	    @Size(max = 255)
