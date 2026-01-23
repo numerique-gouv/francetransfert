@@ -164,7 +164,7 @@ public class ZipWorkerServices {
 
 	List<String> inProgressList = Arrays.asList(StatutEnum.ANA.getCode(), StatutEnum.CHT.getCode());
 
-	public void startZip(String enclosureId) throws MetaloadException, StorageException {
+	public void startZip(String enclosureId) throws MetaloadException, StorageException, RetryException {
 
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 		Enclosure enclosure = Enclosure.build(enclosureId, redisManager);
@@ -457,7 +457,7 @@ public class ZipWorkerServices {
 		}
 	}
 
-	private String getHashFromS3(String enclosureId) throws MetaloadException, StorageException {
+	private String getHashFromS3(String enclosureId) throws MetaloadException, StorageException, RetryException {
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 		String fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
 		String hashFileFromS3 = storageManager.getEtag(bucketName, fileToDownload);

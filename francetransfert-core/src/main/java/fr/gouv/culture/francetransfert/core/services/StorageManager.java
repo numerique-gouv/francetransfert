@@ -96,7 +96,7 @@ public class StorageManager {
     private AmazonS3 conn;
 
     @PostConstruct
-    private void setUpProps() throws StorageException {
+    private void setUpProps() throws StorageException, RetryException {
 
         setEndpoint(endpoint);
         setAccessKey(accessKey);
@@ -107,7 +107,7 @@ public class StorageManager {
 
     @SuppressWarnings("deprecation")
     // Function given by OSU documentation, Newer implementations buggy with OSU
-    public AmazonS3 getConnection() throws StorageException {
+    public AmazonS3 getConnection() throws StorageException, RetryException {
 
         if (conn == null) {
             try {
@@ -124,14 +124,14 @@ public class StorageManager {
                 conn.setRegion(region);
                 conn.setEndpoint(getEndpoint());
             } catch (Exception e) {
-                throw new StorageException(e);
+                throw new RetryException(e);
             }
         }
 
         return conn;
     }
 
-    public List<Bucket> listBuckets() throws StorageException {
+    public List<Bucket> listBuckets() throws StorageException, RetryException {
 
         List<Bucket> buckets = null;
 
@@ -143,13 +143,13 @@ public class StorageManager {
                 }
             }
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return buckets;
     }
 
-    public ArrayList<String> listBucketContent(String bucketName) throws StorageException {
+    public ArrayList<String> listBucketContent(String bucketName) throws StorageException, RetryException {
 
         ArrayList<String> list = new ArrayList<String>();
 
@@ -168,23 +168,24 @@ public class StorageManager {
                 }
             } while (objects.isTruncated());
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return list;
     }
 
-    public void createFile(String bucketName, File fileToUpload, String objectKey) throws StorageException {
+    public void createFile(String bucketName, File fileToUpload, String objectKey)
+            throws StorageException, RetryException {
 
         try (InputStream input = new ByteArrayInputStream(Files.readAllBytes(fileToUpload.toPath()))) {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
             conn.putObject(bucketName, escapedObjectKey, input, new ObjectMetadata());
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
     }
 
-    public String getEtag(String bucketName, String objectKey) throws StorageException {
+    public String getEtag(String bucketName, String objectKey) throws StorageException, RetryException {
 
         ObjectMetadata obj = null;
         S3Object s3Object = null;
@@ -207,7 +208,7 @@ public class StorageManager {
                     LOGGER.error("Error closing S3object", e);
                 }
             }
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return etag;
@@ -219,7 +220,8 @@ public class StorageManager {
         conn.setObjectAcl(bucketName, escapedObjectKey, CannedAccessControlList.PublicReadWrite);
     }
 
-    public ObjectMetadata getObjectMetadataByName(String bucketName, String objectKey) throws StorageException {
+    public ObjectMetadata getObjectMetadataByName(String bucketName, String objectKey)
+            throws StorageException, RetryException {
 
         ObjectMetadata obj = null;
 
@@ -227,13 +229,13 @@ public class StorageManager {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
             obj = conn.getObjectMetadata(bucketName, escapedObjectKey);
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return obj;
     }
 
-    public S3Object getObjectByName(String bucketName, String objectKey) throws StorageException {
+    public S3Object getObjectByName(String bucketName, String objectKey) throws StorageException, RetryException {
 
         S3Object obj = null;
 
@@ -242,13 +244,14 @@ public class StorageManager {
             obj = conn.getObject(bucketName, escapedObjectKey);
             obj.setKey(AmazonS3Utils.unescapeProblemCharsForObjectKey(obj.getKey()));
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return obj;
     }
 
-    public ArrayList<String> getUploadedEnclosureFiles(String bucketName, String prefix) throws StorageException {
+    public ArrayList<String> getUploadedEnclosureFiles(String bucketName, String prefix)
+            throws StorageException, RetryException {
 
         ArrayList<String> list = new ArrayList<String>();
 
@@ -272,7 +275,7 @@ public class StorageManager {
                 }
             } while (objects.isTruncated());
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return list;
@@ -307,7 +310,8 @@ public class StorageManager {
         }
     }
 
-    public S3Object getObjectFromObjRequest(String bucketName, String objectKey) throws StorageException {
+    public S3Object getObjectFromObjRequest(String bucketName, String objectKey)
+            throws StorageException, RetryException {
 
         S3Object obj = null;
 
@@ -317,30 +321,31 @@ public class StorageManager {
             obj = conn.getObject(getObjectRequest);
             obj.setKey(AmazonS3Utils.unescapeProblemCharsForObjectKey(obj.getKey()));
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return obj;
     }
 
-    public void deleteBucket(String bucketName) throws StorageException {
+    public void deleteBucket(String bucketName) throws StorageException, RetryException {
 
         try {
             conn.deleteBucket(bucketName);
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
     }
 
-    public void deleteObject(String bucketName, String objectKey) throws StorageException {
+    public void deleteObject(String bucketName, String objectKey) throws StorageException, RetryException {
         try {
             conn.deleteObject(bucketName, AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey));
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
     }
 
-    public URL generateDownloadURL(String bucketName, String objectKey, int expireInMinutes) throws StorageException {
+    public URL generateDownloadURL(String bucketName, String objectKey, int expireInMinutes)
+            throws StorageException, RetryException {
 
         URL url = null;
 
@@ -356,27 +361,28 @@ public class StorageManager {
 
             url = conn.generatePresignedUrl(generatePresignedUrlRequest);
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return url;
     }
 
-    public Bucket createBucket(String bucketName) throws StorageException {
+    public Bucket createBucket(String bucketName) throws StorageException, RetryException {
 
         Bucket bucket = null;
 
         try {
             bucket = conn.createBucket(bucketName);
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return bucket;
     }
 
     public PartETag uploadMultiPartFileToOsuBucket(String bucketName, int partNumber, String objectKey,
-            InputStream inputStream, long partSize, String uploadId) throws IOException, StorageException {
+            InputStream inputStream, long partSize, String uploadId)
+            throws IOException, StorageException, RetryException, RetryException {
 
         PartETag partETag = null;
 
@@ -393,13 +399,13 @@ public class StorageManager {
             LOGGER.error(
                     "Error while uploadMultiPartFileToOsuBucket: bucketName={}, partNumber={}, objectKey={}, uploadId={}",
                     bucketName, partNumber, objectKey, uploadId);
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
         return partETag;
     }
 
-    public String generateUploadIdOsu(String bucketName, String objectKey) throws StorageException {
+    public String generateUploadIdOsu(String bucketName, String objectKey) throws StorageException, RetryException {
         InitiateMultipartUploadRequest initRequest = null;
         InitiateMultipartUploadResult initResponse = null;
 
@@ -421,12 +427,12 @@ public class StorageManager {
             return initResponse.getUploadId();
         } catch (Exception e) {
             LOGGER.error("Error while generate multipart ID : " + e.getMessage(), e);
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
 
     }
 
-    public void generateBucketSequestre(String bucketName) throws StorageException {
+    public void generateBucketSequestre(String bucketName) throws StorageException, RetryException {
         // Try creating bucket if continue if not working because bucket can be already
         // created
         try {
@@ -440,7 +446,7 @@ public class StorageManager {
     }
 
     public String completeMultipartUpload(String bucketName, String objectKey, String uploadId,
-            List<PartETag> partETags) throws StorageException {
+            List<PartETag> partETags) throws StorageException, RetryException {
         try {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);
             CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(bucketName,
@@ -522,12 +528,12 @@ public class StorageManager {
         }
     }
 
-    public void moveOnSequestre(String nameBucketSource, String fileName) throws StorageException {
+    public void moveOnSequestre(String nameBucketSource, String fileName) throws StorageException, RetryException {
         try {
             conn.copyObject(nameBucketSource, fileName, sequestreBucket, fileName);
             conn.deleteObject(nameBucketSource, fileName);
         } catch (Exception e) {
-            throw new StorageException(e);
+            throw new RetryException(e);
         }
     }
 

@@ -33,6 +33,7 @@ import fr.gouv.culture.francetransfert.application.services.ConfirmationServices
 import fr.gouv.culture.francetransfert.application.services.DownloadServices;
 import fr.gouv.culture.francetransfert.application.services.RateServices;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
@@ -65,7 +66,8 @@ public class DownloadRessources {
 	@PostMapping("/generate-download-url")
 	@Operation(method = "POST", description = "Generate download URL ")
 	public Download generateDownloadUrlWithPassword(@RequestBody DownloadPasswordMetaData downloadMeta)
-			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException {
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
+			RetryException {
 		LOGGER.info("start generate download URL ");
 		return downloadServices.generateDownloadUrl(downloadMeta);
 
@@ -100,7 +102,8 @@ public class DownloadRessources {
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfo(HttpServletResponse response,
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
+			RetryException {
 		LOGGER.info("start donlowad info ");
 		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(
 				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
@@ -112,7 +115,8 @@ public class DownloadRessources {
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfoConnect(HttpServletResponse response,
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
+			RetryException {
 		confirmationServices.validateToken(tokenEnclosureData.getRecipient().toLowerCase(),
 				tokenEnclosureData.getToken());
 		LOGGER.info("start donwlowad info connect for recipient: {} and enclosure: {}",

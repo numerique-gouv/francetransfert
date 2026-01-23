@@ -52,6 +52,7 @@ import fr.gouv.culture.francetransfert.core.enums.ValidationErrorEnum;
 import fr.gouv.culture.francetransfert.core.error.ApiValidationError;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
@@ -338,7 +339,7 @@ public class DownloadServices {
 	}
 
 	public Download generateDownloadUrl(DownloadPasswordMetaData downloadMeta)
-			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException {
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException, RetryException {
 
 		String recipientIdRedis;
 		String recipientMail = downloadMeta.getRecipient();
@@ -372,7 +373,7 @@ public class DownloadServices {
 	}
 
 	public Download generateDownloadUrlWithPassword(DownloadPasswordMetaData downloadMeta)
-			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException {
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException, RetryException {
 
 		String recipientIdRedis;
 		String recipientMail = downloadMeta.getRecipient();
@@ -421,7 +422,7 @@ public class DownloadServices {
 	}
 
 	public DownloadRepresentation getDownloadInfoConnect(String enclosureId, String recipient)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException, RetryException {
 
 		String recipientIdRedis = RedisUtils.getRecipientId(redisManager, enclosureId, recipient);
 		DownloadRepresentation downloadRepresentation = getDownloadInfo(enclosureId, recipientIdRedis, recipient);
@@ -431,7 +432,7 @@ public class DownloadServices {
 	}
 
 	public DownloadRepresentation getDownloadInfo(String enclosureId, String senderToken, String recipientMailInBase64)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException, RetryException {
 
 		// validate Enclosure download right
 		String recipientMail = recipientMailInBase64;
@@ -538,7 +539,7 @@ public class DownloadServices {
 	 * @throws ExpirationEnclosureException
 	 */
 	private LocalDate validateDownloadAuthorization(String enclosureId, String recipientMail, String recipientId)
-			throws InvalidHashException, MetaloadException, StorageException {
+			throws InvalidHashException, MetaloadException, StorageException, RetryException, RetryException {
 		Boolean recipientDeleted = false;
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 

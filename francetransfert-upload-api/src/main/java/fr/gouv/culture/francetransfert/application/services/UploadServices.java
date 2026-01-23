@@ -191,7 +191,7 @@ public class UploadServices {
 
 	public boolean processPrivateUpload(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId, String senderToken)
-			throws MetaloadException, StorageException {
+			throws MetaloadException, StorageException, RetryException {
 
 		try {
 
@@ -233,7 +233,7 @@ public class UploadServices {
 
 	public boolean uploadFile(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId)
-			throws MetaloadException, RetryException, StorageException, IOException, ApiValidationException {
+			throws MetaloadException, RetryException, StorageException, RetryException, IOException, ApiValidationException {
 
 		try {
 
@@ -1081,7 +1081,7 @@ public class UploadServices {
 	}
 
 	private boolean finishUploadFile(String enclosureId, String senderId, String hashFid, String bucketName,
-			String fileNameWithPath, String uploadOsuId) throws StorageException, MetaloadException {
+			String fileNameWithPath, String uploadOsuId) throws StorageException, RetryException, MetaloadException {
 		List<PartETag> partETags = RedisForUploadUtils.getPartEtags(redisManager, hashFid);
 		String succesUpload = storageManager.completeMultipartUpload(bucketName, fileNameWithPath, uploadOsuId,
 				partETags);

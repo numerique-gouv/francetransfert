@@ -48,6 +48,7 @@ import fr.gouv.culture.francetransfert.application.services.ConfirmationServices
 import fr.gouv.culture.francetransfert.application.services.RateServices;
 import fr.gouv.culture.francetransfert.application.services.UploadServices;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
@@ -111,7 +112,8 @@ public class UploadResources {
 			@RequestParam("flowTotalSize") long flowTotalSize, @RequestParam("flowIdentifier") String flowIdentifier,
 			@RequestParam("flowFilename") String flowFilename, @RequestParam("file") MultipartFile file,
 			@RequestParam("enclosureId") String enclosureId, @RequestParam("senderId") String senderId,
-			@RequestParam("senderToken") String senderToken) throws MetaloadException, StorageException {
+			@RequestParam("senderToken") String senderToken)
+			throws MetaloadException, StorageException, RetryException {
 
 		if (flowTotalSize > uploadFileLimitSize) {
 			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());

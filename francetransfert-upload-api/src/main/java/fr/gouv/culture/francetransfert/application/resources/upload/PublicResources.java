@@ -32,6 +32,7 @@ import fr.gouv.culture.francetransfert.application.services.UploadServices;
 import fr.gouv.culture.francetransfert.application.services.ValidationMailService;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +60,7 @@ public class PublicResources {
 	@Operation(method = "POST", description = "initPli")
 	public InitialisationInfo validateCode(HttpServletResponse response, HttpServletRequest request,
 			@Valid @RequestBody ValidateData metadata)
-			throws ApiValidationException, MetaloadException, StorageException {
+			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = request.getHeader(FOR);
@@ -81,7 +82,7 @@ public class PublicResources {
 			@RequestParam("idFichier") String flowIdentifier, @RequestParam("nomFichier") String flowFilename,
 			@RequestParam("fichier") MultipartFile file, @RequestParam("idPli") String enclosureId,
 			@RequestParam("courrielExpediteur") String senderId)
-			throws ApiValidationException, MetaloadException, StorageException {
+			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		ValidateUpload metadata = new ValidateUpload();
 		FileRepresentation rootFile = new FileRepresentation();
@@ -183,9 +184,9 @@ public class PublicResources {
 	@PostMapping("/majPreferenceDestinataire")
 	@Operation(method = "POST", description = "majPreferenceDestinataire")
 	public void majPreferenceDestinataire(HttpServletResponse response, HttpServletRequest request,
-	        @RequestBody ValidateCanal metadata)
-	        throws ApiValidationException, MetaloadException, StorageException {
-	    
+			@RequestBody ValidateCanal metadata)
+			throws ApiValidationException, MetaloadException, StorageException, RetryException {
+
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = request.getHeader(FOR);
 		if (remoteAddr == null || "".equals(remoteAddr)) {

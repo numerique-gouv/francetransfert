@@ -70,6 +70,7 @@ import fr.gouv.culture.francetransfert.core.enums.ValidationErrorEnum;
 import fr.gouv.culture.francetransfert.core.error.ApiValidationError;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.MimeService;
@@ -127,7 +128,7 @@ public class ValidationMailService {
 			TypeCanalEnum.NOTIFICATION.getKey());
 
 	public InitialisationInfo validateMailData(ValidateData metadata, String headerAddr, String remoteAddr)
-			throws ApiValidationException, MetaloadException, StorageException {
+			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		if (StringUtils.isBlank(headerAddr)) {
 			throw new UnauthorizedApiAccessException("Erreur d’authentification : empty header");
@@ -310,7 +311,7 @@ public class ValidationMailService {
 
 	public InitialisationInfo validateUpload(ValidateUpload metadata, String headerAddr, String remoteAddr,
 			String senderId, String flowIdentifier, String token)
-			throws ApiValidationException, MetaloadException, StorageException {
+			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		if (StringUtils.isBlank(headerAddr) && StringUtils.isBlank(token)) {
 			throw new UnauthorizedApiAccessException("Erreur d’authentification : aucun objet de réponse renvoyé");
@@ -551,7 +552,7 @@ public class ValidationMailService {
 
 	private boolean processUploadApi(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId)
-			throws MetaloadException, StorageException, ApiValidationException {
+			throws MetaloadException, StorageException, RetryException, ApiValidationException {
 
 		try {
 			boolean isUploaded = uploadServices.uploadFile(flowChunkNumber, flowTotalChunks, flowIdentifier,
@@ -941,7 +942,7 @@ public class ValidationMailService {
 	}
 
 	private ApiValidationError checkExtension(List<FileRepresentationApi> files)
-			throws MetaloadException, StorageException {
+			throws MetaloadException, StorageException, RetryException {
 
 		ApiValidationError extensionInfo = null;
 		for (FileRepresentationApi file : files) {

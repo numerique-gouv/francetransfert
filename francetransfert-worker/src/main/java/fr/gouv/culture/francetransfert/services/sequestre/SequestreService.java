@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.services.StorageManager;
@@ -45,7 +46,7 @@ public class SequestreService {
 	@Autowired
 	Base64CryptoService base64CryptoService;
 
-	public void createSequestre(String prefix) throws MetaloadException, StorageException {
+	public void createSequestre(String prefix) throws MetaloadException, StorageException, RetryException {
 		try {
 			storageManager.generateBucketSequestre(prefix);
 		} catch (Exception e) {
