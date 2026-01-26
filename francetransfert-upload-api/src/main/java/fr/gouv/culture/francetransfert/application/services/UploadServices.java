@@ -465,7 +465,8 @@ public class UploadServices {
 
 		Map<String, String> recList = RedisUtils.getRecipientsEnclosure(redisManager, enclosureId);
 		boolean recipientInRedis = recList.containsKey(recieverMail);
-		boolean recipientDeleted = RedisUtils.isRecipientDeleted(redisManager, recieverMail);
+		String recipientId = RedisUtils.getRecipientId(redisManager, enclosureId, recieverMail);
+		boolean recipientDeleted = RedisUtils.isRecipientDeleted(redisManager, recipientId);
 
 		if (!recipientInRedis || recipientDeleted) {
 			throw new UnauthorizedAccessException("Invalid Recipient");
