@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin
+
 @RestController
 @RequestMapping("/api-private/heathcheck")
 @Tag(name = "HeathCheck")

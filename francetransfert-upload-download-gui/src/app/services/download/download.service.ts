@@ -133,7 +133,8 @@ export class DownloadService {
       plis: body.plis,
       mailAdress: body.mail,
       message: body.message,
-      satisfaction: body.satisfaction
+      satisfaction: body.satisfaction,
+      token: body.token
     }).pipe(map(response => {
       this.downloadManagerService.downloadError$.next(null);
       return response;

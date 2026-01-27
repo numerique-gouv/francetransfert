@@ -10,6 +10,11 @@ package fr.gouv.culture.francetransfert.application.resources.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.owasp.encoder.Encode;
+
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +30,7 @@ import lombok.Setter;
 public class FileInfoRepresentation {
 	private LocalDate validUntilDate;
 	private String senderEmail;
+	@Size(max = 101)
 	private List<RecipientInfo> recipientsMails;
 	private List<RecipientInfo> deletedRecipients;
 	@Size(max = 2500)
@@ -45,5 +51,13 @@ public class FileInfoRepresentation {
 	private boolean archive;
 	private boolean expired;
 	private LocalDate archiveUntilDate;
+
+	public String getMessage() {
+		return SanitizerUtil.sanitize(message);
+	}
+
+	public String getSubject() {
+		return SanitizerUtil.sanitize(subject);
+	}
 
 }

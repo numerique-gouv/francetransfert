@@ -27,7 +27,7 @@ public class PackageInfoRepresentation {
 	private StatusRepresentation statutPli;
 	private String typePli;
 	private String courrielExpediteur;
-	@Size(min = 1, max = 101)
+	@Size(max = 101)
 	private List<RecipientInfoApi> destinataires;
 	@Size(max = 255)
 	private String objet;

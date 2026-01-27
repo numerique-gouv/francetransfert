@@ -33,24 +33,24 @@ export class UploadService {
     private viewportScroller: ViewportScroller,) { }
 
 
-    scroll() {
-      this.activatedRoute.fragment.subscribe((fragment: string) => {
-        if (fragment) {
-          this.scrollToAnchor(fragment)
-        } else {
-          this.scrollToTop();
-        }
-      });
-    }
+  scroll() {
+    this.activatedRoute.fragment.subscribe((fragment: string) => {
+      if (fragment) {
+        this.scrollToAnchor(fragment)
+      } else {
+        this.scrollToTop();
+      }
+    });
+  }
 
-    scrollToTop() {
-      this.viewportScroller.scrollToPosition([0, 0])
+  scrollToTop() {
+    this.viewportScroller.scrollToPosition([0, 0])
 
-    }
+  }
 
-    scrollToAnchor(elementId: string): void {
-      this.viewportScroller.scrollToAnchor(elementId);
-    }
+  scrollToAnchor(elementId: string): void {
+    this.viewportScroller.scrollToAnchor(elementId);
+  }
 
 
 
@@ -152,7 +152,8 @@ export class UploadService {
       plis: body.plis,
       mailAdress: body.mail,
       message: body.message,
-      satisfaction: body.satisfaction
+      satisfaction: body.satisfaction,
+      token: body.token
     }).pipe(map(response => {
       this.uploadManagerService.uploadError$.next(null);
       return response;

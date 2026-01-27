@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +48,7 @@ import fr.gouv.culture.francetransfert.application.services.ConfirmationServices
 import fr.gouv.culture.francetransfert.application.services.RateServices;
 import fr.gouv.culture.francetransfert.application.services.UploadServices;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
@@ -110,7 +112,8 @@ public class UploadResources {
 			@RequestParam("flowTotalSize") long flowTotalSize, @RequestParam("flowIdentifier") String flowIdentifier,
 			@RequestParam("flowFilename") String flowFilename, @RequestParam("file") MultipartFile file,
 			@RequestParam("enclosureId") String enclosureId, @RequestParam("senderId") String senderId,
-			@RequestParam("senderToken") String senderToken) throws MetaloadException, StorageException {
+			@RequestParam("senderToken") String senderToken)
+			throws MetaloadException, StorageException, RetryException {
 
 		if (flowTotalSize > uploadFileLimitSize) {
 			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
@@ -126,7 +129,7 @@ public class UploadResources {
 	@PostMapping("/sender-info")
 	@Operation(method = "POST", description = "sender Info ")
 	public EnclosureRepresentation senderInfo(HttpServletRequest request, HttpServletResponse response,
-			@RequestBody FranceTransfertDataRepresentation metadata) {
+			@RequestBody @Valid @EmailsFranceTransfert FranceTransfertDataRepresentation metadata) {
 		LOGGER.info("start upload enclosure ");
 		String token = metadata.getSenderToken();
 		metadata.setConfirmedSenderId(metadata.getSenderId());
@@ -145,7 +148,7 @@ public class UploadResources {
 				deleteRequest.getSenderMail());
 		uploadServices.validateExpirationDate(deleteRequest.getEnclosureId());
 		EnclosureRepresentation enclosureRepresentation = uploadServices
-				.updateExpiredTimeStamp(deleteRequest.getEnclosureId(), LocalDate.now().minusDays(1));
+				.updateExpiredTimeStamp(deleteRequest.getEnclosureId(), LocalDate.now().atStartOfDay().toLocalDate());
 		return enclosureRepresentation;
 	}
 
@@ -177,7 +180,6 @@ public class UploadResources {
 			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code,
 			@Valid @EmailsFranceTransfert @RequestBody FranceTransfertDataRepresentation metadata) {
 		EnclosureRepresentation enclosureRepresentation = null;
-		LOGGER.info("start validate confirmation code : " + code);
 		code = code.trim();
 		String cookieTocken = confirmationServices
 				.validateCodeConfirmationAndGenerateToken(metadata.getSenderEmail().toLowerCase(), code)
@@ -344,7 +346,13 @@ public class UploadResources {
 	@RequestMapping(value = "/satisfaction", method = RequestMethod.POST)
 	@Operation(method = "POST", description = "Rates the app on a scvale of 1 to 4")
 	public boolean createSatisfactionFT(HttpServletResponse response,
-			@Valid @RequestBody RateRepresentation rateRepresentation) throws UploadException {
+			@Valid @RequestBody RateRepresentation rateRepresentation) throws UploadException, MetaloadException {
+		confirmationServices.validateToken(rateRepresentation.getMailAdress().toLowerCase(),
+				rateRepresentation.getToken());
+		if (!confirmationServices.isSender(rateRepresentation.getPlis(),
+				rateRepresentation.getMailAdress().toLowerCase())) {
+			throw new UnauthorizedAccessException("Unauthorized access");
+		}
 		return rateServices.createSatisfactionFT(rateRepresentation);
 	}
 

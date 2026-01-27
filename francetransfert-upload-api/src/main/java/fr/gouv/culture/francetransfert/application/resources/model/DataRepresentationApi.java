@@ -7,7 +7,7 @@
 
 package fr.gouv.culture.francetransfert.application.resources.model;
 
-import org.owasp.encoder.Encode;
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,7 +27,7 @@ public class DataRepresentationApi {
 	protected String name;
 
 	public String getName() {
-		return Encode.forHtml(name);
+		return SanitizerUtil.sanitize(name);
 	}
 
 	public void setName(String name) {

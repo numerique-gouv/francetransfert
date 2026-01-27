@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.NewRecipient;
@@ -184,7 +185,7 @@ public class ScheduledTasks {
 	}
 
 	@Scheduled(cron = "${scheduled.clean.up}")
-	public void cleanUp() throws WorkerException, StorageException {
+	public void cleanUp() throws WorkerException, StorageException, RetryException {
 		LOGGER.info("Worker : start clean-up expired enclosure Check");
 		if (appSyncServices.shouldCleanup()) {
 			LOGGER.info("Worker : start clean-up expired enclosure Checked and Started");
