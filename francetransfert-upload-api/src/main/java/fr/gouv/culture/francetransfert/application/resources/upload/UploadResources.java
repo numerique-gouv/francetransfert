@@ -301,7 +301,7 @@ public class UploadResources {
 	@PostMapping("/add-recipient")
 	@Operation(method = "POST", description = "add a new recipient")
 	public boolean addRecipient(HttpServletResponse response,
-			@RequestBody AddNewRecipientRequest addNewRecipientRequest)
+			@RequestBody @Valid AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
 		confirmationServices.validateAdminToken(addNewRecipientRequest.getEnclosureId(),
 				addNewRecipientRequest.getToken(), addNewRecipientRequest.getSenderMail());
