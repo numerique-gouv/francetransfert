@@ -15,6 +15,7 @@ spec:
         release: {{ .Release.Name }}
         tier: back
     spec:
+      automountServiceAccountToken: false
       {{ if .Values.imagePullSecrets }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}

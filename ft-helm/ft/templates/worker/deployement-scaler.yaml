@@ -21,6 +21,7 @@ spec:
         release: {{ .Release.Name }}
         tier: back
     spec:
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }}
       {{ if .Values.imagePullSecrets }}
       imagePullSecrets:
