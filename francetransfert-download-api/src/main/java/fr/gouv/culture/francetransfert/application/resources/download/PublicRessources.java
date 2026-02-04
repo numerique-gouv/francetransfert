@@ -14,7 +14,11 @@
 
 package fr.gouv.culture.francetransfert.application.resources.download;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +38,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-
 @RestController
 @RequestMapping("/api-public-dl")
 @Tag(name = "Public resources")
@@ -45,7 +48,8 @@ public class PublicRessources {
 	DownloadServices downloadServices;
 
 	private static final String KEY = "cleAPI";
-	private static final String FOR = "X-FORWARDED-FOR";
+	@Value("${forwarded.header.name:X-Forwarded-For}")
+	private List<String> forwardedHeaderName;
 
 	@PostMapping("/telechargerPli")
 	@Operation(method = "POST", description = "Generate download URL ")
@@ -54,8 +58,15 @@ public class PublicRessources {
 			throws ApiValidationException, MetaloadException, StatException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 

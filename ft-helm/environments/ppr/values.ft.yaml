@@ -326,6 +326,7 @@ upload:
     limits:
       memory: 512Mi
   overrideConf:
+    FT_LOG_LEVEL: "INFO"
     JAVA_TOOL_OPTIONS: '-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     SERVER_TOMCAT_BASEDIR: "/opt/work/"

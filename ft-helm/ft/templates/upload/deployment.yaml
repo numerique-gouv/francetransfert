@@ -27,12 +27,12 @@ spec:
         image: {{ .Values.upload.image.repository }}:{{ .Values.upload.image.tag }}
         imagePullPolicy: {{ .Values.upload.image.imagePullPolicy }}
         envFrom:
-        - configMapRef:
-            name: upload-override-conf-{{ .Release.Name }}
-        - configMapRef:
-            name:  app-config-map-{{ .Release.Name }}
-        - secretRef:
-            name: ft-secret-app
+          - configMapRef:
+              name: app-config-map-{{ .Release.Name }}
+          - configMapRef:
+              name: upload-override-conf-{{ .Release.Name }}
+          - secretRef:
+              name: ft-secret-app
         volumeMounts:
           - name: work-volume
             mountPath: /tmp

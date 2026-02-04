@@ -7,7 +7,10 @@
 
 package fr.gouv.culture.francetransfert.application.resources.upload;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +44,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api-public")
@@ -50,12 +56,15 @@ public class PublicResources {
 
 	@Autowired
 	private ValidationMailService validationMailService;
-	@Autowired
-	private UploadServices uploadServices;
 
 	private static final String KEY = "cleAPI";
-	private static final String FOR = "X-FORWARDED-FOR";
+
+	@Value("${forwarded.header.name:X-Forwarded-For}")
+	private List<String> forwardedHeaderName;
+
 	private static final String TOKEN = "token";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(PublicResources.class);
 
 	@PostMapping("/initPli")
 	@Operation(method = "POST", description = "initPli")
@@ -64,11 +73,28 @@ public class PublicResources {
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+
+			LOGGER.debug("remoteAddr: {}", remoteAddr);
+			LOGGER.debug("getRemoteAddr: {}", request.getRemoteAddr());
+			request.getHeaderNames().asIterator().forEachRemaining(header -> {
+				LOGGER.debug("header: {} = {}", header, request.getHeader(header.toString()));
+			});
+		}
+
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 		response.setStatus(201);
+		LOGGER.debug("remoteAddr: {}", remoteAddr);
 		return validationMailService.validateMailData(metadata, headerAddr, remoteAddr);
 	}
 
@@ -101,9 +127,15 @@ public class PublicResources {
 		metadata.setRootFiles(rootFile);
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
 		String token = request.getHeader(TOKEN);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 		response.setStatus(201);
@@ -118,8 +150,14 @@ public class PublicResources {
 			throws ApiValidationException, MetaloadException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 		StatusInfo metadata = new StatusInfo(enclosureId, senderMail);
@@ -135,8 +173,14 @@ public class PublicResources {
 			throws ApiValidationException, MetaloadException, StatException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 
@@ -154,8 +198,14 @@ public class PublicResources {
 			throws UnauthorizedAccessException, MetaloadException, ApiValidationException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 
@@ -170,8 +220,14 @@ public class PublicResources {
 			throws UnauthorizedAccessException, MetaloadException, ApiValidationException, StatException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 
@@ -189,8 +245,14 @@ public class PublicResources {
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
 		String headerAddr = request.getHeader(KEY);
-		String remoteAddr = request.getHeader(FOR);
-		if (remoteAddr == null || "".equals(remoteAddr)) {
+		String remoteAddr = "";
+		for (String header : forwardedHeaderName) {
+			remoteAddr = request.getHeader(header);
+			if (StringUtils.isNotBlank(remoteAddr)) {
+				break;
+			}
+		}
+		if (StringUtils.isBlank(remoteAddr)) {
 			remoteAddr = request.getRemoteAddr();
 		}
 		response.setStatus(201);

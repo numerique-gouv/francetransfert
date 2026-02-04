@@ -33,9 +33,9 @@ spec:
         imagePullPolicy: {{ .Values.worker.image.imagePullPolicy }}
         envFrom:
         - configMapRef:
-            name: worker-override-conf-{{ .Release.Name }}
-        - configMapRef:
             name: app-config-map-{{ .Release.Name }}
+        - configMapRef:
+            name: worker-override-conf-{{ .Release.Name }}
         - secretRef:
             name: ft-secret-app
         volumeMounts:
