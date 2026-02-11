@@ -481,6 +481,7 @@ worker:
   overrideConf:
     MANAGEMENT_SERVER_PORT: "8380"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
+    MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris" --enable-native-access=ALL-UNNAMED'
     JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris" --enable-native-access=ALL-UNNAMED'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
