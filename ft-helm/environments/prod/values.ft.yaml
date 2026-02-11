@@ -572,7 +572,7 @@ worker:
   hpa:
     enabled: true
     minReplicas: 2
-    maxReplicas: 8
+    maxReplicas: 12
     metrics:
       - type: Pods
         pods:
