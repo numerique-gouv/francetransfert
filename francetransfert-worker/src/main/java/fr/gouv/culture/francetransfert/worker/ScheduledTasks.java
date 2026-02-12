@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.NewRecipient;
@@ -184,7 +185,7 @@ public class ScheduledTasks {
 	}
 
 	@Scheduled(cron = "${scheduled.clean.up}")
-	public void cleanUp() throws WorkerException, StorageException {
+	public void cleanUp() throws WorkerException, StorageException, RetryException {
 		LOGGER.info("Worker : start clean-up expired enclosure Check");
 		if (appSyncServices.shouldCleanup()) {
 			LOGGER.info("Worker : start clean-up expired enclosure Checked and Started");
@@ -589,7 +590,14 @@ public class ScheduledTasks {
 				executor.setQueueCapacity(0);
 				executor.shutdown();
 				if (!executor.getThreadPoolExecutor().awaitTermination(shutdownSeconds, TimeUnit.SECONDS)) {
-					executor.getThreadPoolExecutor().shutdownNow();
+					List<Runnable> notStarted = executor.getThreadPoolExecutor().shutdownNow();
+					for (Runnable r : notStarted) {
+						if (r instanceof MonitorRunnable task) {
+							LOGGER.info("Putting back to queue {} - {}", task.getQueue(), task.getData());
+							redisManager.publishFT(task.getQueue(), task.getData());
+							WorkerUtils.activeTasks.remove(task);
+						}
+					}
 				}
 			} catch (Exception e) {
 				LOGGER.error("Cannot stop executor ", e);
@@ -597,7 +605,7 @@ public class ScheduledTasks {
 		});
 
 		if (!CollectionUtils.isEmpty(WorkerUtils.activeTasks)) {
-			LOGGER.info("Active tasks found, waiting 10 seconds");
+			LOGGER.info("Active tasks found, waiting" + shutdownTimeout + "ms");
 			try {
 				Thread.sleep(shutdownTimeout);
 			} catch (InterruptedException e) {

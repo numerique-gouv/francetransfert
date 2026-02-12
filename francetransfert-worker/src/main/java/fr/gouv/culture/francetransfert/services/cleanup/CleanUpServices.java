@@ -404,7 +404,7 @@ public class CleanUpServices {
 	 * clean all data expired in OSU
 	 *
 	 * @param enclosureId
-	 * @throws StorageException
+	 * @throws StorageException, RetryException
 	 */
 	private void cleanUpOSU(String bucketName, String enclosureId) throws RetryException {
 		storageManager.deleteFilesWithPrefix(bucketName, storageManager.getZippedEnclosureName(enclosureId));
@@ -605,7 +605,7 @@ public class CleanUpServices {
 		FileUtils.deleteQuietly(new File(path));
 	}
 
-	public void deleteBucketOutOfTime() throws StorageException {
+	public void deleteBucketOutOfTime() throws StorageException, RetryException {
 
 		LocalDateTime now = LocalDateTime.now();
 		for (int i = 0; i < 7; i++) {
@@ -650,7 +650,7 @@ public class CleanUpServices {
 
 	}
 
-	public void deleteContentBucket(String bucketName) throws StorageException, RetryException {
+	public void deleteContentBucket(String bucketName) throws StorageException, RetryException, RetryException {
 		ArrayList<String> objectListing = storageManager.listBucketContent(bucketName);
 
 		objectListing.forEach(file -> {

@@ -191,7 +191,7 @@ public class UploadServices {
 
 	public boolean processPrivateUpload(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId, String senderToken)
-			throws MetaloadException, StorageException {
+			throws MetaloadException, StorageException, RetryException {
 
 		try {
 
@@ -233,7 +233,8 @@ public class UploadServices {
 
 	public boolean uploadFile(int flowChunkNumber, int flowTotalChunks, String flowIdentifier,
 			MultipartFile multipartFile, String enclosureId, String senderId)
-			throws MetaloadException, RetryException, StorageException, IOException, ApiValidationException {
+			throws MetaloadException, RetryException, StorageException, RetryException, IOException,
+			ApiValidationException {
 
 		try {
 
@@ -439,7 +440,7 @@ public class UploadServices {
 			boolean archive = false;
 			boolean expired = false;
 
-			if (LocalDate.now().isAfter(expirationDate)) {
+			if (LocalDateTime.now().isAfter(expirationDate.atStartOfDay())) {
 				expired = true;
 				archive = true;
 				fileInfoRepresentation.setArchiveUntilDate(expirationArchiveDate);
@@ -464,8 +465,10 @@ public class UploadServices {
 
 		Map<String, String> recList = RedisUtils.getRecipientsEnclosure(redisManager, enclosureId);
 		boolean recipientInRedis = recList.containsKey(recieverMail);
+		String recipientId = RedisUtils.getRecipientId(redisManager, enclosureId, recieverMail);
+		boolean recipientDeleted = RedisUtils.isRecipientDeleted(redisManager, recipientId);
 
-		if (!recipientInRedis) {
+		if (!recipientInRedis || recipientDeleted) {
 			throw new UnauthorizedAccessException("Invalid Recipient");
 		}
 
@@ -481,7 +484,7 @@ public class UploadServices {
 			boolean archive = false;
 			boolean expired = false;
 
-			if (LocalDate.now().isAfter(expirationDate)) {
+			if (LocalDateTime.now().isAfter(expirationDate.atStartOfDay())) {
 				expired = true;
 				archive = true;
 				fileInfoRepresentation.setArchiveUntilDate(expirationArchiveDate);
@@ -792,7 +795,7 @@ public class UploadServices {
 		if ((statut != null && !statut.isEmpty()) && matches) {
 			LocalDate expirationDate = DateUtils
 					.convertStringToLocalDate(x.getMeta().get(EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()));
-			boolean isExpired = LocalDate.now().isAfter(expirationDate);
+			boolean isExpired = LocalDateTime.now().isAfter(expirationDate.atStartOfDay());
 			if (statut.equals("remove_red_eye")) {
 				matches = matches && isExpired;
 			} else {
@@ -1021,7 +1024,7 @@ public class UploadServices {
 	public LocalDate validateExpirationDate(String enclosureId) throws MetaloadException {
 		LocalDate expirationDate = DateUtils.convertStringToLocalDate(
 				RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()));
-		if (LocalDate.now().isAfter(expirationDate)) {
+		if (LocalDateTime.now().isAfter(expirationDate.atStartOfDay())) {
 			throw new UploadException("Vous ne pouvez plus accéder à ces fichiers", enclosureId);
 		}
 		return expirationDate;
@@ -1081,7 +1084,7 @@ public class UploadServices {
 	}
 
 	private boolean finishUploadFile(String enclosureId, String senderId, String hashFid, String bucketName,
-			String fileNameWithPath, String uploadOsuId) throws StorageException, MetaloadException {
+			String fileNameWithPath, String uploadOsuId) throws StorageException, RetryException, MetaloadException {
 		List<PartETag> partETags = RedisForUploadUtils.getPartEtags(redisManager, hashFid);
 		String succesUpload = storageManager.completeMultipartUpload(bucketName, fileNameWithPath, uploadOsuId,
 				partETags);

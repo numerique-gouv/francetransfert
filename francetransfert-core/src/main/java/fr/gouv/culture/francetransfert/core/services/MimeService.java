@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +48,13 @@ public class MimeService {
                 authorised = true;
             }
             // WhiteList regex
-//			for (String extent : mimeList) {
-//				
-//				if (mimeType.matches(extent)) {
-//					authorised = true;
-//					break;
-//				}
-//			}
+            // for (String extent : mimeList) {
+            //
+            // if (mimeType.matches(extent)) {
+            // authorised = true;
+            // break;
+            // }
+            // }
         }
         return authorised;
     }
@@ -62,20 +64,17 @@ public class MimeService {
         Boolean authorised = false;
         String mimeType = tika.detect(fileInputStream);
 
-        if (mimeList.contains(mimeType)) {
-            authorised = false;
-        } else {
-            authorised = true;
-        }
+        //BlackList
+        authorised = !mimeList.stream().anyMatch(mime -> Strings.CI.startsWith(mimeType, mime));
 
         // WhiteList regex
-//		for (String extent : mimeList) {
-//
-//			if (mimeType.matches(extent)) {
-//				authorised = true;
-//				break;
-//			}
-//		}
+        // for (String extent : mimeList) {
+        //
+        // if (mimeType.matches(extent)) {
+        // authorised = true;
+        // break;
+        // }
+        // }
         return authorised;
     }
 

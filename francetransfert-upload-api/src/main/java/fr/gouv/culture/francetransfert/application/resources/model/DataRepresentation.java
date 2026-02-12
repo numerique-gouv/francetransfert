@@ -7,16 +7,15 @@
 
 package fr.gouv.culture.francetransfert.application.resources.model;
 
-import org.owasp.encoder.Encode;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-//@Builder
+// @Builder
 @NoArgsConstructor
 public class DataRepresentation {
 	@NotBlank
@@ -24,7 +23,7 @@ public class DataRepresentation {
 	protected String name;
 
 	public String getName() {
-		return Encode.forHtml(name);
+		return SanitizerUtil.sanitize(name);
 	}
 
 	public void setName(String name) {

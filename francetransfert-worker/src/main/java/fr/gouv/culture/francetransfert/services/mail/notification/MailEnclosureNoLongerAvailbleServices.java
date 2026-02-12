@@ -55,7 +55,7 @@ public class MailEnclosureNoLongerAvailbleServices {
 	@Autowired
 	RedisManager redisManager;
 
-	private static List<String> ALLOWED_CODE = Arrays.asList(StatutEnum.PAT.getCode(), StatutEnum.ECT.getCode());
+	private static List<String> ALLOWED_CODE = Arrays.asList(StatutEnum.PAT.getCode(), StatutEnum.ECT.getCode(), StatutEnum.ARC.getCode());
 
 	public void sendEnclosureNotAvailble(Enclosure enclosure) throws MetaloadException {
 

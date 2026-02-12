@@ -107,18 +107,47 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
    * @returns {void}
    */
   deleteFolder(event) {
-    this.flow.cancelFile(event);
+    // Only cancel if event has flowFile property
+    if (event.childs && event.childs.length > 0) {
+      for (let child of event.childs) {
+        if (child.flowFile) {
+          try {
+            this.flow.cancelFile(child);
+          } catch (e) {
+          }
+        }
+        this.flow.flowJs.removeFile(child);
+      }
+    }
     this.flow.flowJs.removeFile(event);
     // for (let child of event.childs) {
     //   this.flow.cancelFile(child);
     // }
   }
 
+  /**
+   * Recalculate total file size from the actual files array
+   * This ensures accuracy by calculating from source of truth
+   */
+  recalculateFilesSize(): void {
+    if (!this.flow || !this.flow.flowJs || !this.flow.flowJs.files) {
+      this.filesSize = 0;
+      return;
+    }
+
+    let totalSize = 0;
+
+    totalSize = this.flow.flowJs.files.reduce((acc, file) => {
+      return acc + (file as any).size || 0;
+    }, 0);
+
+    this.filesSize = totalSize;
+  }
+
   deleteTransfer(transfer: any): void {
     if (!transfer.folder) {
       this.flow.cancelFile(transfer);
       this.flow.flowJs.removeFile(transfer);
-      this.filesSize -= transfer.size;
       this.fileManagerService.hasFiles.next(this.filesSize > 0);
       this.cdr.detectChanges();
       if (this.filesSize <= this.filesSizeLimit) {
@@ -131,6 +160,10 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.deleteTransfer(tr);
       }
     }
+
+    // Recalculate total size from actual files array after deletion
+    this.recalculateFilesSize();
+
     this.oldLength = this.flow.flowJs.files.length;
     if (this.flow.flowJs.files.length === 0) {
       this.firstFile = true;
@@ -139,28 +172,27 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   onItemAdded(event, index) {
-
     if (!this.checkExisteFile()) {
 
       if (!this.checkExtentionValid(event)) {
         if (event.folder) {
           for (let child of event.childs) {
-            this.flow.cancelFile(child);
+            if (child.flowFile) {
+              try {
+                this.flow.cancelFile(child);
+              } catch (e) {
+              }
+            }
           }
-
         }
-
         this.hasError = true;
         this.cdr.detectChanges();
       } else if (event.folder) {
 
         try {
-
           this.checkSize(event, this.filesSize);
-          if (index == 0) {
-            this.filesSize = 0;
-          }
-          this.filesSize += event.size;
+          // Recalculate total size from actual files array after folder is added
+          this.recalculateFilesSize();
           this.fileManagerService.hasFiles.next(this.filesSize > 0);
           this.errorMessage = '';
           this.unauthorizedFile = '';
@@ -168,8 +200,10 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.hasError = false;
           this.cdr.detectChanges();
         } catch (error) {
+
           // c'est un dossier
           this.deleteFolder(event)
+          this.openSnackBar(4000, error.message, 'file-exist');
           if (this.filesSize < 0) {
             this.filesSize = 0;
           }
@@ -182,11 +216,11 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           return;
         }
       } else {
+
+        // Recalculate total size from actual files array after file is added
+        this.recalculateFilesSize();
         if (this.filesSize <= this.filesSizeLimit && event.size <= this.fileSizeLimit) {
-          if (index == 0) {
-            this.filesSize = 0;
-          }
-          this.filesSize += event.size;
+
           this.fileManagerService.hasFiles.next(this.filesSize > 0);
           this.errorMessage = '';
           this.unauthorizedFile = '';
@@ -199,13 +233,14 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.unauthorizedFile = '';
           this.file = '';
           this.hasError = true;
+          this.openSnackBar(4000, this.errorMessage, 'file-exist');
           this.cdr.detectChanges();
         }
       }
     } else {
       // this.flow.flowJs.removeFile(event);
       if (!this.hasError) {
-        this.openSnackBar(4000);
+        this.openSnackBar(4000, 'Fichier_Dossier_DéjàPrésent', 'file-exist');
       }
     }
     if (index == this.flow.flowJs.files.length - 1) {
@@ -275,7 +310,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           //check file name too long
           if (child.name.length > this.maxFilenameLength
-            || child.flowFile.file.relativePath.length > this.maxFilenameLength) {
+            || (child.flowFile?.file?.relativePath && child.flowFile.file.relativePath.length > this.maxFilenameLength)) {
             this.file = 'TypeFichier';
             this.errorMessage = 'NomFichierLong';
             this.unauthorizedFile = child.flowFile?.file?.relativePath ? child.flowFile.file.relativePath : child.name;
@@ -313,7 +348,8 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     //Si c'est un dossier on recurse en faisant la somme des tailles des fichiers
     if (fileEvent.folder) {
       for (let child of fileEvent.childs) {
-        tmpSize += this.checkSize(child, tmpSize);
+        const childSizeResult = this.checkSize(child, tmpSize);
+        tmpSize += childSizeResult;
         if (tmpSize > this.filesSizeLimit) {
           throw new Error('TailleMaximalePli');
         }
@@ -330,9 +366,12 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     return tmpSize;
   }
 
-  openSnackBar(duration: number) {
+  openSnackBar(duration: number, message: string, panelClass: string) {
     this._snackBar.openFromComponent(InfoMsgComponent, {
-      panelClass: 'file-exist',
+      panelClass: panelClass,
+      data: {
+        message: message,
+      },
       duration: duration,
     });
   }

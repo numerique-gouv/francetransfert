@@ -36,6 +36,7 @@ import fr.gouv.culture.francetransfert.core.error.ApiError;
 import fr.gouv.culture.francetransfert.core.error.ApiErrorFranceTransfert;
 import fr.gouv.culture.francetransfert.core.error.ApiValidationErrorReturn;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
+import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.BusinessDomainException;
 import fr.gouv.culture.francetransfert.domain.exceptions.ConfirmationCodeException;
@@ -86,6 +87,12 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 				"MethodArgumentNotValidException", errors);
 		LOG.error("MethodArgumentNotValidException : " + ex.getMessage(), ex);
 		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+
+	@ExceptionHandler(RetryException.class)
+	public ResponseEntity<Object> handleRetryException(RetryException ex) {
+		LOG.error("Handle error type RetryException : " + ex.getMessage(), ex);
+		return generateError(ex, ErrorEnum.TECHNICAL_ERROR.getValue());
 	}
 
 	@ExceptionHandler(UnauthorizedAccessException.class)

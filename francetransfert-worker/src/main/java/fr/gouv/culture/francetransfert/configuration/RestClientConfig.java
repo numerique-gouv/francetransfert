@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -79,8 +79,10 @@ public class RestClientConfig {
 			return restTemplate;
 		}
 		RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-		return restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(90)).setReadTimeout(Duration.ofSeconds(90))
-				.build();
+		var requestFactory = new HttpComponentsClientHttpRequestFactory();
+		requestFactory.setConnectionRequestTimeout(90000);
+		requestFactory.setReadTimeout(90000);
+		return restTemplateBuilder.requestFactory(() -> requestFactory).build();
 
 	}
 
@@ -89,7 +91,6 @@ public class RestClientConfig {
 	@ConditionalOnProperty(name = "enableMtls", havingValue = "true", matchIfMissing = true)
 	public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
 		HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-		clientHttpRequestFactory.setBufferRequestBody(false);
 		clientHttpRequestFactory.setHttpClient(httpClient);
 		return clientHttpRequestFactory;
 	}

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import fr.gouv.culture.francetransfert.core.enums.TypeStat;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import jakarta.validation.constraints.Email;
 
 @Data
 public class StatModel {
@@ -27,6 +28,7 @@ public class StatModel {
 
 	protected TypeStat type;
 
+	@Email
 	protected String mailAdress;
 
 }

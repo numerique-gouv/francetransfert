@@ -8,12 +8,14 @@
 package fr.gouv.culture.francetransfert.services.referentiel;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.http.HttpMethod;
 
 public class ApiSendErrorHandler implements ResponseErrorHandler {
 
@@ -25,7 +27,7 @@ public class ApiSendErrorHandler implements ResponseErrorHandler {
 	}
 
 	@Override
-	public void handleError(ClientHttpResponse response) throws IOException {
+	public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
 
 		if (response.getStatusCode().is5xxServerError() || response.getStatusCode().is4xxClientError()) {
 			// http status code e.g. `500 INTERNAL_SERVER_ERROR`

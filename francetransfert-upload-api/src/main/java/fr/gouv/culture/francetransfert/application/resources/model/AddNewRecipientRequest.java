@@ -7,6 +7,7 @@
 
 package fr.gouv.culture.francetransfert.application.resources.model;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,15 +16,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-//@Builder
+// @Builder
 @NoArgsConstructor
 
 public class AddNewRecipientRequest {
-    private String token;
+  private String token;
 
-    private String enclosureId;
+  private String enclosureId;
 
-    private String newRecipient;
-    
-	private String senderMail;
+  @Email
+  private String newRecipient;
+
+  @Email
+  private String senderMail;
 }

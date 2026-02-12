@@ -33,6 +33,8 @@ maintenance:
   enabled: false
 
 clamav:
+  image:
+    tag: "stable_base"
   enabled: true
   hpa:
     enabled: false
@@ -144,6 +146,8 @@ clamav:
     MaxRecursion: 10
 
 redis:
+  image:
+    tag: 8.2.3-alpine
   auth: true
   existingSecret: "ft-secret-app"
   authKey: METALOAD_PASSWORD
@@ -477,8 +481,9 @@ worker:
   overrideConf:
     MANAGEMENT_SERVER_PORT: "8380"
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,metrics,prometheus"
-    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
-    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
+    MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
+    JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris" --enable-native-access=ALL-UNNAMED'
+    JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris" --enable-native-access=ALL-UNNAMED'
     SERVER_TOMCAT_BASEDIR: "/tmp/work/"
     TMP_FOLDER_PATH: /data/
     SCAN_CLAMAV_TIMEOUT: "20000"
@@ -656,6 +661,8 @@ dex:
   rbac:
     createClusterScoped: false
   enabled: true
+  image:
+    tag: v2.44.0-distroless
   service:
     ports:
       http:

@@ -141,7 +141,7 @@ public class RedisUtils {
     }
 
     public static List<String> getSentPli(RedisManager redisManager, String mail) throws MetaloadException {
-        Set<String> pliSet = redisManager.smembersString(RedisKeysEnum.FT_SEND.getKey(mail));
+        Set<String> pliSet = redisManager.smembersString(RedisKeysEnum.FT_SEND.getKey(mail.toLowerCase()));
         if (!CollectionUtils.isEmpty(pliSet)) {
             return new ArrayList<String>(pliSet);
         }
@@ -149,7 +149,7 @@ public class RedisUtils {
     }
 
     public static List<String> getReceivedPli(RedisManager redisManager, String mail) throws MetaloadException {
-        Set<String> pliSet = redisManager.smembersString(RedisKeysEnum.FT_RECEIVE.getKey(mail));
+        Set<String> pliSet = redisManager.smembersString(RedisKeysEnum.FT_RECEIVE.getKey(mail.toLowerCase()));
         if (!CollectionUtils.isEmpty(pliSet)) {
             return new ArrayList<String>(pliSet);
         }

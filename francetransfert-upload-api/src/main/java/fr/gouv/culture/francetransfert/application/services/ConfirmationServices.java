@@ -10,6 +10,7 @@ package fr.gouv.culture.francetransfert.application.services;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -127,7 +128,6 @@ public class ConfirmationServices {
 			redisManager.saddString(tokenKey, token);
 			int secondToExpire = expireTokenSender;
 			redisManager.expire(tokenKey, secondToExpire);
-			LOGGER.info("sender: {} generated token: {} ", senderMail, token);
 			ValidateCodeResponse response = new ValidateCodeResponse(senderMail, token);
 			return response;
 		} catch (Exception e) {
@@ -160,7 +160,7 @@ public class ConfirmationServices {
 				deleteConfirmationCode(senderMail);
 			} else {
 				tryCount++;
-				LOGGER.error("error code sender: this code: {} is not validated for this sender mail {}", code,
+				LOGGER.error("error code sender: is not validated for this sender mail {}",
 						senderMail);
 				redisManager.setString(RedisKeysEnum.FT_CODE_TRY.getKey(RedisUtils.generateHashsha1(senderMail)),
 						Integer.toString(tryCount));
@@ -169,7 +169,7 @@ public class ConfirmationServices {
 			// Si le code est valide et try < au max on valide
 		} else {
 			redisManager.setString(RedisKeysEnum.FT_CODE_TRY.getKey(RedisUtils.generateHashsha1(senderMail)), "0");
-			LOGGER.info("sender: {} valid code: {} ", senderMail, code);
+			LOGGER.info("sender: {} valid code", senderMail);
 			LOGGER.warn("msgtype: CONFIRMATION_OK || sender: {}", senderMail);
 		}
 	}
@@ -226,6 +226,10 @@ public class ConfirmationServices {
 		redisManager.deleteKey(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)));
 		redisManager.deleteKey(RedisKeysEnum.FT_CODE_TRY.getKey(RedisUtils.generateHashsha1(senderMail)));
 		throw new MaxTryException("Unauthorized");
+	}
+
+	public boolean isSender(String plis, String mailAdress) {
+		return redisManager.sexists(RedisKeysEnum.FT_SEND.getKey(mailAdress.toLowerCase()), plis);
 	}
 
 }

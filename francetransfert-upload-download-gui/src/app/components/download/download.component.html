@@ -15,7 +15,7 @@
       (dowloadStarted)="onDowloadStarted($event)"></ft-download-elements>
     <ft-end-message *ngIf="downloadStarted" [component]="'download'" class="end-message-wrapper"></ft-end-message>
     <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
-      *ngIf="downloadValidated  && downloadStarted" class="satisfaction-check-wrapper"></ft-satisfaction-check>
+      *ngIf="downloadValidated  && downloadStarted && !usingPublicLink" class="satisfaction-check-wrapper"></ft-satisfaction-check>
   </div>
   <div class="download-wrapper" *ngIf="loading">
     <mat-spinner></mat-spinner>

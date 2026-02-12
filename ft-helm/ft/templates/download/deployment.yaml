@@ -15,6 +15,7 @@ spec:
         release: {{ .Release.Name }}
         tier: back
     spec:
+      automountServiceAccountToken: false
       {{ if .Values.imagePullSecrets }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
@@ -25,9 +26,9 @@ spec:
         imagePullPolicy:  {{ .Values.download.image.imagePullPolicy }}          
         envFrom:
         - configMapRef:
-            name: download-override-conf-{{ .Release.Name }}
-        - configMapRef:
             name:  app-config-map-{{ .Release.Name }}
+        - configMapRef:
+            name: download-override-conf-{{ .Release.Name }}
         - secretRef:
             name: ft-secret-app
         ports:

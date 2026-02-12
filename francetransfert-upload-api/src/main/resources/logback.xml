@@ -2,10 +2,18 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                      
-        </encoder> 
-	</appender>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+
+        </encoder>
+    </appender>
+
+    <appender name="PLAIN_TEXT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level %logger{36} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
 
     <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="STDOUT"/>

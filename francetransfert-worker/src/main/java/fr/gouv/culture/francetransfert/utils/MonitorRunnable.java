@@ -31,12 +31,15 @@ public class MonitorRunnable implements Runnable {
 		this.runnable = runnable;
 		this.queue = queue;
 		this.data = data;
+		WorkerUtils.activeTasks.add(this);
 	}
 
 	@Override
 	public void run() {
-		WorkerUtils.activeTasks.add(this);
-		runnable.run();
-		WorkerUtils.activeTasks.remove(this);
+		try {
+			runnable.run();
+		} finally {
+			WorkerUtils.activeTasks.remove(this);
+		}
 	}
 }

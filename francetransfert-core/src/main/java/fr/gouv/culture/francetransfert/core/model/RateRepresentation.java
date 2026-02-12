@@ -26,6 +26,8 @@ public class RateRepresentation extends StatModel {
     @Size(max = 2500)
     private String message;
 
+    private String token;
+
     public int getSatisfaction() {
         return satisfaction;
     }
@@ -40,5 +42,13 @@ public class RateRepresentation extends StatModel {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

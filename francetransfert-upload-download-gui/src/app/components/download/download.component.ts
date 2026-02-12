@@ -80,7 +80,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
             error: () => { this.loading = false },
             complete: () => { this.loading = false; }
           });
-      } else if (this.loginService.isLoggedIn() && this.params['recipient'] == null && this.params['enclosure'] && this.params['token'] == null) {
+      } else if (this.loginService.isLoggedIn() && this.params['recipient'] == null && this.params['enclosure'] && this.params['token'] == null && this.params['enclosure'] !== '') {
         this._downloadService
           .getDownloadInfosConnect(this.params['enclosure'],
             this.loginService.tokenInfo.getValue().senderToken,
@@ -102,7 +102,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           });
       } else {
         if (this._router.url.includes('download/download-info-public')) {
-          if (this.params['enclosure']) {
+          if (this.params['enclosure'] && this.params['enclosure'] !== '') {
             this._downloadService
               .getDownloadInfosPublic(params)
               .pipe(takeUntil(this.onDestroy$))
@@ -120,9 +120,11 @@ export class DownloadComponent implements OnInit, OnDestroy {
                 complete: () => { this.loading = false; }
               });
             this.usingPublicLink = true;
+          } else {
+            this._router.navigateByUrl('/upload');
           }
         } else {
-          this._router.navigateByUrl('/error');
+          this._router.navigateByUrl('/upload');
         }
       }
     });
@@ -189,7 +191,10 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
   onSatisfactionCheckDone(event) {
     if (event) {
-      this._downloadService.rate({ plis: this.params['enclosure'], mail: this.downloadInfos.recipientMail, message: event.message, satisfaction: event.satisfaction }).pipe(take(1))
+      this._downloadService.rate({
+        plis: this.params['enclosure'], mail: this.downloadInfos.recipientMail, message: event.message, satisfaction: event.satisfaction,
+        ...this.loginService.tokenInfo.getValue()?.senderToken ? { token: this.loginService.tokenInfo.getValue()?.senderToken } : { token: this.params['token'] },
+      }).pipe(take(1))
         .subscribe((result) => {
           if (result) {
             this.openSnackBar(4000);

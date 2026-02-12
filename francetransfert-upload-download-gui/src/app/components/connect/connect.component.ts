@@ -45,7 +45,7 @@ export class ConnectComponent implements OnInit {
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
     private titleService: Title,
-    ) {
+  ) {
 
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -127,7 +127,8 @@ export class ConnectComponent implements OnInit {
     });
   }
 
-  login() {
+  login(event) {
+    event.preventDefault();
     this.loginService.login();
   }
 

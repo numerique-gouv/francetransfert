@@ -13,6 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.utils.Base64CryptoService;
+import fr.gouv.culture.francetransfert.core.utils.SanitizerUtil;
 import fr.gouv.culture.francetransfert.model.Enclosure;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.mail.notification.enums.NotificationTemplateEnum;
@@ -38,7 +41,7 @@ public class MailNotificationServices {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MailNotificationServices.class);
 
-//    properties mail France transfert SMTP
+	// properties mail France transfert SMTP
 	@Value("${spring.mail.ftmail}")
 	private String franceTransfertMail;
 
@@ -76,7 +79,7 @@ public class MailNotificationServices {
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 			helper.setFrom(franceTransfertMail);
 			helper.setTo(to);
-			if (StringUtils.equalsIgnoreCase(NotificationTemplateEnum.MAIL_AVAILABLE_RECIPIENT.getValue(),
+			if (Strings.CI.equals(NotificationTemplateEnum.MAIL_AVAILABLE_RECIPIENT.getValue(),
 					templateName)) {
 				Enclosure packageInfo = (Enclosure) object;
 				String senderMail = packageInfo.getSender();
@@ -84,7 +87,8 @@ public class MailNotificationServices {
 			}
 
 			if (StringUtils.isNotBlank(subject)) {
-				helper.setSubject(MimeUtility.encodeText(subject, "utf-8", "B"));
+				String s = StringEscapeUtils.unescapeHtml4(SanitizerUtil.sanitize(subject));
+				helper.setSubject(s);
 			}
 
 			String htmlContent = htmlBuilder.build(object, templateName, locale);

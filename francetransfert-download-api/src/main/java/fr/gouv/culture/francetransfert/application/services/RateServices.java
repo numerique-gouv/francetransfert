@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.application.error.ErrorEnum;
+import fr.gouv.culture.francetransfert.application.error.UnauthorizedAccessException;
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
 import fr.gouv.culture.francetransfert.core.enums.TypeStat;
+import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.utils.Base64CryptoService;
@@ -38,7 +40,40 @@ public class RateServices {
 	@Autowired
 	Base64CryptoService base64CryptoService;
 
-	public boolean createSatisfactionFT(RateRepresentation rateRepresentation) throws DownloadException {
+	@Autowired
+	private ConfirmationServices confirmationServices;
+
+	public boolean createSatisfactionFT(RateRepresentation rateRepresentation)
+			throws DownloadException, MetaloadException {
+
+		boolean validToken = false;
+		boolean validRecipientId = false;
+
+		try {
+			confirmationServices.validateToken(rateRepresentation.getMailAdress().toLowerCase(),
+					rateRepresentation.getToken());
+			validToken = true;
+		} catch (Exception e) {
+			validToken = false;
+		}
+
+		try {
+			confirmationServices.validateRecipientId(rateRepresentation.getPlis(),
+					rateRepresentation.getMailAdress().toLowerCase(), rateRepresentation.getToken());
+			validRecipientId = true;
+		} catch (Exception e) {
+			validRecipientId = false;
+		}
+
+		if (!validToken && !validRecipientId) {
+			throw new UnauthorizedAccessException("Unauthorized access");
+		}
+
+		if (!confirmationServices.isReceiver(rateRepresentation.getPlis(),
+				rateRepresentation.getMailAdress().toLowerCase())) {
+			throw new UnauthorizedAccessException("Unauthorized access");
+		}
+
 		try {
 
 			if (null == rateRepresentation) {
