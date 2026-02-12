@@ -324,7 +324,7 @@ upload:
       cpu: 500m
       memory: 512Mi
     limits:
-      memory: 512Mi
+      memory: 1Gi
   overrideConf:
     FT_LOG_LEVEL: "INFO"
     JAVA_TOOL_OPTIONS: '-verbose:gc -XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
@@ -407,9 +407,9 @@ download:
   resources:
     requests:
       cpu: 150m
-      memory: 256Mi
+      memory: 512Mi
     limits:
-      memory: 256Mi
+      memory: 1Gi
   overrideConf:
     JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
     JAVA_OPTS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Duser.timezone="Europe/Paris"'
@@ -483,9 +483,9 @@ worker:
   resources:
     requests:
       cpu: 500m
-      memory: 512Mi
+      memory: 1Gi
     limits:
-      memory: 512Mi
+      memory: 1Gi
   service:
     managementPort: 8380
   overrideConf:
