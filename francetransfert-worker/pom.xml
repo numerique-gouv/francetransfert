@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.gouv.culture.francetransfert</groupId>
 	<artifactId>ftr-worker-api</artifactId>
-	<version>4.1.1-SNAPSHOT</version>
+	<version>4.1.2-SNAPSHOT</version>
 	<name>France Transfert Task Worker</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
