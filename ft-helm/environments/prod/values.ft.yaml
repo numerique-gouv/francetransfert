@@ -313,7 +313,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 4.0.11
+    tag: 4.0.12
     imagePullPolicy: Always
   service:
     port: 8080
@@ -577,7 +577,7 @@ worker:
   hpa:
     enabled: true
     minReplicas: 2
-    maxReplicas: 12
+    maxReplicas: 10
     metrics:
       - type: Pods
         pods:
@@ -585,7 +585,7 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "20"
+            averageValue: "35"
     behavior:
       scaleUp:
         stabilizationWindowSeconds: 300
