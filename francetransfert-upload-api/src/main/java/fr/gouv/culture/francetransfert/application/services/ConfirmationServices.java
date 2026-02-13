@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,8 +229,13 @@ public class ConfirmationServices {
 		throw new MaxTryException("Unauthorized");
 	}
 
-	public boolean isSender(String plis, String mailAdress) {
-		return redisManager.sexists(RedisKeysEnum.FT_SEND.getKey(mailAdress.toLowerCase()), plis);
+	public boolean isSender(String plis, String mailAdress) throws MetaloadException {
+		String senderEnclosureMail = RedisUtils.getEmailSenderEnclosure(redisManager, plis);
+		if (Strings.CI.equals(senderEnclosureMail, mailAdress)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
