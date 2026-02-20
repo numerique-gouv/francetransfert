@@ -48,6 +48,9 @@ public class ConfirmationServices {
 	@Value("${expire.confirmation.code}")
 	private int secondsToExpireConfirmationCode;
 
+	@Value("${expire.confirmation.retry:300}")
+	private int secondsCodeResend;
+
 	@Value("${expire.token.sender}")
 	private int expireTokenSender;
 
@@ -88,18 +91,25 @@ public class ConfirmationServices {
 				redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
 						currentLanguage + ":" + senderMail + ":" + confirmationCode + ":" + ttltCodeConfirmation);
 				LOGGER.info("sender: {} insert in queue rdis to send mail with confirmation code", senderMail);
+				redisManager.setNxString(RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
+						ttltCodeConfirmation, secondsCodeResend);
 				LOGGER.warn("msgtype: CONFIRMATION_REQUEST || sender: {}", senderMail);
 			} else {
 				String codeSent = redisManager.getString(
 						RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail.toLowerCase())));
-				redisManager.expire(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)),
-						secondsToExpireConfirmationCode);
 				Long ttl = redisManager
 						.ttl(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)));
 				String ttltCodeConfirmation = ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusSeconds(ttl).toString();
-				redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
-						currentLanguage + ":" + senderMail + ":" + codeSent + ":" + ttltCodeConfirmation);
 				LOGGER.info("Code still valid for sender {} with ttl {}", senderMail, ttl);
+				if (StringUtils.isBlank(redisManager.getString(
+						RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail))))) {
+					LOGGER.info("sender: {} insert in queue rdis to send mail with confirmation code", senderMail);
+					redisManager.setNxString(
+							RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
+							ttltCodeConfirmation, secondsCodeResend);
+					redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
+							currentLanguage + ":" + senderMail + ":" + codeSent + ":" + ttltCodeConfirmation);
+				}
 			}
 		} else {
 			throw new UploadException(ErrorEnum.SENDER_MAIL_INVALID.getValue(),
