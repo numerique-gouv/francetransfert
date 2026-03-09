@@ -133,7 +133,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.24</version>
+			<version>1.5.25</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -490,7 +490,7 @@
 				<dependency>
 					<groupId>com.squareup.okio</groupId>
 					<artifactId>okio</artifactId>
-					<version>3.4.0</version>
+					<version>3.16.4</version>
 				</dependency>
 				<dependency>
 					<groupId>org.glassfish.jersey.media</groupId>
