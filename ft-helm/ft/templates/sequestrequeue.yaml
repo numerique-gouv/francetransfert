@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-sequestre-queue
+  labels:
+    tier: back
+spec:
+  schedule: {{ .Values.sequestre.sequestreQueueSchedule | default "0 2 * * *" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  suspend: true
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 120
+      backoffLimit: 0
+      template:
+        spec:
+          securityContext:
+            {{- toYaml .Values.backup.podSecurityContext | nindent 12 }}
+          serviceAccountName: backup
+          restartPolicy: Never
+          containers:
+            - name: enqueue-sequestre
+              image: alpine/kubectl:1.35.0
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "512Mi"
+              volumeMounts:
+                - name: backup-script
+                  mountPath: /scripts
+              command:
+                - /bin/sh
+                - "/scripts/sequestrequeue.sh"
+              env:
+                - name: ENCLOSURE_LIST
+                  value: {{ .Values.sequestre.sequestreQueueEnclosures | default "" | quote }}
+              envFrom:
+                - configMapRef:
+                    name: app-config-map-{{ .Release.Name }}
+                - secretRef:
+                    name: ft-secret-app
+              securityContext:
+                {{- toYaml .Values.backup.securityContext | nindent 16 }}
+          volumes:
+            - name: backup-script
+              configMap:
+                defaultMode: 0770
+                name: backup-script
