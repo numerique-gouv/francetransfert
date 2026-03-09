@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cron-lock-enclosure
+  name: lock-enclosure-job
   labels:
     tier: back
 spec:
