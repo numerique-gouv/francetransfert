@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cron-sequestre-queue
+  name: sequestre-queue-job
   labels:
     tier: back
 spec:
