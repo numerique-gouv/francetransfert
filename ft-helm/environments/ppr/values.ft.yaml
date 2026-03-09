@@ -652,6 +652,13 @@ backup:
     runAsUser: 110101
     runAsGroup: 110101
 
+sequestre:
+  sequestreQueueEnclosures: "enc1,enc2,enc3"
+
+lockEnclosure:
+  lockEnclosureEmail: "user@example.com"
+  lockEnclosureIds: "enc1,enc2,enc3"
+
 dex:
   enabled: true
   image:
