@@ -23,7 +23,7 @@
 
           <h2 #modalites>{{'Modalités_Titre' | translate}}</h2>
             <h3 #inscription>{{'Inscription_Transmission_Titre' | translate}}</h3>
-            <p [innerHTML]="'Inscription_Transmission_Texte' | translate">
+            <p [innerHTML]="'Inscription_Transmission_Texte' | translate : { jours: jours }">
             </p>
 
 

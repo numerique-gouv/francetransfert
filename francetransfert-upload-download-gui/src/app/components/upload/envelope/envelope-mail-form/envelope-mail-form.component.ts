@@ -206,7 +206,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'loadMailingListFromLocalStorage') {
-          if (result.data.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
+          if (result.data.length <= this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
             if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
               this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
             }
@@ -221,7 +221,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
 
         }
         if (result.event === 'loadMailingListFromFile') {
-          if (result.data.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
+          if (result.data.length <= this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
             if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
               this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
             }
@@ -264,7 +264,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     if (val.indexOf("<") > 0 && val.indexOf(">") > 0) {
       let list = this.envelopeMailForm.get('to').value.split(/</);
 
-      if (list.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
+      if (list.length <= this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
         if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
           this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
         }

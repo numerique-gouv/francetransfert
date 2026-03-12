@@ -8,6 +8,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { ConfigService } from '../../services/config/config.service';
 
 @Component({
   selector: 'ft-politique-protection-donnees',
@@ -18,12 +19,15 @@ export class PolitiqueProtectionDonneesComponent implements OnInit, AfterViewIni
 
   @ViewChild('politiquedeprotectiondesdonnees') private politiquedeprotectiondesdonneesFragment: ElementRef;
   @ViewChild('droitsdespersonnes') private droitsdespersonnesFragment: ElementRef;
+  jours: number;
 
   constructor(private titleService: Title,
-    private router: Router) { }
+    private router: Router,
+    private configService: ConfigService) { }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Politique de protection des données');
+    this.jours = this.configService.configInfo.getValue().uploadExpiredLimit;
   }
 
   ngAfterViewInit(): void {

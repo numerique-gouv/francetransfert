@@ -25,7 +25,7 @@ public enum ValidationErrorEnum {
     FT09("destinataires.courrielDestinataire", "ERR_FT01_009",
             "Le courriel destinataire doit respecter le format d’un courriel"),
     FT010("preferences.dateValidite", "ERR_FT01_010",
-            "La date de fin de validité du pli doit être comprise entre J+1 et J+90 jours"),
+            "La date de fin de validité du pli doit être comprise entre J+1 et J+60 jours"),
     FT011("preferences.dateValidite", "ERR_FT01_011", "La date de fin de validité doit respecter le format d’une date"),
     FT012("preferences.motDePasse", "ERR_FT01_012",
             "Le mot de passe doit respecter les critères de robustesse et caractères autorisés : 12 caractères minimum - 64 caractères maximum - Au moins 3 lettres minuscules (a-z non accentué) - Au moins 3 lettres majuscules (A-Z non accentué) - Au moins 3 chiffres - Au moins 3 caractères spéciaux (!@#$%^&*()_-:+) - aucun caractère spécial non supporté\r\n"),

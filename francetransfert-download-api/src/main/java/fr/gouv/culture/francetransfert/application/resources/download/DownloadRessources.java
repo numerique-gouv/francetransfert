@@ -40,6 +40,7 @@ import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.model.TokenEnclosureDataDownload;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
+import fr.gouv.culture.francetransfert.domain.exceptions.InvalidHashException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,6 +99,23 @@ public class DownloadRessources {
 		return representation;
 	}
 
+	@PostMapping("/exists-enclosure")
+	public boolean existsEnclosure(@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
+			throws UnauthorizedAccessException, ExpirationEnclosureException, MetaloadException,
+			UnsupportedEncodingException, InvalidHashException, StorageException, RetryException {
+		LOGGER.debug("start exists enclosure ");
+		return downloadServices.existsEnclosure(
+				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
+	}
+
+	@GetMapping("/exists-public-enclosure")
+	public boolean existsPublicEnclosure(@RequestParam("enclosure") String enclosure)
+			throws UnauthorizedAccessException, ExpirationEnclosureException, MetaloadException {
+		LOGGER.debug("start exists public enclosure ");
+		downloadServices.validatePublic(enclosure);
+		return downloadServices.existsPublicEnclosure(enclosure);
+	}
+
 	@PostMapping("/download-info")
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfo(HttpServletResponse response,
@@ -105,8 +123,25 @@ public class DownloadRessources {
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
 			RetryException {
 		LOGGER.info("start donlowad info ");
+		String recipientId = downloadServices.getRecipientId(tokenEnclosureData.getEnclosure(),
+				tokenEnclosureData.getRecipient());
+		downloadServices.validatePassword(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getPassword(),
+				recipientId);
 		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(
 				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
+		response.setStatus(HttpStatus.OK.value());
+		return downloadRepresentation;
+	}
+
+	@PostMapping("/download-info-public")
+	public DownloadRepresentation downloadInfoPublic(HttpServletResponse response,
+			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
+			throws UnauthorizedAccessException, ExpirationEnclosureException, MetaloadException,
+			UnsupportedEncodingException {
+		LOGGER.info("start download info public ");
+		downloadServices.validatePublic(tokenEnclosureData.getEnclosure());
+		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfoPublic(
+				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getPassword());
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}
@@ -141,17 +176,6 @@ public class DownloadRessources {
 			throws DownloadException {
 		downloadServices.validateToken(enclosure, token);
 		return downloadServices.getNumberOfDownloadPublic(enclosure);
-	}
-
-	@GetMapping("/download-info-public")
-	public DownloadRepresentation downloadInfoPublic(HttpServletResponse response,
-			@RequestParam("enclosure") String enclosure)
-			throws UnauthorizedAccessException, ExpirationEnclosureException, MetaloadException {
-		LOGGER.info("start download info public ");
-		downloadServices.validatePublic(enclosure);
-		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfoPublic(enclosure);
-		response.setStatus(HttpStatus.OK.value());
-		return downloadRepresentation;
 	}
 
 	@PostMapping("/telechargerPliTest")

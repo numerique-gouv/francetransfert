@@ -8,6 +8,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { ConfigService } from '../../services/config/config.service';
 
 @Component({
   selector: 'ft-cgu',
@@ -24,17 +25,20 @@ export class CguComponent implements OnInit, AfterViewInit {
   @ViewChild('engagementsetresponsabilite') private engagementsetresponsabiliteFragment: ElementRef;
   @ViewChild('qualiteduservice') private qualiteduserviceFragment: ElementRef;
   @ViewChild('securite') private securiteFragment: ElementRef;
-  @ViewChild('contact') private  contact: ElementRef;
+  @ViewChild('contact') private contact: ElementRef;
   @ViewChild('validite') private validiteFragment: ElementRef;
   sanitizedUrl: any;
+  jours: number;
 
   constructor(private titleService: Title,
-    private sanitizer:DomSanitizer,
-    private router: Router) { }
+    private sanitizer: DomSanitizer,
+    private router: Router,
+    private configService: ConfigService) { }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - CGU');
     this.sanitizedUrl = this.sanitizer.bypassSecurityTrustUrl('https://www.ssi.gouv.fr/administration/qualification/zed/');
+    this.jours = this.configService.configInfo.getValue().uploadExpiredLimit;
   }
 
   ngAfterViewInit(): void {

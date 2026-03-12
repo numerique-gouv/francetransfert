@@ -96,9 +96,6 @@ public class UploadServices {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadServices.class);
 
-	@Value("${enclosure.expire.days}")
-	private int expiredays;
-
 	@Value("${bucket.prefix}")
 	private String bucketPrefix;
 
@@ -116,9 +113,6 @@ public class UploadServices {
 
 	@Autowired
 	private RedisManager redisManager;
-
-	@Value("${upload.expired.limit}")
-	private int maxUpdateDate;
 
 	@Value("${upload.limit.senderMail}")
 	private Long maxUpload;

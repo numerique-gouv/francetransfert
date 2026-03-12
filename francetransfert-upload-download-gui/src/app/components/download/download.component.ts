@@ -65,17 +65,13 @@ export class DownloadComponent implements OnInit, OnDestroy {
       this.loading = true;
       if (this.params['enclosure'] && this.params['recipient'] && this.params['token']) {
         this._downloadService
-          .getDownloadInfos(params)
+          .existsEnclosure(params)
           .pipe(takeUntil(this.onDestroy$))
           .subscribe({
-            next: (downloadInfos) => {
-              this.downloadInfos = downloadInfos;
-              this.downloadInfos.rootFiles.map(file => {
-                this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
-              });
-              this.downloadInfos.rootDirs.map(file => {
-                this.transfers.push({ ...file, size: file.totalSize, folder: true } as FTTransferModel<Transfer>);
-              });
+            next: (existsEnclosure) => {
+              if (existsEnclosure) {
+                this.downloadInfos = {};
+              }
             },
             error: () => { this.loading = false },
             complete: () => { this.loading = false; }
@@ -104,17 +100,13 @@ export class DownloadComponent implements OnInit, OnDestroy {
         if (this._router.url.includes('download/download-info-public')) {
           if (this.params['enclosure'] && this.params['enclosure'] !== '') {
             this._downloadService
-              .getDownloadInfosPublic(params)
+              .existsPublicEnclosure(params)
               .pipe(takeUntil(this.onDestroy$))
               .subscribe({
-                next: (downloadInfosPublic) => {
-                  this.downloadInfos = downloadInfosPublic;
-                  this.downloadInfos.rootFiles.map(file => {
-                    this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
-                  });
-                  this.downloadInfos.rootDirs.map(file => {
-                    this.transfers.push({ ...file, size: file.totalSize, folder: true } as FTTransferModel<Transfer>);
-                  });
+                next: (existsPublicEnclosure) => {
+                  if (existsPublicEnclosure) {
+                    this.downloadInfos = {};
+                  }
                 },
                 error: () => { this.loading = false },
                 complete: () => { this.loading = false; }
@@ -174,13 +166,60 @@ export class DownloadComponent implements OnInit, OnDestroy {
     this._downloadService.validatePassword({ enclosureId: this.params['enclosure'], password: this.password, recipientId: recipient }).pipe(take(1))
       .subscribe((response) => {
         if (response.valid) {
-          this.downloadValidated = true;
-          this.downloadManagerService.downloadError$.next(null);
+          this.loading = true;
+          let params = {
+            enclosure: this.params['enclosure'],
+            recipient: this.params['recipient'],
+            token: this.params['token'],
+            password: this.password,
+          };
+          if (this.params['enclosure'] && this.params['recipient'] && this.params['token']) {
+            this._downloadService
+              .getDownloadInfos(params)
+              .pipe(takeUntil(this.onDestroy$))
+              .subscribe({
+                next: (downloadInfos) => {
+                  this.setPliInfo(downloadInfos);
+                  this.downloadValidated = true;
+                  this.downloadManagerService.downloadError$.next(null);
+                },
+                error: () => { this.loading = false },
+                complete: () => { this.loading = false; }
+              });
+          } else if (this._router.url.includes('download/download-info-public')) {
+            if (this.params['enclosure'] && this.params['enclosure'] !== '') {
+              this._downloadService
+                .getDownloadInfosPublic(params)
+                .pipe(takeUntil(this.onDestroy$))
+                .subscribe({
+                  next: (downloadInfosPublic) => {
+                    this.setPliInfo(downloadInfosPublic);
+                    this.downloadValidated = true;
+                    this.downloadManagerService.downloadError$.next(null);
+                  },
+                  error: () => { this.loading = false },
+                  complete: () => { this.loading = false; }
+                });
+              this.usingPublicLink = true;
+            } else {
+              this._router.navigateByUrl('/upload');
+            }
+          }
         }
       },
         (error) => {
           this.downloadManagerService.downloadError$.next(error);
         });
+  }
+
+  private setPliInfo(downloadInfos: Object) {
+    this.downloadInfos = downloadInfos;
+    this.downloadInfos.rootFiles.map(file => {
+      this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
+    });
+    this.downloadInfos.rootDirs.map(file => {
+      this.transfers.push({ ...file, size: file.totalSize, folder: true } as FTTransferModel<Transfer>);
+    });
   }
 
   ngOnDestroy() {
