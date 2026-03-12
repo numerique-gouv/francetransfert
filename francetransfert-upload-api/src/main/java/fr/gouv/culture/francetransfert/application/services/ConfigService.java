@@ -40,6 +40,9 @@ public class ConfigService {
 	@Value("${agentconnect.clientId:}")
 	private String clientId;
 
+	@Value("${upload.expired.limit}")
+	private int uploadExpiredLimit;
+
 	@Autowired
 	MimeService mimeService;
 
@@ -50,7 +53,8 @@ public class ConfigService {
 		String jsonInString = redisManager.getString(RedisKeysEnum.FT_CONFIG.getFirstKeyPart());
 		Map<String, String> messages = new Gson().fromJson(jsonInString, Map.class);
 		return ConfigRepresentation.builder().extension(extensionList).mimeType(mimeList).agentConnect(agentConnect)
-				.clientId(clientId).issuerUrl(issuerUrl).messages(messages).build();
+				.clientId(clientId).issuerUrl(issuerUrl).messages(messages).uploadExpiredLimit(uploadExpiredLimit)
+				.build();
 	}
 
 	public void updateConfig(ConfigUpdate configUpdate) {

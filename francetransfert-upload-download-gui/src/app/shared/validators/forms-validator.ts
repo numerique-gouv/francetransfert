@@ -7,6 +7,8 @@
 
 import { FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 import * as moment from 'moment';
+import { environment } from '../../../environments/environment';
+import { ConfigService } from '../../services/config/config.service';
 
 const specialCharList = "!@#$%^&*()_-:+";
 const specialCharRegexEscape = specialCharList.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
@@ -29,15 +31,15 @@ export function passwordValidator(formControl: FormControl) {
 
 export function dateValidator(formControl: FormControl) {
   const date = formControl.value;
-  if (date > moment().add(90, 'days').toDate() || date < new Date()) {
+  if (date > moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').toDate() || date < new Date()) {
     return { pattern: true }
   } else {
     return null;
   }
 }
 
-export function isDayNumberValid(dayNumber: number) {
-  if (dayNumber > 90 || dayNumber < 1) {
+export function isDayNumberValid(dayNumber: number, configService: ConfigService) {
+  if (dayNumber > configService.configInfo.getValue().uploadExpiredLimit || dayNumber < 1) {
     return false
   } else {
     return true;

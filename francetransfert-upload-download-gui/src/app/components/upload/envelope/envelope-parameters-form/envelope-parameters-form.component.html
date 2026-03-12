@@ -66,7 +66,7 @@
           <!-- <input matInput formControlName="expiryDays" autocomplete="off">
           <span matSuffix>jours</span>
           <mat-error role="alert" *ngIf="f.expiryDays.errors?.min">Le délai de validité ne peut être inférieur à 1 jour</mat-error>
-          <mat-error role="alert" *ngIf="f.expiryDays.errors?.max">Le délai de validité ne peut être supérieur à 90 jours</mat-error> -->
+          <mat-error role="alert" *ngIf="f.expiryDays.errors?.max">Le délai de validité ne peut être supérieur à 60 jours</mat-error> -->
          <input matInput [matDatepicker]="picker" formControlName="expiryDays" [min]="minDate" [max]="maxDate" autocomplete="off">
           <mat-error role="alert" *ngIf="f.expiryDays.errors">{{'Date_invalide' | translate}}</mat-error>
            <mat-datepicker #picker></mat-datepicker>

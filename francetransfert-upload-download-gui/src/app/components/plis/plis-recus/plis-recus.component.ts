@@ -26,6 +26,8 @@ import { dateValidator, passwordValidator } from "../../../shared/validators/for
 import * as moment from "moment/moment";
 import { DateAdapter } from "@angular/material/core";
 import { MyDateAdapter, MyDefaultDateAdapter } from "../../upload/envelope/envelope-parameters-form/my-date-adapter";
+import { environment } from '../../../../environments/environment';
+import { ConfigService } from '../../../services/config/config.service';
 
 @Component({
   selector: 'ft-plis-recus',
@@ -87,6 +89,7 @@ export class PlisRecusComponent {
     private _translate: TranslateService,
     private loaderService: LoaderService,
     private translateService: TranslateService,
+    private configService: ConfigService,
 
   ) {
     this.getListTypes();
@@ -153,7 +156,7 @@ export class PlisRecusComponent {
         this.validUntilDate = new FormControl(new Date(this.fileInfos.validUntilDate));
         let temp = new Date(this.fileInfos.timestamp);
         this.selectedDate = temp;
-        this.maxDate.setDate(temp.getDate() + 90);
+        this.maxDate.setDate(temp.getDate() + this.configService.configInfo.getValue().uploadExpiredLimit);
         this.fileInfos.recipientsMails.forEach((element) => {
           this.numberOfDownload = element.numberOfDownloadPerRecipient;
           this.downloadDates = element.downloadDates;
