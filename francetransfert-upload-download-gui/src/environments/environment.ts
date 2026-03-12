@@ -54,7 +54,8 @@ export const environment = {
       url: 'https://test-francetransfert.aot.agency/captcha/captcha/'
     }
   },
-  version: '4.0.4'
+  expiredLimit: 60,
+  version: '4.0.5'
 };
 
 /*

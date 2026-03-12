@@ -28,5 +28,6 @@ public class ConfigRepresentation implements Serializable {
 	private String issuerUrl;
 	private String clientId;
 	private Map<String, String> messages;
+	private int uploadExpiredLimit;
 
 }

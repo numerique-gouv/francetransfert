@@ -11,6 +11,7 @@ import { LinkInfosModel, MailInfosModel, ParametersModel } from 'src/app/models'
 import { FileManagerService, UploadManagerService, UploadService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { majChar, minChar, numChar, sizeControl, specialChar, noSpecial, isDayNumberValid } from 'src/app/shared/validators/forms-validator';
+import { ConfigService } from '../../../services/config/config.service';
 
 @Component({
   selector: 'ft-envelope',
@@ -36,7 +37,9 @@ export class EnvelopeComponent implements OnInit, OnDestroy {
     private uploadManagerService: UploadManagerService,
     private loginService: LoginService,
     private uploadService: UploadService,
-    private cdr: ChangeDetectorRef) { }
+    private cdr: ChangeDetectorRef,
+    private configService: ConfigService
+  ) { }
 
   ngOnInit(): void {
     this.loginSubscription = this.loginService.tokenInfo.subscribe(tokenInfo => {
@@ -102,7 +105,7 @@ export class EnvelopeComponent implements OnInit, OnDestroy {
         && !noSpecial(this.parametersFormValues.password)
     }
     if (this.parametersFormValues && this.parametersFormValues.expiryDays) {
-      checkdate = isDayNumberValid(this.parametersFormValues.expiryDays);
+      checkdate = isDayNumberValid(this.parametersFormValues.expiryDays, this.configService);
     }
     return checkpassword && checkdate;
   }

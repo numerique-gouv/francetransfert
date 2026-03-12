@@ -47,5 +47,6 @@ export const environment = {
       url: '/captcha/captcha/'
     }
   },
-  version: '4.0.4'
+  expiredLimit: 60,
+  version: '4.0.5'
 };

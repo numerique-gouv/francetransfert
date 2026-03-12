@@ -15,10 +15,12 @@ import { noSpecial, majChar, minChar, numChar, dateValidator, passwordValidator,
 import { LanguageModel } from 'src/app/models';
 
 import { LanguageSelectionService } from 'src/app/services';
-import { DateAdapter} from '@angular/material/core';
+import { DateAdapter } from '@angular/material/core';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MyDateAdapter } from './my-date-adapter';
+import { environment } from '../../../../../environments/environment';
+import { ConfigService } from '../../../../services/config/config.service';
 
 
 
@@ -27,7 +29,7 @@ import { MyDateAdapter } from './my-date-adapter';
   templateUrl: './envelope-parameters-form.component.html',
   styleUrls: ['./envelope-parameters-form.component.scss'],
   providers: [
-    {provide: DateAdapter, useClass: MyDateAdapter}
+    { provide: DateAdapter, useClass: MyDateAdapter }
   ],
 })
 export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
@@ -52,13 +54,14 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
     private languageSelectionService: LanguageSelectionService,
     public translateService: TranslateService,
     private uploadService: UploadService,
-    private _adapter: DateAdapter<any>
+    private _adapter: DateAdapter<any>,
+    private configService: ConfigService
 
   ) {
 
     this.languageList = this.languageSelectionService.languageList;
     this.uploadService.langueCourriels.subscribe(langueCourriels => {
-      this.language =  this.languageList.find(x => x.value == langueCourriels);
+      this.language = this.languageList.find(x => x.value == langueCourriels);
     });
     this._adapter.setLocale(this.translateService.currentLang);
   }
@@ -77,10 +80,10 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
     } else {
       expireDate = moment().add(30, 'days').toDate();
     }
-    this.maxDate = moment().add(90, 'days').toDate();
+    this.maxDate = moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').toDate();
 
     this.envelopeParametersForm = this.fb.group({
-      expiryDays: [expireDate, [ dateValidator]],
+      expiryDays: [expireDate, [dateValidator.bind(this)]],
       password: [this.parametersFormValues?.password, [Validators.minLength(12), Validators.maxLength(64), passwordValidator]],
       zipPassword: [this.parametersFormValues?.zipPassword],
       langueCourriels: [this.parametersFormValues?.langueCourriels ? this.parametersFormValues.langueCourriels : this.languageSelectionService.selectedLanguage.getValue()],
@@ -144,7 +147,7 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
     return a.code == b.code;
   }
 
-  public selectLanguage(value){
+  public selectLanguage(value) {
     this.uploadService.setLangueCourriels(value.value);
   }
 

@@ -87,6 +87,7 @@ import fr.gouv.culture.francetransfert.domain.exceptions.InvalidCaptchaException
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import fr.gouv.culture.francetransfert.domain.utils.FileUtils;
 import fr.gouv.culture.francetransfert.domain.utils.RedisForUploadUtils;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class UploadServices {
@@ -143,6 +144,13 @@ public class UploadServices {
 
 	@Autowired
 	private CustomMetricsService customMetricsService;
+
+	@PostConstruct
+	public void postConstruct() {
+		LOGGER.info("Starting UploadServices");
+		mimeService.authorisedMimeList();
+		LOGGER.info("Authorised mimes: {}", String.join(", ", mimeService.authorisedMimeList()));
+	}
 
 	public DeleteRepresentation deleteFile(String enclosureId) {
 		DeleteRepresentation deleteRepresentation = new DeleteRepresentation();

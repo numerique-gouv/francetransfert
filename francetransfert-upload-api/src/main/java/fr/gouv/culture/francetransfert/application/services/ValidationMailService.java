@@ -96,6 +96,9 @@ public class ValidationMailService {
 	@Value("${upload.file.limit}")
 	private long uploadFileLimitSize;
 
+	@Value("${upload.expired.limit}")
+	private int maxUpdateDate;
+
 	@Value("#{${api.key}}")
 	Map<String, Map<String, String[]>> apiKey;
 
@@ -744,7 +747,7 @@ public class ValidationMailService {
 		LocalDate now = LocalDate.now();
 
 		long daysBetween = ChronoUnit.DAYS.between(now, expireDelay);
-		if (daysBetween > 90 || daysBetween <= 0 || LocalDate.now().isAfter(expireDelay)) {
+		if (daysBetween > maxUpdateDate || daysBetween <= 0 || LocalDate.now().isAfter(expireDelay)) {
 			periodFormatInfo = new ApiValidationError();
 			periodFormatInfo.setCodeChamp(ValidationErrorEnum.FT010.getCodeChamp());
 			periodFormatInfo.setNumErreur(ValidationErrorEnum.FT010.getNumErreur());

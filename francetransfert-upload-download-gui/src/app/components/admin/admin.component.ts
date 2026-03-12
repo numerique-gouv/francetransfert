@@ -29,6 +29,8 @@ import { jsPDF } from 'jspdf';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { FileSizePipe, FileTypePipe, FileUnitPipe } from 'src/app/shared/pipes';
+import { environment } from '../../../environments/environment';
+import { ConfigService } from '../../services/config/config.service';
 //import autoTable from 'jspdf-autotable';
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 @Component({
@@ -86,6 +88,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     private loginService: LoginService,
     private responsiveService: ResponsiveService,
     private adminService: AdminService,
+    private configService: ConfigService,
 
   ) {
   }
@@ -487,7 +490,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   private setLimitDay(date) {
     let temp = moment(date);
     this.selectedDate = temp.toDate();
-    this.maxDate = temp.add(90, 'days').toDate();
+    this.maxDate = temp.add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').toDate();
   }
 
 
