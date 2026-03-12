@@ -244,7 +244,6 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSatisfactionCheckDone(event) {
-    console.log(this.loginService.tokenInfo.getValue());
     if (event) {
       this.uploadService.rate({
         plis: this.enclosureId, mail: this.uploadManagerService.envelopeInfos.getValue().from,

@@ -149,7 +149,6 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.flow.cancelFile(transfer);
       this.flow.flowJs.removeFile(transfer);
       this.fileManagerService.hasFiles.next(this.filesSize > 0);
-      this.cdr.detectChanges();
       if (this.filesSize <= this.filesSizeLimit) {
         this.errorMessage = '';
         this.unauthorizedFile = '';
@@ -168,6 +167,8 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.flow.flowJs.files.length === 0) {
       this.firstFile = true;
     }
+
+    this.cdr.detectChanges();
   }
 
 
@@ -185,8 +186,9 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }
+        this.recalculateFilesSize();
         this.hasError = true;
-        this.cdr.detectChanges();
+
       } else if (event.folder) {
 
         try {
@@ -198,6 +200,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.unauthorizedFile = '';
           this.file = '';
           this.hasError = false;
+
           this.cdr.detectChanges();
         } catch (error) {
 
@@ -212,6 +215,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.unauthorizedFile = '';
           this.file = '';
           this.hasError = true;
+
           this.cdr.detectChanges();
           return;
         }
@@ -227,6 +231,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.file = '';
           this.hasError = false;
           this.cdr.detectChanges();
+
         } else {
           this.flow.cancelFile(event);
           this.errorMessage = 'TailleMaximale';
@@ -234,6 +239,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.file = '';
           this.hasError = true;
           this.openSnackBar(4000, this.errorMessage, 'file-exist');
+
           this.cdr.detectChanges();
         }
       }
@@ -251,6 +257,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.translate.stream(this.newUnit).subscribe(v => {
       this.unitSize = v;
     })
+
     this.cdr.detectChanges();
   }
 
@@ -291,7 +298,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       existe = hasDuplicates;
     }
     this.firstFile = false;
-    this.cdr.detectChanges();
+
     return existe;
   }
 
@@ -306,6 +313,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
             this.file = 'TypeFichier';
             this.errorMessage = 'NonAutorisé';
             this.unauthorizedFile = child.name;
+            this.hasError = true;
             return false;
           }
           //check file name too long
@@ -313,6 +321,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
             || (child.flowFile?.file?.relativePath && child.flowFile.file.relativePath.length > this.maxFilenameLength)) {
             this.file = 'TypeFichier';
             this.errorMessage = 'NomFichierLong';
+            this.hasError = true;
             this.unauthorizedFile = child.flowFile?.file?.relativePath ? child.flowFile.file.relativePath : child.name;
             return false;
           }
@@ -327,6 +336,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
             this.file = 'TypeFichier';
             this.errorMessage = 'NomFichierLong';
             this.unauthorizedFile = event.flowFile?.file?.relativePath ? event.flowFile.file.relativePath : event.name;
+            this.hasError = true;
             return false;
           }
         }
@@ -335,6 +345,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.file = '';
           this.errorMessage = 'FichierNonAutorisé';
           this.unauthorizedFile = '';
+          this.hasError = true;
         }
       }
 

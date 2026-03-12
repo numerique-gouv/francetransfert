@@ -43,6 +43,12 @@ public class ConfigService {
 	@Value("${upload.expired.limit}")
 	private int uploadExpiredLimit;
 
+	@Value("${upload.max.recipient.agent}")
+	private int uploadMaxRecipientAgent;
+
+	@Value("${upload.max.recipient.public}")
+	private int uploadMaxRecipientPublic;
+
 	@Autowired
 	MimeService mimeService;
 
@@ -54,6 +60,7 @@ public class ConfigService {
 		Map<String, String> messages = new Gson().fromJson(jsonInString, Map.class);
 		return ConfigRepresentation.builder().extension(extensionList).mimeType(mimeList).agentConnect(agentConnect)
 				.clientId(clientId).issuerUrl(issuerUrl).messages(messages).uploadExpiredLimit(uploadExpiredLimit)
+				.uploadMaxRecipientAgent(uploadMaxRecipientAgent).uploadMaxRecipientPublic(uploadMaxRecipientPublic)
 				.build();
 	}
 

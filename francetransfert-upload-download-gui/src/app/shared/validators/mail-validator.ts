@@ -9,9 +9,10 @@ import { AsyncValidatorFn, AbstractControl, ValidationErrors } from '@angular/fo
 import { Observable, from, forkJoin, of } from 'rxjs';
 import { catchError, map, take } from 'rxjs/operators';
 import { UploadService } from 'src/app/services';
+import { LoginService } from '../../services/login/login.service';
 
 export class MailAsyncValidator {
-    static createValidator(uploadService: UploadService, fromField: string, toField: string, destList: string[]): AsyncValidatorFn {
+    static createValidator(uploadService: UploadService, fromField: string, toField: string, destList: string[], loginService: LoginService): AsyncValidatorFn {
         const ctrMethod = (control: AbstractControl): Observable<ValidationErrors> => {
             const fromValue = control.get(fromField).value;
             // Call validation for sender mail and list dest
@@ -31,6 +32,7 @@ export class MailAsyncValidator {
                     let toError = control.get(toField).errors;
                     const destListOk = ret.destListOk;
                     const senderOk = ret.senderOk;
+                    loginService.isAgent$.next(senderOk);
                     if (destList.length > 0) {
                         // if dest list is not empty and sender and dest ok no error
                         if (destListOk || senderOk) {

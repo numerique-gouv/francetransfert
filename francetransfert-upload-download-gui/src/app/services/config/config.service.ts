@@ -11,6 +11,19 @@ import { BehaviorSubject } from 'rxjs';
 import { map, catchError, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
+export interface ConfigInfo {
+  mimeType: string[];
+  extension: string[];
+  agentConnect: boolean;
+  issuerUrl: string;
+  clientId: string;
+  messages: { [key: string]: string };
+  uploadExpiredLimit: number;
+  uploadMaxRecipientAgent: number;
+  uploadMaxRecipientPublic: number;
+};
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,14 +31,22 @@ export class ConfigService {
 
   configError$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
   isAgentConnect: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  configInfo: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  configInfo: BehaviorSubject<ConfigInfo> = new BehaviorSubject<ConfigInfo>(null);
 
 
   constructor(private _httpClient: HttpClient) {
-    this.getConfig().pipe(take(1)).subscribe((res: any) => {
+    this.getConfig().pipe(take(1)).subscribe((res: ConfigInfo) => {
       this.configInfo.next(res);
       this.isAgentConnect.next(res.agentConnect);
     })
+  }
+
+  getMailLimit(isAgent: boolean) {
+    if (isAgent) {
+      return this.configInfo.getValue().uploadMaxRecipientAgent;
+    } else {
+      return this.configInfo.getValue().uploadMaxRecipientPublic;
+    }
   }
 
   getConfig() {
@@ -35,7 +56,7 @@ export class ConfigService {
     };
     return this._httpClient.get(
       `${environment.host}${environment.apis.upload.config}`, httpOptions
-    ).pipe(map(response => {
+    ).pipe(map((response: ConfigInfo) => {
       this.configError$.next(null);
       this.configInfo.next(response);
       return response;

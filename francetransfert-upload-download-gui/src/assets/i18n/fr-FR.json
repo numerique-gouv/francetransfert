@@ -754,7 +754,7 @@
   "Saisissez_message": "Saisissez ici votre message",
   "Menu": "Menu",
   "Paramètres": "Paramètres",
-  "DestinataireLimité": "Le nombre de destinataires est limité à 100",
+  "DestinataireLimité": "Le nombre de destinataires est limité à {{limit}}",
   "exemple": " par exemple).",
   "conteneur_Zed": "conteneur Zed",
   "EnvoiePli": "Envoyer un pli",

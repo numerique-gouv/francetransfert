@@ -21,6 +21,7 @@ export class LoginService {
   tokenInfo: BehaviorSubject<TokenModel> = new BehaviorSubject<any>(null);
   loggedIn$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   connectCheck: BehaviorSubject<boolean> = new BehaviorSubject<any>(false);
+  isAgent$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public currentTabIndex = 1;  //default tab index is 1
 
   constructor(private configService: ConfigService, private oauthService: OAuthService, private _httpClient: HttpClient) {
