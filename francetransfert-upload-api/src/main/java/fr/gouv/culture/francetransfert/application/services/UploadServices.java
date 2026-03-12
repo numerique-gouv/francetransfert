@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -560,6 +562,16 @@ public class UploadServices {
 
 			boolean validSenderIgni = stringUploadUtils.isValidEmailIgni(sender);
 			boolean recipientIgni = stringUploadUtils.isValidEmailIgni(email);
+
+			List<String> checklist = recipientMap.entrySet().stream().map(e -> {
+				Map<String, String> recipient = redisManager
+						.hmgetAllString(RedisKeysEnum.FT_RECIPIENT.getKey(e.getValue()));
+				return recipient.get(RecipientKeysEnum.LOGIC_DELETE.getKey());
+			}).filter(Objects::nonNull).filter(x -> x.equals("0")).collect(Collectors.toList());
+
+			if (!checkRecipientsSize(checklist, validSenderIgni)) {
+				throw new UploadException(ErrorEnum.RECIPIENT_SIZE_LIMIT.getValue(), "Recipient size limit");
+			}
 
 			if (!(validSenderIgni || recipientIgni)) {
 				throw new UploadException("Invalid Sender/Recipient domain");
@@ -1337,7 +1349,7 @@ public class UploadServices {
 		return 0L;
 	}
 
-	private boolean checkRecipientsSize(List<String> recipientEmails, boolean validSenderIgni) {
+	private boolean checkRecipientsSize(Collection<String> recipientEmails, boolean validSenderIgni) {
 
 		if (CollectionUtils.isEmpty(recipientEmails)) {
 			return true;
