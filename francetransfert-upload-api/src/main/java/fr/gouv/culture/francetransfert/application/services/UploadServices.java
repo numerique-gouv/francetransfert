@@ -124,6 +124,12 @@ public class UploadServices {
 	@Value("${upload.token.chunkModulo:20}")
 	private int chunkModulo;
 
+	@Value("${upload.max.recipient.agent}")
+	private int uploadMaxRecipientAgent;
+
+	@Value("${upload.max.recipient.public}")
+	private int uploadMaxRecipientPublic;
+
 	@Autowired
 	private ConfirmationServices confirmationServices;
 
@@ -360,6 +366,10 @@ public class UploadServices {
 			boolean validSender = stringUploadUtils.isValidEmail(metadata.getSenderEmail().toLowerCase());
 			boolean validRecipients = false;
 			boolean validRecipientsIgni = false;
+
+			if (!checkRecipientsSize(metadata.getRecipientEmails(), validSenderIgni)) {
+				throw new UploadException(ErrorEnum.RECIPIENT_SIZE_LIMIT.getValue(), "Recipient size limit");
+			}
 
 			if (!validSender) {
 				throw new UploadException(ErrorEnum.SENDER_MAIL_INVALID.getValue(), "Sender mail invalid");
@@ -1325,6 +1335,19 @@ public class UploadServices {
 			return setTokenInRedis.stream().count();
 		}
 		return 0L;
+	}
+
+	private boolean checkRecipientsSize(List<String> recipientEmails, boolean validSenderIgni) {
+
+		if (CollectionUtils.isEmpty(recipientEmails)) {
+			return true;
+		}
+
+		if (validSenderIgni) {
+			return recipientEmails.size() <= uploadMaxRecipientAgent;
+		} else {
+			return recipientEmails.size() <= uploadMaxRecipientPublic;
+		}
 	}
 
 	private boolean isBoolean(String value) {
