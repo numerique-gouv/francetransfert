@@ -20,6 +20,8 @@ export const environment = {
       config: 'api-private/upload-module/config'
     },
     download: {
+      existsEnclosure: 'api-private/download-module/exists-enclosure',
+      existsPublicEnclosure: 'api-private/download-module/exists-public-enclosure',
       download: 'api-private/download-module/download-info',
       downloadUrl: 'api-private/download-module/generate-download-url',
       downloadInfosPublic: 'api-private/download-module/download-info-public',

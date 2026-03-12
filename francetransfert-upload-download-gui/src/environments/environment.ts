@@ -28,6 +28,8 @@ export const environment = {
       formulaireContact: '8080/api-private/upload-module/sender-contact'
     },
     download: {
+      existsEnclosure: '8081/api-private/download-module/exists-enclosure',
+      existsPublicEnclosure: '8081/api-private/download-module/exists-public-enclosure',
       download: '8081/api-private/download-module/download-info',
       downloadUrl: '8081/api-private/download-module/generate-download-url',
       downloadInfosPublic: '8081/api-private/download-module/download-info-public',

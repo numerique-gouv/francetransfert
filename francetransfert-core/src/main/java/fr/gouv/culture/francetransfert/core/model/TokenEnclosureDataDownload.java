@@ -14,4 +14,5 @@ public class TokenEnclosureDataDownload {
     private String recipient;
     private String token;
     private String enclosure;
+    private String password;
 }

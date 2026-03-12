@@ -9,7 +9,7 @@
       <h2 #droitsdespersonnes> {{'Droits_Personnes_Titre' | translate}} </h2>
       <p  [innerHTML]="'Droits_Personnes_Texte' | translate">
       </p>
-      <ol [innerHTML]="'Droits_Personnes_Liste' | translate">
+      <ol [innerHTML]="'Droits_Personnes_Liste' | translate : { jours: jours }">
       </ol>
     </mat-card-content>
   </mat-card>

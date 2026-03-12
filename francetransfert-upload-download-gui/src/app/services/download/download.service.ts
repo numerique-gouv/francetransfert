@@ -21,13 +21,7 @@ export class DownloadService {
 
   constructor(private _httpClient: HttpClient, private downloadManagerService: DownloadManagerService, private loginService: LoginService) { }
 
-  getDownloadInfos(params: Array<{ string: string }>) {
-
-    const body = {
-      enclosure: params['enclosure'],
-      recipient: params['recipient'],
-      token: params['token'],
-    };
+  getDownloadInfos(body: any) {
 
     return this._httpClient.post(
       `${environment.host}${environment.apis.download.download}`,
@@ -37,6 +31,66 @@ export class DownloadService {
       return response;
     }),
       catchError(this.handleError('download-info'))
+    );
+  }
+
+  existsEnclosure(params: Array<{ string: string }>) {
+    const body = {
+      enclosure: params['enclosure'],
+      recipient: params['recipient'],
+      token: params['token'],
+    };
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.existsEnclosure}`,
+      body
+    ).pipe(map(response => {
+      this.downloadManagerService.downloadError$.next(null);
+      return response;
+    }),
+      catchError(this.handleError('exists-enclosure'))
+    );
+  }
+
+  existsPublicEnclosure(params: Array<{ string: string }>) {
+    return this._httpClient.get(
+      `${environment.host}${environment.apis.download.existsPublicEnclosure}?enclosure=${params['enclosure']}`
+    ).pipe(map(response => {
+      this.downloadManagerService.downloadError$.next(null);
+      return response;
+    }),
+      catchError(this.handleError('exists-public-enclosure'))
+    );
+  }
+
+  getDownloadInfosPublic(body: any) {
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.downloadInfosPublic}`,
+      body
+    ).pipe(map(response => {
+      this.downloadManagerService.downloadError$.next(null);
+      return response;
+    }),
+      catchError(this.handleError('download-info-public'))
+    );
+  }
+
+
+  getDownloadInfosConnect(enclosureId: string, senderToken: string, recipient: string) {
+
+    const body = {
+      enclosure: enclosureId,
+      token: senderToken,
+      recipient: recipient,
+    };
+
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.downloadConnect}`,
+      body
+    ).pipe(map(response => {
+      this.downloadManagerService.downloadError$.next(null);
+      return response;
+    }),
+      catchError(this.handleError('download-info-connect'))
     );
   }
 
@@ -63,25 +117,6 @@ export class DownloadService {
     );
   }
 
-  getDownloadInfosConnect(enclosureId: string, senderToken: string, recipient: string) {
-
-    const body = {
-      enclosure: enclosureId,
-      token: senderToken,
-      recipient: recipient,
-    };
-
-    return this._httpClient.post(
-      `${environment.host}${environment.apis.download.downloadConnect}`,
-      body
-    ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
-      return response;
-    }),
-      catchError(this.handleError('download-info-connect'))
-    );
-  }
-
 
   validatePassword(_body: any): any {
     const body = {
@@ -97,17 +132,6 @@ export class DownloadService {
       return response;
     }),
       catchError(this.handleError('validateCode'))
-    );
-  }
-
-  getDownloadInfosPublic(params: Array<{ string: string }>) {
-    return this._httpClient.get(
-      `${environment.host}${environment.apis.download.downloadInfosPublic}?enclosure=${params['enclosure']}`
-    ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
-      return response;
-    }),
-      catchError(this.handleError('download-info-public'))
     );
   }
 

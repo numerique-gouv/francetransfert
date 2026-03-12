@@ -342,7 +342,8 @@ public class DownloadServices {
 	}
 
 	public Download generateDownloadUrl(DownloadPasswordMetaData downloadMeta)
-			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException, RetryException {
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
+			RetryException {
 
 		String recipientIdRedis;
 		String recipientMail = downloadMeta.getRecipient();
@@ -376,7 +377,8 @@ public class DownloadServices {
 	}
 
 	public Download generateDownloadUrlWithPassword(DownloadPasswordMetaData downloadMeta)
-			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException, RetryException {
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
+			RetryException {
 
 		String recipientIdRedis;
 		String recipientMail = downloadMeta.getRecipient();
@@ -425,7 +427,8 @@ public class DownloadServices {
 	}
 
 	public DownloadRepresentation getDownloadInfoConnect(String enclosureId, String recipient)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException, RetryException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
+			RetryException {
 
 		String recipientIdRedis = RedisUtils.getRecipientId(redisManager, enclosureId, recipient);
 		DownloadRepresentation downloadRepresentation = getDownloadInfo(enclosureId, recipientIdRedis, recipient);
@@ -435,7 +438,8 @@ public class DownloadServices {
 	}
 
 	public DownloadRepresentation getDownloadInfo(String enclosureId, String senderToken, String recipientMailInBase64)
-			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException, RetryException {
+			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
+			RetryException {
 
 		// validate Enclosure download right
 		String recipientMail = recipientMailInBase64;
@@ -489,10 +493,17 @@ public class DownloadServices {
 		}
 	}
 
-	public DownloadRepresentation getDownloadInfoPublic(String enclosureId)
-			throws ExpirationEnclosureException, MetaloadException {
+	public boolean existsPublicEnclosure(String enclosureId) throws MetaloadException {
+		checkDeletePlis(enclosureId);
+		validateDownloadAuthorizationPublic(enclosureId);
+		return true;
+	}
+
+	public DownloadRepresentation getDownloadInfoPublic(String enclosureId, String password)
+			throws ExpirationEnclosureException, MetaloadException, UnsupportedEncodingException {
 		checkDeletePlis(enclosureId);
 		LocalDate expirationDate = validateDownloadAuthorizationPublic(enclosureId);
+		validatePassword(enclosureId, password, null);
 		try {
 			List<FileRepresentation> rootFiles = getRootFiles(enclosureId);
 			List<DirectoryRepresentation> rootDirs = getRootDirs(enclosureId);
@@ -762,5 +773,20 @@ public class DownloadServices {
 			throws ExpirationEnclosureException, MetaloadException {
 		LocalDate expirationDate = validateExpirationDate(enclosureId);
 		return expirationDate;
+	}
+
+	public boolean existsEnclosure(String enclosure, String token, String recipient)
+			throws UnsupportedEncodingException, InvalidHashException, MetaloadException, StorageException,
+			RetryException {
+		// validate Enclosure download right
+		String recipientMail = recipient;
+
+		if (!stringUploadUtils.isValidEmail(recipient)) {
+			recipientMail = base64CryptoService.base64Decoder(recipient);
+		}
+
+		checkDeletePlis(enclosure);
+		validateDownloadAuthorization(enclosure, recipientMail, token);
+		return true;
 	}
 }
