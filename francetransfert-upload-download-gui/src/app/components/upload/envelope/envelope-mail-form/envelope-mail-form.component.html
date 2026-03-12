@@ -30,7 +30,7 @@
       <mat-error role="alert" *ngIf="f.to.errors?.required">{{'DestinataireRequis' | translate}}</mat-error>
       <mat-error role="alert" *ngIf="f.to.errors?.email">{{'AdresseRequis' | translate}}</mat-error>
       <mat-error role="alert" *ngIf="f.to.errors?.notValid">{{'ExpéditeurNécessaire' | translate}}</mat-error>
-      <mat-error role="alert" *ngIf="f.to.errors?.nbLimite">{{'DestinataireLimité' | translate}}</mat-error>
+      <mat-error role="alert" *ngIf="f.to.errors?.nbLimite">{{'DestinataireLimité' | translate:{limit: getMailLimit()} }}</mat-error>
     </mat-form-field>
     <button mat-icon-button matSuffix mat-stroked-button attr.aria-label="{{'TooltipExpéditeurCourriel' | translate}}"
       (click)="openMailingListManager()" matTooltip="{{'TooltipExpéditeurCourriel' | translate}}" class="button-fix">

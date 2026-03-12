@@ -89,9 +89,11 @@ export class EnvelopeLinkFormComponent implements OnInit, OnDestroy {
             this.uploadService.allowedSenderMail(this.envelopeLinkForm.get('from').value).pipe(take(1))
               .subscribe((isAllowed: boolean) => {
                 if (!isAllowed) {
+                  this.loginService.isAgent$.next(false);
                   this.envelopeLinkForm.controls['from'].markAsTouched();
                   this.envelopeLinkForm.controls['from'].setErrors({ quota: true });
                 } else {
+                  this.loginService.isAgent$.next(true);
                   this.envelopeLinkForm.controls['from'].markAsTouched();
                   this.envelopeLinkForm.controls['from'].setErrors(null);
                 }

@@ -200,15 +200,15 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.initForm();
   }
 
-  onBlurDestinataires() {
-
+  onBlurDestinataires(event: any) {
 
     if (this.emailFormControl.errors == null) {
       this.errorEmail = false;
       this.destinatairesList = this.fileInfos.recipientsMails.map(ed => {
         return ed.recipientMail;
       })
-      if (this.destinatairesList.length < 100) {
+      console.log(this.loginService.isAgent$.getValue());
+      if (this.destinatairesList.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
         let found = this.destinatairesList.find(o => o === this.envelopeDestForm.get('email').value.toLowerCase());
         if (!found) {
           this.checkDestinataire(this.emailFormControl.value);
@@ -222,6 +222,8 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.envelopeDestForm.controls['email'].markAsTouched();
         this.envelopeDestForm.get('email').setValue('');
         this.envelopeDestForm.controls['email'].setErrors({ 'nbLimite': true });
+        event.preventDefault();
+        return
       }
     } else {
       this.errorEmail = true;
@@ -404,6 +406,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe(fileInfos => {
           this.fileInfos = fileInfos;
+          this.updateAgent();
           this.fileInfos.rootFiles.map(file => {
             this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
           });
@@ -426,6 +429,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           .pipe(take(1))
           .subscribe(fileInfos => {
             this.fileInfos = fileInfos;
+            this.updateAgent();
             this.fileInfos.rootFiles.map(file => {
               this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
             });
@@ -447,6 +451,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           .pipe(take(1))
           .subscribe(fileInfos => {
             this.fileInfos = fileInfos;
+            this.updateAgent();
             this.fileInfos.rootFiles.map(file => {
               this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
             });
@@ -465,6 +470,18 @@ export class AdminComponent implements OnInit, OnDestroy {
     else {
       this._router.navigateByUrl('/error');
     }
+  }
+
+  private updateAgent() {
+    this.uploadService.validateMail([this.fileInfos.senderEmail]).pipe(take(1)).subscribe((isAllowed: boolean) => {
+      console.log('senderEmail', this.fileInfos.senderEmail);
+      console.log('isAllowed', isAllowed);
+      this.loginService.isAgent$.next(isAllowed);
+    });
+  }
+
+  public getMailLimit(): number {
+    return this.configService.getMailLimit(this.loginService.isAgent$.getValue());
   }
 
   PDFinfo() {

@@ -754,7 +754,7 @@
   "Date_invalide": "Invalid date",
   "Menu": "Menu",
   "Paramètres": "Settings",
-  "DestinataireLimité": "Maximum number of adressees is : 100",
+  "DestinataireLimité": "Maximum number of adressees is : {{limit}}",
   "conteneur_Zed": "Zed container",
   "exemple": " for example).,",
   "EnvoiePli": "Send a package",

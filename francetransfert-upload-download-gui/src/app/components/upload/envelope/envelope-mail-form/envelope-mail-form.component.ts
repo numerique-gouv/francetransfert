@@ -19,6 +19,7 @@ import { AdminService, UploadManagerService, UploadService } from 'src/app/servi
 import { LoginService } from 'src/app/services/login/login.service';
 import { MailAsyncValidator } from 'src/app/shared/validators/mail-validator';
 import { QuotaAsyncValidator } from 'src/app/shared/validators/quota-validator';
+import { ConfigService } from '../../../../services/config/config.service';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -60,10 +61,15 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
-    private adminService: AdminService) { }
+    private adminService: AdminService,
+    private configService: ConfigService) { }
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  public getMailLimit(): number {
+    return this.configService.getMailLimit(this.loginService.isAgent$.getValue());
   }
 
   initForm() {
@@ -80,10 +86,10 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     this.envelopeMailForm = this.fb.group({
       from: [this.loginService.tokenInfo.getValue() && this.loginService.tokenInfo.getValue().senderMail ? this.loginService.tokenInfo.getValue().senderMail : this.mailFormValues?.from, { validators: [Validators.required, Validators.email], asyncValidators: [QuotaAsyncValidator.createValidator(this.uploadService)], updateOn: 'blur' }],
       to: ['', { validators: [Validators.email], updateOn: 'blur' }],
-      subject: [this.mailFormValues?.subject, { validators: [Validators.maxLength(250)]}],
+      subject: [this.mailFormValues?.subject, { validators: [Validators.maxLength(250)] }],
       message: [this.mailFormValues?.message, { validators: [Validators.maxLength(2500)] }],
       cguCheck: [this.mailFormValues?.cguCheck, { validators: [Validators.requiredTrue] }]
-    }, { asyncValidators: MailAsyncValidator.createValidator(this.uploadService, 'from', 'to', this.destinatairesList) });
+    }, { asyncValidators: MailAsyncValidator.createValidator(this.uploadService, 'from', 'to', this.destinatairesList, this.loginService) });
 
     this.loginSubscription = this.loginService.loggedIn$.subscribe(loggedIn => {
       if (loggedIn) {
@@ -141,7 +147,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
         } else {
           let found = this.destinatairesList.find(o => o === this.envelopeMailForm.get('to').value.toLowerCase());
           if (!found) {
-            if (this.destinatairesList.length < 100) {
+            if (this.destinatairesList.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
               this.destinatairesList.push(this.envelopeMailForm.get('to').value.toLowerCase());
               this.envelopeMailForm.get('to').setValue('');
               if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
@@ -176,7 +182,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
 
   deleteDestinataire(index) {
     this.destinatairesList.splice(index, 1);
-    if (this.destinatairesList.length < 100) {
+    if (this.destinatairesList.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
       if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
         this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
       }
@@ -200,7 +206,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.event === 'loadMailingListFromLocalStorage') {
-          if (result.data.length < 101) {
+          if (result.data.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
             if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
               this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
             }
@@ -215,7 +221,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
 
         }
         if (result.event === 'loadMailingListFromFile') {
-          if (result.data.length < 101) {
+          if (result.data.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
             if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
               this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
             }
@@ -258,7 +264,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
     if (val.indexOf("<") > 0 && val.indexOf(">") > 0) {
       let list = this.envelopeMailForm.get('to').value.split(/</);
 
-      if (list.length < 100) {
+      if (list.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
         if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
           this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
         }
@@ -282,7 +288,7 @@ export class EnvelopeMailFormComponent implements OnInit, OnDestroy {
 
     } else if (val.indexOf(' ') > 0 || val.indexOf(';') || val.indexOf(',')) {
       let list = this.envelopeMailForm.get('to').value.split(/[\ ;,]+/g);
-      if ((list.length + this.destinatairesList.length) < 101) {
+      if ((list.length + this.destinatairesList.length) < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
         if (this.envelopeMailForm.controls['to'].getError('nbLimite') && this.envelopeMailForm.controls['to'].getError('nbLimite') == true) {
           this.envelopeMailForm.controls['to'].setErrors({ 'nbLimite': false });
         }

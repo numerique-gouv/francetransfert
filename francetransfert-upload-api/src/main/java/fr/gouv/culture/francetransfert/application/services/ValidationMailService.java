@@ -105,6 +105,12 @@ public class ValidationMailService {
 	@Value("${expire.token.initApi:120}")
 	private int hoursToExpiretokenInitApi;
 
+	@Value("${upload.max.recipient.agent}")
+	private int uploadMaxRecipientAgent;
+
+	@Value("${upload.max.recipient.public}")
+	private int uploadMaxRecipientPublic;
+
 	@Autowired
 	private Base64CryptoService base64CryptoService;
 
@@ -669,7 +675,7 @@ public class ValidationMailService {
 				if (stringUploadUtils.isValidEmailIgni(senderEmail)) {
 					if (TypePliEnum.COURRIEL.getKey().equals(typePli)) {
 						if (CollectionUtils.isNotEmpty(recipientEmails)) {
-							if (recipientEmails.size() < 101) {
+							if (recipientEmails.size() < uploadMaxRecipientAgent) {
 								boolean validFormatRecipients = false;
 								validFormatRecipients = recipientEmails.stream().noneMatch(x -> {
 									return !stringUploadUtils.isValidEmail(x);
