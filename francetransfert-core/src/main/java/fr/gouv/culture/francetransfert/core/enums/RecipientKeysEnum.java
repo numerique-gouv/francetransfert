@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public enum RecipientKeysEnum {
 	NB_DL("nb-dl"), PASSWORD_TRY_COUNT("password-try-count"), LAST_PASSWORD_TRY("password-try-timestamp"),
-	LOGIC_DELETE("logic-delete");
+	LOGIC_DELETE("logic-delete") , PLI_AES_KEY_ENCRYPTED("pli-aes-key-encrypted");
 
 	private String key;
 

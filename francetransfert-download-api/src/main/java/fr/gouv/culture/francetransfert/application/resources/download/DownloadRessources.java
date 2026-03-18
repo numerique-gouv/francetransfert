@@ -12,7 +12,10 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +42,9 @@ import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.model.TokenEnclosureDataDownload;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
+import fr.gouv.culture.francetransfert.core.enums.RecipientKeysEnum;
+import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
+import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,6 +62,9 @@ public class DownloadRessources {
 
 	@Autowired
 	DownloadServices downloadServices;
+
+	@Autowired
+	private RedisManager redisManager;
 
 	@Autowired
 	private RateServices rateServices;
@@ -82,6 +91,30 @@ public class DownloadRessources {
 		return downloadServices.generatePublicDownload(downloadMeta.getEnclosure(), downloadMeta.getPassword());
 	}
 
+	@PostMapping(value = "/download-file-content", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@Operation(method = "POST", description = "Get file content for client-side decryption (same auth as generate-download-url)")
+	public ResponseEntity<byte[]> downloadFileContent(@RequestBody DownloadPasswordMetaData downloadMeta)
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
+			RetryException {
+		LOGGER.info("start download file content ");
+		byte[] content = downloadServices.getDownloadFileContent(downloadMeta);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<>(content, headers, HttpStatus.OK);
+	}
+
+	@PostMapping(value = "/download-file-content-public", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@Operation(method = "POST", description = "Get file content for public link (client-side decryption)")
+	public ResponseEntity<byte[]> downloadFileContentPublic(@RequestBody DownloadPasswordMetaData downloadMeta)
+			throws UnauthorizedAccessException, UnsupportedEncodingException, MetaloadException {
+		LOGGER.info("start download file content public ");
+		downloadServices.validatePublic(downloadMeta.getEnclosure());
+		byte[] content = downloadServices.getDownloadFileContentPublic(downloadMeta.getEnclosure(), downloadMeta.getPassword());
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<>(content, headers, HttpStatus.OK);
+	}
+
 	@PostMapping("/validate-password")
 	@Operation(method = "POST", description = "Validate password")
 	public ValidatePasswordRepresentation validatePassword(@RequestBody @Valid ValidatePasswordMetaData metaData)
@@ -91,6 +124,10 @@ public class DownloadRessources {
 			String recipientId = downloadServices.getRecipientId(metaData.getEnclosureId(), metaData.getRecipientId());
 			downloadServices.validatePassword(metaData.getEnclosureId(), metaData.getPassword(), recipientId);
 			representation.setValid(true);
+			String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
+			String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
+					RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
+			representation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		} catch (Exception e) {
 			representation.setValid(false);
 			throw e;

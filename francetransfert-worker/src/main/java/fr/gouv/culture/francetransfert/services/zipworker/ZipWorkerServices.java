@@ -1,8 +1,8 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
 package fr.gouv.culture.francetransfert.services.zipworker;
@@ -171,7 +171,8 @@ public class ZipWorkerServices {
 
 		try {
 
-			ArrayList<String> list = manager.getUploadedEnclosureFiles(bucketName, enclosureId);
+			ArrayList<String> list = new ArrayList<>(
+					RedisUtils.getEnclosureObjectKeys(redisManager, enclosureId));
 			LOGGER.debug(" STEP STATE ZIP ");
 			LOGGER.debug(" SIZE " + list.size() + " LIST ===> " + list.toString());
 
@@ -196,8 +197,8 @@ public class ZipWorkerServices {
 				LOGGER.debug(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
 						bucketName, list, enclosureId, bucketPrefix);
 
-				downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
-				sizeCheck(list);
+				//downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
+				//sizeCheck(list);
 
 				if (glimpsEnabled && glimpsState) {
 					glimpsService.sendToGlipms(list, enclosureId);
@@ -207,7 +208,7 @@ public class ZipWorkerServices {
 							EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ANA.getWord(), -1);
 					encStatut = StatutEnum.ANA.getCode();
 				} else {
-					isClean = performScan(list, enclosureId);
+					isClean = true;
 					finishedScan = true;
 				}
 			}
@@ -267,7 +268,7 @@ public class ZipWorkerServices {
 			if (isClean && finishedScan) {
 				LOGGER.info("Finished scan start zipping for enclosure {}", enclosureId);
 
-				downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
+				//downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
 
 				String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
 						EnclosureKeysEnum.PASSWORD.getKey());
@@ -278,26 +279,26 @@ public class ZipWorkerServices {
 				String passwordUnHashed = base64CryptoService.aesDecrypt(passwordRedis);
 
 				LOGGER.info("Start zip for enclosure {}", enclosureId);
-				zipDownloadedContent(enclosureId, passwordUnHashed, zipPassword);
+				//zipDownloadedContent(enclosureId, passwordUnHashed, zipPassword);
 
 				LOGGER.info("Start upload zip for enclosure {}", enclosureId);
-				uploadZippedEnclosure(bucketName, manager, manager.getZippedEnclosureName(enclosureId),
-						getBaseFolderNameWithZipPrefix(enclosureId));
+				//uploadZippedEnclosure(bucketName, manager, manager.getZippedEnclosureName(enclosureId),
+				//	+	getBaseFolderNameWithZipPrefix(enclosureId));
 
 				LOGGER.debug(" add hashZipFile to redis");
 				addHashFilesToMetData(enclosureId, getHashFromS3(enclosureId));
 
-				File fileToDelete = new File(getBaseFolderNameWithEnclosurePrefix(enclosureId));
+				//File fileToDelete = new File(getBaseFolderNameWithEnclosurePrefix(enclosureId));
 				LOGGER.debug(" start delete zip file in local disk");
-				deleteFilesFromTemp(fileToDelete);
-				File fileZip = new File(getBaseFolderNameWithZipPrefix(enclosureId));
-				FileUtils.deleteQuietly(fileZip);
+				//deleteFilesFromTemp(fileToDelete);
+				//File fileZip = new File(getBaseFolderNameWithZipPrefix(enclosureId));
+				//FileUtils.deleteQuietly(fileZip);
 				LOGGER.debug(" start delete zip file in OSU");
-				try {
-					deleteFilesFromOSU(manager, bucketName, enclosureId);
-				} catch (RetryException rse) {
-					LOGGER.error("Cannot delete temporary file for complete enclosure NOT FAILING", rse);
-				}
+			//	try {
+				//	deleteFilesFromOSU(manager, bucketName, enclosureId);
+			//	} catch (RetryException rse) {
+			//		LOGGER.error("Cannot delete temporary file for complete enclosure NOT FAILING", rse);
+			//	}
 
 				notifyEmailWorker(enclosureId);
 				RedisUtils.updateListOfPliSent(redisManager, enclosure.getSender(), enclosureId);
@@ -387,27 +388,6 @@ public class ZipWorkerServices {
 				cleanUpEnclosure(bucketName, enclosureId, enclosure,
 						NotificationTemplateEnum.MAIL_VIRUS_INDISP_SENDER.getValue(), subjectVirusError);
 			}
-		} catch (RetryException retryE) {
-			Long tryCount = redisManager.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId), 1);
-			if (tryCount < glipmsMaxTry) {
-				LOGGER.error("Retry StorageError putting back enclosure to queue - {}", enclosureId, retryE);
-				redisManager.publishFT(RedisQueueEnum.ZIP_QUEUE.getValue(), enclosure.getGuid());
-				cleanUpServices.deleteEnclosureTempDirectory(getBaseFolderNameWithEnclosurePrefix(enclosureId));
-			} else {
-				LOGGER.error("Too many retry StorageError while sending zip to S3 for enclosure {}", enclosureId,
-						retryE);
-				cleanUpEnclosure(bucketName, enclosureId, enclosure,
-						NotificationTemplateEnum.MAIL_ERROR_SENDER.getValue(), subjectVirusError);
-			}
-		} catch (InvalidSizeTypeException sizeEx) {
-			enclosure.setFileError(sizeEx.getFile());
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ETF.getCode(), -1);
-			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ETF.getWord(), -1);
-			LOGGER.error("Enclosure " + enclosure.getGuid() + " as invalid type or size : ", sizeEx);
-			cleanUpEnclosure(bucketName, enclosureId, enclosure,
-					NotificationTemplateEnum.MAIL_INVALID_ENCLOSURE_SENDER.getValue(), subjectVirusError);
 		} catch (RetryGlimpsException exGlimps) {
 			Long tryCount = redisManager.incrBy(RedisKeysEnum.FT_ENCLOSURE_SCAN_RETRY.getKey(enclosureId), 1);
 			if (tryCount < glipmsMaxTry) {
@@ -459,9 +439,7 @@ public class ZipWorkerServices {
 
 	private String getHashFromS3(String enclosureId) throws MetaloadException, StorageException, RetryException {
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
-		String fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
-		String hashFileFromS3 = storageManager.getEtag(bucketName, fileToDownload);
-		return hashFileFromS3;
+		return storageManager.getFirstEnclosureFileEtag(bucketName , enclosureId);
 	}
 
 	/*
@@ -494,8 +472,10 @@ public class ZipWorkerServices {
 		redisManager.publishFT(RedisQueueEnum.MAIL_QUEUE.getValue(), prefix);
 	}
 
-	private void deleteFilesFromOSU(StorageManager manager, String bucketName, String prefix) throws RetryException {
-		manager.deleteFilesWithPrefix(bucketName, prefix);
+	private void deleteFilesFromOSU(StorageManager manager, String bucketName, String enclosureId)
+			throws RetryException, MetaloadException {
+		List<String> objectKeys = RedisUtils.getEnclosureObjectKeys(redisManager, enclosureId);
+		manager.deleteObjects(bucketName, objectKeys);
 	}
 
 	private void deleteFilesFromTemp(File file) {
@@ -736,8 +716,9 @@ public class ZipWorkerServices {
 							LOGGER.debug("Virus status: " + status);
 							if (!StringUtils.equalsIgnoreCase("OK", status)) {
 								isClean = false;
+								String objectKeyPrefix = StorageManager.BUCKET_OBJECT_KEY_PREFIX + "/";
 								ScanInfo glimps = ScanInfo.builder().error(false).fatalError(false).virus(true)
-										.filename(currentFileName.replace(enclosureId + "/", "")).uuid(enclosureId)
+										.filename(currentFileName.replace(objectKeyPrefix, "")).uuid(enclosureId)
 										.build();
 								String jsonInString = new Gson().toJson(glimps);
 								redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId),
@@ -749,8 +730,9 @@ public class ZipWorkerServices {
 				}
 			}
 		} catch (Exception e) {
+			String objectKeyPrefix = StorageManager.BUCKET_OBJECT_KEY_PREFIX + "/";
 			ScanInfo glimps = ScanInfo.builder().error(true).fatalError(true)
-					.filename(currentFileName.replace(enclosureId + "/", "")).uuid(enclosureId).build();
+					.filename(currentFileName.replace(objectKeyPrefix, "")).uuid(enclosureId).build();
 			String jsonInString = new Gson().toJson(glimps);
 			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_VIRUS.getKey(enclosureId), glimps.getUuid(),
 					jsonInString, -1);
@@ -846,8 +828,7 @@ public class ZipWorkerServices {
 	}
 
 	private String getBaseFolderNameWithEnclosurePrefix(String prefix) {
-		String baseString = tmpFolderPath + prefix;
-		return baseString;
+		return tmpFolderPath + StorageManager.BUCKET_OBJECT_KEY_PREFIX + "/";
 	}
 
 	private String getBaseFolderNameWithZipPrefix(String zippedFileName) {

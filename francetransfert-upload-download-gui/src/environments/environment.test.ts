@@ -22,6 +22,8 @@ export const environment = {
     download: {
       download: 'api-private/download-module/download-info',
       downloadUrl: 'api-private/download-module/generate-download-url',
+      downloadFileContent: 'api-private/download-module/download-file-content',
+      downloadFileContentPublic: 'api-private/download-module/download-file-content-public',
       downloadInfosPublic: 'api-private/download-module/download-info-public',
       downloadUrlPublic: 'api-private/download-module/generate-download-url-public',
       validatePassword: 'api-private/download-module/validate-password',

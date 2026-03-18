@@ -1,8 +1,8 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';

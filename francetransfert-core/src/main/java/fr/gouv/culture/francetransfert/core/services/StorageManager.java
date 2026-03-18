@@ -16,6 +16,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.CRC32;
@@ -66,6 +67,8 @@ import jakarta.annotation.PostConstruct;
 public class StorageManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageManager.class);
+
+    public static final String BUCKET_OBJECT_KEY_PREFIX = "francetransfert";
 
     private final static String ZIPPED_ENCLOSURE_NAME_PREFIX = "francetransfert-";
 
@@ -281,6 +284,22 @@ public class StorageManager {
         return list;
     }
 
+    public String getFirstEnclosureFileKey(String bucketName, String enclosureId)
+            throws StorageException, RetryException {
+        String prefix =  enclosureId + "/";
+        ArrayList<String> keys = getUploadedEnclosureFiles(bucketName, prefix);
+        if (CollectionUtils.isEmpty(keys)) {
+            return null;
+        }
+        Collections.sort(keys);
+        return keys.get(0);
+    }
+
+    public String getFirstEnclosureFileEtag(String bucketName , String enclosureId) throws StorageException, RetryException {
+        String firstKey = getFirstEnclosureFileKey(bucketName , enclosureId);
+        return firstKey != null ? getEtag(bucketName, firstKey) : null;
+    }
+
     public void deleteFilesWithPrefix(String bucketName, String prefix) throws RetryException {
 
         try {
@@ -341,6 +360,16 @@ public class StorageManager {
             conn.deleteObject(bucketName, AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey));
         } catch (Exception e) {
             throw new RetryException(e);
+        }
+    }
+
+    public void deleteObjects(String bucketName, List<String> objectKeys) throws RetryException {
+        for (String objectKey : objectKeys) {
+            try {
+                conn.deleteObject(bucketName, AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey));
+            } catch (Exception e) {
+                throw new RetryException(e);
+            }
         }
     }
 

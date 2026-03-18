@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum SenderKeysEnum {
-	EMAIL("email"), IS_NEW("is-new"), ID("id");
+	EMAIL("email"), IS_NEW("is-new"), ID("id") , PLI_AES_KEY_ENCRYPTED("pli-aes-key-encrypted") ;
 
 	private String key;
 

@@ -1,8 +1,8 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
 import { Injectable } from '@angular/core';
@@ -12,6 +12,9 @@ import { filter } from 'rxjs/internal/operators/filter';
 import { first } from 'rxjs/internal/operators/first';
 import { FTErrorModel, LinkInfosModel, MailInfosModel, UploadInfosModel } from 'src/app/models';
 
+
+export type PliAesKeyEncryptedPayload = string[];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +23,7 @@ export class UploadManagerService {
   envelopeInfos: BehaviorSubject<MailInfosModel | LinkInfosModel> = new BehaviorSubject<MailInfosModel | LinkInfosModel>(null);
   uploadError$: BehaviorSubject<FTErrorModel> = new BehaviorSubject<FTErrorModel>(null);
   uploadInfos: BehaviorSubject<UploadInfosModel> = new BehaviorSubject<UploadInfosModel>(null);
+  pliAesKeyEncrypted: BehaviorSubject<PliAesKeyEncryptedPayload | null> = new BehaviorSubject<PliAesKeyEncryptedPayload | null>(null);
 
   constructor() { }
 

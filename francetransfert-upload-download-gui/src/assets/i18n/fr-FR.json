@@ -172,6 +172,8 @@
   "Existence_Pli": "Le pli demandé n'existe pas.",
   "Pli_Corrompu": "Le pli a été corrompu, merci de voir avec l'expéditeur pour vous le renvoyer.",
   "Erreur_Récupération_Pli": "Pli inexistant ou supprimé, merci de voir avec l'expéditeur de votre pli.",
+  "DOWNLOAD_CANNOT_DECRYPT_CORS": "Impossible de déchiffrer le fichier dans le navigateur (blocage CORS). Merci de réessayer ou de contacter l’expéditeur.",
+  "ENCRYPTION_FAILED": "Échec du chiffrement des fichiers. Merci de réessayer.",
   "Accès_Pli_Sécurisé": "Accès au pli sécurisé !",
 
   "MessageSuccès": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Succès de l'envoi</p><p>Merci pour votre contribution, votre avis a été pris en compte.</p>",

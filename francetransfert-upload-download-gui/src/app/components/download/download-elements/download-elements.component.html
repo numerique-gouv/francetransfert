@@ -22,17 +22,17 @@
         </div>
     </form>
     <mat-card-actions class="download-elements-card-actions">
-        <button mat-raised-button [disabled]="!checkCGU || buttonDisable" class="download-elements-card-actions-btn"
+        <button mat-raised-button [disabled]="!checkCGU || isDownloading" class="download-elements-card-actions-btn"
             (click)="download()" attr.aria-label="{{'Télécharger' | translate}}">{{'Télécharger' | translate}} </button>
     </mat-card-actions>
 
     <span *ngIf="checkRESANA || checkOSMOSE" class="satisfaction-check-card-content-text-sub"> {{'Resana-Osmose' |
         translate}} </span>
     <mat-card-actions class="download-elements-card-actions">
-        <button *ngIf="checkRESANA" mat-raised-button [disabled]="!checkCGU || buttonDisable"
+        <button *ngIf="checkRESANA" mat-raised-button [disabled]="!checkCGU || isDownloading"
             class="download-elements-card-actions-btn" (click)="downloadResana()"
             attr.aria-label="{{'RESANA' | translate}}">{{'RESANA' | translate}} </button>
-        <button *ngIf="checkOSMOSE" mat-raised-button [disabled]="!checkCGU || buttonDisable"
+        <button *ngIf="checkOSMOSE" mat-raised-button [disabled]="!checkCGU || isDownloading"
             class="download-elements-card-actions-btn" (click)="downloadOsmose()"
             attr.aria-label="{{'OSMOSE' | translate}}">{{'OSMOSE' | translate}} </button>
     </mat-card-actions>

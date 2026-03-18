@@ -8,7 +8,7 @@
 export { ResponsiveService } from "./responsive/responsive.service";
 export { PwaService } from './pwa/pwa.service';
 export { FileManagerService } from './file-manager/file-manager.service';
-export { UploadManagerService } from './upload-manager/upload-manager.service';
+export { UploadManagerService, PliAesKeyEncryptedPayload } from './upload-manager/upload-manager.service';
 export { TarteaucitronService } from './tarteaucitron/tarteaucitron.service';
 export { LanguageSelectionService } from './language-selection/language-selection.service';
 export { BackgroundSelectionService } from './background-selection/background-selection.service';
@@ -17,3 +17,6 @@ export { DownloadService } from './download/download.service';
 export { DownloadManagerService } from './download-manager/download-manager.service';
 export { AdminService } from './admin/admin.service';
 export { MailingListService } from './mailing-list/mailing-list.service';
+export { IndexedDbService } from './indexed-db/indexed-db.service';
+export { KeyPairService, StoredKeyPair, PocEnrollmentKeyPairs } from './key-pair/key-pair.service';
+export { FileEncryptionService, EncryptedFileResult, PliEncryptionResult } from './file-encryption/file-encryption.service';

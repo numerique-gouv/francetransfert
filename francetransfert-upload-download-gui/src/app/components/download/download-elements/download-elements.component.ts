@@ -27,6 +27,7 @@ export class DownloadElementsComponent implements OnInit, OnDestroy {
   @Input() checkOSMOSE: boolean;
   @Input() urlResana: string;
   @Input() urlOsmose: string;
+  @Input() isDownloading: boolean = false;
   remainingDays: number;
   checkCGU: boolean = false;
   errorDLSubscription: Subscription = new Subscription();
@@ -35,7 +36,6 @@ export class DownloadElementsComponent implements OnInit, OnDestroy {
 
 
   error: FTErrorModel;
-  buttonDisable = false;
   errorMessage: string = "";
 
   constructor(private fb: FormBuilder, private router: Router, private downloadManagerService: DownloadManagerService,
@@ -64,8 +64,10 @@ export class DownloadElementsComponent implements OnInit, OnDestroy {
   }
 
   download() {
+    if (this.isDownloading) {
+      return;
+    }
     this.dowloadStarted.emit(true);
-    this.buttonDisable = true;
   }
 
   downloadResana() {

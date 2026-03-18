@@ -1049,7 +1049,8 @@ public class UploadServices {
 
 	public void cleanEnclosure(String prefix) throws MetaloadException, RetryException {
 		String bucketName = RedisUtils.getBucketName(redisManager, prefix, bucketPrefix);
-		storageManager.deleteFilesWithPrefix(bucketName, prefix);
+		List<String> objectKeys = RedisUtils.getEnclosureObjectKeys(redisManager, prefix);
+		storageManager.deleteObjects(bucketName, objectKeys);
 	}
 
 	public boolean logout(ValidateCodeResponse data) throws MetaloadException {

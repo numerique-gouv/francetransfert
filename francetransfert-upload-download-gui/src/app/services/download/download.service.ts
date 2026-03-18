@@ -128,6 +128,43 @@ export class DownloadService {
     );
   }
 
+  getDownloadFileContent(params: Array<{ string: string }>, withPassword: boolean, password: string): Observable<ArrayBuffer> {
+    const escapedPassword = withPassword ? password : '';
+    const body = {
+      enclosure: params['enclosure'],
+      ...params['recipient'] ? { recipient: params['recipient'] } : { recipient: this.loginService.tokenInfo.getValue().senderMail },
+      token: params['token'],
+      ...params['recipient'] ? { senderToken: null } : { senderToken: this.loginService.tokenInfo.getValue().senderToken },
+      ...withPassword ? { password: escapedPassword } : { password: '' }
+    };
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.downloadFileContent}`,
+      body,
+      { responseType: 'arraybuffer' }
+    ).pipe(
+      map((response) => {
+        this.downloadManagerService.downloadError$.next(null);
+        return response;
+      }),
+      catchError(this.handleError('download-file-content'))
+    );
+  }
+
+  getDownloadFileContentPublic(params: Array<{ string: string }>, password: string): Observable<ArrayBuffer> {
+    const body = { enclosure: params['enclosure'], password };
+    return this._httpClient.post(
+      `${environment.host}${environment.apis.download.downloadFileContentPublic}`,
+      body,
+      { responseType: 'arraybuffer' }
+    ).pipe(
+      map((response) => {
+        this.downloadManagerService.downloadError$.next(null);
+        return response;
+      }),
+      catchError(this.handleError('download-file-content-public'))
+    );
+  }
+
   rate(body: any): any {
     return this._httpClient.post(`${environment.host}${environment.apis.download.rate}`, {
       plis: body.plis,

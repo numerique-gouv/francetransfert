@@ -175,6 +175,8 @@
   "Existence_Pli": "The requested package does not exist.",
   "Pli_Corrompu": "The package is corrupted. Please ask the sender to send it again.",
   "Erreur_Récupération_Pli": "Inexistent or deleted package. Please contact the sender.",
+  "DOWNLOAD_CANNOT_DECRYPT_CORS": "Unable to decrypt the file in the browser (CORS blocked). Please try again or contact the sender.",
+  "ENCRYPTION_FAILED": "Encryption failed. Please try again.",
   "Accès_Pli_Sécurisé": "Access to secure package!",
 
   "MessageSuccès": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Questionnaire submitted.</p><p>Thank you for your opinion.</p>",

@@ -58,7 +58,7 @@ export class UploadService {
 
   sendTree(body: any): any {
     const trMapping = this._mappingTree(body.transfers);
-    const treeBody = {
+    const treeBody: Record<string, unknown> = {
       confirmedSenderId: '',
       senderEmail: body.senderMail,
       recipientEmails: body.emails,
@@ -73,7 +73,7 @@ export class UploadService {
       senderToken: body.senderToken,
       language: body.langueCourriels,
       zipPassword: body.zipPassword,
-
+      pliAesKeyEncrypted: body.pliAesKeyEncrypted,
     };
     return this._httpClient.post(`${environment.host}${environment.apis.upload.tree}`, treeBody).pipe(
       map((response: any) => {
@@ -110,7 +110,7 @@ export class UploadService {
 
   validateCode(body: any): any {
     const trMapping = this._mappingTree(body.transfers);
-    const treeBody = {
+    const treeBody: Record<string, unknown> = {
       confirmedSenderId: '',
       senderEmail: body.senderMail,
       recipientEmails: body.emails,
@@ -123,7 +123,7 @@ export class UploadService {
       expireDelay: body.expiryDays,
       language: body.langueCourriels,
       zipPassword: body.zipPassword,
-
+      pliAesKeyEncrypted: body.pliAesKeyEncrypted,
     };
     return this._httpClient.post(
       `${environment.host}${environment.apis.upload.confirmationCode}?code=${body.code}&senderMail=${body.senderMail}`,

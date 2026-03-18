@@ -11,7 +11,7 @@ import { FlowDirective, UploadState } from '@flowjs/ngx-flow';
 import { Subject } from 'rxjs/internal/Subject';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { take, takeUntil } from 'rxjs/operators';
-import { DownloadManagerService, FileManagerService, LanguageSelectionService, ResponsiveService, UploadManagerService, UploadService } from 'src/app/services';
+import { DownloadManagerService, FileEncryptionService, FileManagerService, LanguageSelectionService, ResponsiveService, UploadManagerService, UploadService } from 'src/app/services';
 import { FLOW_CONFIG } from 'src/app/shared/config/flow-config';
 import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
@@ -73,7 +73,8 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     private titleService: Title,
     private _snackBar: MatSnackBar,
     private router: Router,
-    private changeDetectorRef: ChangeDetectorRef) { }
+    private changeDetectorRef: ChangeDetectorRef,
+    private fileEncryptionService: FileEncryptionService) { }
 
   ngOnInit(): void {
 
@@ -145,6 +146,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.publicLink = false;
     this.uploadManagerService.uploadInfos.next(null);
     this.uploadManagerService.uploadError$.next(null);
+    this.uploadManagerService.pliAesKeyEncrypted.next(null);
     this.downloadManagerService.downloadError$.next(null);
     //Reset token
     if (!this.canReset) {
@@ -192,8 +194,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onUploadStarted(event) {
     this.uploadStarted = event;
-    this.upload();
-
+    this.encryptThenUpload();
   }
 
   onTransferFailed(event) {
@@ -244,7 +245,6 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSatisfactionCheckDone(event) {
-    console.log(this.loginService.tokenInfo.getValue());
     if (event) {
       this.uploadService.rate({
         plis: this.enclosureId, mail: this.uploadManagerService.envelopeInfos.getValue().from,
@@ -271,13 +271,64 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.listExpanded = event;
   }
 
+
+  private createFileLikeWithRelativePath(encFile: File, relativePath: string): File & { webkitRelativePath: string } {
+    return new Proxy(encFile, {
+      get(target, prop) {
+        if (prop === 'webkitRelativePath') return relativePath;
+        const value = Reflect.get(target, prop, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      }
+    }) as File & { webkitRelativePath: string };
+  }
+
   ispublicLink(val: any) {
     if (val === 'link')
       this.publicLink = true;
   }
 
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  }
+
+  async encryptThenUpload(): Promise<void> {
+    const flowJs = this.flow?.flowJs;
+    if (!flowJs?.files?.length) {
+      this.upload();
+      return;
+    }
+    try {
+      const flowFiles = Array.from(flowJs.files);
+      const originalFiles = flowFiles.map((f: { file: File; relativePath?: string }) => ({
+        file: f.file,
+        relativePath: (f as { relativePath?: string }).relativePath || ''
+      }));
+
+      const result = await this.fileEncryptionService.encryptFilesWithPliKey(originalFiles);
+      flowFiles.forEach((f) => flowJs.removeFile(f));
+      result.encryptedFiles.forEach((res, i) => {
+        const encFile = res.encryptedFile;
+        const relPath = originalFiles[i]?.relativePath;
+        const toAdd = relPath
+          ? this.createFileLikeWithRelativePath(encFile, relPath)
+          : encFile;
+        flowJs.addFile(toAdd);
+      });
+      this.uploadManagerService.pliAesKeyEncrypted.next([
+        this.arrayBufferToBase64(result.pliAesKeyEncryptedForSender),
+        this.arrayBufferToBase64(result.pliAesKeyEncryptedForRecipient1),
+        this.arrayBufferToBase64(result.pliAesKeyEncryptedForRecipient2)
+      ]);
+      this.upload();
+    } catch {
+      this.uploadManagerService.uploadError$.next({ statusCode: 0, message: 'ENCRYPTION_FAILED' });
+      this.uploadStarted = false;
+    }
+  }
+
   async upload(): Promise<any> {
     let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers.getValue());
+    const pliAesKeyEncrypted = this.uploadManagerService.pliAesKeyEncrypted.getValue();
     this.uploadService
       .sendTree({
         transfers: transfers.transfers,
@@ -291,6 +342,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         ...this.loginService.tokenInfo.getValue()?.senderToken ? { senderToken: this.loginService.tokenInfo.getValue()?.senderToken } : {},
         ...this.uploadManagerService.envelopeInfos.getValue().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos.getValue().parameters.zipPassword } : { zipPassword: false },
         ...this.uploadManagerService.envelopeInfos.getValue().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos.getValue().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels },
+        ...(pliAesKeyEncrypted ? { pliAesKeyEncrypted } : {}),
       })
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((result: any) => {
@@ -315,6 +367,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async validateCode(code?: string): Promise<any> {
     let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers.getValue());
+    const pliAesKeyEncrypted = this.uploadManagerService.pliAesKeyEncrypted.getValue();
     this.uploadService
       .validateCode({
         ...code ? { code: code } : {},
@@ -328,7 +381,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         ...this.uploadManagerService.envelopeInfos.getValue().type === 'link' ? { publicLink: true } : { publicLink: false },
         ...this.uploadManagerService.envelopeInfos.getValue().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos.getValue().parameters.zipPassword } : { zipPassword: false },
         ...this.uploadManagerService.envelopeInfos.getValue().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos.getValue().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels },
-
+        ...(pliAesKeyEncrypted ? { pliAesKeyEncrypted } : {}),
       })
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((result: any) => {

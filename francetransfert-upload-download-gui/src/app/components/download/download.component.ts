@@ -12,7 +12,7 @@ import { FlowDirective, Transfer } from '@flowjs/ngx-flow';
 import { Subject } from 'rxjs/internal/Subject';
 import { take, takeUntil } from 'rxjs/operators';
 import { FTTransferModel } from 'src/app/models';
-import { DownloadManagerService, DownloadService, ResponsiveService, UploadManagerService } from 'src/app/services';
+import { DownloadManagerService, DownloadService, FileEncryptionService, KeyPairService, ResponsiveService, UploadManagerService } from 'src/app/services';
 import { FLOW_CONFIG } from 'src/app/shared/config/flow-config';
 import { Subscription } from "rxjs";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
@@ -41,10 +41,12 @@ export class DownloadComponent implements OnInit, OnDestroy {
   flow: FlowDirective;
   flowConfig: any;
   loading: boolean = true;
+  isDownloading: boolean = false;
   isMobile: boolean = false;
   screenWidth: string;
 
-  constructor(private _downloadService: DownloadService,
+  constructor(
+    private _downloadService: DownloadService,
     private responsiveService: ResponsiveService,
     private _activatedRoute: ActivatedRoute,
     private uploadManagerService: UploadManagerService,
@@ -52,7 +54,10 @@ export class DownloadComponent implements OnInit, OnDestroy {
     private loginService: LoginService,
     private _router: Router,
     private titleService: Title,
-    private _snackBar: MatSnackBar) { }
+    private _snackBar: MatSnackBar,
+    private keyPairService: KeyPairService,
+    private fileEncryptionService: FileEncryptionService
+  ) { }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Téléchargement');
@@ -131,32 +136,114 @@ export class DownloadComponent implements OnInit, OnDestroy {
   }
 
   download(): void {
+    if (this.isDownloading) {
+      return;
+    }
+    this.isDownloading = true;
     if (this.usingPublicLink) {
       this._downloadService
         .getDownloadUrlPublic(this.params, this.password)
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(result => {
+        .subscribe({
+          next: result => {
           if (result.type && result.type === 'WRONG_PASSWORD') {
             this.passwordError = true;
+            this.isDownloading = false;
           } else {
-            window.location.assign(result.lienTelechargement);
-            this.downloadStarted = true;
+            this.runDownloadFlow(result.lienTelechargement, true);
+          }
+          },
+          error: (err) => {
+            this.isDownloading = false;
           }
         });
     } else {
       this._downloadService
         .getDownloadUrl(this.params, this.downloadInfos.withPassword, this.password)
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(result => {
+        .subscribe({
+          next: result => {
           if (result.type && result.type === 'WRONG_PASSWORD') {
             this.passwordError = true;
+            this.isDownloading = false;
           } else {
-            window.location.assign(result.lienTelechargement);
-            this.downloadStarted = true;
+            this.runDownloadFlow(result.lienTelechargement, false);
+          }
+          },
+          error: (err) => {
+            this.isDownloading = false;
           }
         });
     }
+  }
+  private runDownloadFlow(presignedUrl: string, isPublic: boolean): void {
+    const pliAesKey = this.downloadManagerService.pliAesKey.getValue();
 
+    if (pliAesKey) {
+      const obs = isPublic
+        ? this._downloadService.getDownloadFileContentPublic(this.params, this.password)
+        : this._downloadService.getDownloadFileContent(this.params, this.downloadInfos.withPassword, this.password);
+      obs.pipe(take(1), takeUntil(this.onDestroy$)).subscribe({
+        next: (encryptedBuffer) => {
+          void this.decryptAndTriggerDownload(encryptedBuffer).then(() => {
+            this.downloadStarted = true;
+          }).finally(() => {
+            this.isDownloading = false;
+          });
+        },
+        error: (err) => {
+          this.downloadManagerService.downloadError$.next({
+            statusCode: 0,
+            message: 'DOWNLOAD_CANNOT_DECRYPT_CORS',
+          });
+          this.isDownloading = false;
+        }
+      });
+    } else {
+      this.downloadFileFromUrl(presignedUrl);
+      this.downloadStarted = true;
+      this.isDownloading = false;
+    }
+  }
+
+  private async decryptAndTriggerDownload(encryptedBuffer: ArrayBuffer): Promise<void> {
+    const pliAesKey = this.downloadManagerService.pliAesKey.getValue();
+    const outputBuffer = pliAesKey
+      ? await this.fileEncryptionService.decryptFileContent(encryptedBuffer, pliAesKey)
+      : encryptedBuffer;
+    const blob = new Blob([outputBuffer]);
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
+    a.click();
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  private downloadFileFromUrl(url: string): void {
+    globalThis.location.assign(url);
+  }
+
+
+  private async decryptAndStorePliKeyIfPresent(downloadInfos: { pliAesKeyEncrypted?: string }, isSender: boolean): Promise<void> {
+    this.downloadManagerService.clearPliAesKey();
+    const encrypted = downloadInfos?.pliAesKeyEncrypted;
+    if (!encrypted) {
+      return;
+    }
+    const pairs = await this.keyPairService.getPocEnrollmentKeyPairs();
+    const toTry = isSender
+      ? [pairs.sender.privateKey]
+      : [pairs.sender.privateKey, pairs.recipient1.privateKey, pairs.recipient2.privateKey];
+    for (const privateKey of toTry) {
+      try {
+        const pliKey = await this.fileEncryptionService.unwrapPliKey(encrypted, privateKey);
+        this.downloadManagerService.setPliAesKey(pliKey);
+        return;
+      } catch {
+        continue;
+      }
+    }
   }
 
   onDowloadStarted(event) {
@@ -174,8 +261,17 @@ export class DownloadComponent implements OnInit, OnDestroy {
     this._downloadService.validatePassword({ enclosureId: this.params['enclosure'], password: this.password, recipientId: recipient }).pipe(take(1))
       .subscribe((response) => {
         if (response.valid) {
-          this.downloadValidated = true;
-          this.downloadManagerService.downloadError$.next(null);
+          const isSenderFlow = !this.usingPublicLink && !this.params['recipient'];
+          void this.decryptAndStorePliKeyIfPresent(
+            { pliAesKeyEncrypted: response?.pliAesKeyEncrypted },
+            isSenderFlow
+          ).then(() => {
+            this.downloadValidated = true;
+            this.downloadManagerService.downloadError$.next(null);
+          }).catch((error) => {
+            this.downloadValidated = true;
+            this.downloadManagerService.downloadError$.next(null);
+          });
         }
       },
         (error) => {

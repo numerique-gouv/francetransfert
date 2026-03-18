@@ -16,7 +16,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { AdminService, BackgroundSelectionService, PwaService, ResponsiveService, TarteaucitronService } from './services';
+import { AdminService, BackgroundSelectionService, KeyPairService, PwaService, ResponsiveService, TarteaucitronService } from './services';
 import { MatDrawerMode, MatSidenav } from '@angular/material/sidenav';
 import { DOCUMENT } from '@angular/common';
 import { LoaderService } from "./services/loader/loader.service";
@@ -51,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private backgroundSelectionService: BackgroundSelectionService,
     private _adminService: AdminService,
     private loginService: LoginService,
+    private keyPairService: KeyPairService,
     @Inject(DOCUMENT) private document: Document, public loaderService: LoaderService, private cdr: ChangeDetectorRef) {
     this.pwaService.checkForUpdates();
   }
@@ -88,8 +89,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-
-
+    this.keyPairService.getPocEnrollmentKeyPairs().catch(() => {});
   }
 
   ngOnDestroy() {

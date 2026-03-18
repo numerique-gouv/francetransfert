@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,9 @@ public class ConfirmationServices {
 
 	@Value("${expire.confirmation.code}")
 	private int secondsToExpireConfirmationCode;
+
+	@Value("${expire.confirmation.retry:300}")
+	private int secondsCodeResend;
 
 	@Value("${expire.token.sender}")
 	private int expireTokenSender;
@@ -87,18 +91,25 @@ public class ConfirmationServices {
 				redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
 						currentLanguage + ":" + senderMail + ":" + confirmationCode + ":" + ttltCodeConfirmation);
 				LOGGER.info("sender: {} insert in queue rdis to send mail with confirmation code", senderMail);
+				redisManager.setNxString(RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
+						ttltCodeConfirmation, secondsCodeResend);
 				LOGGER.warn("msgtype: CONFIRMATION_REQUEST || sender: {}", senderMail);
 			} else {
 				String codeSent = redisManager.getString(
 						RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail.toLowerCase())));
-				redisManager.expire(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)),
-						secondsToExpireConfirmationCode);
 				Long ttl = redisManager
 						.ttl(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)));
 				String ttltCodeConfirmation = ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusSeconds(ttl).toString();
-				redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
-						currentLanguage + ":" + senderMail + ":" + codeSent + ":" + ttltCodeConfirmation);
 				LOGGER.info("Code still valid for sender {} with ttl {}", senderMail, ttl);
+				if (StringUtils.isBlank(redisManager.getString(
+						RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail))))) {
+					LOGGER.info("sender: {} insert in queue rdis to send mail with confirmation code", senderMail);
+					redisManager.setNxString(
+							RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
+							ttltCodeConfirmation, secondsCodeResend);
+					redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
+							currentLanguage + ":" + senderMail + ":" + codeSent + ":" + ttltCodeConfirmation);
+				}
 			}
 		} else {
 			throw new UploadException(ErrorEnum.SENDER_MAIL_INVALID.getValue(),
@@ -228,8 +239,13 @@ public class ConfirmationServices {
 		throw new MaxTryException("Unauthorized");
 	}
 
-	public boolean isSender(String plis, String mailAdress) {
-		return redisManager.sexists(RedisKeysEnum.FT_SEND.getKey(mailAdress.toLowerCase()), plis);
+	public boolean isSender(String plis, String mailAdress) throws MetaloadException {
+		String senderEnclosureMail = RedisUtils.getEmailSenderEnclosure(redisManager, plis);
+		if (Strings.CI.equals(senderEnclosureMail, mailAdress)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

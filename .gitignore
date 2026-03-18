@@ -54,3 +54,5 @@ ignore
 package-lock.json
 Chart.lock
 **/*.dec.yaml
+
+*.md

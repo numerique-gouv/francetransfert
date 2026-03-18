@@ -34,6 +34,7 @@ import fr.gouv.culture.francetransfert.core.enums.GlimpsHealthCheckEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.exception.RetryGlimpsException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
+import fr.gouv.culture.francetransfert.core.services.StorageManager;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.model.GlimpsInitResponse;
 import fr.gouv.culture.francetransfert.model.GlimpsResultResponse;
@@ -301,8 +302,7 @@ public class GlimpsService {
 	}
 
 	private String getBaseFolderNameWithEnclosurePrefix(String prefix) {
-		String baseString = tmpFolderPath + prefix;
-		return baseString;
+		return tmpFolderPath + StorageManager.BUCKET_OBJECT_KEY_PREFIX + "/";
 	}
 
 	private String getBaseFolderNameWithZipPrefix(String zippedFileName) {

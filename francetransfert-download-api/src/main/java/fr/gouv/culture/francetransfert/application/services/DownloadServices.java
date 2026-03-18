@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ import fr.gouv.culture.francetransfert.core.utils.StringUploadUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
 import fr.gouv.culture.francetransfert.domain.exceptions.InvalidHashException;
+import com.google.gson.Gson;
 
 @Service
 public class DownloadServices {
@@ -515,7 +517,11 @@ public class DownloadServices {
 		try {
 			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 
-			String fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
+			String fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName , enclosureId );
+			if (fileToDownload == null) {
+				throw new DownloadException("Cannot get Download URL : no file found under in bucket",
+						enclosureId);
+			}
 			int expireInMinutes = expireLinkTime; // periode to exipre the generated URL
 			String downloadURL = storageManager.generateDownloadURL(bucketName, fileToDownload, expireInMinutes)
 					.toString();
@@ -527,6 +533,62 @@ public class DownloadServices {
 			return link;
 		} catch (Exception e) {
 			throw new DownloadException("Cannot get Download URL : " + e.getMessage(), enclosureId, e);
+		}
+	}
+
+	public byte[] getDownloadFileContent(DownloadPasswordMetaData downloadMeta)
+			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
+			RetryException {
+		String recipientIdRedis;
+		String recipientMail = downloadMeta.getRecipient();
+		boolean validSenderToken = false;
+		if (downloadMeta.getSenderToken() != null) {
+			redisManager.validateToken(downloadMeta.getRecipient().toLowerCase(), downloadMeta.getSenderToken());
+			recipientIdRedis = RedisUtils.getRecipientId(redisManager, downloadMeta.getEnclosure(),
+					downloadMeta.getRecipient().toLowerCase());
+			validSenderToken = true;
+		} else {
+			recipientIdRedis = downloadMeta.getToken();
+		}
+		if (!stringUploadUtils.isValidEmail(recipientMail)) {
+			recipientMail = base64CryptoService.base64Decoder(recipientMail);
+		}
+		recipientMail = recipientMail.toLowerCase();
+		checkDeletePlis(downloadMeta.getEnclosure());
+		validateDownloadAuthorization(downloadMeta.getEnclosure(), recipientMail, recipientIdRedis);
+		if (!validSenderToken) {
+			validatePassword(downloadMeta.getEnclosure(), downloadMeta.getPassword(), recipientIdRedis);
+		}
+		downloadProgress(downloadMeta.getEnclosure(), recipientIdRedis);
+		String statMessage = TypeStat.DOWNLOAD + ";" + downloadMeta.getEnclosure() + ";" + recipientMail;
+		redisManager.publishFT(RedisQueueEnum.STAT_QUEUE.getValue(), statMessage);
+		return getDownloadFileBytes(downloadMeta.getEnclosure());
+	}
+
+	public byte[] getDownloadFileContentPublic(String enclosureId, String password)
+			throws MetaloadException, UnsupportedEncodingException {
+		validatePassword(enclosureId, password, null);
+		RedisUtils.incrementNumberOfDownloadPublic(redisManager, enclosureId);
+		String statMessage = TypeStat.DOWNLOAD + ";" + enclosureId;
+		redisManager.publishFT(RedisQueueEnum.STAT_QUEUE.getValue(), statMessage);
+		return getDownloadFileBytes(enclosureId);
+	}
+
+	private byte[] getDownloadFileBytes(String enclosureId) throws DownloadException {
+		try {
+			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
+			String fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName, enclosureId);
+			if (fileToDownload == null) {
+				throw new DownloadException("Cannot get download file content: no file found in bucket", enclosureId);
+			}
+			var s3Object = storageManager.getObjectByName(bucketName, fileToDownload);
+			try (var inputStream = s3Object.getObjectContent()) {
+				return inputStream.readAllBytes();
+			} finally {
+				s3Object.close();
+			}
+		} catch (Exception e) {
+			throw new DownloadException("Cannot get download file content: " + e.getMessage(), enclosureId, e);
 		}
 	}
 
@@ -556,8 +618,7 @@ public class DownloadServices {
 			validateNumberOfDownload(recipientId, enclosureId);
 			LocalDate expirationDate = validateExpirationDate(enclosureId);
 
-			String fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
-			String hashFileFromS3 = storageManager.getEtag(bucketName, fileToDownload);
+			String hashFileFromS3 = storageManager.getFirstEnclosureFileEtag(bucketName , enclosureId);
 			String hashFileFromRedis = RedisUtils.getHashFileFromredis(redisManager, enclosureId);
 
 			if (StringUtils.isNotBlank(hashFileFromRedis) && !hashFileFromRedis.equals(hashFileFromS3)) {

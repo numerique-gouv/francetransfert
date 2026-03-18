@@ -502,6 +502,20 @@ public class RedisUtils {
         return redisManager.lrange(key, 0, -1);
     }
 
+
+    public static List<String> getEnclosureObjectKeys(RedisManager redisManager, String enclosureId)
+            throws MetaloadException {
+        List<String> hashFids = getFilesIds(redisManager, enclosureId);
+        List<String> keys = new ArrayList<>();
+        for (String hashFid : hashFids) {
+            String objKey = getFileNameWithPath(redisManager, hashFid);
+            if (StringUtils.isNotBlank(objKey)) {
+                keys.add(objKey);
+            }
+        }
+        return keys;
+    }
+
     public static Map<String, String> getFileInfo(RedisManager redisManager, String hashFid) throws MetaloadException {
         return redisManager.hmgetAllString(RedisKeysEnum.FT_FILE.getKey(hashFid));
     }
