@@ -187,6 +187,12 @@ export class DownloadComponent implements OnInit, OnDestroy {
         next: (encryptedBuffer) => {
           void this.decryptAndTriggerDownload(encryptedBuffer).then(() => {
             this.downloadStarted = true;
+          }).catch((err) => {
+            console.error('[decryptAndTriggerDownload] erreur déchiffrement:', err);
+            this.downloadManagerService.downloadError$.next({
+              statusCode: 0,
+              message: 'DECRYPTION_FAILED',
+            });
           }).finally(() => {
             this.isDownloading = false;
           });
@@ -209,7 +215,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
   private async decryptAndTriggerDownload(encryptedBuffer: ArrayBuffer): Promise<void> {
     const pliAesKey = this.downloadManagerService.pliAesKey.getValue();
     const outputBuffer = pliAesKey
-      ? await this.fileEncryptionService.decryptFileContent(encryptedBuffer, pliAesKey)
+      ? await this.fileEncryptionService.decryptFileInChunks(encryptedBuffer, pliAesKey)
       : encryptedBuffer;
     const blob = new Blob([outputBuffer]);
     const objectUrl = URL.createObjectURL(blob);

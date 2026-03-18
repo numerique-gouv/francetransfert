@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,26 +94,24 @@ public class DownloadRessources {
 
 	@PostMapping(value = "/download-file-content", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@Operation(method = "POST", description = "Get file content for client-side decryption (same auth as generate-download-url)")
-	public ResponseEntity<byte[]> downloadFileContent(@RequestBody DownloadPasswordMetaData downloadMeta)
+	public ResponseEntity<StreamingResponseBody> downloadFileContent(@RequestBody DownloadPasswordMetaData downloadMeta)
 			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
 			RetryException {
 		LOGGER.info("start download file content ");
-		byte[] content = downloadServices.getDownloadFileContent(downloadMeta);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		return new ResponseEntity<>(content, headers, HttpStatus.OK);
+		downloadServices.authorizeDownloadFileContent(downloadMeta);
+		StreamingResponseBody body = outputStream -> downloadServices.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(body);
 	}
 
 	@PostMapping(value = "/download-file-content-public", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@Operation(method = "POST", description = "Get file content for public link (client-side decryption)")
-	public ResponseEntity<byte[]> downloadFileContentPublic(@RequestBody DownloadPasswordMetaData downloadMeta)
+	public ResponseEntity<StreamingResponseBody> downloadFileContentPublic(@RequestBody DownloadPasswordMetaData downloadMeta)
 			throws UnauthorizedAccessException, UnsupportedEncodingException, MetaloadException {
 		LOGGER.info("start download file content public ");
 		downloadServices.validatePublic(downloadMeta.getEnclosure());
-		byte[] content = downloadServices.getDownloadFileContentPublic(downloadMeta.getEnclosure(), downloadMeta.getPassword());
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		return new ResponseEntity<>(content, headers, HttpStatus.OK);
+		downloadServices.authorizeDownloadFileContentPublic(downloadMeta.getEnclosure(), downloadMeta.getPassword());
+		StreamingResponseBody body = outputStream -> downloadServices.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(body);
 	}
 
 	@PostMapping("/validate-password")

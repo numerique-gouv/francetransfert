@@ -7,6 +7,9 @@
 
 package fr.gouv.culture.francetransfert.application.services;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -536,7 +539,7 @@ public class DownloadServices {
 		}
 	}
 
-	public byte[] getDownloadFileContent(DownloadPasswordMetaData downloadMeta)
+	public void authorizeDownloadFileContent(DownloadPasswordMetaData downloadMeta)
 			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
 			RetryException {
 		String recipientIdRedis;
@@ -562,19 +565,17 @@ public class DownloadServices {
 		downloadProgress(downloadMeta.getEnclosure(), recipientIdRedis);
 		String statMessage = TypeStat.DOWNLOAD + ";" + downloadMeta.getEnclosure() + ";" + recipientMail;
 		redisManager.publishFT(RedisQueueEnum.STAT_QUEUE.getValue(), statMessage);
-		return getDownloadFileBytes(downloadMeta.getEnclosure());
 	}
 
-	public byte[] getDownloadFileContentPublic(String enclosureId, String password)
+	public void authorizeDownloadFileContentPublic(String enclosureId, String password)
 			throws MetaloadException, UnsupportedEncodingException {
 		validatePassword(enclosureId, password, null);
 		RedisUtils.incrementNumberOfDownloadPublic(redisManager, enclosureId);
 		String statMessage = TypeStat.DOWNLOAD + ";" + enclosureId;
 		redisManager.publishFT(RedisQueueEnum.STAT_QUEUE.getValue(), statMessage);
-		return getDownloadFileBytes(enclosureId);
 	}
 
-	private byte[] getDownloadFileBytes(String enclosureId) throws DownloadException {
+	public void streamDownloadFileBytes(String enclosureId, OutputStream outputStream) throws IOException {
 		try {
 			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 			String fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName, enclosureId);
@@ -582,13 +583,15 @@ public class DownloadServices {
 				throw new DownloadException("Cannot get download file content: no file found in bucket", enclosureId);
 			}
 			var s3Object = storageManager.getObjectByName(bucketName, fileToDownload);
-			try (var inputStream = s3Object.getObjectContent()) {
-				return inputStream.readAllBytes();
+			try (var inputStream = new BufferedInputStream(s3Object.getObjectContent())) {
+				inputStream.transferTo(outputStream);
 			} finally {
 				s3Object.close();
 			}
+		} catch (IOException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new DownloadException("Cannot get download file content: " + e.getMessage(), enclosureId, e);
+			throw new IOException("Cannot stream download file content: " + e.getMessage(), e);
 		}
 	}
 

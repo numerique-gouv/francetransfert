@@ -11,6 +11,8 @@ import { KeyPairService } from '../key-pair/key-pair.service';
 const AES_GCM = 'AES-GCM';
 const RSA_OAEP = 'RSA-OAEP';
 const AES_IV_LENGTH = 12;
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+const ENCRYPTED_CHUNK_SIZE = CHUNK_SIZE + AES_IV_LENGTH + 16; // IV + ciphertext + GCM tag
 
 export interface EncryptedFileResult {
   encryptedFile: File;
@@ -47,22 +49,14 @@ export class FileEncryptionService {
       ['encrypt']
     );
 
-    // Chiffrer chaque fichier avec la clé du pli (IV différent par fichier)
+    // Chiffrer chaque fichier par chunks avec la clé du pli
     const encryptedFiles: EncryptedFileResult[] = [];
     for (const item of items) {
       const file = typeof item === 'object' && 'file' in item ? item.file : item;
       const relativePath = typeof item === 'object' && 'relativePath' in item ? item.relativePath : undefined;
       const fileBuffer = await file.arrayBuffer();
-      const iv = globalThis.crypto.getRandomValues(new Uint8Array(AES_IV_LENGTH));
-      const ciphertext = await globalThis.crypto.subtle.encrypt(
-        { name: AES_GCM, iv, tagLength: 128 },
-        pliAesKey,
-        fileBuffer
-      );
-      const out = new Uint8Array(AES_IV_LENGTH + ciphertext.byteLength);
-      out.set(iv, 0);
-      out.set(new Uint8Array(ciphertext), AES_IV_LENGTH);
-      const encryptedBlob = new Blob([out], { type: 'application/octet-stream' });
+      const encryptedBuffer = await this.encryptFileInChunks(fileBuffer, pliAesKey);
+      const encryptedBlob = new Blob([encryptedBuffer], { type: 'application/octet-stream' });
       const fileOptions: FilePropertyBag = { type: 'application/octet-stream', lastModified: Date.now() };
       if (relativePath !== undefined && relativePath !== '') {
         (fileOptions as FilePropertyBag & { webkitRelativePath?: string }).webkitRelativePath = relativePath;
@@ -105,18 +99,62 @@ export class FileEncryptionService {
   }
 
   /**
-   * Déchiffre le contenu d'un fichier (format [IV 12 octets][ciphertext AES-GCM]) avec la clé du pli.
+   * Chiffre un fichier par chunks de CHUNK_SIZE.
+   * Format : [4 octets : nb chunks (uint32 big-endian)][IV 12 oct][ciphertext+tag]...(× nb chunks)
    */
-  async decryptFileContent(encryptedFileBuffer: ArrayBuffer, pliAesKey: CryptoKey): Promise<ArrayBuffer> {
-    if (encryptedFileBuffer.byteLength < AES_IV_LENGTH) {
-      throw new Error('Fichier chiffré trop court (IV manquant)');
+  async encryptFileInChunks(fileBuffer: ArrayBuffer, pliAesKey: CryptoKey): Promise<ArrayBuffer> {
+    const chunkCount = Math.ceil(fileBuffer.byteLength / CHUNK_SIZE) || 1;
+    console.log('chunkCount', chunkCount);
+    const header = new Uint8Array(4);
+    new DataView(header.buffer).setUint32(0, chunkCount, false);
+    const parts: Uint8Array[] = [header];
+
+    for (let i = 0; i < chunkCount; i++) {
+      const chunk = fileBuffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+      const iv = globalThis.crypto.getRandomValues(new Uint8Array(AES_IV_LENGTH));
+      const cipher = await globalThis.crypto.subtle.encrypt(
+        { name: AES_GCM, iv, tagLength: 128 }, pliAesKey, chunk
+      );
+      const out = new Uint8Array(AES_IV_LENGTH + cipher.byteLength);
+      out.set(iv);
+      out.set(new Uint8Array(cipher), AES_IV_LENGTH);
+      parts.push(out);
     }
-    const iv = encryptedFileBuffer.slice(0, AES_IV_LENGTH);
-    const ciphertext = encryptedFileBuffer.slice(AES_IV_LENGTH);
-    return globalThis.crypto.subtle.decrypt(
-      { name: AES_GCM, iv, tagLength: 128 },
-      pliAesKey,
-      ciphertext
-    );
+
+    const total = parts.reduce((s, p) => s + p.byteLength, 0);
+    const result = new Uint8Array(total);
+    let offset = 0;
+    for (const p of parts) { result.set(p, offset); offset += p.byteLength; }
+    return result.buffer;
+  }
+
+  /**
+   * Déchiffre un fichier chiffré par chunks.
+   * Format attendu : [4 octets : nb chunks][IV 12 oct][ciphertext+tag]...(× nb chunks)
+   */
+  async decryptFileInChunks(encryptedBuffer: ArrayBuffer, pliAesKey: CryptoKey): Promise<ArrayBuffer> {
+    if (encryptedBuffer.byteLength < 4) {
+      throw new Error('Fichier chiffré invalide (header manquant)');
+    }
+    const chunkCount = new DataView(encryptedBuffer).getUint32(0, false);
+    console.log(`[decryptFileInChunks] chunkCount=${chunkCount}, bufferSize=${encryptedBuffer.byteLength}`);
+    const parts: ArrayBuffer[] = [];
+
+    for (let i = 0; i < chunkCount; i++) {
+      const start = 4 + i * ENCRYPTED_CHUNK_SIZE;
+      const iv = encryptedBuffer.slice(start, start + AES_IV_LENGTH);
+      const cipher = encryptedBuffer.slice(start + AES_IV_LENGTH, start + ENCRYPTED_CHUNK_SIZE);
+      console.log(`[decryptFileInChunks] chunk ${i}/${chunkCount} start=${start} cipherLen=${cipher.byteLength}`);
+      const plain = await globalThis.crypto.subtle.decrypt(
+        { name: AES_GCM, iv, tagLength: 128 }, pliAesKey, cipher
+      );
+      parts.push(plain);
+    }
+
+    const total = parts.reduce((s, p) => s + p.byteLength, 0);
+    const result = new Uint8Array(total);
+    let offset = 0;
+    for (const p of parts) { result.set(new Uint8Array(p), offset); offset += p.byteLength; }
+    return result.buffer;
   }
 }
