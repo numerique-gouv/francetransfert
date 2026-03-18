@@ -115,10 +115,10 @@ public class UploadResources {
 			@RequestParam("senderToken") String senderToken)
 			throws MetaloadException, StorageException, RetryException {
 
-		if (flowTotalSize > uploadFileLimitSize) {
-			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
-			return;
-		}
+		//if (flowTotalSize > uploadFileLimitSize) {
+		//	response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
+		//	return;
+		//}
 
 		uploadServices.processPrivateUpload(flowChunkNumber, flowTotalChunks, flowIdentifier, file, enclosureId,
 				senderId, senderToken);

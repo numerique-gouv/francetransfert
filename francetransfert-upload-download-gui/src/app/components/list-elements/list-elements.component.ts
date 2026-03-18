@@ -30,7 +30,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() screenWidth: string;
   @Output() listExpanded: EventEmitter<boolean> = new EventEmitter();
   filesSize: number = 0;
-  fileSizeLimit: number = 1024 * 1024 * 1024 * 2;
+  fileSizeLimit: number = Number.MAX_SAFE_INTEGER;
   filesSizeLimit: number = 1024 * 1024 * 1024 * 20;
   maxFilenameLength: number = 150;
   errorMessage: string = '';
@@ -219,7 +219,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Recalculate total size from actual files array after file is added
         this.recalculateFilesSize();
-        if (this.filesSize <= this.filesSizeLimit && event.size <= this.fileSizeLimit) {
+        if (this.filesSize <= this.filesSizeLimit) {
 
           this.fileManagerService.hasFiles.next(this.filesSize > 0);
           this.errorMessage = '';
@@ -356,11 +356,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } else {
       // si le fichier est ok on return sa taille sinon on throw une erreur
-      if (fileEvent.size > this.fileSizeLimit) {
-        throw new Error('TailleMaximaleFichier');
-      } else {
-        return fileEvent.size;
-      }
+      return fileEvent.size;
     }
     // on return la taille du dossier pour gérer le recurse
     return tmpSize;

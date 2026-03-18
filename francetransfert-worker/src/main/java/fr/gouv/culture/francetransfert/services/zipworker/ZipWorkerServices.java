@@ -751,9 +751,9 @@ public class ZipWorkerServices {
 			throw new InvalidSizeTypeException("File " + currentFileName + " as invalid mimetype : " + mimetype, file);
 		}
 
-		if (currentSize > maxFileSize || enclosureSize > maxEnclosureSize) {
-			throw new InvalidSizeTypeException("File " + currentFileName + " or enclose is too big");
-		}
+		//if (currentSize > maxFileSize || enclosureSize > maxEnclosureSize) {
+		//	throw new InvalidSizeTypeException("File " + currentFileName + " or enclose is too big");
+		//}
 	}
 
 	/**
