@@ -292,7 +292,7 @@ public class StorageManager {
             return null;
         }
         Collections.sort(keys);
-        return keys.get(0);
+        return keys.getFirst();
     }
 
     public String getFirstEnclosureFileEtag(String bucketName , String enclosureId) throws StorageException, RetryException {
