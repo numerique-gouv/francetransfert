@@ -125,9 +125,12 @@ export class EnvelopeComponent implements OnInit, OnDestroy {
   triggerShowParameters() {
 
     this.showParameters = !this.showParameters;
-    if (!isDayNumberValid(this.parametersFormValues.expiryDays, this.configService)) {
-      this.parametersFormValues.expiryDays = 30;
+    if (this.parametersFormValues?.expiryDays) {
+      if (!isDayNumberValid(this.parametersFormValues?.expiryDays, this.configService)) {
+        this.parametersFormValues.expiryDays = 30;
+      }
     }
+    
   }
 
 

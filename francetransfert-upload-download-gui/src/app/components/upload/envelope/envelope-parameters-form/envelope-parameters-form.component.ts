@@ -80,7 +80,7 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
     } else {
       expireDate = moment().add(30, 'days').toDate();
     }
-    this.maxDate = moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').toDate();
+    this.maxDate = moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').endOf('day').toDate();
 
     this.envelopeParametersForm = this.fb.group({
       expiryDays: [expireDate, [dateValidator.bind(this)]],

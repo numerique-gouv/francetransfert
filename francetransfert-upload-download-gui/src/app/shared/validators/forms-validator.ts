@@ -31,7 +31,7 @@ export function passwordValidator(formControl: FormControl) {
 
 export function dateValidator(formControl: FormControl) {
   const date = formControl.value;
-  if (date > moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').toDate() || date < new Date()) {
+  if (date > moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').endOf('day').toDate() || date < new Date()) {
     return { pattern: true }
   } else {
     return null;
