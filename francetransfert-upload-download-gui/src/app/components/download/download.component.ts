@@ -18,6 +18,9 @@ import { Subscription } from "rxjs";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
 import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
 import { LoginService } from 'src/app/services/login/login.service';
+import * as streamSaver from 'streamsaver';
+
+(streamSaver as any).mitm = '/mitm.html';
 
 @Component({
   selector: 'ft-download',
@@ -177,34 +180,21 @@ export class DownloadComponent implements OnInit, OnDestroy {
     }
   }
   private runDownloadFlow(presignedUrl: string, isPublic: boolean): void {
-    const pliAesKey = this.downloadManagerService.pliAesKey.getValue();
+    const pliKey = this.downloadManagerService.pliAesKey.getValue();
 
-    if (pliAesKey) {
-      const obs = isPublic
-        ? this._downloadService.getDownloadFileContentPublic(this.params, this.password)
-        : this._downloadService.getDownloadFileContent(this.params, this.downloadInfos.withPassword, this.password);
-      obs.pipe(take(1), takeUntil(this.onDestroy$)).subscribe({
-        next: (encryptedBuffer) => {
-          void this.decryptAndTriggerDownload(encryptedBuffer).then(() => {
-            this.downloadStarted = true;
-          }).catch((err) => {
-            console.error('[decryptAndTriggerDownload] erreur déchiffrement:', err);
-            this.downloadManagerService.downloadError$.next({
-              statusCode: 0,
-              message: 'DECRYPTION_FAILED',
-            });
-          }).finally(() => {
-            this.isDownloading = false;
-          });
-        },
-        error: (err) => {
+    if (pliKey) {
+      // Vrai streaming : fetch ReadableStream → TransformStream decrypt
+      // → StreamSaver disque
+      void this.decryptAndStreamToFile(isPublic, pliKey)
+        .catch((_err) => {
           this.downloadManagerService.downloadError$.next({
             statusCode: 0,
-            message: 'DOWNLOAD_CANNOT_DECRYPT_CORS',
+            message: 'DECRYPTION_FAILED',
           });
+        })
+        .finally(() => {
           this.isDownloading = false;
-        }
-      });
+        });
     } else {
       this.downloadFileFromUrl(presignedUrl);
       this.downloadStarted = true;
@@ -212,18 +202,35 @@ export class DownloadComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async decryptAndTriggerDownload(encryptedBuffer: ArrayBuffer): Promise<void> {
-    const pliAesKey = this.downloadManagerService.pliAesKey.getValue();
-    const outputBuffer = pliAesKey
-      ? await this.fileEncryptionService.decryptFileInChunks(encryptedBuffer, pliAesKey)
-      : encryptedBuffer;
-    const blob = new Blob([outputBuffer]);
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = objectUrl;
-    a.download = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
-    a.click();
-    URL.revokeObjectURL(objectUrl);
+  private async decryptAndStreamToFile(isPublic: boolean, pliKey: Uint8Array): Promise<void> {
+    const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
+
+    // 1. Ouvre le fichier de destination dans le navigateur (StreamSaver)
+    const fileStream = streamSaver.createWriteStream(filename);
+    const writer = fileStream.getWriter();
+
+    try {
+      // 2. Fetch streaming depuis le backend (StreamingResponseBody)
+      const encryptedStream = isPublic
+        ? await this._downloadService.getDownloadFileContentStreamPublic(this.params, this.password)
+        : await this._downloadService.getDownloadFileContentStream(
+            this.params, this.downloadInfos.withPassword, this.password
+          );
+
+      // 3. Pipeline : fetch → decrypt (secretstream pull) → écriture disque
+      const decryptTransform = this.fileEncryptionService.createDecryptTransformStream(pliKey);
+      const reader = encryptedStream.pipeThrough(decryptTransform).getReader();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        await writer.write(value);
+      }
+      await writer.close();
+      this.downloadStarted = true;
+    } catch (err) {
+      await writer.abort();
+      throw err;
+    }
   }
 
   private downloadFileFromUrl(url: string): void {
@@ -239,14 +246,17 @@ export class DownloadComponent implements OnInit, OnDestroy {
     }
     const pairs = await this.keyPairService.getPocEnrollmentKeyPairs();
     const toTry = isSender
-      ? [pairs.sender.privateKey]
-      : [pairs.sender.privateKey, pairs.recipient1.privateKey, pairs.recipient2.privateKey];
-    for (const privateKey of toTry) {
+      ? [pairs.sender]
+      : [pairs.sender, pairs.recipient1, pairs.recipient2];
+    for (const pair of toTry) {
       try {
-        const pliKey = await this.fileEncryptionService.unwrapPliKey(encrypted, privateKey);
+        const pliKey = await this.fileEncryptionService.unwrapPliKey(
+          encrypted, pair.publicKey, pair.privateKey
+        );
         this.downloadManagerService.setPliAesKey(pliKey);
         return;
-      } catch {
+      } catch (error) {
+        console.error('decryptAndStorePliKeyIfPresent', error);
         continue;
       }
     }

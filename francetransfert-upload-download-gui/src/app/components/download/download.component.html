@@ -19,6 +19,9 @@
       *ngIf="downloadValidated  && downloadStarted && !usingPublicLink" class="satisfaction-check-wrapper"></ft-satisfaction-check>
   </div>
   <div class="download-wrapper" *ngIf="loading || isDownloading">
-    <mat-spinner></mat-spinner>
+    <div class="decryption-loader">
+      <mat-spinner></mat-spinner>
+      <p *ngIf="isDownloading && !loading" class="decryption-message">{{ 'DéchiffrementEnCours' | translate }}</p>
+    </div>
   </div>
 </div>

@@ -89,7 +89,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.keyPairService.getPocEnrollmentKeyPairs().catch(() => {});
+    this.keyPairService.getPocEnrollmentKeyPairs().catch(
+      (error) => {
+        console.error('Error getting POC enrollment key pairs', error);
+      }
+    );
   }
 
   ngOnDestroy() {

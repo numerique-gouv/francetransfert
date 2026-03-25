@@ -287,8 +287,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       this.publicLink = true;
   }
 
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  private uint8ArrayToBase64(bytes: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
   }
 
   async encryptThenUpload(): Promise<void> {
@@ -315,9 +319,9 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         flowJs.addFile(toAdd);
       });
       this.uploadManagerService.pliAesKeyEncrypted.next([
-        this.arrayBufferToBase64(result.pliAesKeyEncryptedForSender),
-        this.arrayBufferToBase64(result.pliAesKeyEncryptedForRecipient1),
-        this.arrayBufferToBase64(result.pliAesKeyEncryptedForRecipient2)
+        this.uint8ArrayToBase64(result.pliAesKeyEncryptedForSender),
+        this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient1),
+        this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient2)
       ]);
       this.upload();
     } catch {

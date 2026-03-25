@@ -7,12 +7,9 @@
 
 import { Injectable } from '@angular/core';
 import { KeyPairService } from '../key-pair/key-pair.service';
+import { SodiumService } from '../sodium/sodium.service';
 
-const AES_GCM = 'AES-GCM';
-const RSA_OAEP = 'RSA-OAEP';
-const AES_IV_LENGTH = 12;
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
-const ENCRYPTED_CHUNK_SIZE = CHUNK_SIZE + AES_IV_LENGTH + 16; // IV + ciphertext + GCM tag
 
 export interface EncryptedFileResult {
   encryptedFile: File;
@@ -21,140 +18,185 @@ export interface EncryptedFileResult {
 
 export interface PliEncryptionResult {
   encryptedFiles: EncryptedFileResult[];
-  pliAesKeyEncryptedForSender: ArrayBuffer;
-  pliAesKeyEncryptedForRecipient1: ArrayBuffer;
-  pliAesKeyEncryptedForRecipient2: ArrayBuffer;
+  pliAesKeyEncryptedForSender: Uint8Array;
+  pliAesKeyEncryptedForRecipient1: Uint8Array;
+  pliAesKeyEncryptedForRecipient2: Uint8Array;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileEncryptionService {
-  constructor(private readonly keyPairService: KeyPairService) {}
+  constructor(
+    private readonly keyPairService: KeyPairService,
+    private readonly sodiumService: SodiumService
+  ) {}
 
   /**
-   * Chiffre les fichiers avec la clé du pli et les envoie au serveur.
-   * @param items Les fichiers à chiffrer.
-   * @returns Les fichiers chiffrés.
+   * Chiffre les fichiers avec la clé du pli (secretstream XChaCha20-Poly1305)
+   * et encapsule la clé pour expéditeur + 2 destinataires (crypto_box_seal X25519).
    */
   async encryptFilesWithPliKey(
     items: Array<File | { file: File; relativePath?: string }>
   ): Promise<PliEncryptionResult> {
-    const [publicSender, publicRecipient1, publicRecipient2] = await this.keyPairService.getPocPublicKeys();
+    const sodium = await this.sodiumService.getSodium();
+    const [publicSender, publicRecipient1, publicRecipient2] =
+      await this.keyPairService.getPocPublicKeys();
 
-    // Clé AES pour tout le pli
-    const pliAesKey = await globalThis.crypto.subtle.generateKey(
-      { name: AES_GCM, length: 256 },
-      true,
-      ['encrypt']
-    );
+    // Clé symétrique 32 B pour tout le pli
+    const pliKey = sodium.crypto_secretstream_xchacha20poly1305_keygen();
 
-    // Chiffrer chaque fichier par chunks avec la clé du pli
+    // Chiffrer chaque fichier par chunks avec secretstream
     const encryptedFiles: EncryptedFileResult[] = [];
     for (const item of items) {
-      const file = typeof item === 'object' && 'file' in item ? item.file : item;
-      const relativePath = typeof item === 'object' && 'relativePath' in item ? item.relativePath : undefined;
-      const fileBuffer = await file.arrayBuffer();
-      const encryptedBuffer = await this.encryptFileInChunks(fileBuffer, pliAesKey);
-      const encryptedBlob = new Blob([encryptedBuffer], { type: 'application/octet-stream' });
-      const fileOptions: FilePropertyBag = { type: 'application/octet-stream', lastModified: Date.now() };
-      if (relativePath !== undefined && relativePath !== '') {
-        (fileOptions as FilePropertyBag & { webkitRelativePath?: string }).webkitRelativePath = relativePath;
-      }
-      const encryptedFile = new File([encryptedBlob], file.name, fileOptions);
+      const file = typeof item === 'object' && 'file' in item ? item.file : item as File;
+      const encryptedBlob = await this.encryptFileWithSecretstream(file, pliKey);
+      const encryptedFile = new File([encryptedBlob], file.name, {
+        type: 'application/octet-stream',
+        lastModified: Date.now()
+      });
       encryptedFiles.push({ encryptedFile, originalSize: file.size });
     }
 
-    // Une seule clé AES du pli, chiffrée avec la clé publique de l'expéditeur et des destinataires (RSA-OAEP)
-    const [encryptedForSender, encryptedForR1, encryptedForR2] = await Promise.all([
-      globalThis.crypto.subtle.wrapKey('raw', pliAesKey, publicSender, { name: RSA_OAEP }),
-      globalThis.crypto.subtle.wrapKey('raw', pliAesKey, publicRecipient1, { name: RSA_OAEP }),
-      globalThis.crypto.subtle.wrapKey('raw', pliAesKey, publicRecipient2, { name: RSA_OAEP })
-    ]);
-
+    // Encapsuler la clé pli pour chaque destinataire (crypto_box_seal = X25519 anonyme)
     return {
       encryptedFiles,
-      pliAesKeyEncryptedForSender: encryptedForSender,
-      pliAesKeyEncryptedForRecipient1: encryptedForR1,
-      pliAesKeyEncryptedForRecipient2: encryptedForR2
+      pliAesKeyEncryptedForSender:     new Uint8Array(sodium.crypto_box_seal(pliKey, publicSender)),
+      pliAesKeyEncryptedForRecipient1: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient1)),
+      pliAesKeyEncryptedForRecipient2: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient2))
     };
   }
 
-  // Déchiffre la clé du pli (base64) avec la clé privée RSA (expéditeur ou destinataire).
-  async unwrapPliKey(encryptedPliKeyBase64: string, privateKey: CryptoKey): Promise<CryptoKey> {
-    const binary = atob(encryptedPliKeyBase64);
-    const wrapped = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      wrapped[i] = binary.charCodeAt(i);
+  /**
+   * Déchiffre la clé pli (base64) avec la paire de clés X25519 du destinataire.
+   */
+  async unwrapPliKey(
+    sealedBase64: string,
+    publicKey: Uint8Array,
+    privateKey: Uint8Array
+  ): Promise<Uint8Array> {
+    const sodium = await this.sodiumService.getSodium();
+    const sealed = sodium.from_base64(sealedBase64, sodium.base64_variants.ORIGINAL);
+    const pliKey = sodium.crypto_box_seal_open(sealed, publicKey, privateKey);
+    if (!pliKey) {
+      throw new Error('Impossible de déchiffrer la clé du pli (clé privée incorrecte)');
     }
-    return globalThis.crypto.subtle.unwrapKey(
-      'raw',
-      wrapped.buffer,
-      privateKey,
-      { name: RSA_OAEP },
-      { name: AES_GCM, length: 256 },
-      true,
-      ['decrypt']
-    );
+    return new Uint8Array(pliKey);
   }
 
   /**
-   * Chiffre un fichier par chunks de CHUNK_SIZE.
-   * Format : [4 octets : nb chunks (uint32 big-endian)][IV 12 oct][ciphertext+tag]...(× nb chunks)
+   * Chiffre un fichier par chunks de CHUNK_SIZE avec secretstream (XChaCha20-Poly1305).
+   * Format : [24 B header][chunk_1 + 17 B]...[chunk_N + 17 B (TAG_FINAL)]
+   * Le plaintext est lu progressivement (file.stream()) — RAM ≈ 1× taille fichier chiffré.
    */
-  async encryptFileInChunks(fileBuffer: ArrayBuffer, pliAesKey: CryptoKey): Promise<ArrayBuffer> {
-    const chunkCount = Math.ceil(fileBuffer.byteLength / CHUNK_SIZE) || 1;
-    console.log('chunkCount', chunkCount);
-    const header = new Uint8Array(4);
-    new DataView(header.buffer).setUint32(0, chunkCount, false);
-    const parts: Uint8Array[] = [header];
+  async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<Blob> {
+    const sodium = await this.sodiumService.getSodium();
+    const { state, header } =
+      sodium.crypto_secretstream_xchacha20poly1305_init_push(pliKey);
 
-    for (let i = 0; i < chunkCount; i++) {
-      const chunk = fileBuffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-      const iv = globalThis.crypto.getRandomValues(new Uint8Array(AES_IV_LENGTH));
-      const cipher = await globalThis.crypto.subtle.encrypt(
-        { name: AES_GCM, iv, tagLength: 128 }, pliAesKey, chunk
-      );
-      const out = new Uint8Array(AES_IV_LENGTH + cipher.byteLength);
-      out.set(iv);
-      out.set(new Uint8Array(cipher), AES_IV_LENGTH);
-      parts.push(out);
+    const parts: Uint8Array[] = [header]; // 24 B header en tête
+    const reader = file.stream().getReader();
+    let buffer = new Uint8Array(0);
+    let done = false;
+
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+
+      if (value) {
+        const merged = new Uint8Array(buffer.byteLength + value.byteLength);
+        merged.set(buffer);
+        merged.set(value, buffer.byteLength);
+        buffer = merged;
+      }
+
+      // Chiffrer les chunks complets, et le dernier chunk si le stream est terminé
+      while (buffer.byteLength >= CHUNK_SIZE || (done && buffer.byteLength > 0)) {
+        const isLast = done && buffer.byteLength <= CHUNK_SIZE;
+        const chunkEnd = isLast ? buffer.byteLength : CHUNK_SIZE;
+        const chunk = buffer.slice(0, chunkEnd);
+        const tag = isLast
+          ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+          : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
+        parts.push(sodium.crypto_secretstream_xchacha20poly1305_push(state, chunk, null, tag));
+        buffer = buffer.slice(chunkEnd);
+        if (isLast) break;
+      }
     }
 
-    const total = parts.reduce((s, p) => s + p.byteLength, 0);
-    const result = new Uint8Array(total);
-    let offset = 0;
-    for (const p of parts) { result.set(p, offset); offset += p.byteLength; }
-    return result.buffer;
+    // Cas fichier vide : émettre un chunk FINAL vide
+    if (parts.length === 1) {
+      parts.push(sodium.crypto_secretstream_xchacha20poly1305_push(
+        state, new Uint8Array(0), null,
+        sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+      ));
+    }
+
+    return new Blob(parts as BlobPart[], { type: 'application/octet-stream' });
   }
 
   /**
-   * Déchiffre un fichier chiffré par chunks.
-   * Format attendu : [4 octets : nb chunks][IV 12 oct][ciphertext+tag]...(× nb chunks)
+   * Crée un TransformStream qui déchiffre un flux secretstream chunk par chunk.
+   * Consomme le stream chiffré du backend et émet des Uint8Array en clair.
+   *
+   * Format attendu : [24 B header][CHUNK_SIZE + 17 B]...[dernierChunk + 17 B (TAG_FINAL)]
    */
-  async decryptFileInChunks(encryptedBuffer: ArrayBuffer, pliAesKey: CryptoKey): Promise<ArrayBuffer> {
-    if (encryptedBuffer.byteLength < 4) {
-      throw new Error('Fichier chiffré invalide (header manquant)');
-    }
-    const chunkCount = new DataView(encryptedBuffer).getUint32(0, false);
-    console.log(`[decryptFileInChunks] chunkCount=${chunkCount}, bufferSize=${encryptedBuffer.byteLength}`);
-    const parts: ArrayBuffer[] = [];
+  createDecryptTransformStream(pliKey: Uint8Array): TransformStream<Uint8Array, Uint8Array> {
+    const HEADER_SIZE = 24; // crypto_secretstream_xchacha20poly1305_HEADERBYTES
+    const ABYTES = 17;      // crypto_secretstream_xchacha20poly1305_ABYTES
+    const ENCRYPTED_CHUNK_SIZE = CHUNK_SIZE + ABYTES;
 
-    for (let i = 0; i < chunkCount; i++) {
-      const start = 4 + i * ENCRYPTED_CHUNK_SIZE;
-      const iv = encryptedBuffer.slice(start, start + AES_IV_LENGTH);
-      const cipher = encryptedBuffer.slice(start + AES_IV_LENGTH, start + ENCRYPTED_CHUNK_SIZE);
-      console.log(`[decryptFileInChunks] chunk ${i}/${chunkCount} start=${start} cipherLen=${cipher.byteLength}`);
-      const plain = await globalThis.crypto.subtle.decrypt(
-        { name: AES_GCM, iv, tagLength: 128 }, pliAesKey, cipher
-      );
-      parts.push(plain);
-    }
+    let state: any = null;
+    let headerRead = false;
+    let buffer = new Uint8Array(0);
+    let sodiumInstance: any = null;
+    const sodiumService = this.sodiumService;
 
-    const total = parts.reduce((s, p) => s + p.byteLength, 0);
-    const result = new Uint8Array(total);
-    let offset = 0;
-    for (const p of parts) { result.set(new Uint8Array(p), offset); offset += p.byteLength; }
-    return result.buffer;
+    const appendBuffer = (a: Uint8Array, b: Uint8Array): Uint8Array => {
+      const merged = new Uint8Array(a.byteLength + b.byteLength);
+      merged.set(a);
+      merged.set(b, a.byteLength);
+      return merged;
+    };
+
+    const decryptChunk = (enc: Uint8Array): Uint8Array => {
+      const result = sodiumInstance.crypto_secretstream_xchacha20poly1305_pull(state, enc, null);
+      if (!result) {
+        throw new Error('Déchiffrement échoué : chunk corrompu ou clé incorrecte');
+      }
+      return new Uint8Array(result.message);
+    };
+
+    return new TransformStream<Uint8Array, Uint8Array>({
+      async start() {
+        sodiumInstance = await sodiumService.getSodium();
+      },
+
+      transform(chunk: Uint8Array, controller: TransformStreamDefaultController<Uint8Array>) {
+        buffer = appendBuffer(buffer, new Uint8Array(chunk));
+
+        // 1. Lire le header secretstream (24 B)
+        if (!headerRead && buffer.byteLength >= HEADER_SIZE) {
+          const header = buffer.slice(0, HEADER_SIZE);
+          state = sodiumInstance.crypto_secretstream_xchacha20poly1305_init_pull(header, pliKey);
+          buffer = buffer.slice(HEADER_SIZE);
+          headerRead = true;
+        }
+
+        // 2. Déchiffrer les chunks complets (CHUNK_SIZE + 17 B)
+        while (headerRead && buffer.byteLength >= ENCRYPTED_CHUNK_SIZE) {
+          const encChunk = buffer.slice(0, ENCRYPTED_CHUNK_SIZE);
+          controller.enqueue(decryptChunk(encChunk));
+          buffer = buffer.slice(ENCRYPTED_CHUNK_SIZE);
+        }
+      },
+
+      flush(controller: TransformStreamDefaultController<Uint8Array>) {
+        // Dernier chunk (taille < ENCRYPTED_CHUNK_SIZE = dernier chunk + TAG_FINAL)
+        if (headerRead && buffer.byteLength > 0) {
+          controller.enqueue(decryptChunk(buffer));
+        }
+      }
+    });
   }
 }

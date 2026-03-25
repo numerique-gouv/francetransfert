@@ -15,11 +15,11 @@ import {FTErrorModel, LinkInfosModel, MailInfosModel} from 'src/app/models';
 export class DownloadManagerService {
 
   downloadError$: BehaviorSubject<FTErrorModel> = new BehaviorSubject<FTErrorModel>(null);
-  pliAesKey: BehaviorSubject<CryptoKey | null> = new BehaviorSubject<CryptoKey | null>(null);
+  pliAesKey: BehaviorSubject<Uint8Array | null> = new BehaviorSubject<Uint8Array | null>(null);
 
   constructor() { }
 
-  setPliAesKey(key: CryptoKey | null): void {
+  setPliAesKey(key: Uint8Array | null): void {
     this.pliAesKey.next(key);
   }
 

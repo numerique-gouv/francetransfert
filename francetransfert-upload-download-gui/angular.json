@@ -29,7 +29,17 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              {
+                "glob": "mitm.html",
+                "input": "src/assets",
+                "output": "/"
+              },
+              {
+                "glob": "sw.js",
+                "input": "node_modules/streamsaver",
+                "output": "/"
+              }
             ],
             "styles": [
               {

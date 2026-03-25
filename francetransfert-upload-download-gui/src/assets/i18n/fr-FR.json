@@ -173,6 +173,7 @@
   "Pli_Corrompu": "Le pli a été corrompu, merci de voir avec l'expéditeur pour vous le renvoyer.",
   "Erreur_Récupération_Pli": "Pli inexistant ou supprimé, merci de voir avec l'expéditeur de votre pli.",
   "DOWNLOAD_CANNOT_DECRYPT_CORS": "Impossible de déchiffrer le fichier dans le navigateur (blocage CORS). Merci de réessayer ou de contacter l’expéditeur.",
+  "DéchiffrementEnCours": "Déchiffrement en cours...",
   "ENCRYPTION_FAILED": "Échec du chiffrement des fichiers. Merci de réessayer.",
   "Accès_Pli_Sécurisé": "Accès au pli sécurisé !",
 

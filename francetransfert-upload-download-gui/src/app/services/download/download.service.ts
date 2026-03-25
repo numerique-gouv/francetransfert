@@ -165,6 +165,62 @@ export class DownloadService {
     );
   }
 
+  /**
+   * Retourne un ReadableStream du fichier chiffré (fetch natif, pas Angular HttpClient).
+   * Permet le déchiffrement progressif sans bufferiser le fichier entier en RAM.
+   */
+  async getDownloadFileContentStream(
+    params: Array<{ string: string }>,
+    withPassword: boolean,
+    password: string
+  ): Promise<ReadableStream<Uint8Array>> {
+    const escapedPassword = withPassword ? password : '';
+    const body = {
+      enclosure: params['enclosure'],
+      ...params['recipient']
+        ? { recipient: params['recipient'] }
+        : { recipient: this.loginService.tokenInfo.getValue().senderMail },
+      token: params['token'],
+      ...params['recipient']
+        ? { senderToken: null }
+        : { senderToken: this.loginService.tokenInfo.getValue().senderToken },
+      password: escapedPassword
+    };
+    const response = await fetch(
+      `${environment.host}${environment.apis.download.downloadFileContent}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }
+    );
+    if (!response.ok) {
+      this.downloadManagerService.downloadError$.next({ statusCode: response.status, message: 'DOWNLOAD_STREAM_ERROR' });
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.body as ReadableStream<Uint8Array>;
+  }
+
+  async getDownloadFileContentStreamPublic(
+    params: Array<{ string: string }>,
+    password: string
+  ): Promise<ReadableStream<Uint8Array>> {
+    const body = { enclosure: params['enclosure'], password };
+    const response = await fetch(
+      `${environment.host}${environment.apis.download.downloadFileContentPublic}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }
+    );
+    if (!response.ok) {
+      this.downloadManagerService.downloadError$.next({ statusCode: response.status, message: 'DOWNLOAD_STREAM_ERROR' });
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.body as ReadableStream<Uint8Array>;
+  }
+
   rate(body: any): any {
     return this._httpClient.post(`${environment.host}${environment.apis.download.rate}`, {
       plis: body.plis,

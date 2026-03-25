@@ -7,6 +7,7 @@
 
 import { Injectable } from '@angular/core';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
+import { SodiumService } from '../sodium/sodium.service';
 
 /** Clés d'enrôlement persistées pour expéditeur et destinataires (même navigateur). */
 const POC_SENDER_PUBLIC = 'poc_sender_public';
@@ -16,17 +17,10 @@ const POC_RECIPIENT1_PRIVATE = 'poc_recipient1_private';
 const POC_RECIPIENT2_PUBLIC = 'poc_recipient2_public';
 const POC_RECIPIENT2_PRIVATE = 'poc_recipient2_private';
 
-/** Algorithme RSA-OAEP, 2048 bits, utilisable pour chiffrement et signature. */
-const KEY_ALGORITHM: RsaHashedKeyGenParams = {
-  name: 'RSA-OAEP',
-  modulusLength: 2048,
-  publicExponent: new Uint8Array([1, 0, 1]),
-  hash: 'SHA-256'
-};
-
+/** Paire de clés X25519 (32 octets chacune). */
 export interface StoredKeyPair {
-  publicKey: CryptoKey;
-  privateKey: CryptoKey;
+  publicKey: Uint8Array;
+  privateKey: Uint8Array;
 }
 
 /** Simule l'enrôlement déjà fait (1 expéditeur + 2 destinataires). */
@@ -43,27 +37,22 @@ export class KeyPairService {
 
   private pocEnrollmentKeyPairs: PocEnrollmentKeyPairs | null = null;
 
-  constructor(private readonly indexedDb: IndexedDbService) {}
+  constructor(
+    private readonly indexedDb: IndexedDbService,
+    private readonly sodiumService: SodiumService
+  ) {}
 
   /**
-   * Génère une paire de clés RSA.
-   * @returns La paire de clés.
+   * Génère une paire de clés X25519 via libsodium.
    */
   async generateKeyPair(): Promise<StoredKeyPair> {
-    const pair = await globalThis.crypto.subtle.generateKey(
-      KEY_ALGORITHM,
-      true,
-      ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey']
-    );
-    return {
-      publicKey: pair.publicKey,
-      privateKey: pair.privateKey
-    };
+    const sodium = await this.sodiumService.getSodium();
+    const pair = sodium.crypto_box_keypair();
+    return { publicKey: new Uint8Array(pair.publicKey), privateKey: new Uint8Array(pair.privateKey) };
   }
 
   /**
    * Charge les paires de clés depuis IndexedDB ou les génère et les persiste.
-   * @returns Les paires de clés.
    */
   async getPocEnrollmentKeyPairs(): Promise<PocEnrollmentKeyPairs> {
     if (this.pocEnrollmentKeyPairs) {
@@ -85,70 +74,49 @@ export class KeyPairService {
   }
 
   /**
-   * Charge les paires de clés depuis IndexedDB.
-   * @returns Les paires de clés.
+   * Charge les paires de clés depuis IndexedDB (stockées en base64).
    */
   private async loadPocKeyPairsFromStorage(): Promise<PocEnrollmentKeyPairs | null> {
+    const sodium = await this.sodiumService.getSodium();
     const [sp, sv, r1p, r1v, r2p, r2v] = await Promise.all([
-      this.indexedDb.get<JsonWebKey>(POC_SENDER_PUBLIC),
-      this.indexedDb.get<JsonWebKey>(POC_SENDER_PRIVATE),
-      this.indexedDb.get<JsonWebKey>(POC_RECIPIENT1_PUBLIC),
-      this.indexedDb.get<JsonWebKey>(POC_RECIPIENT1_PRIVATE),
-      this.indexedDb.get<JsonWebKey>(POC_RECIPIENT2_PUBLIC),
-      this.indexedDb.get<JsonWebKey>(POC_RECIPIENT2_PRIVATE)
+      this.indexedDb.get<string>(POC_SENDER_PUBLIC),
+      this.indexedDb.get<string>(POC_SENDER_PRIVATE),
+      this.indexedDb.get<string>(POC_RECIPIENT1_PUBLIC),
+      this.indexedDb.get<string>(POC_RECIPIENT1_PRIVATE),
+      this.indexedDb.get<string>(POC_RECIPIENT2_PUBLIC),
+      this.indexedDb.get<string>(POC_RECIPIENT2_PRIVATE)
     ]);
     if (!sp || !sv || !r1p || !r1v || !r2p || !r2v) {
       return null;
     }
-
-    /**
-     * Importe une paire de clés RSA.
-     * @param publicJwk La clé publique.
-     * @param privateJwk La clé privée.
-     * @returns La paire de clés.
-     */
-    const importPair = async (publicJwk: JsonWebKey, privateJwk: JsonWebKey): Promise<StoredKeyPair> => {
-      const publicKey = await globalThis.crypto.subtle.importKey('jwk', publicJwk, KEY_ALGORITHM, true, ['encrypt', 'wrapKey']);
-      const privateKey = await globalThis.crypto.subtle.importKey('jwk', privateJwk, KEY_ALGORITHM, true, ['decrypt', 'unwrapKey']);
-      return { publicKey, privateKey };
+    const fromB64 = (b64: string): Uint8Array => new Uint8Array(sodium.from_base64(b64));
+    return {
+      sender:     { publicKey: fromB64(sp),  privateKey: fromB64(sv)  },
+      recipient1: { publicKey: fromB64(r1p), privateKey: fromB64(r1v) },
+      recipient2: { publicKey: fromB64(r2p), privateKey: fromB64(r2v) }
     };
-    const [sender, recipient1, recipient2] = await Promise.all([
-      importPair(sp, sv),
-      importPair(r1p, r1v),
-      importPair(r2p, r2v)
-    ]);
-    return { sender, recipient1, recipient2 };
   }
 
   /**
-   * Persiste les paires de clés dans IndexedDB.
-   * @param pairs Les paires de clés.
+   * Persiste les paires de clés dans IndexedDB sous forme base64.
    */
   private async persistPocKeyPairs(pairs: PocEnrollmentKeyPairs): Promise<void> {
-    const toJwk = async (key: CryptoKey) => globalThis.crypto.subtle.exportKey('jwk', key);
-    const [sp, sv, r1p, r1v, r2p, r2v] = await Promise.all([
-      toJwk(pairs.sender.publicKey),
-      toJwk(pairs.sender.privateKey),
-      toJwk(pairs.recipient1.publicKey),
-      toJwk(pairs.recipient1.privateKey),
-      toJwk(pairs.recipient2.publicKey),
-      toJwk(pairs.recipient2.privateKey)
-    ]);
+    const sodium = await this.sodiumService.getSodium();
+    const toB64 = (key: Uint8Array) => sodium.to_base64(key);
     await Promise.all([
-      this.indexedDb.set(POC_SENDER_PUBLIC, sp as object),
-      this.indexedDb.set(POC_SENDER_PRIVATE, sv as object),
-      this.indexedDb.set(POC_RECIPIENT1_PUBLIC, r1p as object),
-      this.indexedDb.set(POC_RECIPIENT1_PRIVATE, r1v as object),
-      this.indexedDb.set(POC_RECIPIENT2_PUBLIC, r2p as object),
-      this.indexedDb.set(POC_RECIPIENT2_PRIVATE, r2v as object)
+      this.indexedDb.set(POC_SENDER_PUBLIC,     toB64(pairs.sender.publicKey)),
+      this.indexedDb.set(POC_SENDER_PRIVATE,    toB64(pairs.sender.privateKey)),
+      this.indexedDb.set(POC_RECIPIENT1_PUBLIC, toB64(pairs.recipient1.publicKey)),
+      this.indexedDb.set(POC_RECIPIENT1_PRIVATE,toB64(pairs.recipient1.privateKey)),
+      this.indexedDb.set(POC_RECIPIENT2_PUBLIC, toB64(pairs.recipient2.publicKey)),
+      this.indexedDb.set(POC_RECIPIENT2_PRIVATE,toB64(pairs.recipient2.privateKey))
     ]);
   }
 
   /**
-   * Retourne les clés publiques des paires de clés.
-   * @returns Les clés publiques.
+   * Retourne les clés publiques X25519 des trois paires.
    */
-  async getPocPublicKeys(): Promise<[CryptoKey, CryptoKey, CryptoKey]> {
+  async getPocPublicKeys(): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
     const pairs = await this.getPocEnrollmentKeyPairs();
     return [pairs.sender.publicKey, pairs.recipient1.publicKey, pairs.recipient2.publicKey];
   }

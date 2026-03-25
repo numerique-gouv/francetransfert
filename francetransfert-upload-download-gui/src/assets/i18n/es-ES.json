@@ -51,6 +51,7 @@
   "Valider": "Valider",
 
   "DOWNLOAD_CANNOT_DECRYPT_CORS": "No se puede descifrar el archivo en el navegador (bloqueado por CORS). Inténtelo de nuevo o contacte con el remitente.",
+  "DéchiffrementEnCours": "Descifrado en curso...",
   "ENCRYPTION_FAILED": "Error al cifrar los archivos. Por favor, inténtelo de nuevo.",
   "Question1_Texte": "",
   "Question1Image": ""
