@@ -24,6 +24,10 @@ export class DownloadManagerService {
   }
 
   clearPliAesKey(): void {
+    const current = this.pliAesKey.getValue();
+    if (current) {
+      current.fill(0); // sodium_memzero équivalent JS : écrase les octets avant libération
+    }
     this.pliAesKey.next(null);
   }
 }

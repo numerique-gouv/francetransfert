@@ -193,6 +193,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           });
         })
         .finally(() => {
+          this.downloadManagerService.clearPliAesKey();
           this.isDownloading = false;
         });
     } else {

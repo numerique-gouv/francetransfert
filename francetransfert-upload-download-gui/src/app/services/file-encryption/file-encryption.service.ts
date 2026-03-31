@@ -59,12 +59,15 @@ export class FileEncryptionService {
     }
 
     // Encapsuler la clé pli pour chaque destinataire (crypto_box_seal = X25519 anonyme)
-    return {
+    const result = {
       encryptedFiles,
       pliAesKeyEncryptedForSender:     new Uint8Array(sodium.crypto_box_seal(pliKey, publicSender)),
       pliAesKeyEncryptedForRecipient1: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient1)),
       pliAesKeyEncryptedForRecipient2: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient2))
     };
+    // Effacer la clé pli en clair dès qu'elle n'est plus nécessaire
+    sodium.memzero(pliKey);
+    return result;
   }
 
   /**
@@ -148,7 +151,7 @@ export class FileEncryptionService {
 
     let state: any = null;
     let headerRead = false;
-    let buffer = new Uint8Array(0);
+    let buffer: Uint8Array = new Uint8Array(0);
     let sodiumInstance: any = null;
     const sodiumService = this.sodiumService;
 
@@ -196,6 +199,9 @@ export class FileEncryptionService {
         if (headerRead && buffer.byteLength > 0) {
           controller.enqueue(decryptChunk(buffer));
         }
+        // Effacer la clé pli et le buffer résiduel de la mémoire (sodium_memzero)
+        sodiumInstance.memzero(pliKey);
+        sodiumInstance.memzero(buffer);
       }
     });
   }
