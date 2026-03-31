@@ -343,7 +343,9 @@ upload:
     UPLOAD_LIMIT_SENDERMAIL: "10"
     UPLOAD_FILE_LIMIT: "2147483648"
     UPLOAD_TOKEN_CHUNKMODULO: "6"
-    UPLOAD_EXPIRED_LIMIT: "90"
+    UPLOAD_EXPIRED_LIMIT: "60"
+    UPLOAD_MAX_RECIPIENT_AGENT: "100"
+    UPLOAD_MAX_RECIPIENT_PUBLIC: "10"
     EXPIRE_CONFIRMATION_CODE_LENGTH: "8"
     EXPIRE_TOKEN_SENDER: "1800"
     EXPIRE_TOKEN_INITAPI: "120"
@@ -577,7 +579,7 @@ worker:
   hpa:
     enabled: true
     minReplicas: 2
-    maxReplicas: 10
+    maxReplicas: 9
     metrics:
       - type: Pods
         pods:
@@ -591,7 +593,7 @@ worker:
         stabilizationWindowSeconds: 300
         policies:
           - type: Pods
-            value: 1
+            value: 2
             periodSeconds: 300
         selectPolicy: Max
       scaleDown:
