@@ -720,3 +720,10 @@ dex:
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: dex
+
+sequestre:
+  sequestreQueueEnclosures: "enc1,enc2,enc3"
+
+lockEnclosure:
+  lockEnclosureEmail: "user@example.com"
+  lockEnclosureIds: "enc1,enc2,enc3"
