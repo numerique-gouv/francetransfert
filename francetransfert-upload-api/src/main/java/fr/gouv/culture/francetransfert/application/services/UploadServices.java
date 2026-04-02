@@ -594,18 +594,18 @@ public class UploadServices {
 	}
 
 	public EnclosureRepresentation createMetaDataEnclosureInRedis(FranceTransfertDataRepresentation metadata) {
-		if (FileUtils.getEnclosureTotalSize(metadata.getRootFiles(), metadata.getRootDirs()) > uploadLimitSize
-				|| FileUtils.getSizeFileOver(metadata.getRootFiles(), uploadFileLimitSize)) {
-			LOGGER.error("enclosure size > upload limit size: {}", uploadLimitSize);
-			throw new UploadException(ErrorEnum.LIMT_SIZE_ERROR.getValue());
-		}
+//		if (FileUtils.getEnclosureTotalSize(metadata.getRootFiles(), metadata.getRootDirs()) > uploadLimitSize
+//				|| FileUtils.getSizeFileOver(metadata.getRootFiles(), uploadFileLimitSize)) {
+//			LOGGER.error("enclosure size > upload limit size: {}", uploadLimitSize);
+//			throw new UploadException(ErrorEnum.LIMT_SIZE_ERROR.getValue());
+//		}
 
 		if (FileUtils.hasFileNameTooLong(metadata.getRootFiles(), metadata.getRootDirs())) {
 			LOGGER.error("enclosure has file name too long");
 			throw new UploadException(ErrorEnum.FILE_NAME_TOO_LONG.getValue());
 		}
 		try {
-			LOGGER.debug("limit enclosure size is < upload limit size: {}", uploadLimitSize);
+			LOGGER.debug("limit enclosure size is <> upload limit size: {}", uploadLimitSize);
 			// generate password if provided one not valid
 			if (metadata.getPassword() == null) {
 				LOGGER.info("password is null");

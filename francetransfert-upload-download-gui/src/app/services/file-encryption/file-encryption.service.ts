@@ -90,7 +90,7 @@ export class FileEncryptionService {
   /**
    * Chiffre un fichier par chunks de CHUNK_SIZE avec secretstream (XChaCha20-Poly1305).
    * Format : [24 B header][chunk_1 + 17 B]...[chunk_N + 17 B (TAG_FINAL)]
-   * Le plaintext est lu progressivement (file.stream()) — RAM ≈ 1× taille fichier chiffré.
+   * Le plaintext est lu progressivement
    */
   async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<Blob> {
     const sodium = await this.sodiumService.getSodium();
