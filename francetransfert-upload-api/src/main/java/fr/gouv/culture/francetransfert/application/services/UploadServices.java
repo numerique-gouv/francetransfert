@@ -1077,6 +1077,9 @@ public class UploadServices {
 	}
 
 	public boolean logout(ValidateCodeResponse data) throws MetaloadException {
+		if (StringUtils.isBlank(data.getSenderMail()) || StringUtils.isBlank(data.getSenderToken())) {
+			return true;
+		}
 		redisManager.validateToken(data.getSenderMail(), data.getSenderToken());
 		redisManager.expireToken(data.getSenderMail(), data.getSenderToken());
 		return true;
