@@ -149,12 +149,12 @@ export class DownloadComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.onDestroy$))
         .subscribe({
           next: result => {
-          if (result.type && result.type === 'WRONG_PASSWORD') {
-            this.passwordError = true;
-            this.isDownloading = false;
-          } else {
-            this.runDownloadFlow(result.lienTelechargement, true);
-          }
+            if (result.type && result.type === 'WRONG_PASSWORD') {
+              this.passwordError = true;
+              this.isDownloading = false;
+            } else {
+              this.runDownloadFlow(result.lienTelechargement);
+            }
           },
           error: (err) => {
             this.isDownloading = false;
@@ -166,12 +166,12 @@ export class DownloadComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.onDestroy$))
         .subscribe({
           next: result => {
-          if (result.type && result.type === 'WRONG_PASSWORD') {
-            this.passwordError = true;
-            this.isDownloading = false;
-          } else {
-            this.runDownloadFlow(result.lienTelechargement, false);
-          }
+            if (result.type && result.type === 'WRONG_PASSWORD') {
+              this.passwordError = true;
+              this.isDownloading = false;
+            } else {
+              this.runDownloadFlow(result.lienTelechargement);
+            }
           },
           error: (err) => {
             this.isDownloading = false;
@@ -179,13 +179,13 @@ export class DownloadComponent implements OnInit, OnDestroy {
         });
     }
   }
-  private runDownloadFlow(presignedUrl: string, isPublic: boolean): void {
+  private runDownloadFlow(presignedUrl: string): void {
     const pliKey = this.downloadManagerService.pliAesKey.getValue();
 
     if (pliKey) {
       // Vrai streaming : fetch ReadableStream → TransformStream decrypt
       // → StreamSaver disque
-      void this.decryptAndStreamToFile(isPublic, pliKey)
+      void this.decryptAndStreamToFile(presignedUrl, pliKey)
         .catch((_err) => {
           this.downloadManagerService.downloadError$.next({
             statusCode: 0,
@@ -203,7 +203,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async decryptAndStreamToFile(isPublic: boolean, pliKey: Uint8Array): Promise<void> {
+  private async decryptAndStreamToFile(presignedUrl: string, pliKey: Uint8Array): Promise<void> {
     const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
 
     // 1. Ouvre le fichier de destination dans le navigateur (StreamSaver)
@@ -211,19 +211,19 @@ export class DownloadComponent implements OnInit, OnDestroy {
     const writer = fileStream.getWriter();
 
     try {
-      // 2. Fetch streaming depuis le backend (StreamingResponseBody)
-      const encryptedStream = isPublic
-        ? await this._downloadService.getDownloadFileContentStreamPublic(this.params, this.password)
-        : await this._downloadService.getDownloadFileContentStream(
-            this.params, this.downloadInfos.withPassword, this.password
-          );
+      // 2. Fetch streaming directement depuis l'URL pré-signée
+      const response = await fetch(presignedUrl);
+      if (!response.ok || !response.body) {
+        throw new Error(`DOWNLOAD_STREAM_ERROR: HTTP ${response.status}`);
+      }
+      const encryptedStream = response.body as ReadableStream<Uint8Array>;
 
       // 3. Pipeline : fetch → decrypt (secretstream pull) → écriture disque
       const decryptTransform = this.fileEncryptionService.createDecryptTransformStream(pliKey);
       const reader = encryptedStream.pipeThrough(decryptTransform).getReader();
       while (true) {
         const { value, done } = await reader.read();
-        if (done) break;
+        if (done) { console.log('done'); break; }
         await writer.write(value);
       }
       await writer.close();

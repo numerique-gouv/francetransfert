@@ -140,7 +140,7 @@ function onMessage (event) {
     ? [ ports[0], data.readableStream ]
     : [ ports[0] ]
 
-  if (!(data.readableStream || data.transferringReadable)) {
+  if (data.readableStream || data.transferringReadable) {
     keepAlive()
   }
 

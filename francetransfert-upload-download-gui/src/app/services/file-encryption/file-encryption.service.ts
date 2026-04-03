@@ -30,7 +30,7 @@ export class FileEncryptionService {
   constructor(
     private readonly keyPairService: KeyPairService,
     private readonly sodiumService: SodiumService
-  ) {}
+  ) { }
 
   /**
    * Chiffre les fichiers avec la clé du pli (secretstream XChaCha20-Poly1305)
@@ -39,6 +39,7 @@ export class FileEncryptionService {
   async encryptFilesWithPliKey(
     items: Array<File | { file: File; relativePath?: string }>
   ): Promise<PliEncryptionResult> {
+    console.log(`start encryptFilesWithPliKey`);
     const sodium = await this.sodiumService.getSodium();
     const [publicSender, publicRecipient1, publicRecipient2] =
       await this.keyPairService.getPocPublicKeys();
@@ -61,12 +62,13 @@ export class FileEncryptionService {
     // Encapsuler la clé pli pour chaque destinataire (crypto_box_seal = X25519 anonyme)
     const result = {
       encryptedFiles,
-      pliAesKeyEncryptedForSender:     new Uint8Array(sodium.crypto_box_seal(pliKey, publicSender)),
+      pliAesKeyEncryptedForSender: new Uint8Array(sodium.crypto_box_seal(pliKey, publicSender)),
       pliAesKeyEncryptedForRecipient1: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient1)),
       pliAesKeyEncryptedForRecipient2: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient2))
     };
     // Effacer la clé pli en clair dès qu'elle n'est plus nécessaire
     sodium.memzero(pliKey);
+    console.log(`end encryptFilesWithPliKey`);
     return result;
   }
 
@@ -78,12 +80,14 @@ export class FileEncryptionService {
     publicKey: Uint8Array,
     privateKey: Uint8Array
   ): Promise<Uint8Array> {
+    console.log(`start unwrapPliKey`);
     const sodium = await this.sodiumService.getSodium();
     const sealed = sodium.from_base64(sealedBase64, sodium.base64_variants.ORIGINAL);
     const pliKey = sodium.crypto_box_seal_open(sealed, publicKey, privateKey);
     if (!pliKey) {
       throw new Error('Impossible de déchiffrer la clé du pli (clé privée incorrecte)');
     }
+    console.log(`end unwrapPliKey`);
     return new Uint8Array(pliKey);
   }
 
@@ -93,6 +97,7 @@ export class FileEncryptionService {
    * Le plaintext est lu progressivement
    */
   async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<Blob> {
+    console.log(`start encryptFileWithSecretstream`);
     const sodium = await this.sodiumService.getSodium();
     const { state, header } =
       sodium.crypto_secretstream_xchacha20poly1305_init_push(pliKey);
@@ -134,7 +139,7 @@ export class FileEncryptionService {
         sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
       ));
     }
-
+    console.log(`end encryptFileWithSecretstream`);
     return new Blob(parts as BlobPart[], { type: 'application/octet-stream' });
   }
 
@@ -145,6 +150,7 @@ export class FileEncryptionService {
    * Format attendu : [24 B header][CHUNK_SIZE + 17 B]...[dernierChunk + 17 B (TAG_FINAL)]
    */
   createDecryptTransformStream(pliKey: Uint8Array): TransformStream<Uint8Array, Uint8Array> {
+    console.log(`start createDecryptTransformStream`);
     const HEADER_SIZE = 24; // crypto_secretstream_xchacha20poly1305_HEADERBYTES
     const ABYTES = 17;      // crypto_secretstream_xchacha20poly1305_ABYTES
     const ENCRYPTED_CHUNK_SIZE = CHUNK_SIZE + ABYTES;
@@ -200,6 +206,7 @@ export class FileEncryptionService {
           controller.enqueue(decryptChunk(buffer));
         }
         // Effacer la clé pli et le buffer résiduel de la mémoire (sodium_memzero)
+        console.log(`end createDecryptTransformStream`);
         sodiumInstance.memzero(pliKey);
         sodiumInstance.memzero(buffer);
       }
