@@ -5,7 +5,7 @@
   * License-Filename: LICENSE.txt
   */
 
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ConfigService } from '../../services/config/config.service';
@@ -33,12 +33,16 @@ export class CguComponent implements OnInit, AfterViewInit {
   constructor(private titleService: Title,
     private sanitizer: DomSanitizer,
     private router: Router,
-    private configService: ConfigService) { }
+    private configService: ConfigService,
+    private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - CGU');
     this.sanitizedUrl = this.sanitizer.bypassSecurityTrustUrl('https://www.ssi.gouv.fr/administration/qualification/zed/');
-    this.jours = this.configService.configInfo.getValue().uploadExpiredLimit;
+    this.configService.configInfo.subscribe(config => {
+      this.jours = config?.uploadExpiredLimit;
+      this.changeDetectorRef.detectChanges();
+    });
   }
 
   ngAfterViewInit(): void {

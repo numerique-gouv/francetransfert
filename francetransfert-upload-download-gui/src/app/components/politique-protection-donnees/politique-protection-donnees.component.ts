@@ -27,7 +27,9 @@ export class PolitiqueProtectionDonneesComponent implements OnInit, AfterViewIni
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Politique de protection des données');
-    this.jours = this.configService.configInfo.getValue().uploadExpiredLimit;
+    this.configService.configInfo.subscribe(config => {
+      this.jours = config?.uploadExpiredLimit;
+    });
   }
 
   ngAfterViewInit(): void {
