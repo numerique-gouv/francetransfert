@@ -579,7 +579,7 @@ worker:
   hpa:
     enabled: true
     minReplicas: 2
-    maxReplicas: 9
+    maxReplicas: 8
     metrics:
       - type: Pods
         pods:
@@ -587,7 +587,7 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "35"
+            averageValue: "30"
     behavior:
       scaleUp:
         stabilizationWindowSeconds: 300
@@ -597,11 +597,11 @@ worker:
             periodSeconds: 300
         selectPolicy: Max
       scaleDown:
-        stabilizationWindowSeconds: 900
+        stabilizationWindowSeconds: 300
         policies:
           - type: Pods
             value: 1
-            periodSeconds: 1500
+            periodSeconds: 900
 
 ingress:
   enabled: true
