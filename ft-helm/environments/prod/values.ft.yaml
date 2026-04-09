@@ -589,19 +589,20 @@ worker:
             type: AverageValue
             averageValue: "30"
     behavior:
-      scaleUp:
-        stabilizationWindowSeconds: 300
-        policies:
-          - type: Pods
-            value: 2
-            periodSeconds: 300
-        selectPolicy: Max
       scaleDown:
-        stabilizationWindowSeconds: 300
         policies:
-          - type: Pods
+          - periodSeconds: 900
+            type: Pods
             value: 1
-            periodSeconds: 900
+        selectPolicy: Max
+        stabilizationWindowSeconds: 900
+      scaleUp:
+        policies:
+          - periodSeconds: 200
+            type: Pods
+            value: 4
+        selectPolicy: Max
+        stabilizationWindowSeconds: 200
 
 ingress:
   enabled: true
