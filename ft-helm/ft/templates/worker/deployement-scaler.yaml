@@ -6,7 +6,9 @@ kind: Deployment
 metadata:
   name: {{ include "france-transfert.fullname" . }}-worker-scaler 
 spec:
+  {{- if not .Values.worker.hpa.enabled }}
   replicas: {{ .Values.worker.scaler.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ include "france-transfert.fullname" . }}-worker-app
