@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.3</version>
+		<version>4.0.5</version>
 	</parent>
 	<properties>
 		<java.version>25</java.version>
@@ -158,7 +158,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>4.0.3</version>
+				<version>4.0.5</version>
 				<configuration>
 					<profiles>
 						<profile>dev</profile>
