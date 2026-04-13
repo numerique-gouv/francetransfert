@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -39,6 +40,9 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
+import com.amazonaws.services.s3.model.CORSRule;
+import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -54,6 +58,11 @@ import com.amazonaws.services.s3.model.PartListing;
 import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.ServerSideEncryptionByDefault;
+import com.amazonaws.services.s3.model.ServerSideEncryptionConfiguration;
+import com.amazonaws.services.s3.model.ServerSideEncryptionRule;
+import com.amazonaws.services.s3.model.SetBucketCrossOriginConfigurationRequest;
+import com.amazonaws.services.s3.model.SetBucketEncryptionRequest;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.amazonaws.util.StringUtils;
@@ -86,6 +95,9 @@ public class StorageManager {
 
     @Value("${bucket.sequestre}")
     private String sequestreBucket;
+
+    @Value("${bucket.allowlist}")
+    private List<String> bucketAllowList;
 
     @Value("${storage.request.timeout:120000}")
     private int requestTimeout;
@@ -286,7 +298,7 @@ public class StorageManager {
 
     public String getFirstEnclosureFileKey(String bucketName, String enclosureId)
             throws StorageException, RetryException {
-        String prefix =  enclosureId + "/";
+        String prefix = enclosureId + "/";
         ArrayList<String> keys = getUploadedEnclosureFiles(bucketName, prefix);
         if (CollectionUtils.isEmpty(keys)) {
             return null;
@@ -295,8 +307,9 @@ public class StorageManager {
         return keys.getFirst();
     }
 
-    public String getFirstEnclosureFileEtag(String bucketName , String enclosureId) throws StorageException, RetryException {
-        String firstKey = getFirstEnclosureFileKey(bucketName , enclosureId);
+    public String getFirstEnclosureFileEtag(String bucketName, String enclosureId)
+            throws StorageException, RetryException {
+        String firstKey = getFirstEnclosureFileKey(bucketName, enclosureId);
         return firstKey != null ? getEtag(bucketName, firstKey) : null;
     }
 
@@ -400,8 +413,21 @@ public class StorageManager {
 
         Bucket bucket = null;
 
+        BucketCrossOriginConfiguration bucketCrossOriginConfiguration = new BucketCrossOriginConfiguration(
+                Arrays.asList(
+                        new CORSRule().withAllowedMethods(Arrays.asList(AllowedMethods.GET))
+                                .withAllowedOrigins(bucketAllowList)));
+
+        SetBucketEncryptionRequest sseConfig = new SetBucketEncryptionRequest()
+                .withBucketName(bucketName)
+                .withServerSideEncryptionConfiguration(new ServerSideEncryptionConfiguration()
+                        .withRules(new ServerSideEncryptionRule().withApplyServerSideEncryptionByDefault(
+                                new ServerSideEncryptionByDefault().withSSEAlgorithm("AES256"))));
+
         try {
             bucket = conn.createBucket(bucketName);
+            conn.setBucketCrossOriginConfiguration(bucketName, bucketCrossOriginConfiguration);
+            conn.setBucketEncryption(sseConfig);
         } catch (Exception e) {
             throw new RetryException(e);
         }
