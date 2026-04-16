@@ -59,6 +59,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   refreshUpdateSubscription: Subscription = new Subscription;
   config: any;
   configSubscription: Subscription;
+  encrypting: boolean = false;
 
 
   constructor(private responsiveService: ResponsiveService,
@@ -296,8 +297,10 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async encryptThenUpload(): Promise<void> {
+    this.encrypting = true;
     const flowJs = this.flow?.flowJs;
     if (!flowJs?.files?.length) {
+      this.encrypting = false;
       this.upload();
       return;
     }
@@ -323,8 +326,10 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient1),
         this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient2)
       ]);
+      this.encrypting = false;
       this.upload();
     } catch {
+      this.encrypting = false;
       this.uploadManagerService.uploadError$.next({ statusCode: 0, message: 'ENCRYPTION_FAILED' });
       this.uploadStarted = false;
     }

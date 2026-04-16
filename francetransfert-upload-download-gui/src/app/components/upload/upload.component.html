@@ -12,6 +12,13 @@
         </mat-card-content>
     </mat-card>
     <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
+        <div class="encrypting-wrapper" *ngIf="encrypting">
+            <div class="encrypting-loader">
+                <mat-spinner>
+                </mat-spinner>
+                <p class="encrypting-message">Chiffrement en cours...</p>
+            </div>
+        </div>
         <ft-loader *ngIf="uploadValidated && uploadStarted && !uploadFinished"
             (transferFailed)="onTransferFailed($event)" (transferCancelled)="onTransferCancelled($event)"
             (transferFinished)="onTransferFinished($event)" class="loader-wrapper"></ft-loader>
