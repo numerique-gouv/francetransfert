@@ -33,12 +33,12 @@
               {
                 "glob": "mitm.html",
                 "input": "src/assets",
-                "output": "/"
+                "output": "/streamsaver/"
               },
               {
                 "glob": "sw.js",
                 "input": "node_modules/streamsaver",
-                "output": "/"
+                "output": "/streamsaver/"
               }
             ],
             "styles": [

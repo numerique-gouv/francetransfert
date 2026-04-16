@@ -20,7 +20,7 @@ import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack
 import { LoginService } from 'src/app/services/login/login.service';
 import * as streamSaver from 'streamsaver';
 
-(streamSaver as any).mitm = '/mitm.html';
+(streamSaver as any).mitm = '/streamsaver/mitm.html';
 
 @Component({
   selector: 'ft-download',
@@ -179,6 +179,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
         });
     }
   }
+
   private runDownloadFlow(presignedUrl: string): void {
     const pliKey = this.downloadManagerService.pliAesKey.getValue();
 
