@@ -101,6 +101,7 @@ export class FileEncryptionService {
       try {
         return await this.encryptFileWithSecretstreamToOpfs(file, pliKey);
       } catch (error) {
+        console.error('encryptFileWithSecretstreamToOpfs error', error);
         if (!this.tempEncryptedStorageService.isStorageFallbackError(error)) {
           throw error;
         }

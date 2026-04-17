@@ -55,6 +55,7 @@ export class TempEncryptedStorageService {
       fileHandle = await opfsRoot.getFileHandle(fileName, { create: true });
       writable = await fileHandle.createWritable();
     } catch (error) {
+      console.error('Unable to initialize OPFS writer', error);
       throw new OpfsStorageWriteError('Unable to initialize OPFS writer', error);
     }
     this.opfsTempFileNames.add(fileName);
@@ -64,6 +65,7 @@ export class TempEncryptedStorageService {
         try {
           await writable.write(chunk as unknown as BufferSource);
         } catch (error) {
+          console.error('Unable to write encrypted chunk to OPFS', error);
           throw new OpfsStorageWriteError('Unable to write encrypted chunk to OPFS', error);
         }
       });
@@ -76,8 +78,10 @@ export class TempEncryptedStorageService {
       });
     } catch (error) {
       try {
+        console.error('Unable to abort OPFS writer', error);
         await writable.abort();
-      } catch {
+      } catch (error) {
+        console.error('Unable to abort OPFS writer', error);
         // Ignore abort failures.
       }
       throw error;
@@ -134,6 +138,7 @@ export class TempEncryptedStorageService {
   }
 
   isStorageFallbackError(error: unknown): boolean {
+    console.error('isStorageFallbackError', error);
     return error instanceof OpfsStorageUnavailableError || error instanceof OpfsStorageWriteError;
   }
 
