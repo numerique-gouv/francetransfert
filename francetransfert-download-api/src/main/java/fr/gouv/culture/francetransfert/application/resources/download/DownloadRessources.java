@@ -99,18 +99,21 @@ public class DownloadRessources {
 			RetryException {
 		LOGGER.info("start download file content ");
 		downloadServices.authorizeDownloadFileContent(downloadMeta);
-		StreamingResponseBody body = outputStream -> downloadServices.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
+		StreamingResponseBody body = outputStream -> downloadServices
+				.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(body);
 	}
 
 	@PostMapping(value = "/download-file-content-public", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@Operation(method = "POST", description = "Get file content for public link (client-side decryption)")
-	public ResponseEntity<StreamingResponseBody> downloadFileContentPublic(@RequestBody DownloadPasswordMetaData downloadMeta)
+	public ResponseEntity<StreamingResponseBody> downloadFileContentPublic(
+			@RequestBody DownloadPasswordMetaData downloadMeta)
 			throws UnauthorizedAccessException, UnsupportedEncodingException, MetaloadException {
 		LOGGER.info("start download file content public ");
 		downloadServices.validatePublic(downloadMeta.getEnclosure());
 		downloadServices.authorizeDownloadFileContentPublic(downloadMeta.getEnclosure(), downloadMeta.getPassword());
-		StreamingResponseBody body = outputStream -> downloadServices.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
+		StreamingResponseBody body = outputStream -> downloadServices
+				.streamDownloadFileBytes(downloadMeta.getEnclosure(), outputStream);
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(body);
 	}
 
@@ -143,6 +146,13 @@ public class DownloadRessources {
 		LOGGER.info("start donlowad info ");
 		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(
 				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
+
+		String recipientId = downloadServices.getRecipientId(tokenEnclosureData.getEnclosure(),
+				tokenEnclosureData.getRecipient());
+		String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
+		String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
+				RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
+		downloadRepresentation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}
@@ -159,6 +169,13 @@ public class DownloadRessources {
 				tokenEnclosureData.getRecipient(), tokenEnclosureData.getEnclosure());
 		DownloadRepresentation downloadRepresentation = downloadServices
 				.getDownloadInfoConnect(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getRecipient());
+
+		String recipientId = downloadServices.getRecipientId(tokenEnclosureData.getEnclosure(),
+				tokenEnclosureData.getRecipient());
+		String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
+		String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
+				RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
+		downloadRepresentation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}

@@ -78,6 +78,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (downloadInfos) => {
               this.downloadInfos = downloadInfos;
+              void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
               this.downloadInfos.rootFiles.map(file => {
                 this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
               });
@@ -97,6 +98,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (downloadInfos) => {
               this.downloadInfos = downloadInfos;
+              void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
               this.downloadInfos.rootFiles.map(file => {
                 this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
               });
@@ -117,6 +119,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: (downloadInfosPublic) => {
                   this.downloadInfos = downloadInfosPublic;
+                  void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
                   this.downloadInfos.rootFiles.map(file => {
                     this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
                   });
@@ -194,7 +197,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           });
         })
         .finally(() => {
-          this.downloadManagerService.clearPliAesKey();
+          // this.downloadManagerService.clearPliAesKey();
           this.isDownloading = false;
         });
     } else {

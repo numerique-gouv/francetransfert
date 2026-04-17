@@ -140,25 +140,18 @@
       ? [ports[0], data.readableStream]
       : [ports[0]]
 
-    // Keep SW/popup alive for very long transfers as well.
-    // Some browsers can still suspend the context when using transferable streams.
-    keepAlive()
+    if (!(data.readableStream || data.transferringReadable)) {
+      keepAlive()
+    }
 
     return sw.postMessage(data, transferable)
   }
 
-  function notifyOpenerReady() {
-    if (!window.opener) {
-      return
-    }
+  if (window.opener) {
     // The opener can't listen to onload event, so we need to help em out!
     // (telling them that we are ready to accept postMessage's)
     window.opener.postMessage('StreamSaver::loadedPopup', '*')
   }
-
-  notifyOpenerReady()
-  // When restored from bfcache/history, re-send readiness for next download.
-  window.addEventListener('pageshow', () => notifyOpenerReady())
 
   if (navigator.serviceWorker) {
     registerWorker().then(() => {
