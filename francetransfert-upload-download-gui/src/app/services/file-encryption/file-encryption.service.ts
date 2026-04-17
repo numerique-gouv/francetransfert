@@ -8,6 +8,7 @@
 import { Injectable } from '@angular/core';
 import { KeyPairService } from '../key-pair/key-pair.service';
 import { SodiumService } from '../sodium/sodium.service';
+import { TempEncryptedStorageService } from '../temp-encrypted-storage/temp-encrypted-storage.service';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -23,13 +24,16 @@ export interface PliEncryptionResult {
   pliAesKeyEncryptedForRecipient2: Uint8Array;
 }
 
+type ByteArray = Uint8Array;
+
 @Injectable({
   providedIn: 'root'
 })
 export class FileEncryptionService {
   constructor(
     private readonly keyPairService: KeyPairService,
-    private readonly sodiumService: SodiumService
+    private readonly sodiumService: SodiumService,
+    private readonly tempEncryptedStorageService: TempEncryptedStorageService
   ) { }
 
   /**
@@ -50,12 +54,8 @@ export class FileEncryptionService {
     // Chiffrer chaque fichier par chunks avec secretstream
     const encryptedFiles: EncryptedFileResult[] = [];
     for (const item of items) {
-      const file = typeof item === 'object' && 'file' in item ? item.file : item as File;
-      const encryptedBlob = await this.encryptFileWithSecretstream(file, pliKey);
-      const encryptedFile = new File([encryptedBlob], file.name, {
-        type: 'application/octet-stream',
-        lastModified: Date.now()
-      });
+      const file = item instanceof File ? item : item.file;
+      const encryptedFile = await this.encryptFileWithSecretstream(file, pliKey);
       encryptedFiles.push({ encryptedFile, originalSize: file.size });
     }
 
@@ -96,51 +96,131 @@ export class FileEncryptionService {
    * Format : [24 B header][chunk_1 + 17 B]...[chunk_N + 17 B (TAG_FINAL)]
    * Le plaintext est lu progressivement
    */
-  async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<Blob> {
+  async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<File> {
+    if (await this.tempEncryptedStorageService.isOpfsAccessible()) {
+      try {
+        return await this.encryptFileWithSecretstreamToOpfs(file, pliKey);
+      } catch (error) {
+        if (!this.tempEncryptedStorageService.isStorageFallbackError(error)) {
+          throw error;
+        }
+        console.warn('OPFS encryption fallback to in-memory mode', error);
+      }
+    }
+    return this.encryptFileWithSecretstreamInMemory(file, pliKey);
+  }
+
+  async cleanupTemporaryEncryptedFiles(): Promise<void> {
+    await this.tempEncryptedStorageService.cleanupTemporaryEncryptedFiles();
+  }
+
+  private async encryptFileWithSecretstreamToOpfs(
+    file: File,
+    pliKey: Uint8Array
+  ): Promise<File> {
+    const encryptedFile = await this.tempEncryptedStorageService.writeEncryptedFile(
+      file.name,
+      async (writeChunk) => {
+        await this.encryptFileWithSecretstreamCore(file, pliKey, async (chunk) => {
+          await writeChunk(chunk);
+        });
+      }
+    );
+    if (!encryptedFile) {
+      throw new Error('OPFS not available');
+    }
+    return encryptedFile;
+  }
+
+  private async encryptFileWithSecretstreamInMemory(file: File, pliKey: Uint8Array): Promise<File> {
+    const parts: ByteArray[] = [];
+    await this.encryptFileWithSecretstreamCore(file, pliKey, (chunk) => {
+      parts.push(chunk);
+    });
+    return new File([new Blob(parts as BlobPart[], { type: 'application/octet-stream' })], file.name, {
+      type: 'application/octet-stream',
+      lastModified: Date.now()
+    });
+  }
+
+  private async encryptFileWithSecretstreamCore(
+    file: File,
+    pliKey: Uint8Array,
+    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void
+  ): Promise<void> {
     console.log(`start encryptFileWithSecretstream`);
     const sodium = await this.sodiumService.getSodium();
     const { state, header } =
       sodium.crypto_secretstream_xchacha20poly1305_init_push(pliKey);
 
-    const parts: Uint8Array[] = [header]; // 24 B header en tête
+    await onEncryptedChunk(header); // 24 B header en tête
     const reader = file.stream().getReader();
-    let buffer = new Uint8Array(0);
+    let buffer: ByteArray = new Uint8Array(0);
     let done = false;
+    let wroteAtLeastOnePayloadChunk = false;
 
     while (!done) {
       const { value, done: streamDone } = await reader.read();
       done = streamDone;
 
       if (value) {
-        const merged = new Uint8Array(buffer.byteLength + value.byteLength);
-        merged.set(buffer);
-        merged.set(value, buffer.byteLength);
-        buffer = merged;
+        buffer = this.appendBuffer(buffer, value);
       }
 
-      // Chiffrer les chunks complets, et le dernier chunk si le stream est terminé
-      while (buffer.byteLength >= CHUNK_SIZE || (done && buffer.byteLength > 0)) {
-        const isLast = done && buffer.byteLength <= CHUNK_SIZE;
-        const chunkEnd = isLast ? buffer.byteLength : CHUNK_SIZE;
-        const chunk = buffer.slice(0, chunkEnd);
-        const tag = isLast
-          ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
-          : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
-        parts.push(sodium.crypto_secretstream_xchacha20poly1305_push(state, chunk, null, tag));
-        buffer = buffer.slice(chunkEnd);
-        if (isLast) break;
-      }
+      const encryptedBatch = await this.encryptAvailableChunks(
+        sodium,
+        state,
+        buffer,
+        done,
+        onEncryptedChunk
+      );
+      buffer = encryptedBatch.remainingBuffer;
+      wroteAtLeastOnePayloadChunk = wroteAtLeastOnePayloadChunk || encryptedBatch.wrotePayload;
     }
 
     // Cas fichier vide : émettre un chunk FINAL vide
-    if (parts.length === 1) {
-      parts.push(sodium.crypto_secretstream_xchacha20poly1305_push(
+    if (!wroteAtLeastOnePayloadChunk) {
+      await onEncryptedChunk(sodium.crypto_secretstream_xchacha20poly1305_push(
         state, new Uint8Array(0), null,
         sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
       ));
     }
     console.log(`end encryptFileWithSecretstream`);
-    return new Blob(parts as BlobPart[], { type: 'application/octet-stream' });
+  }
+
+  private appendBuffer(current: ByteArray, incoming: ByteArray): ByteArray {
+    const merged = new Uint8Array(current.byteLength + incoming.byteLength);
+    merged.set(current);
+    merged.set(incoming, current.byteLength);
+    return merged;
+  }
+
+  private async encryptAvailableChunks(
+    sodium: any,
+    state: any,
+    sourceBuffer: ByteArray,
+    streamDone: boolean,
+    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void
+  ): Promise<{ remainingBuffer: ByteArray; wrotePayload: boolean }> {
+    let buffer = sourceBuffer;
+    let wrotePayload = false;
+    while (buffer.byteLength >= CHUNK_SIZE || (streamDone && buffer.byteLength > 0)) {
+      const isLast = streamDone && buffer.byteLength <= CHUNK_SIZE;
+      const chunkEnd = isLast ? buffer.byteLength : CHUNK_SIZE;
+      const chunk = buffer.slice(0, chunkEnd);
+      const tag = isLast
+        ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+        : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
+      await onEncryptedChunk(
+        sodium.crypto_secretstream_xchacha20poly1305_push(state, chunk, null, tag)
+      );
+      wrotePayload = true;
+      buffer = buffer.slice(chunkEnd);
+      if (isLast) {
+        break;
+      }
+    }
+    return { remainingBuffer: buffer, wrotePayload };
   }
 
   /**
@@ -212,4 +292,5 @@ export class FileEncryptionService {
       }
     });
   }
+
 }

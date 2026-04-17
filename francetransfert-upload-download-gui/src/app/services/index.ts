@@ -20,4 +20,5 @@ export { MailingListService } from './mailing-list/mailing-list.service';
 export { IndexedDbService } from './indexed-db/indexed-db.service';
 export { KeyPairService, StoredKeyPair, PocEnrollmentKeyPairs } from './key-pair/key-pair.service';
 export { FileEncryptionService, EncryptedFileResult, PliEncryptionResult } from './file-encryption/file-encryption.service';
+export { TempEncryptedStorageService } from './temp-encrypted-storage/temp-encrypted-storage.service';
 export { SodiumService } from './sodium/sodium.service';

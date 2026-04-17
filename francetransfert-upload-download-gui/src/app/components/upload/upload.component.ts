@@ -134,6 +134,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   reset() {
+    this.cleanupTemporaryEncryptedFiles();
     this.uploadSubscription.unsubscribe();
     if (this.transfertSubscription) {
       this.transfertSubscription.unsubscribe();
@@ -199,6 +200,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onTransferFailed(event) {
+    this.cleanupTemporaryEncryptedFiles();
     this.uploadFailed = true;
     this.uploadFinished = true;
     this.canReset = true;
@@ -213,6 +215,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onTransferCancelled(event) {
+    this.cleanupTemporaryEncryptedFiles();
     this.uploadSubscription.unsubscribe();
     this.refreshUpdateSubscription.unsubscribe();
     this.uploadStarted = !event;
@@ -221,6 +224,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onTransferFinished(event) {
+    this.cleanupTemporaryEncryptedFiles();
     this.uploadSubscription.unsubscribe();
     this.refreshUpdateSubscription.unsubscribe();
     this.uploadFinished = event;
@@ -444,7 +448,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.flow.upload();
   }
 
+  private cleanupTemporaryEncryptedFiles(): void {
+    void this.fileEncryptionService.cleanupTemporaryEncryptedFiles();
+  }
+
   ngOnDestroy() {
+    this.cleanupTemporaryEncryptedFiles();
     this.onDestroy$.next();
     this.onDestroy$.complete();
     this.responsiveSubscription.unsubscribe();
