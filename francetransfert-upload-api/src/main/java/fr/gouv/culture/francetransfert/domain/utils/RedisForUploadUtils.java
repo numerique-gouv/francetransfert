@@ -151,7 +151,9 @@ public class RedisForUploadUtils {
 			LOGGER.debug("is new sender: {}", isNewSender ? "0" : "1");
 			map.put(SenderKeysEnum.ID.getKey(), metadata.getConfirmedSenderId());
 			LOGGER.debug("sender id: {}", metadata.getConfirmedSenderId());
-			map.put(SenderKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey() , metadata.getPliAesKeyEncrypted()[0]);
+			if (metadata.getPliAesKeyEncrypted() != null && metadata.getPliAesKeyEncrypted().length > 0) {
+				map.put(SenderKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey(), metadata.getPliAesKeyEncrypted()[0]);
+			}
 			redisManager.insertHASH(RedisKeysEnum.FT_SENDER.getKey(enclosureId), map);
 			return metadata.getConfirmedSenderId();
 		} catch (Exception e) {
@@ -181,7 +183,6 @@ public class RedisForUploadUtils {
 					mapRecipient.put(RecipientKeysEnum.NB_DL.getKey(), "0");
 					mapRecipient.put(RecipientKeysEnum.PASSWORD_TRY_COUNT.getKey(), "0");
 					mapRecipient.put(RecipientKeysEnum.LOGIC_DELETE.getKey(), "0");
-
 
 					if (pliKeys != null && pliKeys.length > i + 1 && StringUtils.isNotBlank(pliKeys[i + 1])) {
 						mapRecipient.put(RedisKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey(""), pliKeys[i + 1]);
