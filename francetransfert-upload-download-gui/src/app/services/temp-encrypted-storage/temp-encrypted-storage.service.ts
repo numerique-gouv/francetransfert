@@ -21,6 +21,13 @@ export class OpfsStorageWriteError extends Error {
   }
 }
 
+export class OpfsStorageQuotaExceededError extends Error {
+  constructor(message: string, public readonly requiredBytes: number, public readonly availableBytes: number) {
+    super(message);
+    this.name = 'OpfsStorageQuotaExceededError';
+  }
+}
+
 type OpfsDirectory = {
   getFileHandle: (name: string, options: { create: boolean }) => Promise<{
     createWritable: () => Promise<{ write: (chunk: BufferSource | Blob | string) => Promise<void>; close: () => Promise<void>; abort: () => Promise<void> }>;
@@ -35,18 +42,21 @@ type OpfsDirectory = {
 })
 export class TempEncryptedStorageService {
   private readonly opfsTempPrefix = 'ft-encrypted-';
+  private readonly quotaSafetyMarginBytes = 2 * 1024 * 1024;
   private readonly opfsTempFileNames = new Set<string>();
   private staleSweepDone = false;
 
   async writeEncryptedFile(
     originalName: string,
-    writeContent: (writeChunk: (chunk: Uint8Array) => Promise<void>) => Promise<void>
+    writeContent: (writeChunk: (chunk: Uint8Array) => Promise<void>) => Promise<void>,
+    expectedSizeBytes?: number
   ): Promise<File | null> {
     const opfsRoot = await this.getOpfsRootDirectory();
     if (!opfsRoot) {
       return null;
     }
     await this.ensureStaleSweep(opfsRoot);
+    await this.ensureEnoughQuotaForWrite(expectedSizeBytes);
 
     const fileName = this.buildOpfsTempFileName(originalName);
     let fileHandle: Awaited<ReturnType<OpfsDirectory['getFileHandle']>>;
@@ -138,8 +148,9 @@ export class TempEncryptedStorageService {
   }
 
   isStorageFallbackError(error: unknown): boolean {
-    console.error('isStorageFallbackError', error);
-    return error instanceof OpfsStorageUnavailableError || error instanceof OpfsStorageWriteError;
+    return error instanceof OpfsStorageUnavailableError
+      || error instanceof OpfsStorageWriteError
+      || error instanceof OpfsStorageQuotaExceededError;
   }
 
   async isOpfsAccessible(): Promise<boolean> {
@@ -155,5 +166,35 @@ export class TempEncryptedStorageService {
     const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const randomSuffix = Math.random().toString(36).slice(2, 10);
     return `${this.opfsTempPrefix}${Date.now()}-${randomSuffix}-${safeName}`;
+  }
+
+  private async ensureEnoughQuotaForWrite(expectedSizeBytes?: number): Promise<void> {
+    if (!expectedSizeBytes || expectedSizeBytes <= 0) {
+      return;
+    }
+    const storage = navigator.storage;
+    if (!storage?.estimate) {
+      return;
+    }
+    try {
+      const { quota, usage } = await storage.estimate();
+      if (quota == null || usage == null) {
+        return;
+      }
+      const availableBytes = Math.max(0, quota - usage - this.quotaSafetyMarginBytes);
+      if (expectedSizeBytes > availableBytes) {
+        console.error(`Not enough OPFS quota for encrypted temporary file: expected ${expectedSizeBytes} bytes, available ${availableBytes} bytes`);
+        throw new OpfsStorageQuotaExceededError(
+          'Not enough OPFS quota for encrypted temporary file',
+          expectedSizeBytes,
+          availableBytes
+        );
+      }
+    } catch (error) {
+      if (error instanceof OpfsStorageQuotaExceededError) {
+        throw error;
+      }
+      // Ignore estimate failures and let the write path decide.
+    }
   }
 }

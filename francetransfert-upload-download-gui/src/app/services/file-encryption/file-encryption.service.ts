@@ -125,7 +125,8 @@ export class FileEncryptionService {
         await this.encryptFileWithSecretstreamCore(file, pliKey, async (chunk) => {
           await writeChunk(chunk);
         });
-      }
+      },
+      file.size
     );
     if (!encryptedFile) {
       throw new Error('OPFS not available');
