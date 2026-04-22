@@ -319,10 +319,11 @@ export class DownloadComponent implements OnInit, OnDestroy {
         this.downloadManagerService.setPliAesKey(pliKey);
         return;
       } catch (error) {
-        console.error('decryptAndStorePliKeyIfPresent', error);
+        // console.error('decryptAndStorePliKeyIfPresent', error);
         continue;
       }
     }
+    console.error('decryptAndStorePliKeyIfPresent failed, all attempts failed');
   }
 
   onDowloadStarted(event) {
