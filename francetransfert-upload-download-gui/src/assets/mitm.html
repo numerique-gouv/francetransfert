@@ -140,9 +140,7 @@
       ? [ports[0], data.readableStream]
       : [ports[0]]
 
-    if (!(data.readableStream || data.transferringReadable)) {
-      keepAlive()
-    }
+    keepAlive()
 
     return sw.postMessage(data, transferable)
   }

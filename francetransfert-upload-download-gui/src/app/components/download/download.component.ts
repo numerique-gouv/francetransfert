@@ -261,11 +261,13 @@ export class DownloadComponent implements OnInit, OnDestroy {
       }
 
       if (registration.active) {
+        console.log('StreamSaver service worker already active');
         return;
       }
 
       const pendingWorker = registration.installing ?? registration.waiting;
       if (!pendingWorker) {
+        console.log('No pending StreamSaver service worker');
         return;
       }
 
