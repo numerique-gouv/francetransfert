@@ -29,6 +29,7 @@ import * as streamSaver from 'streamsaver';
 })
 export class DownloadComponent implements OnInit, OnDestroy {
   private onDestroy$: Subject<void> = new Subject();
+  private streamSaverReadyPromise?: Promise<void>;
   downloadValidated: boolean = false;
   downloadStarted: boolean = false;
   usingPublicLink: boolean = false;
@@ -64,6 +65,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Téléchargement');
+    void this.ensureStreamSaverServiceWorkerReady().catch(() => undefined);
     this.onResize();
     this.uploadManagerService.uploadError$.next(null);
     this.downloadManagerService.downloadError$.next(null);
@@ -210,6 +212,8 @@ export class DownloadComponent implements OnInit, OnDestroy {
   private async decryptAndStreamToFile(presignedUrl: string, pliKey: Uint8Array): Promise<void> {
     const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
 
+    await this.ensureStreamSaverServiceWorkerReady();
+
     // 1. Ouvre le fichier de destination dans le navigateur (StreamSaver)
     const fileStream = streamSaver.createWriteStream(filename);
     const writer = fileStream.getWriter();
@@ -236,6 +240,58 @@ export class DownloadComponent implements OnInit, OnDestroy {
       await writer.abort();
       throw err;
     }
+  }
+
+  private ensureStreamSaverServiceWorkerReady(): Promise<void> {
+    if (this.streamSaverReadyPromise !== undefined) {
+      return this.streamSaverReadyPromise;
+    }
+
+    this.streamSaverReadyPromise = (async () => {
+      if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+        return;
+      }
+
+      const scope = '/streamsaver/';
+      const workerUrl = `${scope}sw.js`;
+      let registration = await navigator.serviceWorker.getRegistration(scope);
+
+      if (!registration) {
+        registration = await navigator.serviceWorker.register(workerUrl, { scope });
+      }
+
+      if (registration.active) {
+        return;
+      }
+
+      const pendingWorker = registration.installing ?? registration.waiting;
+      if (!pendingWorker) {
+        return;
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
+          pendingWorker.removeEventListener('statechange', onStateChange);
+          reject(new Error('STREAMSAVER_SW_ACTIVATION_TIMEOUT'));
+        }, 10000);
+
+        const onStateChange = (): void => {
+          if (pendingWorker.state === 'activated') {
+            window.clearTimeout(timeoutId);
+            pendingWorker.removeEventListener('statechange', onStateChange);
+            resolve();
+          }
+        };
+
+        pendingWorker.addEventListener('statechange', onStateChange);
+      });
+    })().catch((error) => {
+      console.error('ensureStreamSaverServiceWorkerReady error', error);
+      this.streamSaverReadyPromise = undefined;
+      throw error;
+    });
+
+    return this.streamSaverReadyPromise;
   }
 
   private downloadFileFromUrl(url: string): void {
