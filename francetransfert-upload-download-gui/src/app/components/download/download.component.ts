@@ -260,6 +260,8 @@ export class DownloadComponent implements OnInit, OnDestroy {
         registration = await navigator.serviceWorker.register(workerUrl, { scope });
       }
 
+      console.log('StreamSaver service worker registration', registration);
+
       if (registration.active) {
         console.log('StreamSaver service worker already active');
         return;
@@ -317,6 +319,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           encrypted, pair.publicKey, pair.privateKey
         );
         this.downloadManagerService.setPliAesKey(pliKey);
+        console.log('decryptAndStorePliKeyIfPresent success');
         return;
       } catch (error) {
         // console.error('decryptAndStorePliKeyIfPresent', error);
