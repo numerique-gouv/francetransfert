@@ -290,13 +290,30 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
       const scope = '/streamsaver/';
       const workerUrl = `${scope}sw.js`;
-      let registration = await navigator.serviceWorker.getRegistration(scope);
+      const expectedScope = new URL(scope, window.location.origin).href;
+      const expectedWorkerScript = new URL(workerUrl, window.location.origin).href;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+
+      // getRegistration('/streamsaver/') may return the app-wide worker (/),
+      // so we explicitly match the dedicated StreamSaver scope/script.
+      let registration = registrations.find((currentRegistration) => {
+        if (currentRegistration.scope !== expectedScope) {
+          return false;
+        }
+        const currentWorker = currentRegistration.active ?? currentRegistration.installing ?? currentRegistration.waiting;
+        return currentWorker?.scriptURL === expectedWorkerScript;
+      });
 
       if (!registration) {
         registration = await navigator.serviceWorker.register(workerUrl, { scope });
       }
 
-      console.log('StreamSaver service worker registration', registration);
+      console.log('StreamSaver service worker registration', {
+        scope: registration.scope,
+        activeScript: registration.active?.scriptURL ?? null,
+        installingScript: registration.installing?.scriptURL ?? null,
+        waitingScript: registration.waiting?.scriptURL ?? null,
+      });
 
       if (registration.active) {
         console.log('StreamSaver service worker already active');

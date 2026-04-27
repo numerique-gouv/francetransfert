@@ -40,8 +40,19 @@
 
 
   function registerWorker() {
-    return navigator.serviceWorker.getRegistration(workerScope).then(swReg => {
-      return swReg || navigator.serviceWorker.register(`${workerScope}sw.js`, { scope: workerScope })
+    const expectedScope = new URL(workerScope, location.origin).href
+    const expectedWorkerScript = new URL(`${workerScope}sw.js`, location.origin).href
+
+    return navigator.serviceWorker.getRegistrations().then(swRegs => {
+      const streamSaverReg = swRegs.find(swReg => {
+        if (swReg.scope !== expectedScope) {
+          return false
+        }
+        const currentWorker = swReg.active || swReg.installing || swReg.waiting
+        return currentWorker && currentWorker.scriptURL === expectedWorkerScript
+      })
+
+      return streamSaverReg || navigator.serviceWorker.register(`${workerScope}sw.js`, { scope: workerScope })
     }).then(swReg => {
       const swRegTmp = swReg.installing || swReg.waiting
 
