@@ -55,6 +55,17 @@
             resolve()
           }
         })
+        swRegTmp.addEventListener('install', function (event) {
+
+          event.waitUntil(swRegTmp.skipWaiting());
+
+        });
+
+        swRegTmp.addEventListener('activate', function (event) {
+
+          event.waitUntil(swRegTmp.clients.claim());
+
+        });
       })
     })
   }
@@ -164,17 +175,5 @@
   // even tough the service worker dose not have to do any kind of work and listen to any
   // messages... #305
   keepAlive()
-
-  self.addEventListener('install', function (event) {
-
-    event.waitUntil(self.skipWaiting());
-
-  });
-
-  self.addEventListener('activate', function (event) {
-
-    event.waitUntil(self.clients.claim());
-
-  });
 
 </script>
