@@ -18,9 +18,15 @@ import { Subscription } from "rxjs";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
 import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
 import { LoginService } from 'src/app/services/login/login.service';
+import { showSaveFilePicker } from 'native-file-system-adapter';
 import * as streamSaver from 'streamsaver';
 
 (streamSaver as any).mitm = '/streamsaver/mitm.html';
+
+type DownloadFileHandle = {
+  name: string;
+  createWritable: () => Promise<WritableStream<Uint8Array>>;
+};
 
 @Component({
   selector: 'ft-download',
@@ -65,7 +71,6 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Téléchargement');
-    void this.ensureStreamSaverServiceWorkerReady().catch(() => undefined);
     this.onResize();
     this.uploadManagerService.uploadError$.next(null);
     this.downloadManagerService.downloadError$.next(null);
@@ -186,11 +191,13 @@ export class DownloadComponent implements OnInit, OnDestroy {
   }
 
   private runDownloadFlow(presignedUrl: string): void {
+    console.log('runDownloadFlow', presignedUrl);
     const pliKey = this.downloadManagerService.pliAesKey.getValue();
 
     if (pliKey) {
       // Vrai streaming : fetch ReadableStream → TransformStream decrypt
       // → StreamSaver disque
+      console.log('decryptAndStreamToFile', presignedUrl, pliKey);
       void this.decryptAndStreamToFile(presignedUrl, pliKey)
         .catch((_err) => {
           this.downloadManagerService.downloadError$.next({
@@ -211,12 +218,10 @@ export class DownloadComponent implements OnInit, OnDestroy {
 
   private async decryptAndStreamToFile(presignedUrl: string, pliKey: Uint8Array): Promise<void> {
     const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
-
-    await this.ensureStreamSaverServiceWorkerReady();
-
-    // 1. Ouvre le fichier de destination dans le navigateur (StreamSaver)
-    const fileStream = streamSaver.createWriteStream(filename);
-    const writer = fileStream.getWriter();
+    const fileHandle = await this.openDownloadFileHandle(filename);
+    const writableStream = await fileHandle.createWritable();
+    const writer = writableStream.getWriter();
+    let completed = false;
 
     try {
       // 2. Fetch streaming directement depuis l'URL pré-signée
@@ -235,11 +240,42 @@ export class DownloadComponent implements OnInit, OnDestroy {
         await writer.write(value);
       }
       await writer.close();
+      completed = true;
       this.downloadStarted = true;
-    } catch (err) {
-      await writer.abort();
-      throw err;
+    } finally {
+      if (!completed) {
+        await writer.abort();
+      }
     }
+  }
+
+  private async openDownloadFileHandle(filename: string): Promise<DownloadFileHandle> {
+    const baseOptions = {
+      suggestedName: filename,
+      excludeAcceptAllOption: false,
+    } as const;
+
+    if (this.hasNativeSavePickerSupport()) {
+      try {
+        return await showSaveFilePicker({
+          ...baseOptions,
+          _preferredMethods: ['native'],
+        } as any) as DownloadFileHandle;
+      } catch (error) {
+        console.error('openDownloadFileHandle error', error);
+      }
+    }
+
+    await this.ensureStreamSaverServiceWorkerReady();
+    const fileStream = streamSaver.createWriteStream(filename) as WritableStream<Uint8Array>;
+    return {
+      name: filename,
+      createWritable: async () => fileStream,
+    };
+  }
+
+  private hasNativeSavePickerSupport(): boolean {
+    return typeof window !== 'undefined' && typeof (window as any).showSaveFilePicker === 'function';
   }
 
   private ensureStreamSaverServiceWorkerReady(): Promise<void> {
