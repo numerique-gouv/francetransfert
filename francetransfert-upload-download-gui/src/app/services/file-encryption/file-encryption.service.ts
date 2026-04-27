@@ -239,15 +239,39 @@ export class FileEncryptionService {
 
     let state: any = null;
     let headerRead = false;
-    let buffer: Uint8Array = new Uint8Array(0);
+    let queuedChunks: Uint8Array[] = [];
+    let queuedBytes = 0;
     let sodiumInstance: any = null;
     const sodiumService = this.sodiumService;
 
-    const appendBuffer = (a: Uint8Array, b: Uint8Array): Uint8Array => {
-      const merged = new Uint8Array(a.byteLength + b.byteLength);
-      merged.set(a);
-      merged.set(b, a.byteLength);
-      return merged;
+    const queueChunk = (chunk: Uint8Array): void => {
+      if (chunk.byteLength === 0) {
+        return;
+      }
+      queuedChunks.push(chunk);
+      queuedBytes += chunk.byteLength;
+    };
+
+    const readQueuedBytes = (size: number): Uint8Array => {
+      const result = new Uint8Array(size);
+      let offset = 0;
+
+      while (offset < size && queuedChunks.length > 0) {
+        const head = queuedChunks[0];
+        const remaining = size - offset;
+        if (head.byteLength <= remaining) {
+          result.set(head, offset);
+          offset += head.byteLength;
+          queuedChunks.shift();
+        } else {
+          result.set(head.subarray(0, remaining), offset);
+          queuedChunks[0] = head.subarray(remaining);
+          offset += remaining;
+        }
+      }
+
+      queuedBytes -= size;
+      return result;
     };
 
     const decryptChunk = (enc: Uint8Array): Uint8Array => {
@@ -264,33 +288,32 @@ export class FileEncryptionService {
       },
 
       transform(chunk: Uint8Array, controller: TransformStreamDefaultController<Uint8Array>) {
-        buffer = appendBuffer(buffer, new Uint8Array(chunk));
+        queueChunk(new Uint8Array(chunk));
 
         // 1. Lire le header secretstream (24 B)
-        if (!headerRead && buffer.byteLength >= HEADER_SIZE) {
-          const header = buffer.slice(0, HEADER_SIZE);
+        if (!headerRead && queuedBytes >= HEADER_SIZE) {
+          const header = readQueuedBytes(HEADER_SIZE);
           state = sodiumInstance.crypto_secretstream_xchacha20poly1305_init_pull(header, pliKey);
-          buffer = buffer.slice(HEADER_SIZE);
           headerRead = true;
         }
 
         // 2. Déchiffrer les chunks complets (CHUNK_SIZE + 17 B)
-        while (headerRead && buffer.byteLength >= ENCRYPTED_CHUNK_SIZE) {
-          const encChunk = buffer.slice(0, ENCRYPTED_CHUNK_SIZE);
+        while (headerRead && queuedBytes >= ENCRYPTED_CHUNK_SIZE) {
+          const encChunk = readQueuedBytes(ENCRYPTED_CHUNK_SIZE);
           controller.enqueue(decryptChunk(encChunk));
-          buffer = buffer.slice(ENCRYPTED_CHUNK_SIZE);
         }
       },
 
       flush(controller: TransformStreamDefaultController<Uint8Array>) {
         // Dernier chunk (taille < ENCRYPTED_CHUNK_SIZE = dernier chunk + TAG_FINAL)
-        if (headerRead && buffer.byteLength > 0) {
-          controller.enqueue(decryptChunk(buffer));
+        if (headerRead && queuedBytes > 0) {
+          controller.enqueue(decryptChunk(readQueuedBytes(queuedBytes)));
         }
         // Effacer la clé pli et le buffer résiduel de la mémoire (sodium_memzero)
         console.log(`end createDecryptTransformStream`);
         sodiumInstance.memzero(pliKey);
-        sodiumInstance.memzero(buffer);
+        queuedChunks = [];
+        queuedBytes = 0;
       }
     });
   }

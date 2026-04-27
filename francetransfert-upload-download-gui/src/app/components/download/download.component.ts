@@ -18,8 +18,8 @@ import { Subscription } from "rxjs";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
 import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
 import { LoginService } from 'src/app/services/login/login.service';
-import { showSaveFilePicker } from 'native-file-system-adapter';
 import * as streamSaver from 'streamsaver';
+import { showSaveFilePicker } from 'native-file-system-adapter';
 
 (streamSaver as any).mitm = '/streamsaver/mitm.html';
 
@@ -206,7 +206,6 @@ export class DownloadComponent implements OnInit, OnDestroy {
           });
         })
         .finally(() => {
-          // this.downloadManagerService.clearPliAesKey();
           this.isDownloading = false;
         });
     } else {
@@ -220,54 +219,26 @@ export class DownloadComponent implements OnInit, OnDestroy {
     const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
     const fileHandle = await this.openDownloadFileHandle(filename);
     const writableStream = await fileHandle.createWritable();
-    const writer = writableStream.getWriter();
-    let completed = false;
-
-    try {
-      // 2. Fetch streaming directement depuis l'URL pré-signée
-      const response = await fetch(presignedUrl);
-      if (!response.ok || !response.body) {
-        throw new Error(`DOWNLOAD_STREAM_ERROR: HTTP ${response.status}`);
-      }
-      const encryptedStream = response.body as ReadableStream<Uint8Array>;
-
-      // 3. Pipeline : fetch → decrypt (secretstream pull) → écriture disque
-      const decryptTransform = this.fileEncryptionService.createDecryptTransformStream(pliKey);
-      const reader = encryptedStream.pipeThrough(decryptTransform).getReader();
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) { console.log('done'); break; }
-        await writer.write(value);
-      }
-      await writer.close();
-      completed = true;
-      this.downloadStarted = true;
-    } finally {
-      if (!completed) {
-        await writer.abort();
-      }
+    // 2. Fetch streaming directement depuis l'URL pré-signée
+    const response = await fetch(presignedUrl);
+    if (!response.ok || !response.body) {
+      throw new Error(`DOWNLOAD_STREAM_ERROR: HTTP ${response.status}`);
     }
+    const encryptedStream = response.body as ReadableStream<Uint8Array>;
+
+    // 3. Pipeline : fetch → decrypt (secretstream pull) → écriture disque
+    const decryptTransform = this.fileEncryptionService.createDecryptTransformStream(pliKey);
+    await encryptedStream.pipeThrough(decryptTransform).pipeTo(writableStream);
+    this.downloadStarted = true;
   }
 
   private async openDownloadFileHandle(filename: string): Promise<DownloadFileHandle> {
-    const baseOptions = {
-      suggestedName: filename,
-      excludeAcceptAllOption: false,
-    } as const;
-
     if (this.hasNativeSavePickerSupport()) {
-      try {
-        return await showSaveFilePicker({
-          ...baseOptions,
-          _preferredMethods: ['native'],
-        } as any) as DownloadFileHandle;
-      } catch (error) {
-        console.error('openDownloadFileHandle error', error);
-      }
+      return this.openNativeFileHandle(filename);
     }
 
     await this.ensureStreamSaverServiceWorkerReady();
-    const fileStream = streamSaver.createWriteStream(filename) as WritableStream<Uint8Array>;
+    const fileStream: WritableStream<Uint8Array> = streamSaver.createWriteStream(filename);
     return {
       name: filename,
       createWritable: async () => fileStream,
@@ -275,7 +246,16 @@ export class DownloadComponent implements OnInit, OnDestroy {
   }
 
   private hasNativeSavePickerSupport(): boolean {
-    return typeof window !== 'undefined' && typeof (window as any).showSaveFilePicker === 'function';
+    return typeof window !== 'undefined'
+      && window.isSecureContext
+      && typeof (window as any).showSaveFilePicker === 'function';
+  }
+
+  private async openNativeFileHandle(filename: string): Promise<DownloadFileHandle> {
+    if (typeof (window as any).showSaveFilePicker !== 'function') {
+      throw new Error('NATIVE_SAVE_PICKER_REQUIRED');
+    }
+    return showSaveFilePicker({ suggestedName: filename }) as Promise<DownloadFileHandle>;
   }
 
   private ensureStreamSaverServiceWorkerReady(): Promise<void> {
@@ -374,8 +354,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
         this.downloadManagerService.setPliAesKey(pliKey);
         console.log('decryptAndStorePliKeyIfPresent success');
         return;
-      } catch (error) {
-        // console.error('decryptAndStorePliKeyIfPresent', error);
+      } catch {
         continue;
       }
     }
