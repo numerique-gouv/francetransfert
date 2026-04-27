@@ -34,11 +34,14 @@
   window.onmessage = evt => messages.push(evt)
 
   let sw = null
+  const workerScope = '/streamsaver/'
   let scope = ''
 
+
+
   function registerWorker() {
-    return navigator.serviceWorker.getRegistration('./').then(swReg => {
-      return swReg || navigator.serviceWorker.register('sw.js', { scope: './' })
+    return navigator.serviceWorker.getRegistration(workerScope).then(swReg => {
+      return swReg || navigator.serviceWorker.register(`${workerScope}sw.js`, { scope: workerScope })
     }).then(swReg => {
       const swRegTmp = swReg.installing || swReg.waiting
 
@@ -161,5 +164,17 @@
   // even tough the service worker dose not have to do any kind of work and listen to any
   // messages... #305
   keepAlive()
+
+  self.addEventListener('install', function (event) {
+
+    event.waitUntil(self.skipWaiting());
+
+  });
+
+  self.addEventListener('activate', function (event) {
+
+    event.waitUntil(self.clients.claim());
+
+  });
 
 </script>
