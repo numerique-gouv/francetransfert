@@ -11,6 +11,7 @@ import { SodiumService } from '../sodium/sodium.service';
 import { TempEncryptedStorageService } from '../temp-encrypted-storage/temp-encrypted-storage.service';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+const PERF_LOG_PREFIX = '[ft-perf]';
 
 export interface EncryptedFileResult {
   encryptedFile: File;
@@ -36,6 +37,13 @@ export class FileEncryptionService {
     private readonly tempEncryptedStorageService: TempEncryptedStorageService
   ) { }
 
+  private nowMs(): number {
+    // performance.now() is monotonic and best for durations.
+    return typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+  }
+
   /**
    * Chiffre les fichiers avec la clé du pli (secretstream XChaCha20-Poly1305)
    * et encapsule la clé pour expéditeur + 2 destinataires (crypto_box_seal X25519).
@@ -44,6 +52,7 @@ export class FileEncryptionService {
     items: Array<File | { file: File; relativePath?: string }>,
     onProgress?: (progress: number) => void
   ): Promise<PliEncryptionResult> {
+    const totalStart = this.nowMs();
     console.log(`start encryptFilesWithPliKey`);
     const sodium = await this.sodiumService.getSodium();
     const [publicSender, publicRecipient1, publicRecipient2] =
@@ -83,6 +92,10 @@ export class FileEncryptionService {
     };
     // Effacer la clé pli en clair dès qu'elle n'est plus nécessaire
     sodium.memzero(pliKey);
+    console.log(PERF_LOG_PREFIX, 'encryptFilesWithPliKey.total', {
+      durationMs: Math.round(this.nowMs() - totalStart),
+      fileCount: items.length
+    });
     console.log(`end encryptFilesWithPliKey`);
     return result;
   }
@@ -271,6 +284,9 @@ export class FileEncryptionService {
     let queuedBytes = 0;
     let sodiumInstance: any = null;
     const sodiumService = this.sodiumService;
+    const decryptStart = this.nowMs();
+    let pulledChunks = 0;
+    let pulledPlainBytes = 0;
 
     const queueChunk = (chunk: Uint8Array): void => {
       if (chunk.byteLength === 0) {
@@ -307,6 +323,8 @@ export class FileEncryptionService {
       if (!result) {
         throw new Error('Déchiffrement échoué : chunk corrompu ou clé incorrecte');
       }
+      pulledChunks += 1;
+      pulledPlainBytes += result.message?.byteLength ?? 0;
       return new Uint8Array(result.message);
     };
 
@@ -339,6 +357,18 @@ export class FileEncryptionService {
         }
         // Effacer la clé pli et le buffer résiduel de la mémoire (sodium_memzero)
         console.log(`end createDecryptTransformStream`);
+        try {
+          const durationMs = (typeof performance !== 'undefined' && typeof performance.now === 'function')
+            ? performance.now() - decryptStart
+            : Date.now() - decryptStart;
+          console.log(PERF_LOG_PREFIX, 'decrypt.secretstream.total', {
+            durationMs: Math.round(durationMs),
+            pulledChunks,
+            plainBytes: pulledPlainBytes
+          });
+        } catch {
+          // ignore perf logging failures
+        }
         sodiumInstance.memzero(pliKey);
         queuedChunks = [];
         queuedBytes = 0;
