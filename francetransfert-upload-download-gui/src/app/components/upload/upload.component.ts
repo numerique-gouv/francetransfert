@@ -60,6 +60,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   config: any;
   configSubscription: Subscription;
   encrypting: boolean = false;
+  encryptingProgress: number = 0;
 
 
   constructor(private responsiveService: ResponsiveService,
@@ -146,6 +147,8 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showCode = false;
     this.uploadFailed = false;
     this.publicLink = false;
+    this.encrypting = false;
+    this.encryptingProgress = 0;
     this.uploadManagerService.uploadInfos.next(null);
     this.uploadManagerService.uploadError$.next(null);
     this.uploadManagerService.pliAesKeyEncrypted.next(null);
@@ -302,6 +305,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async encryptThenUpload(): Promise<void> {
     this.encrypting = true;
+    this.encryptingProgress = 0;
     const flowJs = this.flow?.flowJs;
     if (!flowJs?.files?.length) {
       this.encrypting = false;
@@ -315,7 +319,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         relativePath: (f as { relativePath?: string }).relativePath || ''
       }));
 
-      const result = await this.fileEncryptionService.encryptFilesWithPliKey(originalFiles);
+      const result = await this.fileEncryptionService.encryptFilesWithPliKey(
+        originalFiles,
+        (progress) => {
+          this.encryptingProgress = progress;
+        }
+      );
       flowFiles.forEach((f) => flowJs.removeFile(f));
       result.encryptedFiles.forEach((res, i) => {
         const encFile = res.encryptedFile;
@@ -330,10 +339,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient1),
         this.uint8ArrayToBase64(result.pliAesKeyEncryptedForRecipient2)
       ]);
+      this.encryptingProgress = 100;
       this.encrypting = false;
       this.upload();
     } catch {
       this.encrypting = false;
+      this.encryptingProgress = 0;
       this.uploadManagerService.uploadError$.next({ statusCode: 0, message: 'ENCRYPTION_FAILED' });
       this.uploadStarted = false;
     }

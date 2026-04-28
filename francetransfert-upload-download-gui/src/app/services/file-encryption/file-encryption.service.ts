@@ -41,7 +41,8 @@ export class FileEncryptionService {
    * et encapsule la clé pour expéditeur + 2 destinataires (crypto_box_seal X25519).
    */
   async encryptFilesWithPliKey(
-    items: Array<File | { file: File; relativePath?: string }>
+    items: Array<File | { file: File; relativePath?: string }>,
+    onProgress?: (progress: number) => void
   ): Promise<PliEncryptionResult> {
     console.log(`start encryptFilesWithPliKey`);
     const sodium = await this.sodiumService.getSodium();
@@ -53,11 +54,25 @@ export class FileEncryptionService {
 
     // Chiffrer chaque fichier par chunks avec secretstream
     const encryptedFiles: EncryptedFileResult[] = [];
+    const totalBytes = Math.max(
+      items.reduce((sum, item) => sum + (item instanceof File ? item.size : item.file.size), 0),
+      1
+    );
+    let encryptedBytes = 0;
+    onProgress?.(0);
     for (const item of items) {
       const file = item instanceof File ? item : item.file;
-      const encryptedFile = await this.encryptFileWithSecretstream(file, pliKey);
+      const encryptedFile = await this.encryptFileWithSecretstream(
+        file,
+        pliKey,
+        (plainChunkBytes) => {
+          encryptedBytes += plainChunkBytes;
+          onProgress?.(Math.min(100, Math.round((encryptedBytes / totalBytes) * 100)));
+        }
+      );
       encryptedFiles.push({ encryptedFile, originalSize: file.size });
     }
+    onProgress?.(100);
 
     // Encapsuler la clé pli pour chaque destinataire (crypto_box_seal = X25519 anonyme)
     const result = {
@@ -96,10 +111,14 @@ export class FileEncryptionService {
    * Format : [24 B header][chunk_1 + 17 B]...[chunk_N + 17 B (TAG_FINAL)]
    * Le plaintext est lu progressivement
    */
-  async encryptFileWithSecretstream(file: File, pliKey: Uint8Array): Promise<File> {
+  async encryptFileWithSecretstream(
+    file: File,
+    pliKey: Uint8Array,
+    onPlainChunkEncrypted?: (plainChunkBytes: number) => void
+  ): Promise<File> {
     if (await this.tempEncryptedStorageService.isOpfsAccessible()) {
       try {
-        return await this.encryptFileWithSecretstreamToOpfs(file, pliKey);
+        return await this.encryptFileWithSecretstreamToOpfs(file, pliKey, onPlainChunkEncrypted);
       } catch (error) {
         console.error('encryptFileWithSecretstreamToOpfs error', error);
         if (!this.tempEncryptedStorageService.isStorageFallbackError(error)) {
@@ -108,7 +127,7 @@ export class FileEncryptionService {
         console.warn('OPFS encryption fallback to in-memory mode', error);
       }
     }
-    return this.encryptFileWithSecretstreamInMemory(file, pliKey);
+    return this.encryptFileWithSecretstreamInMemory(file, pliKey, onPlainChunkEncrypted);
   }
 
   async cleanupTemporaryEncryptedFiles(): Promise<void> {
@@ -117,14 +136,15 @@ export class FileEncryptionService {
 
   private async encryptFileWithSecretstreamToOpfs(
     file: File,
-    pliKey: Uint8Array
+    pliKey: Uint8Array,
+    onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<File> {
     const encryptedFile = await this.tempEncryptedStorageService.writeEncryptedFile(
       file.name,
       async (writeChunk) => {
         await this.encryptFileWithSecretstreamCore(file, pliKey, async (chunk) => {
           await writeChunk(chunk);
-        });
+        }, onPlainChunkEncrypted);
       },
       file.size
     );
@@ -134,11 +154,15 @@ export class FileEncryptionService {
     return encryptedFile;
   }
 
-  private async encryptFileWithSecretstreamInMemory(file: File, pliKey: Uint8Array): Promise<File> {
+  private async encryptFileWithSecretstreamInMemory(
+    file: File,
+    pliKey: Uint8Array,
+    onPlainChunkEncrypted?: (plainChunkBytes: number) => void
+  ): Promise<File> {
     const parts: ByteArray[] = [];
     await this.encryptFileWithSecretstreamCore(file, pliKey, (chunk) => {
       parts.push(chunk);
-    });
+    }, onPlainChunkEncrypted);
     return new File([new Blob(parts as BlobPart[], { type: 'application/octet-stream' })], file.name, {
       type: 'application/octet-stream',
       lastModified: Date.now()
@@ -148,7 +172,8 @@ export class FileEncryptionService {
   private async encryptFileWithSecretstreamCore(
     file: File,
     pliKey: Uint8Array,
-    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void
+    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void,
+    onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<void> {
     console.log(`start encryptFileWithSecretstream`);
     const sodium = await this.sodiumService.getSodium();
@@ -174,7 +199,8 @@ export class FileEncryptionService {
         state,
         buffer,
         done,
-        onEncryptedChunk
+        onEncryptedChunk,
+        onPlainChunkEncrypted
       );
       buffer = encryptedBatch.remainingBuffer;
       wroteAtLeastOnePayloadChunk = wroteAtLeastOnePayloadChunk || encryptedBatch.wrotePayload;
@@ -202,7 +228,8 @@ export class FileEncryptionService {
     state: any,
     sourceBuffer: ByteArray,
     streamDone: boolean,
-    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void
+    onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void,
+    onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<{ remainingBuffer: ByteArray; wrotePayload: boolean }> {
     let buffer = sourceBuffer;
     let wrotePayload = false;
@@ -216,6 +243,7 @@ export class FileEncryptionService {
       await onEncryptedChunk(
         sodium.crypto_secretstream_xchacha20poly1305_push(state, chunk, null, tag)
       );
+      onPlainChunkEncrypted?.(chunkEnd);
       wrotePayload = true;
       buffer = buffer.slice(chunkEnd);
       if (isLast) {

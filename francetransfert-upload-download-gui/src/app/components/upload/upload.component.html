@@ -14,9 +14,8 @@
     <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
         <div class="encrypting-wrapper" *ngIf="encrypting">
             <div class="encrypting-loader">
-                <mat-spinner>
-                </mat-spinner>
-                <p class="encrypting-message">Chiffrement en cours...</p>
+                <mat-progress-spinner mode="determinate" [value]="encryptingProgress"></mat-progress-spinner>
+                <p class="encrypting-message">Chiffrement en cours... {{ encryptingProgress }}%</p>
             </div>
         </div>
         <ft-loader *ngIf="uploadValidated && uploadStarted && !uploadFinished"
