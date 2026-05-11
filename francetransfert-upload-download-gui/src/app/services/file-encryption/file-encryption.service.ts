@@ -9,6 +9,8 @@ import { Injectable } from '@angular/core';
 import { KeyPairService } from '../key-pair/key-pair.service';
 import { SodiumService } from '../sodium/sodium.service';
 import { TempEncryptedStorageService } from '../temp-encrypted-storage/temp-encrypted-storage.service';
+import { LoggingService } from '../logging/logging.service';
+import { take } from 'rxjs';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
 const PERF_LOG_PREFIX = '[ft-perf]';
@@ -34,7 +36,8 @@ export class FileEncryptionService {
   constructor(
     private readonly keyPairService: KeyPairService,
     private readonly sodiumService: SodiumService,
-    private readonly tempEncryptedStorageService: TempEncryptedStorageService
+    private readonly tempEncryptedStorageService: TempEncryptedStorageService,
+    private readonly loggingService: LoggingService
   ) { }
 
   private nowMs(): number {
@@ -90,12 +93,16 @@ export class FileEncryptionService {
       pliAesKeyEncryptedForRecipient1: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient1)),
       pliAesKeyEncryptedForRecipient2: new Uint8Array(sodium.crypto_box_seal(pliKey, publicRecipient2))
     };
+
+    const durationMs = Math.round(this.nowMs() - totalStart);
     // Effacer la clé pli en clair dès qu'elle n'est plus nécessaire
     sodium.memzero(pliKey);
     console.log(PERF_LOG_PREFIX, 'encryptFilesWithPliKey.total', {
-      durationMs: Math.round(this.nowMs() - totalStart),
+      durationMs: durationMs,
       fileCount: items.length
     });
+    const filename = items[0] instanceof File ? items[0].name : items[0].file.name;
+    this.loggingService.logInfo(`encrypt duration: ${durationMs}ms items: ${filename} files ${totalBytes} bytes`).pipe(take(1)).subscribe();
     console.log(`end encryptFilesWithPliKey`);
     return result;
   }

@@ -66,6 +66,7 @@ import jakarta.validation.constraints.NotBlank;
 @RequestMapping("/api-private/upload-module")
 @Tag(name = "Upload resources")
 @Validated
+
 public class UploadResources {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadResources.class);
@@ -87,6 +88,12 @@ public class UploadResources {
 
 	@Value("${upload.file.limit}")
 	private long uploadFileLimitSize;
+
+	@PostMapping("/log-info")
+	@Operation(method = "POST", description = "Log info")
+	public void logInfo(HttpServletResponse response, @RequestBody String message) {
+		LOGGER.info(message);
+	}
 
 	@GetMapping("/upload")
 	@Operation(method = "GET", description = "Upload")
@@ -115,10 +122,10 @@ public class UploadResources {
 			@RequestParam("senderToken") String senderToken)
 			throws MetaloadException, StorageException, RetryException {
 
-		//if (flowTotalSize > uploadFileLimitSize) {
-		//	response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
-		//	return;
-		//}
+		// if (flowTotalSize > uploadFileLimitSize) {
+		// response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
+		// return;
+		// }
 
 		uploadServices.processPrivateUpload(flowChunkNumber, flowTotalChunks, flowIdentifier, file, enclosureId,
 				senderId, senderToken);

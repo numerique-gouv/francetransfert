@@ -9,6 +9,7 @@ export const environment = {
   production: true,
   host: '/',
   apis: {
+    logInfo: 'api-private/upload-module/log-info',
     config: 'api-private/upload-module/config',
     logout: 'api-private/upload-module/logout',
     upload: {

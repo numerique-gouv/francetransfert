@@ -13,6 +13,7 @@ export const environment = {
   production: false,
   host: 'http://localhost:',
   apis: {
+    logInfo: '8080/api-private/upload-module/log-info',
     config: '8080/api-private/upload-module/config',
     logout: '8080/api-private/upload-module/logout',
     upload: {
