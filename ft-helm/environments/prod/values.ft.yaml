@@ -163,10 +163,10 @@ redis:
     startupProbe:
       enabled: true
       initialDelaySeconds: 30
-      periodSeconds: 30
+      periodSeconds: 20
       timeoutSeconds: 15
-      successThreshold: 1
-      failureThreshold: 30
+      successThreshold: 2
+      failureThreshold: 90
     port: 6379
     resources:
       requests:
@@ -587,22 +587,22 @@ worker:
             name: scale_ft_queue_zip_size
           target:
             type: AverageValue
-            averageValue: "30"
+            averageValue: "25"
     behavior:
       scaleDown:
         policies:
-          - periodSeconds: 900
+          - periodSeconds: 600
             type: Pods
             value: 1
         selectPolicy: Max
-        stabilizationWindowSeconds: 900
+        stabilizationWindowSeconds: 600
       scaleUp:
         policies:
-          - periodSeconds: 200
+          - periodSeconds: 120
             type: Pods
-            value: 4
+            value: 3
         selectPolicy: Max
-        stabilizationWindowSeconds: 200
+        stabilizationWindowSeconds: 120
 
 ingress:
   enabled: true
