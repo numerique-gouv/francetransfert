@@ -43,7 +43,6 @@
   "Question16_Texte": "<span>The questionnaire is anonymous and used for statistical and improvement purposes only. </span><br><span>If you complete the questionnaire, the rating you leave is recorded for statistical purposes only. You can leave comments to tell us what you think about the service.</span><br><span>The product team will review the comments but cannot commit to responding individually or implementing any suggestions.</span>",
   "Question17_Texte": "<span>For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. </span><br> <span>You can also write to France Transfert’s support team via the “Contact” form (at the bottom of the page or in the menu on the mobile version). </span>",
   "Question18_Texte": "There is a daily limit of 10 packages per non-official sending address.",
-
   "UploadTitre": "France Transfert can be used to send large, non-sensitive files securely to officials or between officials.",
   "Courriel": "Email",
   "Lien": "Link",
@@ -53,7 +52,6 @@
   "PréférencesTransfert": "Transfer preferences",
   "Annuler": "Cancel",
   "Valider": "OK",
-
   "ChampsObligatoires": "Fields marked with * are mandatory",
   "NomTransfert": "Name of your package",
   "TooltipNomTransfert": "Customise the name of your package to make it more easily identifiable.",
@@ -63,7 +61,6 @@
   "QotaDépassé": "Daily package limit exceeded",
   "Message": "Message:",
   "CGU": "I have read the <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>Terms and Conditions of Use</a> and I will not send sensitive data, as defined in article 4.2, without first encrypting them.",
-
   "TooltipExpéditeurLien": "The sender may be a French official or an individual.",
   "Expéditeur": "Sender",
   "Destinataire": "Recipients",
@@ -81,7 +78,6 @@
   "Date-Debut": "Start date",
   "Date-Fin": "End date",
   "Dest": "Recipient",
-
   "TypeFichier": "The file ",
   "NonAutorisé": " is not an allowed file type.",
   "NomFichierLong": "The name or path of the file you have tried to add is too long",
@@ -91,13 +87,10 @@
   "TailleMaximaleFichier": "You have tried to add a file beyond the maximum package size (2 GB)",
   "AjoutDocument": "Add your files and folders ",
   "Dépot": "or drag them here",
-
   "ChoixLangue": "Choice of language",
-
   "FAQ": "FAQ",
   "MeConnecter": "Log in",
   "MeDéconnecter": "Log out",
-
   "NomContact": "Your surname",
   "PrénomContact": "Your given name",
   "VotreCourriel": "Your email",
@@ -109,14 +102,10 @@
   "Captcha": "Captcha",
   "CaptchaRequis": "A captcha is required.",
   "CaptchaIncorrect": "The captcha is incorrect.",
-
-
   "ContactQs1": "<br><span><b>You have a question about the operation of France transfert ?</b></span>​<br><br><span>You can visit our FAQ page and also download a step-by-step guideline. ​ ​</span><br><br>",
   "ContactButton": "Step-by-step guideline",
-  "ContactQs2":"<br><span><b>You want to be informed about France transfert news ?​</b></span>​<br><br><span> For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. ​</span><br><br>",
-  "ContactText":"<br><span><b>Contact us by email​​</b></span>​<br><br><span>If you cannot find the answer to your question or you encounter a technical problem using France Transfert, you can contact the France Transfert support team at the following address:  ​</span><a href='mailto:contact@support-francetransfert.numerique.gouv.fr'>contact@support-francetransfert.numerique.gouv.fr </a><br><u>Warning</u><span> : We are only able to help you on requests related to France transfert tool.</span>",
-
-
+  "ContactQs2": "<br><span><b>You want to be informed about France transfert news ?​</b></span>​<br><br><span> For officials, there is a “France Transfert” room in Tchap to keep track of developments and communicate with other members. You can sign up to it. ​</span><br><br>",
+  "ContactText": "<br><span><b>Contact us by email​​</b></span>​<br><br><span>If you cannot find the answer to your question or you encounter a technical problem using France Transfert, you can contact the France Transfert support team at the following address:  ​</span><a href='mailto:contact@support-francetransfert.numerique.gouv.fr'>contact@support-francetransfert.numerique.gouv.fr </a><br><u>Warning</u><span> : We are only able to help you on requests related to France transfert tool.</span>",
   "CourrielConnect": "Please enter your email address to use this service:",
   "CodeConfrimationEnvoyé": "A confirmation code will be sent to you by email, allowing you to use the service as long as you do not exceed 30 minutes of inactivity. If you do, you will need a new confirmation code to send another package.",
   "ACCUEIL": "HOMEPAGE",
@@ -126,14 +115,11 @@
   "NombreEchecs": "Number of failures: ",
   "CodeNonDisponible": "Following 5 errors, the code will be deactivated.<br/>Please cancel and request a new code. ",
   "ErreurTechnique": "A technical error occurred.",
-
   "CréationTransfert": "Creating your package...",
-
   "ImportationListeContacts": "Import a contact list",
   "ImportationListeContactsText": "You can import a list of contacts from a CSV file containing the email addresses you want to use separated by a semicolon  ",
   "Fichier": "From a file",
   "FichierType": "File",
-
   "MentionsLégales": "Impressum",
   "Éditeur": "Publisher",
   "Ministère": "Direction interministérielle du numérique (DINUM)",
@@ -147,20 +133,16 @@
   "ACT-ONTECHNOLOGY_Adresse": "ACT-ON TECHNOLOGY: 19 Rue d’Orléans – 92200 Neuilly sur Seine",
   "Hébergement": "Hosting",
   "OUSTSCAL_Adresse": "OUTSCALE: 1 Rue Royale – 319 Bureaux de la Colline – 92210 Saint-Cloud",
-
   "élément": "item",
   "éléments": "items",
   "Dossier": "Folder",
-
   "Information": "Information",
   "Fichier_Dossier_DéjàPrésent": "This file or folder is already in your package.",
-
   "Accessibilité": "Accessibility: partially conformant ",
   "Politique_Protection_Données": "Data protection policy",
   "ConditionsUtilisation": "Terms and Conditions of Use ",
   "Licence": "Unless otherwise stated, all texts on this site are licensed under Etalab-2.0 ",
   "Version": "Version",
-
   "Terminé": "Completed!",
   "MessageAttenteLien": "Give us a minute. Your package has reached our servers. We are now analysing it and you will receive the download link by email soon. It will be available until",
   "EnvoiPli": "Send a new package?",
@@ -168,7 +150,6 @@
   "Oups": "Oops",
   "ErreurTransfertPli": "Error transferring your package. Please try again.<br/>If the problem persists, please report it via the contact form or questionnaire.",
   "Accueil": "Homepage",
-
   "TéléchargementLancé": "Your download has started.",
   "DossierTéléchargement": "Once downloaded, the package will typically be stored in your Downloads folder.",
   "Nombre_Téléchargements_Dépassé": "You have exceeded the number of downloads allowed for this package.",
@@ -179,15 +160,12 @@
   "DéchiffrementEnCours": "Decryption in progress...",
   "ENCRYPTION_FAILED": "Encryption failed. Please try again.",
   "Accès_Pli_Sécurisé": "Access to secure package!",
-
   "MessageSuccès": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Questionnaire submitted.</p><p>Thank you for your opinion.</p>",
-
   "BienPassé": "Did everything go well?",
   "VotreAvis": "What do you think of France Transfert?",
   "Pas bien": "Poor",
   "Moyen": "Acceptable",
   "Très bien": "Very good",
-
   "Vérification Adresse": "Check your email address",
   "Session Expiré": "Your session has expired. You have been sent a new confirmation code by email to continue using the service as long as you do not exceed 30 minutes of inactivity.",
   "CodeConfirmation1": "You have been sent a confirmation code by email. If you want to stay ",
@@ -216,7 +194,6 @@
   "Intro": "<span>These Terms and Conditions of Use, valid indefinitely, apply to any user of the online service available at francetransfert.numerique.gouv.fr. They are applied in accordance with Article L. 112-8 of the French Code on Relations Between the Public and the Administration (right to administration via electronic means). </span> <span>By checking the box when sending, you certify that you have read and accepted the France Transfert Terms and Conditions of Use on this page. </span> <span>You will be asked to accept the Terms and Conditions of Use again in the event of extension of the services offered by France Transfert leading to changes to the Terms and Conditions of Use.</span>",
   "Présentation_Service": "1. Presentation of the service",
   "Présentation_Service_Texte": "<span>France Transfert (the Service) is a service created by the State (the State) to help its users (citizens, professionals, companies, associations, etc.), partners or providers to exchange large files and folders from officials that cannot be sent by email. </span> <br><span>As an experiment, and with the authorization of the DINUM, the Service may also be opened to agents of local authorities and their groups.</span> <br><span>It was designed by the Ministry of Culture  and is now operated and made available to all ministries by the Interministerial Digital Directorate (DINUM). </span><br><span>This Service is integrated into the Digital Suite offered to all State agents (<a href='https://lasuite.numerique.gouv.fr/'>https://lasuite.numerique.gouv.fr/</a>) and is also accessible via ProConnect (<a href='https://www.proconnect.gouv.fr/'>https://www.proconnect.gouv.fr/</a>). </span><br><span>The current version of the Service does not allow the transfer of files or folders larger than 2 GB. The Service can be used to send a set of files or folders totalling up to 20 GB, as long as no file or folder exceeds 2 GB individually. </span><br><span>The Service is not designed: </span>",
-
   "Présentation_Service_List": "<li><span>For the administrative procedures of minors;</span></li> <li><span>For procedures requiring the collection of data subject to Article 6 (I) of Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties (sensitive data).</span></li>",
   "Service_Mis_A_Disposition": "The Service is provided with no express or tacit warranties other than those provided herein.",
   "Modalités_Titre": "2. Terms of use of the Service ",
@@ -224,12 +201,11 @@
   "Inscription_Transmission_Texte": "<span>When logging in to the page <a href='https://francetransfert.numerique.gouv.fr'>https://francetransfert.numerique.gouv.fr</a>, the user of the Service provides the email address of the package’s recipients. Each recipient of the package will receive an email indicating the sender’s email address, the name and size of the files and the deadline to download the package before its deletion, as well as the password to download the package in a separate email.</span><br><br><span>The user of the Service also provides a valid email address, to which an email will be sent confirming the transmission of the package to the recipients. This email indicates the email addresses of recipients, the names and sizes of each submitted file and the deadline to download the package before its deletion (the package is then archived). Use of the Service is free and optional.  </span><br><br><span>The Service allows access to the package by default within 30 days and within a limit of 90 days. </span><br><br><span>The user of the Service, if he is a State agent, can also deposit his files on France transfert and obtain a download link which he must send himself to his recipients. This download link is indicated in the confirmation email that the user receives. </span>",
   "Données_Sensibles_Titre": "4.2 Sensitive data",
   "Données_Sensibles_Texte": "<span>The Service is currently designed for sending usual data and/or for internal use of Public Administration, without any particular sensitivity.. </span><br><span>The use of the Service for sensitive data transfer is prohibited. </span><br><span>Sensitive data means: </span>",
-
   "Données_Sensibles_Liste": "<li>The specific category of personal data defined by the general data protection regulation (GDPR). This includes information that reveals a supposed racial or ethnic origin, political opinions, religious or philosophical beliefs or trade union membership, as well as the processing of genetic data, biometric data for the purpose of uniquely identifying a natural person, data concerning health or data concerning the sex life or sexual orientation of a natural person;  </li> <li>Data classified « restricted » according to II 901 or more widely data whose dissemination is supposed to be strictly limited to a number of identified individuals. </b></li>",
   "Données_Sensibles_Texte2": "<span>If the sender wishes nevertheless to send sensitive data via the Service, in accordance with the applicable regulations, he or she must ensure that it has first been encrypted with a solution validated by the security department of its entity (via a Zed container for example).</span>",
   "Données_Sensibles_Texte3": "<span>If a recipient of a package sent via the Service finds that sensitive data has been sent without encryption by the sender, he or she may :",
   "Données_Sensibles_Liste2": "<li>report this using the contact form, providing the download link of the package and the associated password. The Interministerial Digital Directorate (DINUM) will then initiate a procedure to isolate the package concerned, conduct an audit and then take the necessary action. </li> <li>Inform the sender so that he can use the administration link of his package to archive it, in order to stop any additionnal download.  </li>",
-"Données_Techniques_Titre": "3. Technical data",
+  "Données_Techniques_Titre": "3. Technical data",
   "Généralités_Titre": "3.1 General requirements ",
   "Généralités_Texte": "Use of the Service requires an Internet connection and browser.",
   "Utilisation_Cookies_Titre": "3.2 Use of cookies ",
@@ -250,15 +226,15 @@
   "Modification_Evolution_Qualité_Titre": "7. Changes, evolutions and quality of the Service",
   "Modification_Evolution_Qualité_Texte": "<span>The DINUM reserves the right to develop, change or suspend the Service, without notice, for maintenance or for any other reason deemed necessary. </span><br> <span>These Terms and Conditions of Use may be amended at any time, without notice, depending on changes made to the Service, evolutions of legislation or for any other reason deemed necessary.</span>",
   "Sécurité_Titre": "8. Security",
-  "Sécurité_Texte": "<span>The data sent by France Transfert is scanned for viruses. They can be protected in a ZIP archive with a password set by the user. </span><br> <span>The France Transfert Service received security accreditation under the authority of the Interministerial Digital Directorate (DINUM) on 15 December 2021 for a period of 3 years.</span><br> <span>The DINUM takes all necessary precautions and steps to preserve the security personal data, including preventing it from being distorted, damaged or accessed by unauthorized third parties. </span><br> <span>Any questions about the security of the Service may be sent to the contact address provided in Article 9.</span>",
+  "Sécurité_Texte": "<span>The data sent via France Transfert is subject to antivirus analysis. It may be protected within a password-protected ZIP archive defined by the user.</span><br><br><span>DINUM takes all necessary precautions and measures to preserve the security of personal data and, in particular, to prevent it from being altered or damaged, or accessed by unauthorized third parties. Any questions regarding the security of the Service may be sent to the contact address defined in Article 10.</span>",
+  "Homologation_Titre": "9. Security Accreditation",
+  "Homologation_Texte": "<span>France Transfert received a security accreditation from DINUM on 22/04/2026 for a period of 2 years under the RGS framework.</span><br><br><span>The accredited information system is hosted in compliance with the provisions of Article 31 of the SREN law regarding the protection of particularly sensitive data.</span><br><br><span>It should be noted that, in the event of the implementation of data processing not covered by this accreditation (e.g. sensitive data under the GDPR), it is the responsibility of each qualified authority of a user administration to reassess the product’s security level, based on the accreditation documentation provided by DINUM, in order to determine whether it meets the security requirements of the intended processing.</span>",
   "Contact_Titre": "9. Contact",
   "Contact_Texte": "<span>The contact department is DINUM.</span><br> <span>It can be reached via the “Contact us” form.</span><br> <span>Officials can join the dedicated Tchap room for France Transfert. You will find information on future developments and discuss the Service with other officials. </span>",
-
   "Politique_Protection_Données_Titre": "Data protection policy",
   "Droits_Personnes_Titre": "Rights of data subjects ",
   "Droits_Personnes_Texte": "<span>Personal data means any information relating to a natural person who could be identified, directly or indirectly. Personal and professional email addresses, as well as IP addresses, are considered personal data. </span><br> <span>The France Transfert service is compliant in its collection and management of your personal data with Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties and the General Data Protection Regulation of 27 April 2016 (the “GDPR”).</span>",
   "Droits_Personnes_Liste": "<li><span>The personal data requested from you are required to access the France Transfert service. They are for the use of the Ministry of Culture (Digital Service) in its capacity as data controller. The legal basis for the processing is legitimate interest.</span></li> <li><span>They will be communicated for the same purposes to the staff members of the Ministry of Culture maintaining the France Transfert service.</span></li>  <li><span>Personal data are recorded and stored as follows:</span> <ul><li><span>In the application database: the life of the package (30 days by default, up to 90 days as chosen by the sender);</span></li><li> <span>In the application logs: up to 12 months (for analysis of any malfunction).</span></li></ul></li><li> <span>The Ministry of Culture undertakes to take all necessary measures to guarantee the security and confidentiality of your data, in accordance with the legal framework. It also undertakes not to sell any of the information you transmit or to communicate it to third parties, except as provided for by law. </span></li><li><span> In accordance with the Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties, you have the right of access, rectification, erasure, restriction of processing and the right to determine the fate of your data after your death, which is exercised by contacting the Data Protection Officer and proving your identity by any means: </span>  <ul><li><span>By email at the following address: <a href='mailto:delegue-protection-donnees@culture.gouv.fr'>delegue-protection-donnees@culture.gouv.fr</a></span></li><li><span>Or by post at the following address:</span><p><span>Direction Interministérielle du Numérique</span><br> <span>À l’attention de Monsieur le Délégué à la protection des données</span><br> <span>182 Rue Saint-Honoré</span><br> <span>75033 Paris CEDEX 01</span></p></li></ul></li> <li><span>If you feel, after contacting us, that your rights under the Act 78-17 of 6 January 1978 on Data Processing, Data Files and Individual Liberties are not respected, you have the right to lodge a complaint with the National Commission on Data Processing and Liberties (CNIL), the supervisory authority responsible for compliance with personal data obligations.</span></li>",
-
   "Accessibilité_Titre": "Accessibility",
   "Déclaration_Accessibilité_Titre": "Accessibility declaration",
   "Déclaration_Accessibilité_Texte1": "The Interministerial Digital Directorate (DINUM) undertakes to make its web, intranet and extranet sites accessible in accordance with Article 47 of Act 2005-102 of 11 February 2005.",
@@ -290,7 +266,6 @@
   "Vérification_Accessibilité_Liste2": "<li><span>Colour Contrast Analyser;</span></li><li><span>Web Developer extension;</span></li><li><span>“Assistant RGAA” extension;</span></li><li><span>“WCAG Contrast Checker” extension;</span></li><li><span>“ARC Toolkit” extension;</span></li><li><span>“HeadingsMap” extension;</span></li><li><span>Firefox browser Developer Tools;</span> </li><li> <span>W3C HTML validator.</span></li>",
   "Vérification_Conformité_Titre": "Website pages that were subject to conformance checks",
   "Vérification_Conformité_Liste": "<li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/upload' target='_blank'>Home</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.crisp.help/fr/' target='_blank'>FAQ Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/connect' target='_blank'>Login Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/plis' target='_blank'>My packages Page</a></li><li>Detail Page of an issued package</li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/contact' target='_blank'>Contact us Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/accessibilite' target='_blank'>Accessibility Page</a></li><li><a rel='noopener noreferrer' href='https://francetransfert.numerique.gouv.fr/mentions-legales' target='_blank'>Impressum Page</a></li><li>Password verification screen</li><li>Result page of a submission</li>",
-
   "Retour_Information_Contact_Titre": "Feedback and contact information",
   "Retour_Information_Contact_Texte": "If you are unable to access a specific piece of content or service, you can contact the website manager to be directed to an accessible alternative or to obtain the content in a different form.",
   "Retour_Information_Contact_Liste": "Send a message",
@@ -298,16 +273,13 @@
   "Voie_Recours_Texte1": "This procedure is to be used in the following case.",
   "Voie_Recours_Texte2": "If you inform the website manager of an accessibility problem that prevents you from accessing a specific service or content and do not receive a satisfactory response:",
   "Voie_Recours_Liste": "<li><span>Write a message to the Defender of Rights (<a rel='noopener noreferrer' href='https://formulaire.defenseurdesdroits.fr/defenseur/code/afficher.php?ETAPE=informations' target='_blank'>via the contact form</a>) ;</span></li><li><a rel='noopener noreferrer' href='https://www.defenseurdesdroits.fr/saisir/delegues' target='_blank'>Contact the delegate of the Defender of Rights in your region</a> ;</li><li><span>Send a letter by post (free-of-charge, no stamp is necessary) to: Défenseur des droits Libre réponse 71120 75342 Paris CEDEX 07 ;</span></li><li><span>Contact the Defender of Rights by telephone: +33 (0)9 69 39 00 00.</span></li>",
-
   "Etes_Vous_Sûr": "Are you sure?",
   "Suppression_Pli": "This will permanently delete your package and make it inaccessible.",
   "Supprimer": "Delete",
   "Suppression_Destinataire": "Are you sure you want to delete this recipient?",
   "Lien_Téléchargement": "The download link received by email will no longer work.",
-
   "Destinataire_Ajouté": "The recipient has been added.",
   "Courriel_Envoyé": "The recipient has been sent an email with a package download link.",
-
   "Administration": "Package administration",
   "Informations_Pli": "Package information",
   "Nombre_Téléchargements": "Number of downloads: ",
@@ -322,27 +294,21 @@
   "Supprimer_Destinataire": "Delete recipient",
   "Éléments_Pli": "Package elements",
   "Téléchargement_Pli": "Package Downloads",
-
   "Message_Connect": "You can now use France Transfert for at least 30 min.",
-
   "Message_Contact": "<p class='fr-alert__title' style='font-weight: bolder;font-size: 14px'>Sending complete</p><p>Thank you for your message. We will get back to you as soon as possible.",
-
   "Prêt_Partez": "Ready? Go!",
   "Jours_Restants1": "You have ",
   "Jours_Restants2": " days left to download the package.",
   "Acceptation_CGU": "  I have read the <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'>Terms and Conditions of Use</a>.",
   "Télécharger": "Download",
-
   "Ajouter_Ecran_Accueil": "Add to Home screen",
   "Fermer": "Close",
   "Installation_Application": "To install this web application on your device, press the Menu button, then the “Add to Home screen” button",
-
   "Mise_A_Jour_Disponible": "Update available ",
   "Nouvelle_Version_Disponible": "A new version of the application is available.",
   "Mettre_A_Jour": "Update?",
   "Non": "No",
   "Oui": "Yes",
-
   "Délai_Validité": "Validity period ",
   "Nombres_Caractères": "12 characters minimum - 64 characters maximum",
   "Nombres_Lettres_Minuscules": "At least 3 lower case letters (a-z, no accents)",
@@ -351,7 +317,6 @@
   "Nombres_Caractères_Spéciaux": "At least 3 special characters (!@#$%^&*_-:+)",
   "Langue_Affichage_Courriels": "Email language",
   "Zip_Mot_Passe": "Protect the package’s ZIP file with a password",
-
   "Ajout_Destinataire": "Add a recipient",
   "Terminer": "Complete",
   "Details": "Administer package",
@@ -365,19 +330,16 @@
   "Afficher_Liste": "Show list",
   "Masquer_Liste": "Hide list",
   "Envoyer_Code": "Send code",
-
   "Mon_Compte": "My account",
   "Mes_Plis": "My packages",
   "Mes_Plis_Envoyés": "My sent packages",
   "Mes_Plis_Reçus": "My received packages",
-
   "ITEMS_PER_PAGE": "Packages per page",
   "NEXT_PAGE": "Next page",
   "PREVIOUS_PAGE": "Previous page",
   "FIRST_PAGE": "First page",
   "LAST_PAGE": "Last page",
   "OF_LABEL": "on",
-
   "Filtrer": "Filter",
   "Reinitialiser": "Reset",
   "ExportEnCours": "Export in progress, please wait...",
@@ -393,27 +355,20 @@
   "Fin_Validité": "Valid until",
   "Liste_Destinataires": "Recipients",
   "Elément_Récurrent": "Select the page of the recurring element",
-
   "Version2": "version ",
   "Version_Française": " The French version of this page prevails in the event of differences with versions in other languages.",
   "Information_Personnes_Titre": "4.1 Personal information",
   "Information_Personnes_Texte": "<span>The Interministerial Digital Directorate (DINUM), the controller, processes your personal data in order to provide the France Transfert service.</span><br><br><span>The data collected are essential for this processing and are intended for the relevant directorates of the DINUM and any subcontractors. </span><br><br><span>The legal basis for the processing is the execution of a public service mission.</span><br><br><span>The Interministerial Digital Directorate (DINUM) undertakes not to sell the information and documents transmitted by the User via the Service and not to communicate it to third parties, except in the cases provided for by law. </span><br><br><span>The data collected shall be kept for the following periods:</span><br>",
   "Information_Personnes_Liste": "<li>email addresses: 12 months;</li> <li>logs: 12 months</li>",
   "Information_Personnes_Second_Texte": "<span>In accordance with the regulations in force, you have the right of access, rectification, erasure, restriction of processing and to object, and the right to determine the fate of your data after your death, which may be exercised by contacting the Data Protection Officer  of the Prime Minister's services: </span>",
-
-
   "Information_Personnes_Second_Liste": "<li>by email at <a href='mailto:dpd@pm.gouv.fr'>dpd@pm.gouv.fr</a></li> <li>or by post at the following address:</li>",
   "Information_Personnes_Third_Texte": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>Services du Premier Ministre  </span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>À l’attention du délégué à la protection des données (DPD)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>56 rue de Varenne </span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>75007 Paris </span><br><br><span>Finally, you have the right to lodge a complaint with the National Commission on Data Processing and Liberties (CNIL), the supervisory authority responsible for compliance with personal data obligations. </span><br>",
-
-
   "Liste_Plis_Reçus": "List of received packages",
   "Date_Réception": "Date of receipt",
   "expediteur": "Sender",
   "Nombres_Caractères_Spéciaux_Forbidden": "No unsupported special characters",
   "Téléchargement": " download(s)",
-
   "Contact": "Contact us",
-
   "Question1Image": "",
   "Question2Image": "",
   "Question6Image": "",
@@ -421,14 +376,12 @@
   "Question15Image": "",
   "Formulaire": "The Ministry of Culture, the controller, processes your personal data in order to provide the France Transfert service. To find out more about your rights, consult the provisions on personal data in our <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'> Terms and Conditions of Use</a>.</span>",
   "Renvoyer_Lien_Téléchargement": "Resend download links",
-
   "MB": "MB",
   "KB": "KB",
   "bytes": "B",
   "Download_Success": "The emails have been sent to the recipient.",
   "Renvoyer_pli": "You can resend a download link email and a download password email.",
   "Poursuivre_pli": "Continue?",
-
   "catégorie1": "General",
   "catégorie2": "My account / Log in",
   "catégorie3": "Send package",
@@ -450,14 +403,12 @@
   "Dates-telechargement": "Download dates:",
   "time": "at",
   "téléchargement-pli": "Download package",
-
   "Dupliquer-destinataires": "Duplicate recipients",
   "CGU-Version": "3.13.0",
   "Faq-Version": "3.12.8",
   "Accessibilite-Version": "3.13.0",
   "Mentions-légales-Version": "3.13.0",
   "Politique-protection-donnees-Version": "3.4.0",
-
   "questions": [
     {
       "category": "General",
@@ -508,7 +459,6 @@
         }
       ]
     },
-
     {
       "category": "Send package",
       "entities": [
@@ -578,7 +528,6 @@
         }
       ]
     },
-
     {
       "category": "Download package",
       "entities": [
@@ -645,7 +594,6 @@
         }
       ]
     },
-
     {
       "category": "Information and user feedback",
       "entities": [
@@ -729,7 +677,6 @@
   "Nombre d'essais maximum atteint": "Maximum number of trials reached",
   "Ou": "Or",
   "AgentConnect": "What is ProConnect?",
-
   "Exporter_PDF": "PDF export",
   "Export_PDF": "Export as PDF",
   "Nom": "Name",
@@ -750,7 +697,7 @@
   "Plis_Envoyés": "List of sent packages",
   "namePDF-sent": "Sent package",
   "namePDF-recieved": "Recieved package",
-  "PDF" : "PDF",
+  "PDF": "PDF",
   "Resana-Osmose": "If you have an OSMOSE and/or RESANA account and you wish to download the contents of this fold directly into OSMOSE or RESANA, you can click on one of the buttons below: ",
   "Type_Pli": "Package type :",
   "Total_Size": "Total size of the package :",
@@ -761,11 +708,5 @@
   "conteneur_Zed": "Zed container",
   "exemple": " for example).,",
   "EnvoiePli": "Send a package",
-   "Facultatif": "(Optional)"
-
-
-
-
-
-
+  "Facultatif": "(Optional)"
 }
