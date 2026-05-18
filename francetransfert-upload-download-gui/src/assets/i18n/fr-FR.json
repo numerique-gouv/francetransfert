@@ -368,7 +368,7 @@
   "Contact": "Nous contacter",
   "Question1Image": "<img mat-card-image alt='' src='assets/images/FT_France Transfert_V2.png' />",
   "Question2Image": "<img   alt='' src='assets/images/FT_Envoyer des dossiers ou des fichiers_V2.png' />",
-  "Question6Image": "<img alt='' src='assets/images/FT_Être connecté à France Transfert V3.png' />",
+  "Question6Image": "<img alt='' src='assets/images/FT_Etre connecte a France Transfert V3.png' />",
   "Question8Image": "<img  alt='' src='assets/images/FT_Telecharger un pli_V2.png' />",
   "Question15Image": "<img  alt='' src='assets/images/FT_Utiliser une liste de diffusion_V2.png' />",
   "Formulaire": "<span>Le Direction Interministérielle du Numérique, responsable du traitement, met en œuvre un traitement de données à caractère personnel vous concernant pour assurer la fourniture du service France Transfert. Pour en savoir plus sur vos droits, veuillez consulter les dispositions sur les données personnelles de nos <a class='link' rel='noopener noreferrer' href='cgu' target='_blank'> conditions générales d’utilisation</a>.</span>",
@@ -445,7 +445,7 @@
           "Question_Liste": "<li><span>La connexion consiste à confirmer que vous êtes bien le propriétaire de l’adresse courriel indiquée comme expéditeur du pli : un code de confirmation est envoyé par courriel et vous disposez de 20 min pour le saisir. </span></li> <li> <span> Une fois que vous êtes connecté, il n’est plus nécessaire de saisir votre adresse courriel en tant qu’expéditeur lors d’un nouveau pli. </span> </li> <li> <span>  La connexion est valable 30 min, et reste active tant que vous envoyez un pli dans cet intervalle. Passé ce délai, et sans nouveau pli créé, il faudra de nouveau passer par l’étape de connexion.</span></li>",
           "Question_Liste_Ordered": "",
           "Question_Texte2": "<span>La connexion ne nécessite pas la création d’un compte utilisateur, il s’agit uniquement d’un moyen de vérification via le code de confirmation de votre adresse courriel en tant qu’expéditeur et d’une facilité vous évitant de faire cette vérification à chaque pli. </span> <span>Si vous êtes déjà connecté et que vous souhaitez utiliser une autre adresse courriel en tant qu’expéditeur, il suffit de cliquer sur « Se déconnecter ». Vous pourrez alors passer par le processus de connexion, soit à l’envoi de votre prochain pli, soit en ayant au préalable cliqué sur « Se connecter ».</span><span>Attention toutefois, si vous ouvrez France transfert dans un nouvel onglet ou rafraichissez la page de France transfert, les informations de connexion sont effacées. </span><span>Vous pouvez aussi décider de ne pas vous connecter, dans ce cas vous devrez systématiquement saisir un code de confirmation à chaque envoi de pli. </span>",
-          "QuestionImage": "<img alt='' src='assets/images/FT_Être connecté à France Transfert V3.png' />"
+          "QuestionImage": "<img alt='' src='assets/images/FT_Etre connecte a France Transfert V3.png' />"
         },
         {
           "Question": "Comment retrouver facilement mes plis envoyés et reçus ? ",
