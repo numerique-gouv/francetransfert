@@ -30,11 +30,14 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            align-items: center;
             display: -webkit-flex;
             -webkit-flex-direction: column;
             -webkit-justify-content: space-between;
+            -webkit-align-items: center;
             margin-bottom: 50%;
             text-align: center;
+            width: 100%;
             &-title {
                 font-weight: bold;
                 font-size: 28px;
@@ -44,6 +47,24 @@
                 margin-top: 10px;
                 font-size: 14px;
                 line-height: 24px;
+            }
+            // Slot ng-content (E2EE share actions projected from upload.component).
+            // ::ng-deep is needed because the projected element keeps its source
+            // component's view encapsulation attribute, so the regular nested
+            // selector does not match.
+            ::ng-deep .encryption-share-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 12px;
+                justify-content: center;
+                width: 100%;
+
+                a.mat-mdc-raised-button,
+                button.mat-mdc-raised-button {
+                    text-decoration: none;
+                    color: white;
+                }
             }
         }
     }
