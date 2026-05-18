@@ -48,6 +48,35 @@ Enfin pour les agents de l'Etat, il y a un salon "France transfert" dans TCHAP q
 - **ft-helm/** : Charts Helm pour le déploiement sur Kubernetes
   - Technologies : Helm, Kubernetes
 
+## Démarrage local (Docker Compose)
+
+Un `docker-compose.yml` à la racine fournit une pile complète pour tester en local : Redis, MinIO (S3 compatible), MailCatcher, les 3 APIs Java et la GUI. Aucun JDK n'est requis sur l'hôte (build Maven dans Docker).
+
+```bash
+cp .env.model .env.local                            # adapte les ports/credentials si besoin
+docker compose --env-file .env.local up --build     # premier build ~5-10 min (téléchargement des deps Maven)
+```
+
+> Compose ne charge automatiquement que `.env` ; on passe explicitement `--env-file .env.local` pour éviter toute confusion avec un éventuel `.env` global.
+
+Une fois lancé :
+
+| Service       | URL                                                     |
+| ------------- | ------------------------------------------------------- |
+| GUI           | http://localhost:4200/                                  |
+| upload-api    | http://localhost:8080/swagger-ui/index.html             |
+| download-api  | http://localhost:8081/swagger-ui/index.html             |
+| MinIO console | http://localhost:9101/ (identifiants dans `.env.local`) |
+| MailCatcher   | http://localhost:1080/                                  |
+
+La GUI consomme les APIs via `/api-private/*` (proxy nginx interne au conteneur GUI) — donc pas de configuration CORS nécessaire, et les ports 8080/8081 ne sont exposés que pour le debug direct (Swagger, curl).
+
+Pour arrêter et tout nettoyer :
+
+```bash
+docker compose --env-file .env.local down -v        # -v pour effacer les volumes Redis / MinIO
+```
+
 ## Contribution
 
 Nous utilisons le Developer Certificate of Origin (DCO) pour les contributions. En contribuant à ce projet, vous acceptez de respecter les termes du DCO.

@@ -1,0 +1,300 @@
+name: francetransfert
+
+services:
+  redis:
+    image: redis:7-alpine
+    command:
+      [
+        'redis-server',
+        '--requirepass',
+        '${METALOAD_PASSWORD}',
+        '--appendonly',
+        'yes',
+      ]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'redis-cli',
+          '-a',
+          '${METALOAD_PASSWORD}',
+          '--no-auth-warning',
+          'ping',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-29T16-01-48Z
+    command: ['server', '--console-address', ':9001', '/data']
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY}
+    ports:
+      - '${MINIO_API_PORT}:9000'
+      - '${MINIO_CONSOLE_PORT}:9001'
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
+    entrypoint: ['/bin/sh', '/init/minio-init.sh']
+    volumes:
+      - ./docker/minio-init.sh:/init/minio-init.sh:ro
+    restart: 'no'
+
+  mailcatcher:
+    image: aerzas/mailcatcher:2.3.0
+    environment:
+      EMAIL_HOST: 0.0.0.0
+      EMAIL_PORT: '1025'
+    ports:
+      - '${MAILCATCHER_UI_PORT}:1080'
+      - '${MAILCATCHER_SMTP_PORT}:1025'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', '/scripts/docker-healthcheck.sh']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  upload-api:
+    build:
+      context: .
+      dockerfile: docker/upload-api.Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      # The prod jar bundles no application.properties; pull defaults from
+      # the dev modele.properties (env vars below override what we need).
+      SPRING_CONFIG_ADDITIONAL_LOCATION: 'classpath:/modele.properties'
+      # Spring core
+      SERVER_PORT: '8080'
+      SERVER_TOMCAT_BASEDIR: '/tmp/tomcat'
+      APPLICATION_COOKIES_DOMAIN: ''
+      ENVIRONNEMENT: DEV
+      # Redis
+      METALOAD_HOST: redis
+      METALOAD_PORT: '6379'
+      METALOAD_PASSWORD: ${METALOAD_PASSWORD}
+      METALOAD_SENTINEL_ACTIVE: 'false'
+      # S3
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_ENV: local
+      BUCKET_PREFIX: ${BUCKET_PREFIX}
+      BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
+      BUCKET_EXPORT: ${BUCKET_PREFIX}export
+      BUCKET_ALLOWLIST: '*'
+      CONFIG_API_KEY: 'local-dev-config-api-key'
+      # Limits and timings
+      UPLOAD_LIMIT: '21474836480'
+      UPLOAD_FILE_LIMIT: '2147483648'
+      UPLOAD_LIMIT_SENDERMAIL: '100'
+      UPLOAD_TOKEN_CHUNKMODULO: '20'
+      UPLOAD_EXPIRED_LIMIT: '90'
+      ENCLOSURE_EXPIRE_DAYS: '30'
+      ENCLOSURE_MAX_PASSWORD_TRY: '5'
+      EXPIRE_CONFIRMATION_CODE: '1200'
+      EXPIRE_CONFIRMATION_CODE_LENGTH: '8'
+      EXPIRE_TOKEN_SENDER: '1800'
+      # Password rules (kept loose for local dev)
+      PASSWORD_MINSIZE: '10'
+      PASSWORD_MAXSIZE_GENERATED: '20'
+      PASSWORD_LOWER_MIN: '2'
+      PASSWORD_UPPER_MIN: '2'
+      PASSWORD_SPECIAL_MIN: '2'
+      PASSWORD_DIGIT_MIN: '2'
+      PASSWORD_SPECIAL_LIST: '!@#$$%^&*()_+-'
+      PASSWORD_SALT: 'local-dev-salt-not-secret-do-not-use-in-prod'
+      # External integrations disabled for local dev
+      AGENTCONNECT_ENABLED: 'false'
+      CAPTCHA_URL: 'http://localhost/captcha-disabled'
+      CAPTCHA_SECURE: 'false'
+      URL_DOWNLOAD_PUBLIC: 'http://localhost:${GUI_PORT}/download/download-info-public?enclosure='
+      API_KEY: '{}'
+      UPLOAD_DOMAINE_LIST: ''
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 500MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 500MB
+    ports:
+      - '${UPLOAD_API_PORT}:8080'
+    restart: unless-stopped
+
+  download-api:
+    build:
+      context: .
+      dockerfile: docker/download-api.Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      SPRING_CONFIG_ADDITIONAL_LOCATION: 'classpath:/modele.properties'
+      SERVER_PORT: '8081'
+      SERVER_TOMCAT_BASEDIR: '/tmp/tomcat'
+      ENVIRONNEMENT: DEV
+      METALOAD_HOST: redis
+      METALOAD_PORT: '6379'
+      METALOAD_PASSWORD: ${METALOAD_PASSWORD}
+      METALOAD_SENTINEL_ACTIVE: 'false'
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_ENV: local
+      BUCKET_PREFIX: ${BUCKET_PREFIX}
+      BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
+      BUCKET_ALLOWLIST: '*'
+      API_KEY: '{}'
+      ENCLOSURE_MAX_DOWNLOAD: '5'
+      ENCLOSURE_MAX_PASSWORD_TRY: '5'
+      PASSWORD_MINSIZE: '10'
+      PASSWORD_MAXSIZE_GENERATED: '20'
+      PASSWORD_LOWER_MIN: '2'
+      PASSWORD_UPPER_MIN: '2'
+      PASSWORD_SPECIAL_MIN: '2'
+      PASSWORD_DIGIT_MIN: '2'
+      PASSWORD_SPECIAL_LIST: '!@#$$%^&*()_+-'
+      PASSWORD_SALT: 'local-dev-salt-not-secret-do-not-use-in-prod'
+    ports:
+      - '${DOWNLOAD_API_PORT}:8081'
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      mailcatcher:
+        condition: service_healthy
+    env_file:
+      - docker/worker-stubs.env
+    environment:
+      # The prod jar bundles no application.properties; pull defaults from
+      # the dev modele.properties (env vars below override what we need).
+      # Worker's modele is named modele-dev.properties for historical reasons.
+      SPRING_CONFIG_ADDITIONAL_LOCATION: 'classpath:/modele-dev.properties'
+      SERVER_TOMCAT_BASEDIR: '/tmp/tomcat'
+      ENVIRONNEMENT: DEV
+      TMP_FOLDER_PATH: '/tmp/'
+      # Redis
+      METALOAD_HOST: redis
+      METALOAD_PORT: '6379'
+      METALOAD_PASSWORD: ${METALOAD_PASSWORD}
+      METALOAD_SENTINEL_ACTIVE: 'false'
+      # S3
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_ENV: local
+      BUCKET_PREFIX: ${BUCKET_PREFIX}
+      BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
+      BUCKET_EXPORT: ${BUCKET_PREFIX}export
+      # Mail (MailCatcher accepts anything on port 1025, no AUTH)
+      SPRING_MAIL_HOST: mailcatcher
+      SPRING_MAIL_PORT: '1025'
+      SPRING_MAIL_USERNAME: ''
+      SPRING_MAIL_PASSWORD: ''
+      SPRING_MAIL_FTMAIL: 'no-reply@francetransfert.local'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: 'false'
+      # AV: not present in this stack. Worker short-circuits the scan on this branch.
+      SCAN_CLAMAV_HOST: 'clamav-disabled'
+      SCAN_CLAMAV_PORT: '3310'
+      SCAN_CLAMAV_TIMEOUT: '2000'
+      SCAN_CLAMAV_CHUNKSIZE: '655360'
+      SCAN_CLAMAV_MAXFILESIZE: '2147483648'
+      GLIMPS_ENABLED: 'false'
+      GLIMPS_DELAY_SECONDS: '30'
+      GLIMPS_MAXTRY: '10'
+      # Limits and timings (mirroring upload-api so size checks agree)
+      UPLOAD_LIMIT: '21474836480'
+      UPLOAD_FILE_LIMIT: '2147483648'
+      WORKER_EXPIRED_LIMIT: '90'
+      EXPIRE_CONFIRMATION_CODE: '600'
+      EXPIRE_TOKEN_SENDER: '1800'
+      # Pool sizes
+      POOL_SIZE: '10'
+      SATISFACTIONWORKEREXECUTOR_POOL_SIZE: '2'
+      SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: '2'
+      TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: '2'
+      ZIPWORKEREXECUTOR_POOL_SIZE: '2'
+      SENDEMAILDOWNLOADINPROGRESSWORKEREXECUTOR_POOL_SIZE: '2'
+      UPLOADDOWNLOADWORKEREXECUTOR_POOL_SIZE: '2'
+      STATWORKEREXECUTOR_POOL_SIZE: '2'
+      RELAUNCH_MAIL_DAYS: '7'
+      # Schedulers far in the future (we don't want them firing during a test)
+      SCHEDULED_RELAUNCH_MAIL: '0 0 1 1 1 ?'
+      SCHEDULED_CLEAN_UP: '0 0 1 1 1 ?'
+      SCHEDULED_APP_SYNC_CLEANUP: '0 0 1 1 1 ?'
+      SCHEDULED_APP_SYNC_RELAUNCH: '0 0 1 1 1 ?'
+      SCHEDULED_IGNIMISSION_DOMAIN: '0 0 1 1 1 ?'
+      SCHEDULED_APP_SYNC_IGNIMISSION_DOMAIN: '0 0 1 1 1 ?'
+      SCHEDULED_SEND_STAT: '0 0 1 1 1 ?'
+      SCHEDULED_SENDCHECKMAIL: '0 0 1 1 1 ?'
+      SCHEDULED_CHECKMAIL: '0 0 1 1 1 ?'
+      SCHEDULED_SYNC_CHECKMAIL: '0 0 1 1 1 ?'
+      SCHEDULED_SYNC_CHECKGLIMPS: '0 0 1 1 1 ?'
+      SCHEDULED_CHECKGLIMPS: '0 0 1 1 1 ?'
+      # URLs used in email templates (point at the GUI)
+      URL_DOWNLOAD_API: 'http://localhost:${GUI_PORT}/download/'
+      URL_ADMIN_PAGE: 'http://localhost:${GUI_PORT}/admin'
+      MAIL_IMAGE_FT_LOGO: 'http://localhost:${GUI_PORT}/statics/logos/france_transfert_logo.svg'
+      MAIL_IMAGE_FT_FILE: 'http://localhost:${GUI_PORT}/statics/email-contents/Fichier_white.png'
+      MAIL_IMAGE_FT_FOLDER: 'http://localhost:${GUI_PORT}/statics/email-contents/Dossier_white.png'
+      MAIL_IMAGE_FT_ACCESSBUTTON: 'http://localhost:${GUI_PORT}/statics/email-contents/acceder-fichiers.png'
+      # External integrations stubbed
+      IGNIMISSION_CLIENT_SECRET: 'disabled'
+      LASUITE_TOKEN: 'disabled'
+      LASUITE_DOMAIN_URL: 'http://localhost'
+      # Password rules
+      PASSWORD_MINSIZE: '10'
+      PASSWORD_MAXSIZE_GENERATED: '20'
+      PASSWORD_LOWER_MIN: '2'
+      PASSWORD_UPPER_MIN: '2'
+      PASSWORD_SPECIAL_MIN: '2'
+      PASSWORD_DIGIT_MIN: '2'
+      PASSWORD_SPECIAL_LIST: '!@#$$%^&*()_+-'
+      PASSWORD_SALT: 'local-dev-salt-not-secret-do-not-use-in-prod'
+    restart: unless-stopped
+
+  gui:
+    build:
+      context: .
+      dockerfile: docker/gui.Dockerfile
+    depends_on:
+      - upload-api
+      - download-api
+    ports:
+      - '${GUI_PORT}:8080'
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  minio-data:
