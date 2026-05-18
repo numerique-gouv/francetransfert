@@ -7,7 +7,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthService, OAuthStorage } from 'angular-oauth2-oidc';
 import { BehaviorSubject, catchError, map, take } from 'rxjs';
 import { TokenModel } from 'src/app/models/token.model';
 import { environment } from 'src/environments/environment';
@@ -24,6 +24,11 @@ export class LoginService {
   public currentTabIndex = 1;  //default tab index is 1
 
   constructor(private configService: ConfigService, private oauthService: OAuthService, private _httpClient: HttpClient) {
+
+    // Share OIDC tokens across browser tabs (default would be sessionStorage,
+    // which is tab-scoped and means a tab opened with the same URL appears
+    // logged out while the original tab is logged in).
+    this.oauthService.setStorage(localStorage as unknown as OAuthStorage);
 
     this.configService.isAgentConnect.subscribe(x => {
       if (x && x == true) {
