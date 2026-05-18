@@ -350,8 +350,9 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
    * Priority:
    *   1. Single root folder selected → its name
    *   2. Subject filled by the user → `<subject>.zip`
-   *   3. Otherwise → temporary `francetransfert.zip`. The real name
-   *      `francetransfert-<enclosureId>.zip` is applied after sendTree.
+   *   3. Otherwise → `francetransfert.zip`. Uniqueness across plis is
+   *      enforced server-side by the enclosureId prefix in the S3 key, so
+   *      there is no need to thread it into the client-side filename.
    */
   private pickEncryptedZipName(
     items: Array<{ file: File; relativePath: string }>
@@ -539,11 +540,6 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   beginUpload(result) {
-    // In E2EE multi-file mode with no folder + no subject, the encrypted blob
-    // has the placeholder name "francetransfert.zip". Now that we know the
-    // enclosureId, fall back to "francetransfert-<enclosureId>.zip" so the
-    // downloaded filename matches the non-encrypted convention.
-    this.applyEncryptedZipFallbackName(result?.enclosureId);
     let token = '';
     if (this.transfertSubscription) {
       this.transfertSubscription.unsubscribe();
@@ -580,28 +576,6 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.flow.upload();
-  }
-
-  /**
-   * If the front had to fall back to the temporary "francetransfert.zip" name
-   * during encryption (multi-file, no folder, no subject), rename the queued
-   * Flow.js file to "francetransfert-<enclosureId>.zip" now that the back has
-   * allocated an enclosureId. No-op otherwise.
-   */
-  private applyEncryptedZipFallbackName(enclosureId: string | undefined): void {
-    if (!enclosureId) return;
-    if (!this.uploadManagerService.encryptionEnabled.getValue()) return;
-    const flowJs = this.flow?.flowJs;
-    const flowFiles = flowJs?.files ?? [];
-    if (flowFiles.length !== 1) return;
-    const currentFlowFile = flowFiles[0] as any;
-    const currentFile: File = currentFlowFile.file;
-    if (!currentFile || currentFile.name !== 'francetransfert.zip.enc') {
-      return;
-    }
-    const renamed = this.renameFile(currentFile, `francetransfert-${enclosureId}.zip.enc`);
-    flowJs.removeFile(currentFlowFile);
-    flowJs.addFile(renamed);
   }
 
   private cleanupTemporaryEncryptedFiles(): void {
