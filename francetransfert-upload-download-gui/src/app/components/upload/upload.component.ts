@@ -442,9 +442,14 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         (progress) => { this.encryptingProgress = progress; }
       );
 
-      // Step 3: replace Flow.js queue with the single encrypted blob.
+      // Step 3: replace Flow.js queue with the single encrypted blob. Append
+      // ".enc" to make explicit that the bytes are ciphertext — keeps S3 and
+      // the rootFiles UI honest about what the server is actually holding.
+      // The download flow strips ".enc" before saving the decrypted plaintext.
+      const encryptedBlobName = `${result.encryptedFile.encryptedFile.name}.enc`;
+      const renamedEncrypted = this.renameFile(result.encryptedFile.encryptedFile, encryptedBlobName);
       flowFiles.forEach((f) => flowJs.removeFile(f));
-      flowJs.addFile(result.encryptedFile.encryptedFile);
+      flowJs.addFile(renamedEncrypted);
 
       // Step 4: stash pli key (base64url) — will be appended as URL fragment
       // on the success screen; never sent to the server.
@@ -591,10 +596,10 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     if (flowFiles.length !== 1) return;
     const currentFlowFile = flowFiles[0] as any;
     const currentFile: File = currentFlowFile.file;
-    if (!currentFile || currentFile.name !== 'francetransfert.zip') {
+    if (!currentFile || currentFile.name !== 'francetransfert.zip.enc') {
       return;
     }
-    const renamed = this.renameFile(currentFile, `francetransfert-${enclosureId}.zip`);
+    const renamed = this.renameFile(currentFile, `francetransfert-${enclosureId}.zip.enc`);
     flowJs.removeFile(currentFlowFile);
     flowJs.addFile(renamed);
   }

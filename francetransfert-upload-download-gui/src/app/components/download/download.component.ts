@@ -220,7 +220,10 @@ export class DownloadComponent implements OnInit, OnDestroy {
   }
 
   private async decryptAndStreamToFile(presignedUrl: string, pliKey: Uint8Array): Promise<void> {
-    const filename = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
+    const rawName = this.downloadInfos?.rootFiles?.[0]?.name ?? 'download';
+    // Strip the ".enc" suffix added at upload time — the saved file is the
+    // decrypted plaintext, no need to keep the ciphertext marker.
+    const filename = rawName.replace(/\.enc$/i, '');
     const fileHandle = await this.openDownloadFileHandle(filename);
     const writableStream = await fileHandle.createWritable();
     // 2. Fetch streaming directement depuis l'URL pré-signée
