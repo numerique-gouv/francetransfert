@@ -23,6 +23,11 @@ RUN sed -i "s|'http://localhost:'|''|g" src/environments/environment.ts && \
     sed -i "s|'8081/|'/|g" src/environments/environment.ts && \
     cp src/environments/environment.ts src/environments/environment.prod.ts
 
+# Drop the falsy-host ternary in flow-config: with env.host='' (truthy = false),
+# Flow.js would fall back to the current page URL ('/'), losing the API path.
+RUN sed -i "s|env\.host ? \`\${env\.host}\${env\.apis\.upload\.upload}\` : ''|\`\${env.host}\${env.apis.upload.upload}\`|g" \
+      src/app/shared/config/flow-config.ts
+
 RUN npm install --force
 RUN npm run build
 

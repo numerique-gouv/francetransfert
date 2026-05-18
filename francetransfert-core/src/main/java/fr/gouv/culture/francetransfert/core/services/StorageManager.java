@@ -93,6 +93,12 @@ public class StorageManager {
     @Value("${storage.secret.key}")
     private String secretKey;
 
+    @Value("${storage.path-style-access:false}")
+    private boolean pathStyleAccess;
+
+    @Value("${storage.public.endpoint:}")
+    private String publicEndpoint;
+
     @Value("${bucket.sequestre}")
     private String sequestreBucket;
 
@@ -138,6 +144,16 @@ public class StorageManager {
                 Region region = Region.getRegion(Regions.EU_WEST_2);
                 conn.setRegion(region);
                 conn.setEndpoint(getEndpoint());
+
+                // Toggle path-style addressing for S3-compatible vendors that
+                // don't provision wildcard DNS for virtual-hosted-style bucket
+                // URLs (MinIO, some Ceph/Wasabi setups). Off by default so
+                // existing prod/preprod behaviour with virtual-hosted URLs is
+                // preserved.
+                if (pathStyleAccess) {
+                    conn.setS3ClientOptions(com.amazonaws.services.s3.S3ClientOptions.builder()
+                            .setPathStyleAccess(true).build());
+                }
             } catch (Exception e) {
                 throw new RetryException(e);
             }
@@ -402,11 +418,35 @@ public class StorageManager {
                     .withExpiration(afterAddingMins);
 
             url = conn.generatePresignedUrl(generatePresignedUrlRequest);
+            url = rewriteToPublicEndpoint(url);
         } catch (Exception e) {
             throw new RetryException(e);
         }
 
         return url;
+    }
+
+    /**
+     * Replace scheme/host/port of a pre-signed URL with {@code storage.public.endpoint}
+     * when that property is set. Useful when the S3 endpoint the SDK talks to
+     * (e.g. {@code http://minio:9000} in a Docker network) is not the same as
+     * the one a browser can reach (e.g. {@code http://localhost:9100}). The S3
+     * V2 signature does not cover the Host header, so the rewritten URL is
+     * still accepted by S3-compatible vendors.
+     */
+    private URL rewriteToPublicEndpoint(URL url) {
+        if (publicEndpoint == null || publicEndpoint.isBlank() || url == null) {
+            return url;
+        }
+        try {
+            URL pub = new URL(publicEndpoint);
+            int port = pub.getPort();
+            return new URL(pub.getProtocol(), pub.getHost(), port, url.getFile());
+        } catch (Exception e) {
+            LOGGER.warn("Cannot rewrite pre-signed URL to public endpoint '{}': {}",
+                    publicEndpoint, e.getMessage());
+            return url;
+        }
     }
 
     public Bucket createBucket(String bucketName) throws StorageException, RetryException {
@@ -674,7 +714,7 @@ public class StorageManager {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey)
                 .withMethod(HttpMethod.GET)
                 .withExpiration(expiration);
-        URL url = conn.generatePresignedUrl(generatePresignedUrlRequest);
+        URL url = rewriteToPublicEndpoint(conn.generatePresignedUrl(generatePresignedUrlRequest));
         return url.toString();
     }
 
@@ -702,7 +742,7 @@ public class StorageManager {
                     objectKey)
                     .withMethod(HttpMethod.GET)
                     .withExpiration(expiration);
-            URL url = conn.generatePresignedUrl(generatePresignedUrlRequest);
+            URL url = rewriteToPublicEndpoint(conn.generatePresignedUrl(generatePresignedUrlRequest));
             return url.toString();
         } else {
             return null;

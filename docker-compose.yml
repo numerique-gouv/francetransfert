@@ -136,6 +136,7 @@ services:
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
       STORAGE_ENV: local
+      STORAGE_PATH_STYLE_ACCESS: 'true'
       BUCKET_PREFIX: ${BUCKET_PREFIX}
       BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
       BUCKET_EXPORT: ${BUCKET_PREFIX}export
@@ -144,7 +145,7 @@ services:
       # Limits and timings
       UPLOAD_LIMIT: '21474836480'
       UPLOAD_FILE_LIMIT: '2147483648'
-      UPLOAD_LIMIT_SENDERMAIL: '100'
+      UPLOAD_LIMIT_SENDERMAIL: '100000'
       UPLOAD_TOKEN_CHUNKMODULO: '20'
       UPLOAD_EXPIRED_LIMIT: '90'
       ENCLOSURE_EXPIRE_DAYS: '30'
@@ -170,6 +171,11 @@ services:
       UPLOAD_DOMAINE_LIST: ''
       SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 500MB
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 500MB
+      # Tomcat 11/Spring Boot 4 default cap on multipart parts is 10. Flow.js
+      # sends many auxiliary fields (flowChunkNumber, flowIdentifier, ...) on
+      # top of the binary chunk, so each upload exceeds the limit.
+      SERVER_TOMCAT_MAX_PART_COUNT: '50'
+      SPRING_SERVLET_MULTIPART_MAX_FILE_COUNT: '50'
     ports:
       - '${UPLOAD_API_PORT}:8080'
     restart: unless-stopped
@@ -196,6 +202,8 @@ services:
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
       STORAGE_ENV: local
+      STORAGE_PATH_STYLE_ACCESS: 'true'
+      STORAGE_PUBLIC_ENDPOINT: 'http://localhost:${MINIO_API_PORT}'
       BUCKET_PREFIX: ${BUCKET_PREFIX}
       BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
       BUCKET_ALLOWLIST: '*'
@@ -249,6 +257,7 @@ services:
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
       STORAGE_ENV: local
+      STORAGE_PATH_STYLE_ACCESS: 'true'
       BUCKET_PREFIX: ${BUCKET_PREFIX}
       BUCKET_SEQUESTRE: ${BUCKET_SEQUESTRE}
       BUCKET_EXPORT: ${BUCKET_PREFIX}export
@@ -297,6 +306,8 @@ services:
       SCHEDULED_SYNC_CHECKMAIL: '0 0 1 1 1 ?'
       SCHEDULED_SYNC_CHECKGLIMPS: '0 0 1 1 1 ?'
       SCHEDULED_CHECKGLIMPS: '0 0 1 1 1 ?'
+      SCHEDULED_HEALTHCHECK: '0 0 1 1 1 ?'
+      SCHEDULED_SYNC_HEALTHCHECK: '0 0 1 1 1 ?'
       # URLs used in email templates (point at the GUI)
       URL_DOWNLOAD_API: 'http://localhost:${GUI_PORT}/download/'
       URL_ADMIN_PAGE: 'http://localhost:${GUI_PORT}/admin'
