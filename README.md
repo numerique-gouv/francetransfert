@@ -77,6 +77,15 @@ Pour arrêter et tout nettoyer :
 docker compose --env-file .env.local down -v        # -v pour effacer les volumes Redis / MinIO
 ```
 
+### Restrictions sur les emails à utiliser
+
+L'envoi par lien ou par email est réservé aux agents de l'État. La règle est purement par **domaine email** : le domaine doit être présent dans le SET Redis `enclosure-mails:mails`. `docker/redis-init.sh` y pré-charge quelques `*.gouv.fr` afin de procéder à des tests. Pour ajouter un domaine au vol :
+
+```bash
+docker compose --env-file .env.local exec redis \
+  redis-cli -a ftpass --no-auth-warning SADD enclosure-mails:mails mondomaine.gouv.fr
+```
+
 ### Antivirus
 
 ClamAV est utilisé comme antivirus, mais celui-ci n'est actif sur le serveur que pour des plis non-chiffrés.

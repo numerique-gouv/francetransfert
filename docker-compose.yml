@@ -61,6 +61,18 @@ services:
       - ./docker/minio-init.sh:/init/minio-init.sh:ro
     restart: 'no'
 
+  redis-init:
+    image: redis:7-alpine
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      METALOAD_PASSWORD: ${METALOAD_PASSWORD}
+    entrypoint: ['/bin/sh', '/init/redis-init.sh']
+    volumes:
+      - ./docker/redis-init.sh:/init/redis-init.sh:ro
+    restart: 'no'
+
   clamav:
     # `clamav/clamav` is amd64-only; `tiredofit/clamav` ships multi-arch images
     # (including arm64) and exposes clamd on the standard port 3310.
@@ -209,6 +221,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      redis-init:
+        condition: service_completed_successfully
       minio-init:
         condition: service_completed_successfully
       mailcatcher:
