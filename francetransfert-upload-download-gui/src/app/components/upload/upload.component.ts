@@ -333,25 +333,77 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       this.publicLink = true;
   }
 
+  /** Sanitize a user-supplied string for use as a filename component. */
+  private sanitizeForFilename(raw: string): string {
+    return (
+      raw
+        .normalize('NFKD')
+        .replace(/[/\\?%*:|"<>\x00-\x1f]/g, '')
+        .replace(/\s+/g, '_')
+        .slice(0, 60)
+        .trim() || 'pli'
+    );
+  }
+
+  /**
+   * Pick the zip filename for an E2EE multi-file upload.
+   * Priority:
+   *   1. Single root folder selected → its name
+   *   2. Subject filled by the user → `<subject>.zip`
+   *   3. Otherwise → temporary `francetransfert.zip`. The real name
+   *      `francetransfert-<enclosureId>.zip` is applied after sendTree.
+   */
+  private pickEncryptedZipName(
+    items: Array<{ file: File; relativePath: string }>
+  ): string {
+    const rootSegments = new Set(
+      items
+        .map(it => (it.relativePath || it.file.name).split('/')[0])
+        .filter(Boolean)
+    );
+    if (rootSegments.size === 1) {
+      return `${this.sanitizeForFilename(
+        rootSegments.values().next().value as string
+      )}.zip`;
+    }
+    const subject = this.uploadManagerService.envelopeInfos.getValue()?.subject;
+    if (subject && subject.trim()) {
+      return `${this.sanitizeForFilename(subject)}.zip`;
+    }
+    return 'francetransfert.zip';
+  }
+
   /**
    * Build the single Blob to encrypt:
    * - exactly one file → keep it as-is (preserve name + extension)
    * - several files / a folder → stream them through client-zip into one .zip
    */
-  private async buildPlaintextBlob(items: Array<{ file: File; relativePath: string }>): Promise<File> {
+  private async buildPlaintextBlob(
+    items: Array<{ file: File; relativePath: string }>
+  ): Promise<File> {
     if (items.length === 1) {
       return items[0].file;
     }
     const clientZip = await import('client-zip');
-    const zipStream = clientZip.downloadZip(items.map(it => ({
-      name: it.relativePath || it.file.name,
-      lastModified: new Date(it.file.lastModified || Date.now()),
-      input: it.file
-    })));
+    const zipStream = clientZip.downloadZip(
+      items.map(it => ({
+        name: it.relativePath || it.file.name,
+        lastModified: new Date(it.file.lastModified || Date.now()),
+        input: it.file,
+      }))
+    );
     const zipBlob = await zipStream.blob();
-    return new File([zipBlob], 'francetransfert.zip', {
+    return new File([zipBlob], this.pickEncryptedZipName(items), {
       type: 'application/zip',
-      lastModified: Date.now()
+      lastModified: Date.now(),
+    });
+  }
+
+  /** Re-wrap an encrypted blob with a new filename (re-references the blob, no byte copy). */
+  private renameFile(file: File, newName: string): File {
+    return new File([file], newName, {
+      type: file.type,
+      lastModified: file.lastModified,
     });
   }
 
@@ -482,6 +534,11 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   beginUpload(result) {
+    // In E2EE multi-file mode with no folder + no subject, the encrypted blob
+    // has the placeholder name "francetransfert.zip". Now that we know the
+    // enclosureId, fall back to "francetransfert-<enclosureId>.zip" so the
+    // downloaded filename matches the non-encrypted convention.
+    this.applyEncryptedZipFallbackName(result?.enclosureId);
     let token = '';
     if (this.transfertSubscription) {
       this.transfertSubscription.unsubscribe();
@@ -518,6 +575,28 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.flow.upload();
+  }
+
+  /**
+   * If the front had to fall back to the temporary "francetransfert.zip" name
+   * during encryption (multi-file, no folder, no subject), rename the queued
+   * Flow.js file to "francetransfert-<enclosureId>.zip" now that the back has
+   * allocated an enclosureId. No-op otherwise.
+   */
+  private applyEncryptedZipFallbackName(enclosureId: string | undefined): void {
+    if (!enclosureId) return;
+    if (!this.uploadManagerService.encryptionEnabled.getValue()) return;
+    const flowJs = this.flow?.flowJs;
+    const flowFiles = flowJs?.files ?? [];
+    if (flowFiles.length !== 1) return;
+    const currentFlowFile = flowFiles[0] as any;
+    const currentFile: File = currentFlowFile.file;
+    if (!currentFile || currentFile.name !== 'francetransfert.zip') {
+      return;
+    }
+    const renamed = this.renameFile(currentFile, `francetransfert-${enclosureId}.zip`);
+    flowJs.removeFile(currentFlowFile);
+    flowJs.addFile(renamed);
   }
 
   private cleanupTemporaryEncryptedFiles(): void {
