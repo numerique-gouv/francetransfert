@@ -12,9 +12,6 @@ import { filter } from 'rxjs/internal/operators/filter';
 import { first } from 'rxjs/internal/operators/first';
 import { FTErrorModel, LinkInfosModel, MailInfosModel, UploadInfosModel } from 'src/app/models';
 
-
-export type PliAesKeyEncryptedPayload = string[];
-
 @Injectable({
   providedIn: 'root'
 })
@@ -23,7 +20,8 @@ export class UploadManagerService {
   envelopeInfos: BehaviorSubject<MailInfosModel | LinkInfosModel> = new BehaviorSubject<MailInfosModel | LinkInfosModel>(null);
   uploadError$: BehaviorSubject<FTErrorModel> = new BehaviorSubject<FTErrorModel>(null);
   uploadInfos: BehaviorSubject<UploadInfosModel> = new BehaviorSubject<UploadInfosModel>(null);
-  pliAesKeyEncrypted: BehaviorSubject<PliAesKeyEncryptedPayload | null> = new BehaviorSubject<PliAesKeyEncryptedPayload | null>(null);
+  encryptionEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  pliKeyBase64: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor() { }
 

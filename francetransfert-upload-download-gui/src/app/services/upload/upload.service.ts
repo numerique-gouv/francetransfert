@@ -73,7 +73,7 @@ export class UploadService {
       senderToken: body.senderToken,
       language: body.langueCourriels,
       zipPassword: body.zipPassword,
-      pliAesKeyEncrypted: body.pliAesKeyEncrypted,
+      encrypted: !!body.encrypted,
     };
     return this._httpClient.post(`${environment.host}${environment.apis.upload.tree}`, treeBody).pipe(
       map((response: any) => {
@@ -123,7 +123,7 @@ export class UploadService {
       expireDelay: body.expiryDays,
       language: body.langueCourriels,
       zipPassword: body.zipPassword,
-      pliAesKeyEncrypted: body.pliAesKeyEncrypted,
+      encrypted: !!body.encrypted,
     };
     return this._httpClient.post(
       `${environment.host}${environment.apis.upload.confirmationCode}?code=${body.code}&senderMail=${body.senderMail}`,

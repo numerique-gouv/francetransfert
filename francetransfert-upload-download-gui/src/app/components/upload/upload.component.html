@@ -1,42 +1,56 @@
 <div>
-    <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
+  <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
 </div>
 <div class="upload-root-wrapper">
-    <mat-card class="upload-title-card" *ngIf="screenWidth === 'lg'">
-        <mat-card-content class="upload-title-card-content">
-            <span>{{'UploadTitre' | translate}}</span>
-            <ng-container *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]">
-                <br />
-                <span [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
-            </ng-container>
-        </mat-card-content>
-    </mat-card>
-    <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
-        <div class="encrypting-wrapper" *ngIf="encrypting">
-            <div class="encrypting-loader">
-                <mat-progress-spinner mode="determinate" [value]="encryptingProgress"></mat-progress-spinner>
-                <p class="encrypting-message">Chiffrement en cours... {{ encryptingProgress }}%</p>
-            </div>
-        </div>
-        <ft-loader *ngIf="uploadValidated && uploadStarted && !uploadFinished"
-            (transferFailed)="onTransferFailed($event)" (transferCancelled)="onTransferCancelled($event)"
-            (transferFinished)="onTransferFinished($event)" class="loader-wrapper"></ft-loader>
-        <ft-check-validation-code *ngIf="uploadStarted && !uploadValidated && showCode"
-            (transferValidated)="onTransferValidated($event)" (transferCancelled)="onCheckTransferCancelled($event)"
-            [component]="'upload'" [email]="senderEmail" class="check-validation-code-wrapper">
-        </ft-check-validation-code>
-        <ft-list-elements *ngIf="!uploadStarted" [component]="'upload'" [flow]="flow" [screenWidth]="screenWidth"
-            (listExpanded)="onListExpanded($event)" class="list-elements-wrapper"
-            [ngClass]="{'expanded': listExpanded, 'reduced' : !listExpanded && hasFiles}"></ft-list-elements>
-        <ft-envelope
-            *ngIf="!uploadStarted && (screenWidth !== 'sm' || (screenWidth === 'sm' && hasFiles && !listExpanded))"
-            (uploadStarted)="onUploadStarted($event)" class="envelope-wrapper" [ngClass]="{'reduced': listExpanded}">
-        </ft-envelope>
-        <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed"
-            [publicLink]="publicLink" [availabilityDate]="availabilityDate" *ngIf="uploadFinished && uploadStarted"
-            class="end-message-wrapper">
-        </ft-end-message>
-        <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
-            *ngIf="uploadFinished && uploadStarted" class="satisfaction-check-wrapper"></ft-satisfaction-check>
+  <mat-card class="upload-title-card" *ngIf="screenWidth === 'lg'">
+    <mat-card-content class="upload-title-card-content">
+      <span>{{'UploadTitre' | translate}}</span>
+      <ng-container *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]">
+        <br />
+        <span [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
+  <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
+    <div class="encrypting-wrapper" *ngIf="encrypting">
+      <div class="encrypting-loader">
+        <mat-progress-spinner mode="determinate" [value]="encryptingProgress"></mat-progress-spinner>
+        <p class="encrypting-message">Chiffrement en cours... {{ encryptingProgress }}%</p>
+      </div>
     </div>
+    <ft-loader *ngIf="uploadValidated && uploadStarted && !uploadFinished" (transferFailed)="onTransferFailed($event)"
+      (transferCancelled)="onTransferCancelled($event)" (transferFinished)="onTransferFinished($event)"
+      class="loader-wrapper"></ft-loader>
+    <ft-check-validation-code *ngIf="uploadStarted && !uploadValidated && showCode"
+      (transferValidated)="onTransferValidated($event)" (transferCancelled)="onCheckTransferCancelled($event)"
+      [component]="'upload'" [email]="senderEmail" class="check-validation-code-wrapper">
+    </ft-check-validation-code>
+    <ft-list-elements *ngIf="!uploadStarted" [component]="'upload'" [flow]="flow" [screenWidth]="screenWidth"
+      (listExpanded)="onListExpanded($event)" class="list-elements-wrapper"
+      [ngClass]="{'expanded': listExpanded, 'reduced' : !listExpanded && hasFiles}"></ft-list-elements>
+    <ft-envelope *ngIf="!uploadStarted && (screenWidth !== 'sm' || (screenWidth === 'sm' && hasFiles && !listExpanded))"
+      (uploadStarted)="onUploadStarted($event)" class="envelope-wrapper" [ngClass]="{'reduced': listExpanded}">
+    </ft-envelope>
+    <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed"
+      [publicLink]="publicLink" [encrypted]="!!encryptedShareUrl" [availabilityDate]="availabilityDate"
+      *ngIf="uploadFinished && uploadStarted" class="end-message-wrapper">
+      <div endMessageActions *ngIf="encryptedShareUrl" class="encryption-share-actions">
+        <button mat-raised-button color="primary" type="button" (click)="copyEncryptedShareUrl()">
+          <mat-icon>content_copy</mat-icon>
+          {{ 'EncryptionShareCopy' | translate }}
+        </button>
+        <a mat-raised-button color="primary" [href]="encryptedShareMailto" target="_blank" rel="noopener">
+          <mat-icon>mail</mat-icon>
+          {{ 'EncryptionShareMail' | translate }}
+        </a>
+        <button mat-raised-button color="primary" type="button" (click)="systemShareEncryptedUrl()"
+          *ngIf="webShareAvailable">
+          <mat-icon>share</mat-icon>
+          {{ 'EncryptionShareSystem' | translate }}
+        </button>
+      </div>
+    </ft-end-message>
+    <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
+      *ngIf="uploadFinished && uploadStarted" class="satisfaction-check-wrapper"></ft-satisfaction-check>
+  </div>
 </div>

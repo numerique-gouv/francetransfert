@@ -46,6 +46,8 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
   langueCourriels: String;
   zipPassword: boolean = false;
   checked: boolean = false;
+  encryptionEnabled: boolean = false;
+  private encryptionStateSubscription: Subscription;
 
   constructor(private fb: FormBuilder,
     private uploadManagerService: UploadManagerService,
@@ -66,6 +68,9 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.encryptionStateSubscription = this.uploadManagerService.encryptionEnabled.subscribe(state => {
+      this.encryptionEnabled = state;
+    });
     this.initForm();
   }
 
@@ -132,6 +137,9 @@ export class EnvelopeParametersFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.envelopeParametersFormChangeSubscription.unsubscribe();
+    if (this.encryptionStateSubscription) {
+      this.encryptionStateSubscription.unsubscribe();
+    }
   }
 
   checkErrors() {

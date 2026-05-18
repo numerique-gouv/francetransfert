@@ -1,6 +1,6 @@
 <form [formGroup]="envelopeParametersForm" class="envelope-parameters-form-container" autocomplete="off">
 
-    <div class="envelope-parameters-form-group">
+    <div class="envelope-parameters-form-group" *ngIf="!encryptionEnabled">
         <mat-form-field>
             <mat-label> {{'Mot_de_Passe' | translate}}</mat-label>
             <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" autocomplete="off">
@@ -97,7 +97,7 @@
 
 
 
-    <mat-checkbox formControlName="zipPassword">
+    <mat-checkbox formControlName="zipPassword" *ngIf="!encryptionEnabled">
         <div [innerHTML]="'Zip_Mot_Passe' | translate">
         </div>
     </mat-checkbox>

@@ -9,7 +9,6 @@ package fr.gouv.culture.francetransfert.domain.utils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.amazonaws.services.s3.model.PartETag;
-import com.google.gson.Gson;
 
 import fr.gouv.culture.francetransfert.application.resources.model.FranceTransfertDataRepresentation;
 import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
@@ -122,6 +120,7 @@ public class RedisForUploadUtils {
 
 			map.put(EnclosureKeysEnum.SOURCE.getKey(), metadata.getSource());
 			map.put(EnclosureKeysEnum.ENVOIMDPDEST.getKey(), Boolean.toString(metadata.isEnvoiMdpDestinataires()));
+			map.put(EnclosureKeysEnum.IS_ENCRYPTED.getKey(), Boolean.toString(metadata.isEncrypted()));
 
 			redisManager.insertHASH(RedisKeysEnum.FT_ENCLOSURE.getKey(guidEnclosure), map);
 
@@ -151,9 +150,6 @@ public class RedisForUploadUtils {
 			LOGGER.debug("is new sender: {}", isNewSender ? "0" : "1");
 			map.put(SenderKeysEnum.ID.getKey(), metadata.getConfirmedSenderId());
 			LOGGER.debug("sender id: {}", metadata.getConfirmedSenderId());
-			if (metadata.getPliAesKeyEncrypted() != null && metadata.getPliAesKeyEncrypted().length > 0) {
-				map.put(SenderKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey(), metadata.getPliAesKeyEncrypted()[0]);
-			}
 			redisManager.insertHASH(RedisKeysEnum.FT_SENDER.getKey(enclosureId), map);
 			return metadata.getConfirmedSenderId();
 		} catch (Exception e) {
@@ -171,7 +167,6 @@ public class RedisForUploadUtils {
 				}
 
 				Map<String, String> mapRecipients = new HashMap<>();
-				String[] pliKeys = metadata.getPliAesKeyEncrypted();
 
 				for (int i = 0; i < metadata.getRecipientEmails().size(); i++) {
 					String recipientMail = metadata.getRecipientEmails().get(i);
@@ -183,10 +178,6 @@ public class RedisForUploadUtils {
 					mapRecipient.put(RecipientKeysEnum.NB_DL.getKey(), "0");
 					mapRecipient.put(RecipientKeysEnum.PASSWORD_TRY_COUNT.getKey(), "0");
 					mapRecipient.put(RecipientKeysEnum.LOGIC_DELETE.getKey(), "0");
-
-					if (pliKeys != null && pliKeys.length > i + 1 && StringUtils.isNotBlank(pliKeys[i + 1])) {
-						mapRecipient.put(RedisKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey(""), pliKeys[i + 1]);
-					}
 
 					redisManager.insertHASH(RedisKeysEnum.FT_RECIPIENT.getKey(guidRecipient), mapRecipient);
 					// redisManager.insertHASH(RedisKeysEnum.FT_Download_Date.getKey(guidRecipient),

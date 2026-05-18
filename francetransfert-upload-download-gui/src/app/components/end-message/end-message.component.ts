@@ -21,6 +21,7 @@ export class EndMessageComponent implements OnInit {
   @Input() uploadFailed: boolean = false;
   @Output() backToHomeEvent: EventEmitter<any> = new EventEmitter();
   @Input() publicLink: boolean = false;
+  @Input() encrypted: boolean = false;
 
   constructor(private _router: Router,
     private _translate: TranslateService,) { }

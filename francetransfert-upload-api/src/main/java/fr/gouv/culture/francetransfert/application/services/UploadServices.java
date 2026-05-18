@@ -381,7 +381,11 @@ public class UploadServices {
 				throw new UploadException(ErrorEnum.MESSAGE_LENGTH_LIMIT.getValue(), "Message length limit");
 			}
 
-			if ((validSenderIgni && metadata.getPublicLink())
+			// In E2EE mode the link carries the key directly; no need to enforce
+			// the sender-is-state-agent rule (the recipient is verified by
+			// possession of the URL fragment, not by their email address).
+			if (metadata.isEncrypted()
+					|| (validSenderIgni && metadata.getPublicLink())
 					|| ((validSenderIgni || validRecipientsIgni) && validRecipients)) {
 				String language = Locale.FRANCE.toString();
 				// added
@@ -606,11 +610,22 @@ public class UploadServices {
 		}
 		try {
 			LOGGER.debug("limit enclosure size is <> upload limit size: {}", uploadLimitSize);
-			// generate password if provided one not valid
-			if (metadata.getPassword() == null) {
-				LOGGER.info("password is null");
-			}
-			if (StringUtils.isNotBlank(metadata.getPassword())
+			// In E2EE mode the URL fragment is the secret; no download password
+			// is generated and any caller-supplied password is rejected as
+			// incompatible. The zip-password toggle is server-side only and
+			// has no meaning either (no server-side zip happens).
+			if (metadata.isEncrypted()) {
+				if (StringUtils.isNotBlank(metadata.getPassword())) {
+					throw new UploadException(ErrorEnum.ENCRYPTED_PASSWORD_FORBIDDEN.getValue(),
+							"Encrypted pli must not carry a server-side password");
+				}
+				if (Boolean.TRUE.equals(metadata.getZipPassword())) {
+					throw new UploadException(ErrorEnum.ENCRYPTED_ZIPPASSWORD_FORBIDDEN.getValue(),
+							"Encrypted pli does not support the zip-password option");
+				}
+				metadata.setPassword("");
+				metadata.setPasswordGenerated(false);
+			} else if (StringUtils.isNotBlank(metadata.getPassword())
 					&& base64CryptoService.validatePassword(metadata.getPassword().trim())) {
 				LOGGER.info("Hashing password");
 				String passwordHashed = base64CryptoService.aesEncrypt(metadata.getPassword().trim());

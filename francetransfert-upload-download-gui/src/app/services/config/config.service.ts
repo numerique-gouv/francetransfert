@@ -18,13 +18,16 @@ export class ConfigService {
 
   configError$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
   isAgentConnect: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  /** Backend feature flag for end-to-end encryption (FEATURE_ENCRYPTION_ENABLED). */
+  encryptionFeatureEnabled: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   configInfo: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
 
   constructor(private _httpClient: HttpClient) {
     this.getConfig().pipe(take(1)).subscribe((res: any) => {
       this.configInfo.next(res);
-      this.isAgentConnect.next(res.agentConnect);
+      this.isAgentConnect.next(!!res?.agentConnect);
+      this.encryptionFeatureEnabled.next(!!res?.encryptionEnabled);
     })
   }
 
@@ -38,6 +41,7 @@ export class ConfigService {
     ).pipe(map(response => {
       this.configError$.next(null);
       this.configInfo.next(response);
+      this.encryptionFeatureEnabled.next(!!(response as any)?.encryptionEnabled);
       return response;
     }),
       catchError(this.handleError('getConfig'))

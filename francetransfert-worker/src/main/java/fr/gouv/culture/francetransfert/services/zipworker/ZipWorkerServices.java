@@ -169,11 +169,16 @@ public class ZipWorkerServices {
 		String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 		Enclosure enclosure = Enclosure.build(enclosureId, redisManager);
 
+		// Read the per-pli E2EE flag. When true, the pli body is opaque
+		// ciphertext: no AV scan, no server-side zip, no temp download.
+		boolean isEncrypted = Boolean.parseBoolean(
+				RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+
 		try {
 
 			ArrayList<String> list = new ArrayList<>(
 					RedisUtils.getEnclosureObjectKeys(redisManager, enclosureId));
-			LOGGER.debug(" STEP STATE ZIP ");
+			LOGGER.debug(" STEP STATE ZIP isEncrypted={}", isEncrypted);
 			LOGGER.debug(" SIZE " + list.size() + " LIST ===> " + list.toString());
 
 			boolean glimpsState = Boolean
@@ -186,30 +191,36 @@ public class ZipWorkerServices {
 
 			String encStatut = enclosure.getStatut();
 
-			if (glimpsEnabled && !glimpsState) {
+			if (glimpsEnabled && !glimpsState && !isEncrypted) {
 				LOGGER.error("Glimps in error fall back to CLAMAV for enclosure {}", enclosureId);
 			}
 
 			if (StatutEnum.CHT.getCode().equals(encStatut)) {
 
-				LOGGER.info("[Worker] Start scan process for enclosur N°  {}", enclosureId);
+				LOGGER.info("[Worker] Start scan process for enclosur N°  {} (encrypted={})", enclosureId, isEncrypted);
 
-				LOGGER.debug(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
-						bucketName, list, enclosureId, bucketPrefix);
-
-				//downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
-				//sizeCheck(list);
-
-				if (glimpsEnabled && glimpsState) {
-					glimpsService.sendToGlipms(list, enclosureId);
-					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-							EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ANA.getCode(), -1);
-					redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
-							EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ANA.getWord(), -1);
-					encStatut = StatutEnum.ANA.getCode();
-				} else {
+				if (isEncrypted) {
+					// E2EE: nothing to scan, ciphertext is opaque to the server.
 					isClean = true;
 					finishedScan = true;
+				} else {
+					LOGGER.debug(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
+							bucketName, list, enclosureId, bucketPrefix);
+
+					downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
+					sizeCheck(list);
+
+					if (glimpsEnabled && glimpsState) {
+						glimpsService.sendToGlipms(list, enclosureId);
+						redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+								EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.ANA.getCode(), -1);
+						redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+								EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.ANA.getWord(), -1);
+						encStatut = StatutEnum.ANA.getCode();
+					} else {
+						isClean = performScan(list, enclosureId);
+						finishedScan = true;
+					}
 				}
 			}
 
@@ -266,39 +277,46 @@ public class ZipWorkerServices {
 			}
 
 			if (isClean && finishedScan) {
-				LOGGER.info("Finished scan start zipping for enclosure {}", enclosureId);
+				LOGGER.info("Finished scan start zipping for enclosure {} (encrypted={})", enclosureId, isEncrypted);
 
-				//downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
+				if (isEncrypted) {
+					// E2EE: the pli is a single opaque blob already on S3. Nothing
+					// to zip, nothing to delete (no scratch directory created).
+					LOGGER.info("E2EE pli: skip zip + AV cleanup for enclosure {}", enclosureId);
+					addHashFilesToMetData(enclosureId, getHashFromS3(enclosureId));
+				} else {
+					downloadFilesToTempFolder(manager, bucketName, list, enclosureId);
 
-				String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
-						EnclosureKeysEnum.PASSWORD.getKey());
+					String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
+							EnclosureKeysEnum.PASSWORD.getKey());
 
-				String zipPassword = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
-						EnclosureKeysEnum.PASSWORD_ZIP.getKey());
+					String zipPassword = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),
+							EnclosureKeysEnum.PASSWORD_ZIP.getKey());
 
-				String passwordUnHashed = base64CryptoService.aesDecrypt(passwordRedis);
+					String passwordUnHashed = base64CryptoService.aesDecrypt(passwordRedis);
 
-				LOGGER.info("Start zip for enclosure {}", enclosureId);
-				//zipDownloadedContent(enclosureId, passwordUnHashed, zipPassword);
+					LOGGER.info("Start zip for enclosure {}", enclosureId);
+					zipDownloadedContent(enclosureId, passwordUnHashed, zipPassword);
 
-				LOGGER.info("Start upload zip for enclosure {}", enclosureId);
-				//uploadZippedEnclosure(bucketName, manager, manager.getZippedEnclosureName(enclosureId),
-				//	+	getBaseFolderNameWithZipPrefix(enclosureId));
+					LOGGER.info("Start upload zip for enclosure {}", enclosureId);
+					uploadZippedEnclosure(bucketName, manager, manager.getZippedEnclosureName(enclosureId),
+							getBaseFolderNameWithZipPrefix(enclosureId));
 
-				LOGGER.debug(" add hashZipFile to redis");
-				addHashFilesToMetData(enclosureId, getHashFromS3(enclosureId));
+					LOGGER.debug(" add hashZipFile to redis");
+					addHashFilesToMetData(enclosureId, getHashFromS3(enclosureId));
 
-				//File fileToDelete = new File(getBaseFolderNameWithEnclosurePrefix(enclosureId));
-				LOGGER.debug(" start delete zip file in local disk");
-				//deleteFilesFromTemp(fileToDelete);
-				//File fileZip = new File(getBaseFolderNameWithZipPrefix(enclosureId));
-				//FileUtils.deleteQuietly(fileZip);
-				LOGGER.debug(" start delete zip file in OSU");
-			//	try {
-				//	deleteFilesFromOSU(manager, bucketName, enclosureId);
-			//	} catch (RetryException rse) {
-			//		LOGGER.error("Cannot delete temporary file for complete enclosure NOT FAILING", rse);
-			//	}
+					File fileToDelete = new File(getBaseFolderNameWithEnclosurePrefix(enclosureId));
+					LOGGER.debug(" start delete zip file in local disk");
+					deleteFilesFromTemp(fileToDelete);
+					File fileZip = new File(getBaseFolderNameWithZipPrefix(enclosureId));
+					FileUtils.deleteQuietly(fileZip);
+					LOGGER.debug(" start delete individual files in OSU");
+					try {
+						deleteFilesFromOSU(manager, bucketName, enclosureId);
+					} catch (RetryException rse) {
+						LOGGER.error("Cannot delete temporary file for complete enclosure NOT FAILING", rse);
+					}
+				}
 
 				notifyEmailWorker(enclosureId);
 				RedisUtils.updateListOfPliSent(redisManager, enclosure.getSender(), enclosureId);
@@ -828,7 +846,8 @@ public class ZipWorkerServices {
 	}
 
 	private String getBaseFolderNameWithEnclosurePrefix(String prefix) {
-		return tmpFolderPath + StorageManager.BUCKET_OBJECT_KEY_PREFIX + "/";
+		// Mirror writeFile(): per-enclosure scratch dir under the tmp folder.
+		return tmpFolderPath + prefix + "/";
 	}
 
 	private String getBaseFolderNameWithZipPrefix(String zippedFileName) {

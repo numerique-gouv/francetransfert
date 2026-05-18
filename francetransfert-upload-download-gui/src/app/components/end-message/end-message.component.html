@@ -3,10 +3,19 @@
       <img class="end-message-card-content-icon" alt="" src="assets/logos/monogramme_ft.png" />
       <div *ngIf="!uploadFailed" class="end-message-card-content-text">
           <h3 class="end-message-card-content-text-title"> {{'Terminé' | translate}}</h3>
-          <span *ngIf="publicLink" class="end-message-card-content-text-sub"> {{'MessageAttenteLien' | translate}}  {{ availabilityDate | customDate : 'd MMMM y'}}.
-                {{'EnvoiPli' | translate}}</span>
-        <span *ngIf="!publicLink" class="end-message-card-content-text-sub"> {{'MessageAttente' | translate}}  {{ availabilityDate | customDate : 'd MMMM y'}}.
-              {{'EnvoiPli' | translate}}</span>
+          <span *ngIf="encrypted" class="end-message-card-content-text-sub">
+            {{ 'MessageAttenteChiffre' | translate }} {{ availabilityDate | customDate : 'd MMMM y' }}.
+          </span>
+          <span *ngIf="!encrypted && publicLink" class="end-message-card-content-text-sub">
+            {{ 'MessageAttenteLien' | translate }} {{ availabilityDate | customDate : 'd MMMM y' }}.
+            {{ 'EnvoiPli' | translate }}
+          </span>
+          <span *ngIf="!encrypted && !publicLink" class="end-message-card-content-text-sub">
+            {{ 'MessageAttente' | translate }} {{ availabilityDate | customDate : 'd MMMM y' }}.
+            {{ 'EnvoiPli' | translate }}
+          </span>
+          <!-- Slot for callers to inject share actions (E2EE flow). -->
+          <ng-content select="[endMessageActions]"></ng-content>
       </div>
       <div role="alert" *ngIf="uploadFailed" class="end-message-card-content-text mat-error">
           <span class="mat-error end-message-card-content-text-title"> {{'Oups' | translate}} !</span>

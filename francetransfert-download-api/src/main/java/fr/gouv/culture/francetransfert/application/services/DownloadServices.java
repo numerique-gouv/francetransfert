@@ -480,11 +480,14 @@ public class DownloadServices {
 				}
 			}
 
+			boolean isEncrypted = Boolean.parseBoolean(RedisUtils.getEnclosureValue(redisManager, enclosureId,
+					EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+
 			DownloadRepresentation downloadRepresentation = DownloadRepresentation.builder()
 					.validUntilDate(expirationDate).senderEmail(senderMail).recipientMail(recipientMail)
 					.message(message).rootFiles(rootFiles).rootDirs(rootDirs)
 					.withPassword(!StringUtils.isEmpty(passwordRedis)).checkRESANA(checkRESANA).checkOSMOSE(checkOSMOSE)
-					.urlOsmose(urlOsmose).urlResana(urlResana).build();
+					.urlOsmose(urlOsmose).urlResana(urlResana).encrypted(isEncrypted).build();
 
 			passwordRedis = null;
 
@@ -501,8 +504,17 @@ public class DownloadServices {
 		try {
 			List<FileRepresentation> rootFiles = getRootFiles(enclosureId);
 			List<DirectoryRepresentation> rootDirs = getRootDirs(enclosureId);
-			return DownloadRepresentation.builder().validUntilDate(expirationDate).rootFiles(rootFiles)
-					.rootDirs(rootDirs).build();
+			boolean isEncrypted = Boolean.parseBoolean(RedisUtils.getEnclosureValue(redisManager, enclosureId,
+					EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+			String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosureId,
+					EnclosureKeysEnum.PASSWORD.getKey());
+			return DownloadRepresentation.builder()
+					.validUntilDate(expirationDate)
+					.rootFiles(rootFiles)
+					.rootDirs(rootDirs)
+					.withPassword(!isEncrypted && StringUtils.isNotBlank(passwordRedis))
+					.encrypted(isEncrypted)
+					.build();
 		} catch (Exception e) {
 			throw new DownloadException("Cannot get Download Info : " + e.getMessage(), enclosureId, e);
 		}
@@ -520,7 +532,16 @@ public class DownloadServices {
 		try {
 			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
 
-			String fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName , enclosureId );
+			boolean isEncrypted = Boolean.parseBoolean(
+					RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+			String fileToDownload;
+			if (isEncrypted) {
+				// E2EE: the bucket holds the single ciphertext blob produced by the GUI.
+				fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName, enclosureId);
+			} else {
+				// Standard pli: worker produced a single zip named francetransfert-<id>.
+				fileToDownload = storageManager.getZippedEnclosureName(enclosureId);
+			}
 			if (fileToDownload == null) {
 				throw new DownloadException("Cannot get Download URL : no file found under in bucket",
 						enclosureId);
@@ -578,7 +599,11 @@ public class DownloadServices {
 	public void streamDownloadFileBytes(String enclosureId, OutputStream outputStream) throws IOException {
 		try {
 			String bucketName = RedisUtils.getBucketName(redisManager, enclosureId, bucketPrefix);
-			String fileToDownload = storageManager.getFirstEnclosureFileKey(bucketName, enclosureId);
+			boolean isEncrypted = Boolean.parseBoolean(
+					RedisUtils.getEnclosureValue(redisManager, enclosureId, EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+			String fileToDownload = isEncrypted
+					? storageManager.getFirstEnclosureFileKey(bucketName, enclosureId)
+					: storageManager.getZippedEnclosureName(enclosureId);
 			if (fileToDownload == null) {
 				throw new DownloadException("Cannot get download file content: no file found in bucket", enclosureId);
 			}
@@ -683,6 +708,12 @@ public class DownloadServices {
 
 		Map<String, String> enclosureMap = redisManager.hmgetAllString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId));
 		Boolean publicLink = Boolean.valueOf(enclosureMap.get(EnclosureKeysEnum.PUBLIC_LINK.getKey()));
+
+		// E2EE pli: the URL fragment is the secret, no server-side password
+		// gate. Accept without checking.
+		if (Boolean.parseBoolean(enclosureMap.get(EnclosureKeysEnum.IS_ENCRYPTED.getKey()))) {
+			return;
+		}
 
 		try {
 			passwordUnHashed = getUnhashedPassword(enclosureId);

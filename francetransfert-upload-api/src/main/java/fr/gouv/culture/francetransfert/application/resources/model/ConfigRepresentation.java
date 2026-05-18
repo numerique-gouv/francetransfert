@@ -25,6 +25,7 @@ public class ConfigRepresentation implements Serializable {
 	private List<String> mimeType;
 	private List<String> extension;
 	private boolean agentConnect;
+	private boolean encryptionEnabled;
 	private String issuerUrl;
 	private String clientId;
 	private Map<String, String> messages;

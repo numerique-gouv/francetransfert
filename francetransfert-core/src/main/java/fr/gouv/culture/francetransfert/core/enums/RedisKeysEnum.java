@@ -35,8 +35,7 @@ public enum RedisKeysEnum {
     FT_ENCLOSURE_SCAN_RETRY("enclosure:", ":scans-retry"),
     FT_TOKEN_INITAPI("enclosureId:", ":upload-token"),
     HEALTHCHECK("healthcheck", ""),
-    FT_CONFIG("config", ""),
-    PLI_AES_KEY_ENCRYPTED("pli-aes-key-encrypted" , "");
+    FT_CONFIG("config", "");
 
     private String firstKeyPart;
     private String lastKeyPart;

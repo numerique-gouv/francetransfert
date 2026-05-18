@@ -1,8 +1,22 @@
 <mat-card class="envelope-card" *ngIf="!showParameters; else parametersShowed">
     <mat-card-content class="envelope-card-content">
+        <div class="envelope-card-encryption-toggle" *ngIf="encryptionFeatureEnabled"
+             style="display:flex; align-items:center; gap:8px; padding:8px 16px;">
+            <mat-checkbox [checked]="encryptionEnabled"
+                          (change)="onEncryptionToggleChange($event.checked)"
+                          color="primary">
+                {{ 'EncryptionToggleLabel' | translate }}
+            </mat-checkbox>
+            <button type="button" mat-icon-button
+                    matTooltip="{{ 'EncryptionToggleTooltip' | translate }}"
+                    [matTooltipPosition]="'above'"
+                    attr.aria-label="{{ 'EncryptionToggleTooltip' | translate }}">
+                <mat-icon>info_outline</mat-icon>
+            </button>
+        </div>
         <mat-tab-group [selectedIndex]="selectedTabIndex" (selectedTabChange)="onSelectedTabChange($event)"
             class="envelope-card-tab-group" mat-align-tabs="start">
-            <mat-tab label="{{'Courriel' | translate}}">
+            <mat-tab label="{{'Courriel' | translate}}" *ngIf="!encryptionEnabled">
                 <ng-template matTabContent>
                     <ft-envelope-mail-form [mailFormValues]="mailFormValues"
                         (onFormGroupChange)="onMailFormGroupChangeEvent($event)" class="envelope-mail-form-wrapper">

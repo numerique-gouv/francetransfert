@@ -19,7 +19,8 @@ public enum EnclosureKeysEnum {
     PASSWORD_ZIP("zip-password"), DELETED("deleted"), EXPIRED_TIMESTAMP_ARCHIVE("expired-timestamp-archive"),
     STATUS_CODE("status-code"), STATUS_WORD("status-word"), SOURCE("source"), INFOPLI("info-pli"),
     ENVOIMDPDEST("envoiMdpDestinataires"),
-    UPLOADED_TIMESTAMP("uploaded-timestamp");
+    UPLOADED_TIMESTAMP("uploaded-timestamp"),
+    IS_ENCRYPTED("is-encrypted");
 
     private String key;
 

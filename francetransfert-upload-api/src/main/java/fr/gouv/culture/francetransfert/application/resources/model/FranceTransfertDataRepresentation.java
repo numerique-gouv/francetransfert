@@ -48,7 +48,8 @@ public class FranceTransfertDataRepresentation {
 
 	private String source;
 	private boolean envoiMdpDestinataires;
-	private String[] pliAesKeyEncrypted;
+
+	private boolean isEncrypted;
 
 	private String uploadToken;
 
@@ -220,12 +221,12 @@ public class FranceTransfertDataRepresentation {
 		this.envoiMdpDestinataires = envoiMdpDestinataires;
 	}
 
-	public String[] getPliAesKeyEncrypted() {
-		return pliAesKeyEncrypted;
+	public boolean isEncrypted() {
+		return isEncrypted;
 	}
 
-	public void setPliAesKeyEncrypted(String[] pliAesKeyEncrypted) {
-		this.pliAesKeyEncrypted = pliAesKeyEncrypted;
+	public void setEncrypted(boolean encrypted) {
+		this.isEncrypted = encrypted;
 	}
 
 	public String getUploadToken() {

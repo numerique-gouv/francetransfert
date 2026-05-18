@@ -187,6 +187,7 @@ services:
       PASSWORD_SALT: 'local-dev-salt-not-secret-do-not-use-in-prod'
       # External integrations disabled for local dev
       AGENTCONNECT_ENABLED: 'true'
+      FEATURE_ENCRYPTION_ENABLED: 'true'
       AGENTCONNECT_ISSUERURL: 'http://localhost:${KEYCLOAK_PORT}/realms/francetransfert'
       AGENTCONNECT_CLIENTID: 'francetransfert'
       # Spring validates JWT iss claim against issuer-uri (the browser-facing

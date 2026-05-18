@@ -12,7 +12,7 @@ import { FlowDirective, Transfer } from '@flowjs/ngx-flow';
 import { Subject } from 'rxjs/internal/Subject';
 import { take, takeUntil } from 'rxjs/operators';
 import { FTTransferModel } from 'src/app/models';
-import { DownloadManagerService, DownloadService, FileEncryptionService, KeyPairService, ResponsiveService, UploadManagerService } from 'src/app/services';
+import { DownloadManagerService, DownloadService, FileEncryptionService, ResponsiveService, UploadManagerService } from 'src/app/services';
 import { FLOW_CONFIG } from 'src/app/shared/config/flow-config';
 import { Subscription } from "rxjs";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
@@ -65,7 +65,6 @@ export class DownloadComponent implements OnInit, OnDestroy {
     private _router: Router,
     private titleService: Title,
     private _snackBar: MatSnackBar,
-    private keyPairService: KeyPairService,
     private fileEncryptionService: FileEncryptionService
   ) { }
 
@@ -85,7 +84,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (downloadInfos) => {
               this.downloadInfos = downloadInfos;
-              void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
+              void this.loadPliKeyFromFragmentIfAny();
               this.downloadInfos.rootFiles.map(file => {
                 this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
               });
@@ -105,7 +104,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (downloadInfos) => {
               this.downloadInfos = downloadInfos;
-              void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
+              void this.loadPliKeyFromFragmentIfAny();
               this.downloadInfos.rootFiles.map(file => {
                 this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
               });
@@ -126,13 +125,18 @@ export class DownloadComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: (downloadInfosPublic) => {
                   this.downloadInfos = downloadInfosPublic;
-                  void this.decryptAndStorePliKeyIfPresent(this.downloadInfos, false);
+                  void this.loadPliKeyFromFragmentIfAny();
                   this.downloadInfos.rootFiles.map(file => {
                     this.transfers.push({ ...file, folder: false } as FTTransferModel<Transfer>);
                   });
                   this.downloadInfos.rootDirs.map(file => {
                     this.transfers.push({ ...file, size: file.totalSize, folder: true } as FTTransferModel<Transfer>);
                   });
+                  // E2EE pli: the URL fragment is the secret, no password
+                  // gate. Skip the check-validation-code form entirely.
+                  if (this.downloadInfos.encrypted) {
+                    this.downloadValidated = true;
+                  }
                 },
                 error: () => { this.loading = false },
                 complete: () => { this.loading = false; }
@@ -336,29 +340,25 @@ export class DownloadComponent implements OnInit, OnDestroy {
   }
 
 
-  private async decryptAndStorePliKeyIfPresent(downloadInfos: { pliAesKeyEncrypted?: string }, isSender: boolean): Promise<void> {
+  /**
+   * Read the pli key from the URL fragment (#base64url) if the pli is E2EE.
+   * The fragment is never sent to the server; the recipient must have been
+   * given the full URL, including the part after the `#`. If no fragment is
+   * present, the pli is treated as non-encrypted and the standard zip download
+   * flow applies.
+   */
+  private async loadPliKeyFromFragmentIfAny(): Promise<void> {
     this.downloadManagerService.clearPliAesKey();
-    const encrypted = downloadInfos?.pliAesKeyEncrypted;
-    if (!encrypted) {
+    const fragment = (typeof window !== 'undefined' ? window.location.hash : '').replace(/^#/, '');
+    if (!fragment) {
       return;
     }
-    const pairs = await this.keyPairService.getPocEnrollmentKeyPairs();
-    const toTry = isSender
-      ? [pairs.sender]
-      : [pairs.sender, pairs.recipient1, pairs.recipient2];
-    for (const pair of toTry) {
-      try {
-        const pliKey = await this.fileEncryptionService.unwrapPliKey(
-          encrypted, pair.publicKey, pair.privateKey
-        );
-        this.downloadManagerService.setPliAesKey(pliKey);
-        console.log('decryptAndStorePliKeyIfPresent success');
-        return;
-      } catch {
-        continue;
-      }
+    try {
+      const key = await this.fileEncryptionService.importPliKey(fragment);
+      this.downloadManagerService.setPliAesKey(key);
+    } catch (error) {
+      console.error('Cannot decode pli key from URL fragment', error);
     }
-    console.error('decryptAndStorePliKeyIfPresent failed, all attempts failed');
   }
 
   onDowloadStarted(event) {
@@ -376,14 +376,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
     this._downloadService.validatePassword({ enclosureId: this.params['enclosure'], password: this.password, recipientId: recipient }).pipe(take(1))
       .subscribe((response) => {
         if (response.valid) {
-          const isSenderFlow = !this.usingPublicLink && !this.params['recipient'];
-          void this.decryptAndStorePliKeyIfPresent(
-            { pliAesKeyEncrypted: response?.pliAesKeyEncrypted },
-            isSenderFlow
-          ).then(() => {
-            this.downloadValidated = true;
-            this.downloadManagerService.downloadError$.next(null);
-          }).catch((error) => {
+          void this.loadPliKeyFromFragmentIfAny().then(() => {
             this.downloadValidated = true;
             this.downloadManagerService.downloadError$.next(null);
           });

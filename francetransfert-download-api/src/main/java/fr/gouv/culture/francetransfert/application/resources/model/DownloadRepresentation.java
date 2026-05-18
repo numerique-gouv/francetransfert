@@ -37,7 +37,7 @@ public class DownloadRepresentation {
 	private String urlOsmose;
 	private String urlResana;
 
-	private String pliAesKeyEncrypted;
+	private boolean encrypted;
 
 	public String getMessage() {
 		return SanitizerUtil.sanitize(message);

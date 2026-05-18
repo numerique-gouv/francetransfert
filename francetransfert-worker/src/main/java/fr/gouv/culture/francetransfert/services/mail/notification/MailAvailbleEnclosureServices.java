@@ -121,6 +121,17 @@ public class MailAvailbleEnclosureServices {
 		redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
 				EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.EDC.getWord(), -1);
 
+		boolean isEncrypted = Boolean.parseBoolean(RedisUtils.getEnclosureValue(
+				redisManager, enclosure.getGuid(), EnclosureKeysEnum.IS_ENCRYPTED.getKey()));
+		if (isEncrypted) {
+			LOGGER.info("E2EE pli {} ready: skipping server-side notification emails", enclosure.getGuid());
+			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+					EnclosureKeysEnum.STATUS_CODE.getKey(), StatutEnum.PAT.getCode(), -1);
+			redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosure.getGuid()),
+					EnclosureKeysEnum.STATUS_WORD.getKey(), StatutEnum.PAT.getWord(), -1);
+			return;
+		}
+
 		LOGGER.info("send email notification availble to sender: {} for enclosure {}", enclosure.getSender(),
 				enclosure.getGuid());
 		String passwordRedis = RedisUtils.getEnclosureValue(redisManager, enclosure.getGuid(),

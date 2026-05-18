@@ -32,6 +32,22 @@
       -webkit-justify-content: center;
       -webkit-align-items: center;
 
+      .encryption-share-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        justify-content: center;
+
+        a.mat-mdc-raised-button,
+        button.mat-mdc-raised-button {
+          // Force same baseline color/decoration for <a> + <button> variants;
+          // anchor elements otherwise inherit link styling on hover/visited.
+          text-decoration: none;
+          color: white;
+        }
+      }
+
       .encrypting-wrapper {
         display: flex;
         flex-direction: column;

@@ -20,6 +20,4 @@ public class ValidatePasswordRepresentation {
 
     private boolean valid;
     private int passwordTryCount;
-
-    private String pliAesKeyEncrypted;
 }

@@ -40,6 +40,9 @@ public class ConfigService {
 	@Value("${agentconnect.clientId:}")
 	private String clientId;
 
+	@Value("${feature.encryption.enabled:false}")
+	private boolean encryptionEnabled;
+
 	@Autowired
 	MimeService mimeService;
 
@@ -50,6 +53,7 @@ public class ConfigService {
 		String jsonInString = redisManager.getString(RedisKeysEnum.FT_CONFIG.getFirstKeyPart());
 		Map<String, String> messages = new Gson().fromJson(jsonInString, Map.class);
 		return ConfigRepresentation.builder().extension(extensionList).mimeType(mimeList).agentConnect(agentConnect)
+				.encryptionEnabled(encryptionEnabled)
 				.clientId(clientId).issuerUrl(issuerUrl).messages(messages).build();
 	}
 

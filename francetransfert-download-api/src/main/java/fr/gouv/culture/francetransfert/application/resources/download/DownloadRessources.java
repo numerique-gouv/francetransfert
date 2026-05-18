@@ -43,7 +43,6 @@ import fr.gouv.culture.francetransfert.core.exception.StorageException;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.model.TokenEnclosureDataDownload;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
-import fr.gouv.culture.francetransfert.core.enums.RecipientKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
@@ -126,10 +125,6 @@ public class DownloadRessources {
 			String recipientId = downloadServices.getRecipientId(metaData.getEnclosureId(), metaData.getRecipientId());
 			downloadServices.validatePassword(metaData.getEnclosureId(), metaData.getPassword(), recipientId);
 			representation.setValid(true);
-			String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
-			String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
-					RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
-			representation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		} catch (Exception e) {
 			representation.setValid(false);
 			throw e;
@@ -146,13 +141,6 @@ public class DownloadRessources {
 		LOGGER.info("start donlowad info ");
 		DownloadRepresentation downloadRepresentation = downloadServices.getDownloadInfo(
 				tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), tokenEnclosureData.getRecipient());
-
-		String recipientId = downloadServices.getRecipientId(tokenEnclosureData.getEnclosure(),
-				tokenEnclosureData.getRecipient());
-		String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
-		String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
-				RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
-		downloadRepresentation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}
@@ -169,13 +157,6 @@ public class DownloadRessources {
 				tokenEnclosureData.getRecipient(), tokenEnclosureData.getEnclosure());
 		DownloadRepresentation downloadRepresentation = downloadServices
 				.getDownloadInfoConnect(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getRecipient());
-
-		String recipientId = downloadServices.getRecipientId(tokenEnclosureData.getEnclosure(),
-				tokenEnclosureData.getRecipient());
-		String recipientKey = RedisKeysEnum.FT_RECIPIENT.getKey(recipientId);
-		String pliAesKeyEncrypted = redisManager.getHgetString(recipientKey,
-				RecipientKeysEnum.PLI_AES_KEY_ENCRYPTED.getKey());
-		downloadRepresentation.setPliAesKeyEncrypted(pliAesKeyEncrypted);
 		response.setStatus(HttpStatus.OK.value());
 		return downloadRepresentation;
 	}
