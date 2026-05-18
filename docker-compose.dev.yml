@@ -1,0 +1,64 @@
+services:
+  upload-api:
+    image: maven:3-eclipse-temurin-25
+    working_dir: /build
+    build: !reset null
+    entrypoint: ['sh', '/dev-entrypoint.sh']
+    environment:
+      FT_MODULE: francetransfert-upload-api
+    volumes:
+      - ./francetransfert-core:/build/francetransfert-core
+      - ./francetransfert-upload-api:/build/francetransfert-upload-api
+      - ./docker/java-dev-entrypoint.sh:/dev-entrypoint.sh:ro
+      - maven-cache:/root/.m2
+
+  download-api:
+    image: maven:3-eclipse-temurin-25
+    working_dir: /build
+    build: !reset null
+    entrypoint: ['sh', '/dev-entrypoint.sh']
+    environment:
+      FT_MODULE: francetransfert-download-api
+    volumes:
+      - ./francetransfert-core:/build/francetransfert-core
+      - ./francetransfert-download-api:/build/francetransfert-download-api
+      - ./docker/java-dev-entrypoint.sh:/dev-entrypoint.sh:ro
+      - maven-cache:/root/.m2
+
+  worker:
+    image: maven:3-eclipse-temurin-25
+    working_dir: /build
+    build: !reset null
+    entrypoint: ['sh', '/dev-entrypoint.sh']
+    environment:
+      FT_MODULE: francetransfert-worker
+    volumes:
+      - ./francetransfert-core:/build/francetransfert-core
+      - ./francetransfert-worker:/build/francetransfert-worker
+      - ./docker/java-dev-entrypoint.sh:/dev-entrypoint.sh:ro
+      - maven-cache:/root/.m2
+
+  gui:
+    image: node:20.11
+    working_dir: /app
+    build: !reset null
+    entrypoint: ['sh', '/dev-entrypoint.sh']
+    # The base compose maps host:GUI_PORT → container:8080 (for the production
+    # nginx). In dev `ng serve` listens on port 4200 inside the container, so
+    # override the mapping to host:GUI_PORT → container:4200.
+    ports: !override
+      - '${GUI_PORT}:4200'
+    volumes:
+      - ./francetransfert-upload-download-gui:/app
+      - gui-node-modules:/app/node_modules
+      - ./docker/gui-dev-entrypoint.sh:/dev-entrypoint.sh:ro
+    depends_on:
+      upload-api:
+        condition: service_started
+      download-api:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  gui-node-modules:
+  maven-cache:
