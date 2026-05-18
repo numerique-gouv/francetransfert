@@ -77,6 +77,10 @@ Pour arrêter et tout nettoyer :
 docker compose --env-file .env.local down -v        # -v pour effacer les volumes Redis / MinIO
 ```
 
+### Antivirus
+
+ClamAV est utilisé comme antivirus, mais celui-ci n'est actif sur le serveur que pour des plis non-chiffrés.
+
 ## Contribution
 
 Nous utilisons le Developer Certificate of Origin (DCO) pour les contributions. En contribuant à ce projet, vous acceptez de respecter les termes du DCO.

@@ -61,6 +61,26 @@ services:
       - ./docker/minio-init.sh:/init/minio-init.sh:ro
     restart: 'no'
 
+  clamav:
+    # `clamav/clamav` is amd64-only; `tiredofit/clamav` ships multi-arch images
+    # (including arm64) and exposes clamd on the standard port 3310.
+    image: tiredofit/clamav:latest
+    environment:
+      MODE: clamd
+      ENABLE_DEFINITIONS_UPDATE: 'TRUE'
+      DEFINITIONS_UPDATE_FREQUENCY: '60'
+    ports:
+      - '${CLAMAV_PORT}:3310'
+    restart: unless-stopped
+    # ClamAV downloads ~250 MB of signatures on first boot; give it room.
+    healthcheck:
+      test:
+        ['CMD', 'sh', '-c', 'echo PING | nc -w 2 localhost 3310 | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 240s
+
   mailcatcher:
     image: aerzas/mailcatcher:2.3.0
     environment:
@@ -193,6 +213,8 @@ services:
         condition: service_completed_successfully
       mailcatcher:
         condition: service_healthy
+      clamav:
+        condition: service_healthy
     env_file:
       - docker/worker-stubs.env
     environment:
@@ -224,8 +246,7 @@ services:
       SPRING_MAIL_FTMAIL: 'no-reply@francetransfert.local'
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'false'
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: 'false'
-      # AV: not present in this stack. Worker short-circuits the scan on this branch.
-      SCAN_CLAMAV_HOST: 'clamav-disabled'
+      SCAN_CLAMAV_HOST: clamav
       SCAN_CLAMAV_PORT: '3310'
       SCAN_CLAMAV_TIMEOUT: '2000'
       SCAN_CLAMAV_CHUNKSIZE: '655360'

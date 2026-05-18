@@ -55,5 +55,4 @@ package-lock.json
 Chart.lock
 **/*.dec.yaml
 
-*.md
 .env.local
