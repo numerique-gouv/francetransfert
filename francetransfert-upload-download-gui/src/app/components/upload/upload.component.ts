@@ -12,6 +12,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { take, takeUntil } from 'rxjs/operators';
 import { DownloadManagerService, FileEncryptionService, FileManagerService, LanguageSelectionService, ResponsiveService, UploadManagerService, UploadService } from 'src/app/services';
+import { EncryptStreamInput } from 'src/app/services/file-encryption/file-encryption.service';
 import { FLOW_CONFIG } from 'src/app/shared/config/flow-config';
 import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
@@ -375,29 +376,51 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Build the single Blob to encrypt:
-   * - exactly one file → keep it as-is (preserve name + extension)
-   * - several files / a folder → stream them through client-zip into one .zip
+   * Build the streaming input the encryptor will pull plaintext bytes from:
+   * - exactly one file → wrap its own `file.stream()` (zero copy, preserves
+   *   name + extension)
+   * - several files / a folder → run them through client-zip and forward its
+   *   `ReadableStream` directly, so the zip is never materialised as a Blob.
+   *   `predictLength` gives us the exact final zip size up front, which is
+   *   needed both for the progress percentage and for the OPFS quota
+   *   pre-check in TempEncryptedStorageService.
+   *
+   * This is what keeps multi-GB E2EE uploads from exploding the JS heap.
    */
-  private async buildPlaintextBlob(
+  private async buildPlaintextSource(
     items: Array<{ file: File; relativePath: string }>
-  ): Promise<File> {
+  ): Promise<EncryptStreamInput> {
     if (items.length === 1) {
-      return items[0].file;
+      const file = items[0].file;
+      return {
+        stream: file.stream(),
+        size: file.size,
+        name: file.name,
+        lastModified: file.lastModified,
+      };
     }
+    // Dynamic import: client-zip ships its own DEFLATE pipeline and is only
+    // needed when a user encrypts a folder or several files. webpack splits
+    // it into its own chunk so the main bundle (and the recipient/download
+    // flow, which never zips) stays small. Cost: one extra HTTP/2 fetch the
+    // first time a sender encrypts a multi-file pli — typically <100 ms.
     const clientZip = await import('client-zip');
-    const zipStream = clientZip.downloadZip(
-      items.map(it => ({
-        name: it.relativePath || it.file.name,
-        lastModified: new Date(it.file.lastModified || Date.now()),
-        input: it.file,
-      }))
-    );
-    const zipBlob = await zipStream.blob();
-    return new File([zipBlob], this.pickEncryptedZipName(items), {
-      type: 'application/zip',
+    const entries = items.map(it => ({
+      name: it.relativePath || it.file.name,
+      lastModified: new Date(it.file.lastModified || Date.now()),
+      input: it.file,
+    }));
+    const zipResponse = clientZip.downloadZip(entries);
+    if (!zipResponse.body) {
+      throw new Error('client-zip did not return a streamable body');
+    }
+    const zipSize = Number(clientZip.predictLength(entries));
+    return {
+      stream: zipResponse.body as ReadableStream<Uint8Array>,
+      size: zipSize,
+      name: this.pickEncryptedZipName(items),
       lastModified: Date.now(),
-    });
+    };
   }
 
   /** Re-wrap an encrypted blob with a new filename (re-references the blob, no byte copy). */
@@ -431,14 +454,19 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         relativePath: (f as { relativePath?: string }).relativePath || (f as any).name || f.file.name
       }));
 
-      // Step 1: build the single blob to encrypt. Single file = pass-through
-      // (preserve name + extension). Multi-file / folder = client-zip into one
-      // .zip stream so the arbo survives.
-      const plaintext = await this.buildPlaintextBlob(originalFiles);
+      // The two `await`s below sequence the *setup*, not the bytes. The pipeline
+      //
+      //   File.stream()  →  client-zip (lazy)  →  secretstream encrypt  →  OPFS
+      //
+      // is fully streaming and pull-driven: nothing is computed until the
+      // encryptor calls reader.read() and asks for the next chunk. Steady-state
+      // RAM is bounded by one 5 MB chunk regardless of total input size, and
+      // backpressure flows correctly (slow OPFS write → encryptor pauses
+      // pulling → client-zip pauses → disk reads pause).
+      const plaintext = await this.buildPlaintextSource(originalFiles);
 
-      // Step 2: stream-encrypt with a fresh pli key.
       const pliKey = await this.fileEncryptionService.generatePliKey();
-      const result = await this.fileEncryptionService.encryptFileWithPliKey(
+      const result = await this.fileEncryptionService.encryptStreamWithPliKey(
         plaintext, pliKey,
         (progress) => { this.encryptingProgress = progress; }
       );

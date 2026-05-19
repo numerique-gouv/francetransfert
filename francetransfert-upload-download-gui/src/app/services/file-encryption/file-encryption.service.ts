@@ -26,6 +26,23 @@ export interface PliEncryptionResult {
   pliKey: Uint8Array;
 }
 
+/**
+ * Stream-shaped input for encryption. Used to avoid buffering an entire
+ * client-zip into RAM before encrypting: the zip's ReadableStream is piped
+ * straight through the secretstream encryptor, one CHUNK_SIZE at a time.
+ *
+ * `size` is the *total* number of plaintext bytes the stream will yield
+ * (e.g. `predictLength(metadata)` from client-zip, or `file.size` for a
+ * single file). It is used for the progress percentage and to pre-check
+ * OPFS quota before writing.
+ */
+export interface EncryptStreamInput {
+  stream: ReadableStream<Uint8Array>;
+  size: number;
+  name: string;
+  lastModified?: number;
+}
+
 type ByteArray = Uint8Array;
 
 @Injectable({
@@ -65,76 +82,103 @@ export class FileEncryptionService {
   /**
    * Encrypt a single input File (already prepared by the caller — typically a
    * zip stream wrapping the original files) into one ciphertext File.
+   *
+   * Thin wrapper over {@link encryptStreamWithPliKey}: exposes `file.stream()`
+   * as the underlying source so we keep one streaming code path. File-shaped
+   * callers (e.g. encrypting a single user-picked file as-is) do not need to
+   * know about the stream plumbing.
    */
   async encryptFileWithPliKey(
     file: File,
     pliKey: Uint8Array,
     onProgress?: (progress: number) => void
   ): Promise<PliEncryptionResult> {
+    return this.encryptStreamWithPliKey(
+      {
+        stream: file.stream(),
+        size: file.size,
+        name: file.name,
+        lastModified: file.lastModified,
+      },
+      pliKey,
+      onProgress,
+    );
+  }
+
+  /**
+   * Encrypt a streaming input into one ciphertext File. Bytes are pulled
+   * chunk-by-chunk from `input.stream`; no plaintext copy of the full input
+   * is held in memory.
+   */
+  async encryptStreamWithPliKey(
+    input: EncryptStreamInput,
+    pliKey: Uint8Array,
+    onProgress?: (progress: number) => void,
+  ): Promise<PliEncryptionResult> {
     const totalStart = this.nowMs();
-    const totalBytes = Math.max(file.size, 1);
+    const totalBytes = Math.max(input.size, 1);
     let encryptedBytes = 0;
     onProgress?.(0);
-    const encryptedFile = await this.encryptFileWithSecretstream(
-      file,
+    const encryptedFile = await this.encryptStreamWithSecretstream(
+      input,
       pliKey,
       (plainChunkBytes) => {
         encryptedBytes += plainChunkBytes;
         onProgress?.(Math.min(100, Math.round((encryptedBytes / totalBytes) * 100)));
-      }
+      },
     );
     onProgress?.(100);
     const durationMs = Math.round(this.nowMs() - totalStart);
-    console.log(PERF_LOG_PREFIX, 'encryptFileWithPliKey.total', { durationMs, fileName: file.name, bytes: file.size });
-    this.loggingService.logInfo(`encrypt duration: ${durationMs}ms file: ${file.name} bytes ${file.size}`)
+    console.log(PERF_LOG_PREFIX, 'encryptStreamWithPliKey.total', { durationMs, fileName: input.name, bytes: input.size });
+    this.loggingService.logInfo(`encrypt duration: ${durationMs}ms file: ${input.name} bytes ${input.size}`)
       .pipe(take(1)).subscribe();
     return {
-      encryptedFile: { encryptedFile, originalSize: file.size },
-      pliKey
+      encryptedFile: { encryptedFile, originalSize: input.size },
+      pliKey,
     };
   }
 
   /**
-   * Chiffre un fichier par chunks de CHUNK_SIZE avec secretstream (XChaCha20-Poly1305).
+   * Chiffre un flux par chunks de CHUNK_SIZE avec secretstream (XChaCha20-Poly1305).
    * Format : [24 B header][chunk_1 + 17 B]...[chunk_N + 17 B (TAG_FINAL)]
    * Le plaintext est lu progressivement
    */
-  async encryptFileWithSecretstream(
-    file: File,
+  async encryptStreamWithSecretstream(
+    input: EncryptStreamInput,
     pliKey: Uint8Array,
     onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<File> {
     if (await this.tempEncryptedStorageService.isOpfsAccessible()) {
       try {
-        return await this.encryptFileWithSecretstreamToOpfs(file, pliKey, onPlainChunkEncrypted);
+        return await this.encryptStreamWithSecretstreamToOpfs(input, pliKey, onPlainChunkEncrypted);
       } catch (error) {
-        console.error('encryptFileWithSecretstreamToOpfs error', error);
+        console.error('encryptStreamWithSecretstreamToOpfs error', error);
         if (!this.tempEncryptedStorageService.isStorageFallbackError(error)) {
           throw error;
         }
         console.warn('OPFS encryption fallback to in-memory mode', error);
       }
     }
-    return this.encryptFileWithSecretstreamInMemory(file, pliKey, onPlainChunkEncrypted);
+    return this.encryptStreamWithSecretstreamInMemory(input, pliKey, onPlainChunkEncrypted);
   }
 
   async cleanupTemporaryEncryptedFiles(): Promise<void> {
     await this.tempEncryptedStorageService.cleanupTemporaryEncryptedFiles();
   }
 
-  private async encryptFileWithSecretstreamToOpfs(
-    file: File,
+  private async encryptStreamWithSecretstreamToOpfs(
+    input: EncryptStreamInput,
     pliKey: Uint8Array,
     onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<File> {
     const encryptedFile = await this.tempEncryptedStorageService.writeEncryptedFile(
-      file.name,
+      input.name,
       async (writeChunk) => {
-        await this.encryptFileWithSecretstreamCore(file, pliKey, async (chunk) => {
+        await this.encryptStreamWithSecretstreamCore(input.stream, pliKey, async (chunk) => {
           await writeChunk(chunk);
         }, onPlainChunkEncrypted);
       },
-      file.size
+      input.size
     );
     if (!encryptedFile) {
       throw new Error('OPFS not available');
@@ -142,23 +186,23 @@ export class FileEncryptionService {
     return encryptedFile;
   }
 
-  private async encryptFileWithSecretstreamInMemory(
-    file: File,
+  private async encryptStreamWithSecretstreamInMemory(
+    input: EncryptStreamInput,
     pliKey: Uint8Array,
     onPlainChunkEncrypted?: (plainChunkBytes: number) => void
   ): Promise<File> {
     const parts: ByteArray[] = [];
-    await this.encryptFileWithSecretstreamCore(file, pliKey, (chunk) => {
+    await this.encryptStreamWithSecretstreamCore(input.stream, pliKey, (chunk) => {
       parts.push(chunk);
     }, onPlainChunkEncrypted);
-    return new File([new Blob(parts as BlobPart[], { type: 'application/octet-stream' })], file.name, {
+    return new File([new Blob(parts as BlobPart[], { type: 'application/octet-stream' })], input.name, {
       type: 'application/octet-stream',
-      lastModified: Date.now()
+      lastModified: input.lastModified ?? Date.now()
     });
   }
 
-  private async encryptFileWithSecretstreamCore(
-    file: File,
+  private async encryptStreamWithSecretstreamCore(
+    plaintextStream: ReadableStream<Uint8Array>,
     pliKey: Uint8Array,
     onEncryptedChunk: (chunk: ByteArray) => Promise<void> | void,
     onPlainChunkEncrypted?: (plainChunkBytes: number) => void
@@ -168,7 +212,7 @@ export class FileEncryptionService {
       sodium.crypto_secretstream_xchacha20poly1305_init_push(pliKey);
 
     await onEncryptedChunk(header); // 24 B header en tête
-    const reader = file.stream().getReader();
+    const reader = plaintextStream.getReader();
     let buffer: ByteArray = new Uint8Array(0);
     let done = false;
     let wroteAtLeastOnePayloadChunk = false;
@@ -193,7 +237,7 @@ export class FileEncryptionService {
       wroteAtLeastOnePayloadChunk = wroteAtLeastOnePayloadChunk || encryptedBatch.wrotePayload;
     }
 
-    // Cas fichier vide : émettre un chunk FINAL vide
+    // Cas flux vide : émettre un chunk FINAL vide
     if (!wroteAtLeastOnePayloadChunk) {
       await onEncryptedChunk(sodium.crypto_secretstream_xchacha20poly1305_push(
         state, new Uint8Array(0), null,

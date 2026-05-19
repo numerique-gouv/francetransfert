@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest"
   },
   "private": false,
   "dependencies": {
@@ -24,13 +26,13 @@
     "@flowjs/flow.js": "2.14.1",
     "@flowjs/ngx-flow": "0.6.0",
     "@gouvfr-lasuite/integration": "^0.1.7",
-    "client-zip": "2.4.5",
     "@ngx-translate/core": "15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@types/flowjs": "2.13.9",
     "@types/streamsaver": "^2.0.5",
     "angular-auth-oidc-client": "15.0.5",
     "angular-oauth2-oidc": "15.0.1",
+    "client-zip": "2.4.5",
     "file-saver": "2.0.5",
     "jspdf": "2.5.1",
     "jspdf-autotable": "3.5.28",
@@ -61,6 +63,7 @@
     "karma-coverage": "2.2.0",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.0.0",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vitest": "^1.6.1"
   }
 }
