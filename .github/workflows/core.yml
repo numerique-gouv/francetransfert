@@ -20,8 +20,8 @@ jobs:
         with:
           override: false
           githubServer: true
-      - name: Publish package
-        run: mvn --batch-mode clean package deploy
+      - name: Build (and deploy on main/ppr)
+        run: mvn --batch-mode clean ${{ (github.ref_name == 'main' || github.ref_name == 'ppr') && 'package deploy' || 'package' }}
         working-directory: francetransfert-core
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
