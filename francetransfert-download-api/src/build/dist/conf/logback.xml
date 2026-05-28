@@ -3,7 +3,9 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                      
+			<includeMdcKeyName>correlationId</includeMdcKeyName>
+			<includeMdcKeyName>sessionId</includeMdcKeyName>
+			<includeMdcKeyName>callerIp</includeMdcKeyName>
         </encoder> 
 	</appender>
 
