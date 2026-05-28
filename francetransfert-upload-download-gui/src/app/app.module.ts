@@ -85,6 +85,7 @@ import { FileUnitPipe } from './shared/pipes/file-unit.pipe';
 
 import { CustomDateAdapter } from './shared/custom-DateAdapter/custom-date-adapter';
 import { AuthInterceptor } from './shared/interceptors/auth-interceptor';
+import { CorrelationIdInterceptor } from './shared/interceptors/correlation-id-interceptor';
 import { LoginService } from './services/login/login.service';
 import { MyDateAdapter } from './components/upload/envelope/envelope-parameters-form/my-date-adapter';
 import { RouterModule, Routes } from '@angular/router';
@@ -220,6 +221,10 @@ const initializer = (pwaService: PwaService) => () =>
     {
       provide: FlowInjectionToken,
       useValue: Flow
+    }, {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CorrelationIdInterceptor,
+      multi: true,
     }, {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

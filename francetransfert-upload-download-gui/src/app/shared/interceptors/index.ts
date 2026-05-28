@@ -5,3 +5,5 @@
   * License-Filename: LICENSE.txt 
   */
 
+export * from './auth-interceptor';
+export * from './correlation-id-interceptor';
