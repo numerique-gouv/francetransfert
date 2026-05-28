@@ -470,7 +470,7 @@ worker:
       failureThreshold: 5
   image:
     repository: lasuite/francetransfert-worker
-    tag: 4.0.13
+    tag: 4.0.15
     imagePullPolicy: Always
   resources:
     requests:
