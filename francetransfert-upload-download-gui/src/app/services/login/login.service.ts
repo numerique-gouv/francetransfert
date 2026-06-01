@@ -12,6 +12,7 @@ import { BehaviorSubject, catchError, map, take } from 'rxjs';
 import { TokenModel } from 'src/app/models/token.model';
 import { environment } from 'src/environments/environment';
 import { ConfigService } from '../config/config.service';
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,7 @@ export class LoginService {
   connectCheck: BehaviorSubject<boolean> = new BehaviorSubject<any>(false);
   isAgent$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public currentTabIndex = 1;  //default tab index is 1
+  public readonly sessionId = uuidv4();
 
   constructor(private configService: ConfigService, private oauthService: OAuthService, private _httpClient: HttpClient) {
 

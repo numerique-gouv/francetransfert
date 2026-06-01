@@ -352,11 +352,17 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.loginService.isSso()) {
         this.refreshUpdateSubscription = this.loginService.tokenInfo.subscribe(tokenInfo => {
           if (tokenInfo.fromSso) {
-            this.flow.flowJs.opts.headers = { Authorization: 'Bearer ' + this.loginService.getSsoToken() };
+            this.flow.flowJs.opts.headers = {
+              Authorization: 'Bearer ' + this.loginService.getSsoToken(),
+              'x-session-id': this.loginService.sessionId
+            };
           }
         });
       }
     } else {
+      this.flow.flowJs.opts.headers = {
+        'x-session-id': this.loginService.sessionId
+      };
       token = this.uploadManagerService.uploadInfos.getValue().senderToken;
     }
 
