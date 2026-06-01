@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -16,6 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CorrelationIdMdcFilter extends OncePerRequestFilter {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CorrelationIdMdcFilter.class);
 
 	private static final String CORRELATION_ID_HEADER = "x-correlation-id";
 	private static final String SESSION_ID_HEADER = "x-session-id";
@@ -61,13 +65,16 @@ public class CorrelationIdMdcFilter extends OncePerRequestFilter {
 	private String resolveCallerIp(HttpServletRequest request) {
 		String forwardedFor = request.getHeader(FORWARDED_FOR_HEADER);
 		if (StringUtils.hasText(forwardedFor)) {
+			LOGGER.debug("forwardedFor: {}", forwardedFor);
 			return sanitizeCallerIp(forwardedFor.split(",")[0].trim(), request.getRemoteAddr());
 		}
 
 		String realIp = request.getHeader(REAL_IP_HEADER);
 		if (StringUtils.hasText(realIp)) {
+			LOGGER.debug("realIp: {}", realIp);
 			return sanitizeCallerIp(realIp.trim(), request.getRemoteAddr());
 		}
+		LOGGER.debug("remoteAddr: {}", request.getRemoteAddr());
 		return sanitizeCallerIp(request.getRemoteAddr(), "-");
 	}
 
