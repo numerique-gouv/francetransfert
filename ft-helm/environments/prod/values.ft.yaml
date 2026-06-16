@@ -171,9 +171,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 8Gi
+        memory: 9Gi
       limits:
-        memory: 8Gi
+        memory: 9Gi
     config:
       # # restoration
       # appendonly: "no"
