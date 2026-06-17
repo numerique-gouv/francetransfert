@@ -147,7 +147,7 @@ clamav:
 
 redis:
   image:
-    tag: 8.2.3-alpine
+    tag: 8.2.7-alpine
   auth: true
   existingSecret: "ft-secret-app"
   authKey: METALOAD_PASSWORD
@@ -665,7 +665,7 @@ dex:
     createClusterScoped: false
   enabled: true
   image:
-    tag: v2.44.0-distroless
+    tag: v2.45.1-distroless
   service:
     ports:
       http:
