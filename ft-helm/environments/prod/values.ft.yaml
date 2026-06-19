@@ -165,7 +165,7 @@ redis:
       initialDelaySeconds: 30
       periodSeconds: 20
       timeoutSeconds: 15
-      successThreshold: 2
+      successThreshold: 1
       failureThreshold: 90
     port: 6379
     resources:
