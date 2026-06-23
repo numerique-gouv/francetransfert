@@ -29,4 +29,4 @@ Enfin pour les agents de l’Etat, il y a un salon "France transfert" dans TCHAP
 
 # Contributions
 
-Les Issues et Pull Request sont les bienvenus mais il n'y a pas d'engagement de l'équipe produit France transfert à les traiter.
+Les Issues et Pull Request sont les bienvenus mais il n'y a pas d'engagement de l'équipe produit France transfert à les traiter. 
