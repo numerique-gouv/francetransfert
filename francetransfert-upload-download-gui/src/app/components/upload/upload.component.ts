@@ -19,6 +19,7 @@ import { Router } from "@angular/router";
 import { LoginService } from 'src/app/services/login/login.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfigService } from '../../services/config/config.service';
+import { SessionsService } from '../../services/sessions/sessions.service';
 
 @Component({
   selector: 'ft-upload',
@@ -73,7 +74,8 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     private titleService: Title,
     private _snackBar: MatSnackBar,
     private router: Router,
-    private changeDetectorRef: ChangeDetectorRef) { }
+    private changeDetectorRef: ChangeDetectorRef,
+    private sessionsService: SessionsService) { }
 
   ngOnInit(): void {
 
@@ -82,6 +84,10 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.titleService.setTitle("France transfert - Résultat d'un envoi");
     this.onResize();
     this.flowConfig = FLOW_CONFIG;
+    this.flowConfig.headers = {
+      ...this.flowConfig.headers,
+      'x-session-id': this.sessionsService.sessionId
+    };
     this.responsiveService.checkWidth();
     this.uploadManagerSubscription = this.uploadManagerService.envelopeInfos.subscribe(_envelopeInfos => {
       if (_envelopeInfos && _envelopeInfos.from) {
@@ -353,16 +359,12 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
         this.refreshUpdateSubscription = this.loginService.tokenInfo.subscribe(tokenInfo => {
           if (tokenInfo.fromSso) {
             this.flow.flowJs.opts.headers = {
-              Authorization: 'Bearer ' + this.loginService.getSsoToken(),
-              'x-session-id': this.loginService.sessionId
+              Authorization: 'Bearer ' + this.loginService.getSsoToken()
             };
           }
         });
       }
     } else {
-      this.flow.flowJs.opts.headers = {
-        'x-session-id': this.loginService.sessionId
-      };
       token = this.uploadManagerService.uploadInfos.getValue().senderToken;
     }
 
@@ -373,7 +375,9 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       senderToken: token,
     };
     if (this.loginService.isLoggedIn() && this.loginService.tokenInfo.getValue().fromSso) {
-      this.flow.flowJs.opts.headers = { Authorization: 'Bearer ' + this.loginService.getSsoToken() };
+      this.flow.flowJs.opts.headers = {
+        Authorization: 'Bearer ' + this.loginService.getSsoToken()
+      };
     }
 
     this.transfertSubscription = this.flow.transfers$.subscribe((uploadState: UploadState) => {
