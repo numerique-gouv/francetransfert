@@ -207,7 +207,6 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.destinatairesList = this.fileInfos.recipientsMails.map(ed => {
         return ed.recipientMail;
       })
-      console.log(this.loginService.isAgent$.getValue());
       if (this.destinatairesList.length < this.configService.getMailLimit(this.loginService.isAgent$.getValue())) {
         let found = this.destinatairesList.find(o => o === this.envelopeDestForm.get('email').value.toLowerCase());
         if (!found) {
@@ -474,8 +473,6 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private updateAgent() {
     this.uploadService.validateMail([this.fileInfos.senderEmail]).pipe(take(1)).subscribe((isAllowed: boolean) => {
-      console.log('senderEmail', this.fileInfos.senderEmail);
-      console.log('isAllowed', isAllowed);
       this.loginService.isAgent$.next(isAllowed);
     });
   }

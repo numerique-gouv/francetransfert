@@ -24,10 +24,8 @@ export class LoginService {
   connectCheck: BehaviorSubject<boolean> = new BehaviorSubject<any>(false);
   isAgent$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public currentTabIndex = 1;  //default tab index is 1
-  public readonly sessionId = uuidv4();
 
   constructor(private configService: ConfigService, private oauthService: OAuthService, private _httpClient: HttpClient) {
-
     this.configService.isAgentConnect.subscribe(x => {
       if (x && x == true) {
         const configInfo = this.configService.configInfo.getValue();

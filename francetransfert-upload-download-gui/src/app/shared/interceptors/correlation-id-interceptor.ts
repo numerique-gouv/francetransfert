@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from "uuid";
-import { LoginService } from 'src/app/services/login/login.service';
+import { SessionsService } from '../../services/sessions/sessions.service';
 
 @Injectable()
 export class CorrelationIdInterceptor implements HttpInterceptor {
     private readonly correlationIdHeader = 'x-correlation-id';
     private readonly sessionIdHeader = 'x-session-id';
-    constructor(private loginService: LoginService) { }
+    constructor(private readonly sessionsService: SessionsService) { }
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let requestToHandle = req;
 
@@ -20,7 +20,7 @@ export class CorrelationIdInterceptor implements HttpInterceptor {
         }
 
         if (!requestToHandle.headers.has(this.sessionIdHeader)) {
-            const sessionId = this.loginService.sessionId;
+            const sessionId = this.sessionsService.sessionId;
             requestToHandle = requestToHandle.clone({
                 headers: requestToHandle.headers.set(this.sessionIdHeader, sessionId),
             });
