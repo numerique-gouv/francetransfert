@@ -97,6 +97,8 @@ public class UploadResources {
 			@RequestParam("flowFilename") String flowFilename,
 			@RequestParam("flowRelativePath") String flowRelativePath,
 			@RequestParam("flowTotalChunks") int flowTotalChunks, @RequestParam("enclosureId") String enclosureId) {
+		LOGGER.info("check if chunk exists for enclosure {} and flow identifier {} and flow chunk number {} ",
+				enclosureId, flowIdentifier, flowChunkNumber);
 		if (uploadServices.chunkExists(flowChunkNumber, enclosureId, flowIdentifier)) {
 			return true;
 		} else {
@@ -115,6 +117,9 @@ public class UploadResources {
 			@RequestParam("senderToken") String senderToken)
 			throws MetaloadException, StorageException, RetryException {
 
+		LOGGER.info("upload file for enclosure {} , flow identifier {} chunk number {}", enclosureId, flowIdentifier,
+				flowChunkNumber);
+
 		if (flowTotalSize > uploadFileLimitSize) {
 			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
 			return;
@@ -130,7 +135,8 @@ public class UploadResources {
 	@Operation(method = "POST", description = "sender Info ")
 	public EnclosureRepresentation senderInfo(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody @Valid @EmailsFranceTransfert FranceTransfertDataRepresentation metadata) {
-		LOGGER.info("start upload enclosure ");
+		LOGGER.info("start upload enclosure for user mail {} and sender id {}", metadata.getSenderEmail(),
+				metadata.getSenderId());
 		String token = metadata.getSenderToken();
 		metadata.setConfirmedSenderId(metadata.getSenderId());
 		EnclosureRepresentation enclosureRepresentation = uploadServices.senderInfoWithTockenValidation(metadata,
@@ -157,6 +163,8 @@ public class UploadResources {
 	public ResponseEntity<Object> updateTimeStamp(HttpServletResponse response,
 			@RequestBody @Valid DateUpdateRequest dateUpdateRequest)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("update expired date for enclosure {} and new date {} ", dateUpdateRequest.getEnclosureId(),
+				dateUpdateRequest.getNewDate());
 		confirmationServices.validateAdminToken(dateUpdateRequest.getEnclosureId(), dateUpdateRequest.getToken(),
 				dateUpdateRequest.getSenderMail());
 
@@ -197,6 +205,7 @@ public class UploadResources {
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfo(HttpServletResponse response,
 			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("get file info from admin link for enclosure {} ", tokenEnclosureData.getEnclosure());
 		confirmationServices.validateAdminToken(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getToken(), null);
 		FileInfoRepresentation fileInfoRepresentation = uploadServices.getInfoPlis(tokenEnclosureData.getEnclosure());
 		response.setStatus(HttpStatus.OK.value());
@@ -208,6 +217,8 @@ public class UploadResources {
 	public FileInfoRepresentation fileInfoConnect(HttpServletResponse response,
 			@RequestParam("enclosure") String enclosureId, @RequestBody ValidateCodeResponse metadata)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("get file info for connect for enclosure {} and user mail {} ", enclosureId,
+				metadata.getSenderMail());
 		confirmationServices.validateAdminToken(enclosureId, metadata.getSenderToken(), metadata.getSenderMail());
 		// add validate token service b body
 		LOGGER.debug("-----------file-info connect-------- : {}", enclosureId);
@@ -220,6 +231,8 @@ public class UploadResources {
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfoReciever(HttpServletResponse response,
 			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("get file info for reciever for enclosure {} and user mail {} ", tokenEnclosureData.getEnclosure(),
+				tokenEnclosureData.getSenderMail());
 		confirmationServices.validateToken(tokenEnclosureData.getSenderMail().toLowerCase(),
 				tokenEnclosureData.getToken());
 		confirmationServices.extendsToken(tokenEnclosureData.getSenderMail().toLowerCase(),
@@ -237,6 +250,7 @@ public class UploadResources {
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
 			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("get plis sent for user mail {} ", metadata.getSenderMail());
 		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 		PlisPaginated listPlis = uploadServices.getSenderPlisList(metadata, page, size, searchedMail, dateDebut,
@@ -252,6 +266,7 @@ public class UploadResources {
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
 			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("get plis received for user mail {} ", metadata.getSenderMail());
 		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 
@@ -269,6 +284,7 @@ public class UploadResources {
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
 			@RequestParam(required = false) String objet, @RequestParam(required = false) String statut,
 			@RequestParam boolean isPliSent) throws UnauthorizedAccessException, MetaloadException, IOException {
+		LOGGER.info("get export plis for user mail {} ", metadata.getSenderMail());
 		confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 		confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 
@@ -284,6 +300,7 @@ public class UploadResources {
 	@Operation(method = "POST", description = "Download Info without URL ")
 	public String getUrlExport(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
 			@RequestParam String objectKey) throws UnauthorizedAccessException, MetaloadException, IOException {
+		LOGGER.info("get url export for export {} and user mail {} ", objectKey, metadata.getSenderMail());
 		if (metadata.getSenderMail() != null && metadata.getSenderToken() != null && objectKey != null
 				&& objectKey != "") {
 			confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
@@ -303,6 +320,8 @@ public class UploadResources {
 	public boolean addRecipient(HttpServletResponse response,
 			@RequestBody @Valid AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("add recipient for enclosure {} and recipient {} ",
+				addNewRecipientRequest.getEnclosureId(), addNewRecipientRequest.getNewRecipient());
 		confirmationServices.validateAdminToken(addNewRecipientRequest.getEnclosureId(),
 				addNewRecipientRequest.getToken(), addNewRecipientRequest.getSenderMail());
 
@@ -318,6 +337,8 @@ public class UploadResources {
 	public boolean deleteRecipient(HttpServletResponse response,
 			@RequestBody AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("delete recipient for enclosure {} and recipient {} ",
+				addNewRecipientRequest.getEnclosureId(), addNewRecipientRequest.getNewRecipient());
 		confirmationServices.validateAdminToken(addNewRecipientRequest.getEnclosureId(),
 				addNewRecipientRequest.getToken(), addNewRecipientRequest.getSenderMail());
 
@@ -333,6 +354,8 @@ public class UploadResources {
 	public boolean resendDownloadLink(HttpServletResponse response,
 			@RequestBody AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
+		LOGGER.info("resend download link for enclosure {} and recipient {} ",
+				addNewRecipientRequest.getEnclosureId(), addNewRecipientRequest.getNewRecipient());
 		confirmationServices.validateAdminToken(addNewRecipientRequest.getEnclosureId(),
 				addNewRecipientRequest.getToken(), addNewRecipientRequest.getSenderMail());
 

@@ -87,6 +87,8 @@ public class DownloadRessources {
 	@Operation(method = "POST", description = "Validate password")
 	public ValidatePasswordRepresentation validatePassword(@RequestBody @Valid ValidatePasswordMetaData metaData)
 			throws Exception {
+		LOGGER.info("validate password for enclosure id {} and recipient id {} ", metaData.getEnclosureId(),
+				metaData.getRecipientId());
 		ValidatePasswordRepresentation representation = new ValidatePasswordRepresentation();
 		try {
 			String recipientId = downloadServices.getRecipientId(metaData.getEnclosureId(), metaData.getRecipientId());
@@ -152,10 +154,11 @@ public class DownloadRessources {
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
 			RetryException {
-		confirmationServices.validateToken(tokenEnclosureData.getRecipient().toLowerCase(),
-				tokenEnclosureData.getToken());
 		LOGGER.info("start donwlowad info connect for recipient: {} and enclosure: {}",
 				tokenEnclosureData.getRecipient(), tokenEnclosureData.getEnclosure());
+		confirmationServices.validateToken(tokenEnclosureData.getRecipient().toLowerCase(),
+				tokenEnclosureData.getToken());
+
 		DownloadRepresentation downloadRepresentation = downloadServices
 				.getDownloadInfoConnect(tokenEnclosureData.getEnclosure(), tokenEnclosureData.getRecipient());
 		response.setStatus(HttpStatus.OK.value());
@@ -174,19 +177,9 @@ public class DownloadRessources {
 	@GetMapping("/download-count-public")
 	public String getDownloadCount(@RequestParam("enclosure") String enclosure, @RequestParam("token") String token)
 			throws DownloadException {
+		LOGGER.info("get download count for enclosure {} ", enclosure);
 		downloadServices.validateToken(enclosure, token);
 		return downloadServices.getNumberOfDownloadPublic(enclosure);
-	}
-
-	@PostMapping("/telechargerPliTest")
-	@Operation(method = "POST", description = "telechargerPli")
-	public String packageDownload(HttpServletResponse response, HttpServletRequest request,
-			@RequestParam(value = "idPli", required = true) String enclosureId,
-			@RequestParam(value = "courrielExpediteur", required = true) String senderMail,
-			@RequestParam(value = "motDePasse", required = false) String motDePasse)
-			throws MetaloadException, StatException {
-
-		return senderMail;
 	}
 
 }

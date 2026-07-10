@@ -72,6 +72,8 @@ public class PublicResources {
 			@Valid @RequestBody ValidateData metadata)
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
+		LOGGER.info("init pli for sender mail {} ", metadata.getSenderEmail());
+
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";
 		for (String header : forwardedHeaderName) {
@@ -111,6 +113,8 @@ public class PublicResources {
 			@RequestParam("courrielExpediteur") String senderId)
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
 
+		LOGGER.info("chargementPli for sender mail {} and enclosure id {} ", senderId, enclosureId);
+
 		ValidateUpload metadata = new ValidateUpload();
 		FileRepresentation rootFile = new FileRepresentation();
 
@@ -149,6 +153,8 @@ public class PublicResources {
 			@RequestParam(value = "courrielExpediteur", required = false) String senderMail)
 			throws ApiValidationException, MetaloadException {
 
+		LOGGER.info("statutPli for enclosure id {} and sender mail {} ", enclosureId, senderMail);
+
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";
 		for (String header : forwardedHeaderName) {
@@ -171,6 +177,8 @@ public class PublicResources {
 			@RequestParam(value = "idPli", required = false) String enclosureId,
 			@RequestParam(value = "courrielExpediteur", required = false) String senderMail)
 			throws ApiValidationException, MetaloadException, StatException {
+
+		LOGGER.info("donneesPli for enclosure id {} and sender mail {} ", enclosureId, senderMail);
 
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";
@@ -197,6 +205,8 @@ public class PublicResources {
 			@RequestParam(value = "courrielUtilisateur", required = true) String courrielUtilisateur)
 			throws UnauthorizedAccessException, MetaloadException, ApiValidationException {
 
+		LOGGER.info("mesPlis for user mail {} ", courrielUtilisateur);
+
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";
 		for (String header : forwardedHeaderName) {
@@ -218,6 +228,9 @@ public class PublicResources {
 			@RequestParam("idPli") String idPli, @RequestParam("courrielExpediteur") String courrielExpediteur,
 			@RequestParam("courrielUtilisateur") String courrielUtilisateur)
 			throws UnauthorizedAccessException, MetaloadException, ApiValidationException, StatException {
+
+		LOGGER.info("donneesPliDest for enclosure id {} and sender mail {} and user mail {} ", idPli,
+				courrielExpediteur, courrielUtilisateur);
 
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";
@@ -243,6 +256,8 @@ public class PublicResources {
 	public void majPreferenceDestinataire(HttpServletResponse response, HttpServletRequest request,
 			@RequestBody ValidateCanal metadata)
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
+
+		LOGGER.info("majPreferenceDestinataire for recipient mail {} ", metadata.getRecipient());
 
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";

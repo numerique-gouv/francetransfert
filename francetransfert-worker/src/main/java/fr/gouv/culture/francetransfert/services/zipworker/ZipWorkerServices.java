@@ -32,10 +32,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +63,8 @@ import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.services.StorageManager;
 import fr.gouv.culture.francetransfert.core.utils.Base64CryptoService;
 import fr.gouv.culture.francetransfert.core.utils.DateUtils;
+import fr.gouv.culture.francetransfert.core.utils.MdcKeys;
+import fr.gouv.culture.francetransfert.core.utils.MdcScope;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.exception.InvalidSizeTypeException;
 import fr.gouv.culture.francetransfert.model.Enclosure;
@@ -608,20 +612,24 @@ public class ZipWorkerServices {
 		List<CompletableFuture<Void>> futures = new ArrayList<>();
 
 		LOGGER.info("Start download for enclosure {}", enclosureId);
+		Map<String, String> mdcContext = MDC.getCopyOfContextMap();
 		AtomicBoolean failed = new AtomicBoolean(false);
 		for (String fileName : list) {
 			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-				if (failed.get()) {
-					return;
-				}
-				try (S3Object object = manager.getObjectByName(bucketName, fileName)) {
-					if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
-						writeFile(object, fileName);
+				try (MdcScope ignored = MdcScope.context(mdcContext)) {
+					if (failed.get()) {
+						return;
 					}
-				} catch (Exception e) {
-					failed.set(true);
-					LOGGER.error("Error during file download {} : {}", fileName, e.getMessage(), e);
-					throw new CompletionException(e);
+					try (S3Object object = manager.getObjectByName(bucketName, fileName)) {
+						if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\")
+								&& !fileName.endsWith("/")) {
+							writeFile(object, fileName);
+						}
+					} catch (Exception e) {
+						failed.set(true);
+						LOGGER.error("Error during file download {} : {}", fileName, e.getMessage(), e);
+						throw new CompletionException(e);
+					}
 				}
 			}, downloadExecutor);
 			futures.add(future);
@@ -659,24 +667,26 @@ public class ZipWorkerServices {
 	 * @throws IOException
 	 */
 	public void writeFile(S3Object object, String fileName) throws IOException {
-		LOGGER.info(" start download file : {}  to disk ", fileName);
-		String baseFolderName = getBaseFolderName();
-		File file = new File(baseFolderName + fileName);
-		LOGGER.debug("file exists: {} and file length: {} and object length: {}", file.exists(), file.length(),
-				object.getObjectMetadata().getContentLength());
-		if (file.exists() && object.getObjectMetadata().getContentLength() == FileUtils.sizeOf(file)) {
-			LOGGER.info(" file {} already exists, skipping download", fileName);
-			object.getObjectContent().abort();
-			return;
-		}
-		try (InputStream reader = new BufferedInputStream(object.getObjectContent());) {
-			file.getParentFile().mkdirs();
-			try (OutputStream writer = new BufferedOutputStream(new FileOutputStream(file));) {
-				int read = -1;
-				while ((read = reader.read()) != -1) {
-					writer.write(read);
+		try (MdcScope ignored = MdcScope.file(fileName, null)) {
+			LOGGER.info(" start download file : {}  to disk ", fileName);
+			String baseFolderName = getBaseFolderName();
+			File file = new File(baseFolderName + fileName);
+			LOGGER.debug("file exists: {} and file length: {} and object length: {}", file.exists(), file.length(),
+					object.getObjectMetadata().getContentLength());
+			if (file.exists() && object.getObjectMetadata().getContentLength() == FileUtils.sizeOf(file)) {
+				LOGGER.info(" file {} already exists, skipping download", fileName);
+				object.getObjectContent().abort();
+				return;
+			}
+			try (InputStream reader = new BufferedInputStream(object.getObjectContent());) {
+				file.getParentFile().mkdirs();
+				try (OutputStream writer = new BufferedOutputStream(new FileOutputStream(file));) {
+					int read = -1;
+					while ((read = reader.read()) != -1) {
+						writer.write(read);
+					}
+					writer.flush();
 				}
-				writer.flush();
 			}
 		}
 	}
@@ -697,13 +707,16 @@ public class ZipWorkerServices {
 				currentFileName = fileName;
 				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
 					String baseFolderName = getBaseFolderName();
-					try (FileInputStream fileInputStream = new FileInputStream(baseFolderName + fileName);) {
+					try (MdcScope scope = MdcScope.file(fileName, null);
+							FileInputStream fileInputStream = new FileInputStream(baseFolderName + fileName);) {
 
 						currentSize = fileInputStream.getChannel().size();
 
 						enclosureSize += currentSize;
 
-						checkSizeAndMimeType(currentFileName, enclosureSize, currentSize, fileInputStream);
+						String mimeType = mimeService.getMimeTypeFromFile(fileInputStream);
+						scope.put(MdcKeys.FILE_MIME_TYPE, mimeType);
+						checkSizeAndMimeType(currentFileName, enclosureSize, currentSize, fileInputStream, mimeType);
 					}
 				}
 			}
@@ -728,7 +741,8 @@ public class ZipWorkerServices {
 				currentFileName = fileName;
 				if (!fileName.endsWith(File.separator) && !fileName.endsWith("\\") && !fileName.endsWith("/")) {
 					String baseFolderName = getBaseFolderName();
-					try (FileInputStream fileInputStream = new FileInputStream(baseFolderName + fileName);) {
+					try (MdcScope ignored = MdcScope.file(fileName, null);
+							FileInputStream fileInputStream = new FileInputStream(baseFolderName + fileName);) {
 
 						FileChannel fileChannel = fileInputStream.getChannel();
 						if (fileChannel.size() <= scanMaxFileSize) {
@@ -762,11 +776,10 @@ public class ZipWorkerServices {
 	}
 
 	private void checkSizeAndMimeType(String currentFileName, long enclosureSize, long currentSize,
-			FileInputStream fileInputStream) throws IOException, InvalidSizeTypeException {
-		if (!mimeService.isAuthorisedMimeTypeFromFile(fileInputStream)) {
-			String mimetype = mimeService.getMimeTypeFromFile(fileInputStream);
-			String file = StringUtils.substringAfterLast(currentFileName, "/");
-			throw new InvalidSizeTypeException("File " + currentFileName + " as invalid mimetype : " + mimetype, file);
+			FileInputStream fileInputStream, String mimeType) throws IOException, InvalidSizeTypeException {
+		if (!mimeService.isAuthorisedMimeTypeFromMimeType(mimeType)) {
+			String file = FilenameUtils.getName(currentFileName);
+			throw new InvalidSizeTypeException("File " + currentFileName + " as invalid mimetype : " + mimeType, file);
 		}
 
 		if (currentSize > maxFileSize || enclosureSize > maxEnclosureSize) {

@@ -6,6 +6,12 @@
 			<includeMdcKeyName>correlationId</includeMdcKeyName>
 			<includeMdcKeyName>sessionId</includeMdcKeyName>
 			<includeMdcKeyName>callerIp</includeMdcKeyName>
+			<includeMdcKeyName>enclosureId</includeMdcKeyName>
+			<includeMdcKeyName>actingUser</includeMdcKeyName>
+			<includeMdcKeyName>connectedUser</includeMdcKeyName>
+			<includeMdcKeyName>fileName</includeMdcKeyName>
+			<includeMdcKeyName>fileMimeType</includeMdcKeyName>
+			<includeMdcKeyName>fileExtension</includeMdcKeyName>
         </encoder> 
 	</appender>
 

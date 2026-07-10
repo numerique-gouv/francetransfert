@@ -38,10 +38,8 @@ public class FranceTransfertDataRepresentation {
 	private int expireDelay;
 	private String senderId;
 	private String senderToken;
-	@Valid
-	private List<FileRepresentation> rootFiles;
-	@Valid
-	private List<DirectoryRepresentation> rootDirs;
+	private List<@Valid FileRepresentation> rootFiles;
+	private List<@Valid DirectoryRepresentation> rootDirs;
 
 	private Locale language;
 	private Boolean zipPassword;
