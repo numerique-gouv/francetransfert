@@ -34,6 +34,8 @@ import fr.gouv.culture.francetransfert.core.enums.GlimpsHealthCheckEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.exception.RetryGlimpsException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
+import fr.gouv.culture.francetransfert.core.utils.MdcKeys;
+import fr.gouv.culture.francetransfert.core.utils.MdcScope;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.model.GlimpsInitResponse;
 import fr.gouv.culture.francetransfert.model.GlimpsResultResponse;
@@ -96,7 +98,7 @@ public class GlimpsService {
 
 		ScanInfo glimps = new Gson().fromJson(glimpsJson, ScanInfo.class);
 
-		try {
+		try (MdcScope scope = MdcScope.file(glimps.getFilename(), glimps.getUuid())) {
 
 			ResponseEntity<GlimpsResultResponse> templateReturn = glimpsCall(enclosureId, glimps.getUuid());
 
@@ -106,7 +108,8 @@ public class GlimpsService {
 					&& templateReturn.getStatusCode().is2xxSuccessful()) {
 				LOGGER.info("Glimps scan done for enclosure {} - glimpsId {} - filename {}", enclosureId,
 						glimps.getUuid(), glimps.getFilename());
-				if ((StringUtils.isNotBlank(ret.getErrorCode()) && !allowCode.contains(ret.getErrorCode())) || !ret.isStatus()) {
+				if ((StringUtils.isNotBlank(ret.getErrorCode()) && !allowCode.contains(ret.getErrorCode()))
+						|| !ret.isStatus()) {
 					LOGGER.error("Error while scanning enclosure {} file {} / {}, Body : {}", enclosureId,
 							glimps.getUuid(), glimps.getFilename(), templateReturn.getBody());
 					boolean fatalError = false;
@@ -219,13 +222,15 @@ public class GlimpsService {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		String currentfileName = file.getPath().replace(getBaseFolderNameWithEnclosurePrefix(enclosureId), "");
 		String hash = "UNKNOWN";
-		try (FileInputStream fs = new FileInputStream(file)) {
+		try (MdcScope mdc = MdcScope.file(currentfileName, null);
+				FileInputStream fs = new FileInputStream(file)) {
 
 			hash = RedisUtils.generateHashSha256(fs);
+			mdc.put(MdcKeys.FILE_HASH, hash);
 
 			if (checkBeforeUpload(enclosureId, hash, currentfileName)) {
 
-				LOGGER.info("Hash already uploded {}",hash);
+				LOGGER.info("Hash already uploded {}", hash);
 				ScanInfo rec = ScanInfo.builder().filename(currentfileName).uuid(hash).build();
 				String jsonInString = new Gson().toJson(rec);
 				redisManager.hsetString(RedisKeysEnum.FT_ENCLOSURE_SCAN.getKey(enclosureId), hash, jsonInString, -1);

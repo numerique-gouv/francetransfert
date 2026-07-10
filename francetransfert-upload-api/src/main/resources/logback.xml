@@ -6,13 +6,19 @@
             <includeMdcKeyName>correlationId</includeMdcKeyName>
             <includeMdcKeyName>sessionId</includeMdcKeyName>
             <includeMdcKeyName>callerIp</includeMdcKeyName>
+            <includeMdcKeyName>enclosureId</includeMdcKeyName>
+            <includeMdcKeyName>actingUser</includeMdcKeyName>
+            <includeMdcKeyName>connectedUser</includeMdcKeyName>
+            <includeMdcKeyName>fileName</includeMdcKeyName>
+            <includeMdcKeyName>fileMimeType</includeMdcKeyName>
+            <includeMdcKeyName>fileExtension</includeMdcKeyName>
         </encoder>
     </appender>
 
     <appender name="PLAIN_TEXT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
-                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level [%X{correlationId:-N/A}] [%X{sessionId:-N/A}] [%X{callerIp:-N/A}] %logger{36} - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level [%X{correlationId:-N/A}] [%X{sessionId:-N/A}] [%X{callerIp:-N/A}] [%X{enclosureId:-N/A}] [%X{actingUser:-N/A}] [%X{connectedUser:-N/A}] [%X{fileName:-N/A}] [%X{fileMimeType:-N/A}] [%X{fileExtension:-N/A}] %logger{36} - %msg%n
             </Pattern>
         </layout>
     </appender>

@@ -60,7 +60,7 @@ public class SendEmailNotificationUploadDownloadTask implements Runnable {
 			mailAvailbleEnclosureServices.sendMailsAvailableEnclosure(Enclosure.build(enclosureId, redisManager),
 					newRec, Locale.FRENCH);
 		} catch (Exception e) {
-			LOGGER.error("[Worker] email notification error : " + e.getMessage(), e);
+			LOGGER.error("[Worker] email notification error for enclosure N° {} : " + e.getMessage(), enclosureId, e);
 		}
 	}
 }

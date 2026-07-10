@@ -32,6 +32,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -82,6 +83,8 @@ import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.services.StorageManager;
 import fr.gouv.culture.francetransfert.core.utils.Base64CryptoService;
 import fr.gouv.culture.francetransfert.core.utils.DateUtils;
+import fr.gouv.culture.francetransfert.core.utils.MdcKeys;
+import fr.gouv.culture.francetransfert.core.utils.MdcScope;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.core.utils.StringUploadUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExtensionNotFoundException;
@@ -246,7 +249,15 @@ public class UploadServices {
 			throws MetaloadException, RetryException, StorageException, RetryException, IOException,
 			ApiValidationException {
 
-		try {
+		try (MdcScope scope = new MdcScope()) {
+
+			String fileNameForMdc = multipartFile.getOriginalFilename();
+			String fileExtension = FilenameUtils.getExtension(fileNameForMdc);
+			String fileMimeType = multipartFile.getContentType();
+
+			scope.put(MdcKeys.FILE_NAME, fileNameForMdc);
+			scope.put(MdcKeys.FILE_EXTENSION, fileExtension);
+			scope.put(MdcKeys.FILE_MIME_TYPE, fileMimeType);
 
 			LOGGER.info("Start check for uploading File {} from enclosure {} - Chunk {}", flowIdentifier, enclosureId,
 					flowChunkNumber);
@@ -305,6 +316,7 @@ public class UploadServices {
 				}
 			}
 			return isUploaded;
+
 		} finally {
 			IOUtils.closeQuietly(multipartFile.getInputStream());
 		}
