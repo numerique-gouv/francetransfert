@@ -7,6 +7,8 @@
 
 package fr.gouv.culture.francetransfert.utils;
 
+import fr.gouv.culture.francetransfert.core.utils.MdcScope;
+
 public class MonitorRunnable implements Runnable {
 
 	private final Runnable runnable;
@@ -14,6 +16,8 @@ public class MonitorRunnable implements Runnable {
 	private final String queue;
 
 	private final String data;
+
+	private final String enclosureId;
 
 	public Runnable getRunnable() {
 		return runnable;
@@ -27,16 +31,25 @@ public class MonitorRunnable implements Runnable {
 		return data;
 	}
 
+	public String getEnclosureId() {
+		return enclosureId;
+	}
+
 	public MonitorRunnable(Runnable runnable, String queue, String data) {
+		this(runnable, queue, data, null);
+	}
+
+	public MonitorRunnable(Runnable runnable, String queue, String data, String enclosureId) {
 		this.runnable = runnable;
 		this.queue = queue;
 		this.data = data;
+		this.enclosureId = enclosureId;
 		WorkerUtils.activeTasks.add(this);
 	}
 
 	@Override
 	public void run() {
-		try {
+		try (MdcScope ignored = MdcScope.enclosure(enclosureId)) {
 			runnable.run();
 		} finally {
 			WorkerUtils.activeTasks.remove(this);

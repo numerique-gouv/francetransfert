@@ -325,8 +325,8 @@ public class ScheduledTasks {
 							String enclosureId = returnedBLPOPList.get(1);
 							SequestreWorkerTask task = new SequestreWorkerTask(enclosureId, sequestreBucket,
 									sequestreService);
-							sequestreWorkerExecutor.execute(
-									new MonitorRunnable(task, RedisQueueEnum.SEQUESTRE_QUEUE.getValue(), enclosureId));
+							sequestreWorkerExecutor.execute(new MonitorRunnable(task,
+									RedisQueueEnum.SEQUESTRE_QUEUE.getValue(), enclosureId, enclosureId));
 						}
 					} catch (Exception e) {
 						LOGGER.error("Error initStatWorker : " + e.getMessage(), e);
@@ -375,7 +375,7 @@ public class ScheduledTasks {
 							String enclosureId = returnedBLPOPList.get(1);
 							TempDataCleanupTask task = new TempDataCleanupTask(enclosureId, cleanUpServices);
 							TempDataCleanupWorkerExecutor.execute(new MonitorRunnable(task,
-									RedisQueueEnum.TEMP_DATA_CLEANUP_QUEUE.getValue(), enclosureId));
+									RedisQueueEnum.TEMP_DATA_CLEANUP_QUEUE.getValue(), enclosureId, enclosureId));
 						}
 					} catch (Exception e) {
 						LOGGER.error("Error initTempDataCleanupWorkers : " + e.getMessage(), e);
@@ -424,8 +424,8 @@ public class ScheduledTasks {
 							String enclosureId = returnedBLPOPList.get(1);
 							SendEmailNotificationUploadDownloadTask task = new SendEmailNotificationUploadDownloadTask(
 									enclosureId, redisManager, mailAvailbleEnclosureServices);
-							SendEmailNotificationUploadDownloadWorkerExecutor.execute(
-									new MonitorRunnable(task, RedisQueueEnum.MAIL_QUEUE.getValue(), enclosureId));
+							SendEmailNotificationUploadDownloadWorkerExecutor.execute(new MonitorRunnable(task,
+									RedisQueueEnum.MAIL_QUEUE.getValue(), enclosureId, enclosureId));
 						}
 					} catch (Exception e) {
 						LOGGER.error("Error initSendEmailNotificationUploadDownloadWorkers : " + e.getMessage(), e);
@@ -452,7 +452,7 @@ public class ScheduledTasks {
 							SendEmailNotificationUploadDownloadTask task = new SendEmailNotificationUploadDownloadTask(
 									enclosureId, dataRecipient, redisManager, mailAvailbleEnclosureServices);
 							SendEmailNotificationUploadDownloadWorkerExecutor.execute(new MonitorRunnable(task,
-									RedisQueueEnum.MAIL_NEW_RECIPIENT_QUEUE.getValue(), enclosureId));
+									RedisQueueEnum.MAIL_NEW_RECIPIENT_QUEUE.getValue(), enclosureId, enclosureId));
 
 						}
 					} catch (Exception e) {
@@ -477,8 +477,8 @@ public class ScheduledTasks {
 							if (!CollectionUtils.isEmpty(returnedBLPOPList)) {
 								String enclosureId = returnedBLPOPList.get(1);
 								ZipWorkerTask task = new ZipWorkerTask(enclosureId, zipWorkerServices);
-								zipWorkerExecutor.execute(
-										new MonitorRunnable(task, RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId));
+								zipWorkerExecutor.execute(new MonitorRunnable(task,
+										RedisQueueEnum.ZIP_QUEUE.getValue(), enclosureId, enclosureId));
 							}
 							// else {
 							// LOGGER.debug("Worker full putting back enclosure to queue {}", enclosureId);
@@ -570,7 +570,7 @@ public class ScheduledTasks {
 							String enclosureId = returnedBLPOPList.get(1);
 							CleanEnclosureTask task = new CleanEnclosureTask(enclosureId, cleanUpServices);
 							DeleteEnclosureWorkerExecutor.execute(new MonitorRunnable(task,
-									RedisQueueEnum.DELETE_ENCLOSURE_QUEUE.getValue(), enclosureId));
+									RedisQueueEnum.DELETE_ENCLOSURE_QUEUE.getValue(), enclosureId, enclosureId));
 						}
 					} catch (Exception e) {
 						LOGGER.error("Error initDeleteEnclosureWorkers : " + e.getMessage(), e);

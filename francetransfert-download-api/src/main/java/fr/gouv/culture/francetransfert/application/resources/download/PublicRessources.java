@@ -17,6 +17,8 @@ package fr.gouv.culture.francetransfert.application.resources.download;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -44,6 +46,8 @@ import jakarta.validation.Valid;
 @Validated
 public class PublicRessources {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PublicRessources.class);
+
 	@Autowired
 	DownloadServices downloadServices;
 
@@ -56,6 +60,9 @@ public class PublicRessources {
 	public Download generateDownloadUrlWithPassword(HttpServletResponse response, HttpServletRequest request,
 			@Valid @RequestBody DownloadPasswordMetaData downloadRequest)
 			throws ApiValidationException, MetaloadException, StatException {
+
+		LOGGER.info("telechargerPli for enclosure {} and recipient {} ", downloadRequest.getEnclosure(),
+				downloadRequest.getRecipient());
 
 		String headerAddr = request.getHeader(KEY);
 		String remoteAddr = "";

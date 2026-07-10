@@ -17,12 +17,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
  * The type Demo application.
  */
 @EnableMethodSecurity
 @SpringBootApplication
+@EnableAspectJAutoProxy
 public class FranceTransfertDownloadStarter {
 
 	@Autowired

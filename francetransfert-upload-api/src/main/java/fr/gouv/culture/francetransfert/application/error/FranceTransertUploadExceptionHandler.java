@@ -36,6 +36,7 @@ import fr.gouv.culture.francetransfert.core.error.ApiError;
 import fr.gouv.culture.francetransfert.core.error.ApiErrorFranceTransfert;
 import fr.gouv.culture.francetransfert.core.error.ApiValidationErrorReturn;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
+import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.BusinessDomainException;
@@ -93,6 +94,14 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 	public ResponseEntity<Object> handleRetryException(RetryException ex) {
 		LOG.error("Handle error type RetryException : " + ex.getMessage(), ex);
 		return generateError(ex, ErrorEnum.TECHNICAL_ERROR.getValue());
+	}
+
+	@ExceptionHandler(MetaloadException.class)
+	public ResponseEntity<Object> handleMetaloadException(MetaloadException ex) {
+		LOG.error("Handle error type MetaloadException : " + ex.getMessage(), ex);
+		return new ResponseEntity<>(
+				new ApiError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), ex.getId()),
+				HttpStatus.UNAUTHORIZED);
 	}
 
 	@ExceptionHandler(UnauthorizedAccessException.class)
@@ -281,4 +290,11 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 				HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
+	@ExceptionHandler({ Exception.class, RuntimeException.class })
+	public ResponseEntity<Object> handleException(Exception ex) {
+		LOG.error("Handle error type Exception : " + ex.getMessage(), ex);
+		return new ResponseEntity<>(
+				new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.toString(), ""),
+				HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }

@@ -37,34 +37,25 @@ public class MimeService {
 
     public Boolean isAuthorisedMimeTypeFromFileName(String filename) {
 
-        Boolean authorised = false;
         if (null == filename) { // test null parameter : file, flowFilename.
-            authorised = false;
+            return false;
         } else {
             String ext = FilenameUtils.getExtension(filename);
-            if (extensionList.contains(ext)) {
-                authorised = false;
-            } else {
-                authorised = true;
-            }
-            // WhiteList regex
-            // for (String extent : mimeList) {
-            //
-            // if (mimeType.matches(extent)) {
-            // authorised = true;
-            // break;
-            // }
-            // }
+            return isAuthorisedMimeTypeFromMimeType(ext);
         }
-        return authorised;
     }
 
     public Boolean isAuthorisedMimeTypeFromFile(FileInputStream fileInputStream) throws IOException {
 
-        Boolean authorised = false;
         String mimeType = tika.detect(fileInputStream);
+        return isAuthorisedMimeTypeFromMimeType(mimeType);
+    }
 
-        //BlackList
+    public Boolean isAuthorisedMimeTypeFromMimeType(String mimeType) {
+
+        Boolean authorised = false;
+
+        // BlackList
         authorised = !mimeList.stream().anyMatch(mime -> Strings.CI.startsWith(mimeType, mime));
 
         // WhiteList regex
