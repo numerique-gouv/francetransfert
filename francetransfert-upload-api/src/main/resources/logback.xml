@@ -2,16 +2,38 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>correlationId</includeMdcKeyName>
-            <includeMdcKeyName>sessionId</includeMdcKeyName>
-            <includeMdcKeyName>callerIp</includeMdcKeyName>
-            <includeMdcKeyName>enclosureId</includeMdcKeyName>
-            <includeMdcKeyName>actingUser</includeMdcKeyName>
-            <includeMdcKeyName>connectedUser</includeMdcKeyName>
-            <includeMdcKeyName>fileName</includeMdcKeyName>
-            <includeMdcKeyName>fileMimeType</includeMdcKeyName>
-            <includeMdcKeyName>fileExtension</includeMdcKeyName>
+            <customFields>{"logVariant":"compact"}</customFields>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT_ERROR_NO_STACK" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <stackTrace>[ignore]</stackTrace>
+            </fieldNames>
+            <customFields>{"logVariant":"compact"}</customFields>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT_ERROR_STACK" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"logVariant":"full"}</customFields>
         </encoder>
     </appender>
 
@@ -25,10 +47,14 @@
 
     <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT_ERROR_NO_STACK"/>
+        <appender-ref ref="STDOUT_ERROR_STACK"/>
     </root>
 
     <logger name="fr.gouv.culture.francetransfert" level="${FT_LOG_LEVEL}" additivity="false">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT_ERROR_NO_STACK"/>
+        <appender-ref ref="STDOUT_ERROR_STACK"/>
     </logger>
 
 </configuration>
