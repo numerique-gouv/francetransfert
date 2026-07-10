@@ -195,7 +195,7 @@ public class ZipWorkerServices {
 
 			if (StatutEnum.CHT.getCode().equals(encStatut)) {
 
-				LOGGER.info("[Worker] Start scan process for enclosur N°  {}", enclosureId);
+				LOGGER.info("[Worker] Start scan process for enclosure {}", enclosureId);
 
 				LOGGER.debug(" start copy files temp to disk and scan for vulnerabilities {} / {} - {} ++ {} ",
 						bucketName, list, enclosureId, bucketPrefix);

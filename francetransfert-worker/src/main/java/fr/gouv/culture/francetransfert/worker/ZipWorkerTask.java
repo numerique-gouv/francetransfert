@@ -37,15 +37,15 @@
   
 	  @Override
 	  public void run() {
-		  LOGGER.debug("[Worker] Start zip task for enclosur N°  {}", enclosureId);
+		  LOGGER.debug("[Worker] Start zip task for enclosure {}", enclosureId);
 		  try {
 			  LOGGER.debug("ThreadName: " + Thread.currentThread().getName() + " | ThreadId: "
 					  + Thread.currentThread().getId());
 			  zipWorkerServices.startZip(enclosureId);
 		  } catch (Exception e) {
-			  LOGGER.error("[Worker] Zip worker error for enclosur N°  {} : " + e.getMessage(), enclosureId, e);
+			  LOGGER.error("[Worker] Zip worker error for enclosure {} : " + e.getMessage(), enclosureId, e);
 		  }
-		  LOGGER.debug("[Worker] End zip task for enclosur N°  {}", enclosureId);
+		  LOGGER.debug("[Worker] End zip task for enclosure {}", enclosureId);
 		  LOGGER.debug("ThreadName: " + Thread.currentThread().getName() + " | ThreadId: "
 				  + Thread.currentThread().getId() + " IS DEAD");
 	  }

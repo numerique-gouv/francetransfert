@@ -154,7 +154,7 @@ public class DownloadRessources {
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
 			RetryException {
-		LOGGER.info("start donwlowad info connect for recipient: {} and enclosure: {}",
+		LOGGER.info("start download info connect for recipient: {} and enclosure: {}",
 				tokenEnclosureData.getRecipient(), tokenEnclosureData.getEnclosure());
 		confirmationServices.validateToken(tokenEnclosureData.getRecipient().toLowerCase(),
 				tokenEnclosureData.getToken());
