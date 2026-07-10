@@ -716,6 +716,7 @@ public class ZipWorkerServices {
 
 						String mimeType = mimeService.getMimeTypeFromFile(fileInputStream);
 						scope.put(MdcKeys.FILE_MIME_TYPE, mimeType);
+						customMetricsService.incrementMimeType(mimeType);
 						checkSizeAndMimeType(currentFileName, enclosureSize, currentSize, fileInputStream, mimeType);
 					}
 				}
