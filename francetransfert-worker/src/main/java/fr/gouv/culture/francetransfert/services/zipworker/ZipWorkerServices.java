@@ -780,10 +780,12 @@ public class ZipWorkerServices {
 			FileInputStream fileInputStream, String mimeType) throws IOException, InvalidSizeTypeException {
 		if (!mimeService.isAuthorisedMimeTypeFromMimeType(mimeType)) {
 			String file = FilenameUtils.getName(currentFileName);
+			LOGGER.error("File " + currentFileName + " as invalid mimetype : " + mimeType, file);
 			throw new InvalidSizeTypeException("File " + currentFileName + " as invalid mimetype : " + mimeType, file);
 		}
 
 		if (currentSize > maxFileSize || enclosureSize > maxEnclosureSize) {
+			LOGGER.error("File " + currentFileName + " or enclose is too big");
 			throw new InvalidSizeTypeException("File " + currentFileName + " or enclose is too big");
 		}
 	}

@@ -149,7 +149,7 @@ public class UploadResources {
 	@Operation(method = "GET", description = "Generate delete URL ")
 	public EnclosureRepresentation deleteFile(HttpServletResponse response, @RequestBody DeleteRequest deleteRequest)
 			throws MetaloadException {
-		LOGGER.info("start delete file {}", deleteRequest.getEnclosureId());
+		LOGGER.info("start delete enclosure {}", deleteRequest.getEnclosureId());
 		confirmationServices.validateAdminToken(deleteRequest.getEnclosureId(), deleteRequest.getToken(),
 				deleteRequest.getSenderMail());
 		uploadServices.validateExpirationDate(deleteRequest.getEnclosureId());
