@@ -2,30 +2,59 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>correlationId</includeMdcKeyName>
-            <includeMdcKeyName>sessionId</includeMdcKeyName>
-            <includeMdcKeyName>callerIp</includeMdcKeyName>
-            <includeMdcKeyName>enclosureId</includeMdcKeyName>
-            <includeMdcKeyName>actingUser</includeMdcKeyName>
-            <includeMdcKeyName>connectedUser</includeMdcKeyName>
+            <customFields>{"logVariant":"compact"}</customFields>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT_ERROR_NO_STACK" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <stackTrace>[ignore]</stackTrace>
+            </fieldNames>
+            <customFields>{"logVariant":"compact"}</customFields>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT_ERROR_STACK" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"logVariant":"full"}</customFields>
         </encoder>
     </appender>
 
     <appender name="PLAIN_TEXT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
-                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level [%X{correlationId:-N/A}] [%X{sessionId:-N/A}] [%X{callerIp:-N/A}] [%X{enclosureId:-N/A}] [%X{actingUser:-N/A}] [%X{connectedUser:-N/A}] %logger{36} - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss}[%thread]%-5level [%X{correlationId:-N/A}] [%X{sessionId:-N/A}] [%X{callerIp:-N/A}] [%X{enclosureId:-N/A}] [%X{actingUser:-N/A}] [%X{connectedUser:-N/A}] [%X{fileName:-N/A}] [%X{fileMimeType:-N/A}] [%X{fileExtension:-N/A}] %logger{36} - %msg%n
             </Pattern>
         </layout>
     </appender>
 
     <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT_ERROR_NO_STACK"/>
+        <appender-ref ref="STDOUT_ERROR_STACK"/>
     </root>
 
     <logger name="fr.gouv.culture.francetransfert" level="${FT_LOG_LEVEL}" additivity="false">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT_ERROR_NO_STACK"/>
+        <appender-ref ref="STDOUT_ERROR_STACK"/>
     </logger>
 
 </configuration>
