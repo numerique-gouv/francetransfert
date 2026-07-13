@@ -8,8 +8,10 @@
 package fr.gouv.culture.francetransfert.application.configuration;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,13 +29,17 @@ public class CorrelationIdMdcFilter extends OncePerRequestFilter {
 
 	private final CorrelationIdResolver correlationIdResolver;
 
+	@Value("${forwarded.header.name:X-Forwarded-For}")
+	private List<String> forwardedHeaderNames;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String correlationId = correlationIdResolver.resolveCorrelationId(request.getHeader(MdcKeys.CORRELATION_ID_HEADER));
 		String sessionId = correlationIdResolver.resolveSessionId(request.getHeader(MdcKeys.SESSION_ID_HEADER));
-		String callerIp = correlationIdResolver.resolveCallerIp(request.getHeader(MdcKeys.FORWARDED_FOR_HEADER),
-				request.getHeader(MdcKeys.REAL_IP_HEADER), request.getRemoteAddr());
+		String callerIp = correlationIdResolver.resolveCallerIp(
+				forwardedHeaderNames.stream().map(request::getHeader).toList(),
+				request.getRemoteAddr());
 
 		response.setHeader(MdcKeys.CORRELATION_ID_HEADER, correlationId);
 		response.setHeader(MdcKeys.SESSION_ID_HEADER, sessionId);

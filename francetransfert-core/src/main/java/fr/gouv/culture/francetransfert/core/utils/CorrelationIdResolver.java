@@ -7,6 +7,7 @@
 
 package fr.gouv.culture.francetransfert.core.utils;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -26,12 +27,13 @@ public class CorrelationIdResolver {
 		return StringUtils.hasText(sessionIdHeader) ? sessionIdHeader.trim() : UUID.randomUUID().toString();
 	}
 
-	public String resolveCallerIp(String forwardedForHeader, String realIpHeader, String remoteAddr) {
-		if (StringUtils.hasText(forwardedForHeader)) {
-			return sanitizeCallerIp(forwardedForHeader.split(",")[0].trim(), remoteAddr);
-		}
-		if (StringUtils.hasText(realIpHeader)) {
-			return sanitizeCallerIp(realIpHeader.trim(), remoteAddr);
+	public String resolveCallerIp(List<String> forwardedForValues, String remoteAddr) {
+		if (forwardedForValues != null) {
+			for (String value : forwardedForValues) {
+				if (StringUtils.hasText(value)) {
+					return sanitizeCallerIp(value.split(",")[0].trim(), remoteAddr);
+				}
+			}
 		}
 		return sanitizeCallerIp(remoteAddr, "-");
 	}
