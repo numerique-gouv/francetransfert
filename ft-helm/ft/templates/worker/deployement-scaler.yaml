@@ -102,14 +102,14 @@ spec:
                   requests:
                     storage: {{ .Values.worker.tmp.persistentVolumeClaim.storage }}
       topologySpreadConstraints:
-        - maxSkew: 1
+        - maxSkew: 2
           topologyKey: kubernetes.io/hostname
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
               appfamily: worker
         - minDomains: 3
-          maxSkew: 1
+          maxSkew: 2
           topologyKey: topology.kubernetes.io/zone
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
