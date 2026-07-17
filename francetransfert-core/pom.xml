@@ -15,7 +15,9 @@
 		</repository>
 	</distributionManagement>
 	<properties>
-		<log4j2.version>2.17.1</log4j2.version>
+		<!-- <log4j2.version>2.26.1</log4j2.version> -->
+		<!-- <jackson-bom.version>3.2.1</jackson-bom.version> -->
+		<jackson.version>2.21.5</jackson.version>
 		<java.version>25</java.version>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -165,12 +167,12 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.5.33</version>
+			<version>1.5.34</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.33</version>
+			<version>1.5.34</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
@@ -180,7 +182,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.21.1</version>
+			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.redisson</groupId>

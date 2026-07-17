@@ -96,9 +96,12 @@ public class UploadResources {
 			@RequestParam("flowTotalSize") int flowTotalSize, @RequestParam("flowIdentifier") String flowIdentifier,
 			@RequestParam("flowFilename") String flowFilename,
 			@RequestParam("flowRelativePath") String flowRelativePath,
-			@RequestParam("flowTotalChunks") int flowTotalChunks, @RequestParam("enclosureId") String enclosureId) {
+			@RequestParam("flowTotalChunks") int flowTotalChunks, @RequestParam("enclosureId") String enclosureId,
+			@RequestParam("senderId") String senderId,
+			@RequestParam("senderToken") String senderToken) throws MetaloadException {
 		LOGGER.info("check if chunk exists for enclosure {} and flow identifier {} and flow chunk number {} ",
 				enclosureId, flowIdentifier, flowChunkNumber);
+		confirmationServices.validateToken(senderId, senderToken);
 		if (uploadServices.chunkExists(flowChunkNumber, enclosureId, flowIdentifier)) {
 			return true;
 		} else {
