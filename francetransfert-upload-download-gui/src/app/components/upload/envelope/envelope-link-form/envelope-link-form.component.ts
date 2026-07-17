@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, S
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { LinkInfosModel } from 'src/app/models';
 import { UploadManagerService, UploadService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
@@ -52,7 +52,7 @@ export class EnvelopeLinkFormComponent implements OnInit, OnDestroy {
           this.envelopeLinkForm.get('from').setValue(mailSend, { emitEvent: true, onlySelf: false });
         }
       });
-    this.envelopeLinkFormChangeSubscription = this.envelopeLinkForm.valueChanges
+    this.envelopeLinkFormChangeSubscription = this.envelopeLinkForm.valueChanges.pipe(debounceTime(200), distinctUntilChanged())
       .subscribe(() => {
         this.checkEmitter();
         this.uploadManagerService.envelopeInfos.next({ type: 'link', ...this.envelopeLinkForm.value, ...this.uploadManagerService.envelopeInfos.getValue()?.parameters ? { parameters: this.uploadManagerService.envelopeInfos.getValue().parameters } : {} });
