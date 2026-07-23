@@ -682,12 +682,14 @@ public class UploadServices {
 			RedisForUploadUtils.createRootDirs(redisManager, metadata, enclosureId);
 			LOGGER.debug("create contents-files-ids metadata in redis ");
 			RedisForUploadUtils.createContentFilesIds(redisManager, metadata, enclosureId);
-			LOGGER.info("enclosure id : {} and the sender id : {} and senderMail : {}", enclosureId, senderId,
-					metadata.getSenderEmail());
-			RedisForUploadUtils.createDeleteToken(redisManager, enclosureId);
+			try (MdcScope scope = MdcScope.enclosure(enclosureId).put(MdcKeys.RECIPIENT, metadata.getSenderEmail())) {
+				LOGGER.info("enclosure id : {} and the sender id : {} and senderMail : {}", enclosureId, senderId,
+						metadata.getSenderEmail());
+				RedisForUploadUtils.createDeleteToken(redisManager, enclosureId);
 
-			return EnclosureRepresentation.builder().enclosureId(enclosureId).senderId(senderId).expireDate(expireDate)
-					.canUpload(Boolean.TRUE).build();
+				return EnclosureRepresentation.builder().enclosureId(enclosureId).senderId(senderId)
+						.expireDate(expireDate).canUpload(Boolean.TRUE).build();
+			}
 		} catch (Exception e) {
 			String uuid = UUID.randomUUID().toString();
 			throw new UploadException("Error generating Metadata", uuid, e);
