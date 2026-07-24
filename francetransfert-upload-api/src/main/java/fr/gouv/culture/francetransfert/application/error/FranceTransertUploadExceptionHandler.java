@@ -267,6 +267,7 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 	public ResponseEntity<ApiValidationErrorReturn> ApiValidationException(ApiValidationException ex) {
 		ApiValidationErrorReturn ret = new ApiValidationErrorReturn();
 		ret.setErreurs(ex.getErreurs());
+		LOG.error("Handle error type ApiValidationException : " + ex.getMessage(), ex);
 		return new ResponseEntity<ApiValidationErrorReturn>(ret, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
@@ -284,6 +285,7 @@ public class FranceTransertUploadExceptionHandler extends ResponseEntityExceptio
 		}
 
 		String paramName = ex.getParameterName();
+		LOG.error("Handle error type MissingServletRequestParameterException : " + ex.getMessage(), ex);
 		return new ResponseEntity<>(
 				new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(),
 						"Missing required request parameter: " + paramName, ""),
