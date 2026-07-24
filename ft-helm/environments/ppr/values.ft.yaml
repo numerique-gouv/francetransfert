@@ -183,6 +183,7 @@ redis:
       # appendfsync: "no"
       # --------------------------------
       # normal
+      loglevel: "verbose"
       appendonly: "yes"
       aof-use-rdb-preamble: "yes"
       dbfilename: "ftr-data.rdb"
