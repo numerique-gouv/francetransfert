@@ -112,26 +112,46 @@ public class UploadResources {
 
 	@PostMapping("/upload")
 	@Operation(method = "POST", description = "Upload  ")
-	public void processUpload(HttpServletResponse response, @RequestParam("flowChunkNumber") int flowChunkNumber,
-			@RequestParam("flowTotalChunks") int flowTotalChunks, @RequestParam("flowChunkSize") long flowChunkSize,
-			@RequestParam("flowTotalSize") long flowTotalSize, @RequestParam("flowIdentifier") String flowIdentifier,
-			@RequestParam("flowFilename") String flowFilename, @RequestParam("file") MultipartFile file,
-			@RequestParam("enclosureId") String enclosureId, @RequestParam("senderId") String senderId,
-			@RequestParam("senderToken") String senderToken)
-			throws MetaloadException, StorageException, RetryException {
-
-		LOGGER.info("upload file for enclosure {} , flow identifier {} chunk number {}", enclosureId, flowIdentifier,
-				flowChunkNumber);
-
-		if (flowTotalSize > uploadFileLimitSize) {
+	public void processUpload(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@RequestParam(value = "flowChunkNumber", required = false) Integer flowChunkNumber,
+			@RequestParam(value = "flowTotalChunks", required = false) Integer flowTotalChunks,
+			@RequestParam(value = "flowChunkSize", required = false) Long flowChunkSize,
+			@RequestParam(value = "flowTotalSize", required = false) Long flowTotalSize,
+			@RequestParam(value = "flowIdentifier", required = false) String flowIdentifier,
+			@RequestParam(value = "flowFilename", required = false) String flowFilename,
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "enclosureId", required = false) String enclosureId,
+			@RequestParam(value = "senderId", required = false) String senderId,
+			@RequestParam(value = "senderToken", required = false) String senderToken)
+			throws MetaloadException, StorageException, RetryException, Exception {
+		if (flowChunkNumber == null || flowTotalChunks == null || flowIdentifier == null
+				|| enclosureId == null || senderId == null || senderToken == null
+				|| file == null || file.isEmpty()) {
+			LOGGER.error(
+					"Invalid upload chunk request. flowChunkNumber={}, flowTotalChunks={}, flowIdentifier={}, "
+							+ "enclosureId={}, senderId={}, hasFile={}, ua={}, contentType={}, query={}",
+					flowChunkNumber, flowTotalChunks, flowIdentifier, enclosureId, senderId,
+					file != null && !file.isEmpty(),
+					request.getHeader("User-Agent"),
+					request.getContentType(),
+					request.getQueryString());
+			// Request get contentbody
+			String contentBody = request.getReader().readLine();
+			LOGGER.error("Content body: {}", contentBody);
+			response.setStatus(HttpStatus.BAD_REQUEST.value());
+			return;
+		}
+		if (flowTotalSize != null && flowTotalSize > uploadFileLimitSize) {
 			response.setStatus(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value());
 			return;
 		}
-
-		uploadServices.processPrivateUpload(flowChunkNumber, flowTotalChunks, flowIdentifier, file, enclosureId,
-				senderId, senderToken);
+		LOGGER.info("upload file for enclosure {} , flow identifier {} chunk number {}",
+				enclosureId, flowIdentifier, flowChunkNumber);
+		uploadServices.processPrivateUpload(
+				flowChunkNumber, flowTotalChunks, flowIdentifier, file, enclosureId, senderId, senderToken);
 		response.setStatus(HttpStatus.OK.value());
-
 	}
 
 	@PostMapping("/sender-info")
