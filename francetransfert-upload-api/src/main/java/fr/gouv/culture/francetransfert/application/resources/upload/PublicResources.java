@@ -7,6 +7,7 @@
 
 package fr.gouv.culture.francetransfert.application.resources.upload;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class PublicResources {
 			LOGGER.debug("remoteAddr: {}", remoteAddr);
 			LOGGER.debug("getRemoteAddr: {}", request.getRemoteAddr());
 			request.getHeaderNames().asIterator().forEachRemaining(header -> {
-				LOGGER.debug("header: {} = {}", header, request.getHeader(header.toString()));
+				LOGGER.debug("header: {} = {}", header, Collections.list(request.getHeaders(header.toString())));
 			});
 		}
 
