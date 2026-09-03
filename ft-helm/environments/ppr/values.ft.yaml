@@ -147,7 +147,7 @@ clamav:
 
 redis:
   image:
-    tag: 8.10-alpine
+    tag: 8.10.1-alpine
   auth: true
   existingSecret: "ft-secret-app"
   authKey: METALOAD_PASSWORD
@@ -183,7 +183,6 @@ redis:
       # appendfsync: "no"
       # --------------------------------
       # normal
-      loglevel: "verbose"
       appendonly: "yes"
       aof-use-rdb-preamble: "yes"
       dbfilename: "ftr-data.rdb"
@@ -231,7 +230,7 @@ redis:
     maxUnavailable: 1
 
 mailhog:
-  enable: true
+  enable: false
   replicaCount: 1
   image:
     repository: mailhog/mailhog
@@ -467,7 +466,7 @@ worker:
         path: /actuator/health
         port: 8380
       initialDelaySeconds: 5
-      periodSeconds: 10 
+      periodSeconds: 10
       timeoutSeconds: 15
       failureThreshold: 15
     livenessProbe:
@@ -607,6 +606,75 @@ worker:
             value: 1
             periodSeconds: 600
 
+gateway:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-envoy-prod
+  gateway:
+    name: "platform-gateway"
+    namespace: "envoy-gateway-system"
+  hosts:
+    - envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
+  httproute:
+    annotations:
+      external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+      external-dns.alpha.kubernetes.io/ttl: "10"
+    upload:
+      annotations: 
+        external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+        external-dns.alpha.kubernetes.io/ttl: "10"
+  envoyGateway:
+    clientTrafficPolicy:
+      bufferLimit: "200Mi"
+    upload:
+      clientTrafficPolicy:
+        bufferLimit: "200Mi"
+      backendTrafficPolicy:
+        requestBufferLimit: "200Mi"
+    securityPolicy:
+      ipAllowList:
+        - 185.24.186.71/32
+        - 178.33.22.0/26
+        - 185.179.148.0/22
+        - 185.231.164.0/22
+        - 195.216.140.106/32
+        - 94.231.41.182/32
+        - 199.83.128.0/21
+        - 198.143.32.0/19
+        - 149.126.72.0/21
+        - 103.28.248.0/22
+        - 185.11.124.0/22
+        - 192.230.64.0/18
+        - 45.64.64.0/22
+        - 107.154.0.0/16
+        - 45.60.0.0/16
+        - 45.223.0.0/16
+        - 131.125.128.0/17
+    customResponseHeaders:
+      Referrer-Policy: "strict-origin-when-cross-origin;"
+      Strict-Transport-Security: "\"max-age=31449600; includeSubDomains\" always;"
+      X-Content-Type-Options: "nosniff;"
+      X-Frame-Options: "\"ALLOW-FROM https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr\";"
+      X-XSS-Protection: "\"1; mode=block\";"
+      Content-Security-Policy: "\"default-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat ; connect-src *; script-src-elem 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' ; font-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat ; frame-ancestors 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat; frame-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat https://francetransfert.crisp.help ; style-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat 'unsafe-inline'; img-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat https://image.crisp.chat data: ;\" always;"
+  coraza:
+    enabled: true
+    dynamicModule:
+      - name: composer
+        filterName: coraza-waf
+        config:
+          directives:
+            - Include @coraza.conf
+            - SecRuleEngine DetectionOnly
+            - SecResponseBodyAccess Off
+            - Include @crs-setup.conf
+            - Include @owasp_crs/*.conf
+            - SecAuditEngine RelevantOnly
+            - SecAuditLog /dev/stdout
+            - SecAuditLogType Serial
+            - SecAuditLogFormat JSON
+            - SecAuditLogParts AJHZ
+
 ingress:
   enabled: true
   className: "nginx"
@@ -703,7 +771,7 @@ dex:
     requests:
       cpu: 100m
       memory: 128Mi
-  volumes: 
+  volumes:
     - name: tmp
       emptyDir:
         sizeLimit: 250Mi
@@ -729,4 +797,3 @@ benchmark:
   persistentVolumeClaim:
     storage: 200Gi
     storageClassName: bsu-gp2
-

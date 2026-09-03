@@ -342,6 +342,9 @@ worker:
     cpu:
       averageUtilization: 80
 
+gateway:
+  enbaled: false
+
 ingress:
   enabled: true
   className: "nginx"
