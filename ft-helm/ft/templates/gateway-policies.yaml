@@ -1,0 +1,70 @@
+{{- if .Values.gateway.enabled }}
+# apiVersion: gateway.envoyproxy.io/v1alpha1
+# kind: ClientTrafficPolicy
+# metadata:
+#   name: {{ include "france-transfert.fullname" . }}-client-policy
+# spec:
+#   targetRefs:
+#     - group: gateway.networking.k8s.io
+#       kind: ListenerSet
+#       name: {{ include "france-transfert.fullname" . }}-listeners
+#   {{- with .Values.gateway.envoyGateway.clientTrafficPolicy }}
+#   {{- if .bufferLimit }}
+#   connection:
+#     bufferLimit: {{ .bufferLimit | quote }}
+#   {{- end }}
+#   {{- end }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-client-policy-upload
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ include "france-transfert.fullname" . }}-listeners
+  {{- with .Values.gateway.envoyGateway.upload.clientTrafficPolicy }}
+  {{- if .bufferLimit }}
+  connection:
+    bufferLimit: {{ .bufferLimit | quote }}
+  {{- end }}
+  {{- end }}
+{{- with .Values.gateway.envoyGateway.upload.backendTrafficPolicy }}
+{{- if .requestBufferLimit }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ include "france-transfert.fullname" $ }}-backend-policy-upload
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: {{ include "france-transfert.fullname" $ }}-rt-upload
+  requestBuffer:
+    limit: {{ .requestBufferLimit | quote }}
+{{- end }}
+{{- end }}
+---
+{{- if .Values.gateway.envoyGateway.securityPolicy.ipAllowList }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-security-policy
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ include "france-transfert.fullname" . }}-listeners
+  authorization:
+    defaultAction: Deny
+    rules:
+      - action: Allow
+        principal:
+          clientCIDRs:
+            {{- range .Values.gateway.envoyGateway.securityPolicy.ipAllowList }}
+            - {{ . | quote }}
+            {{- end }}
+{{- end }}
+{{- end }}

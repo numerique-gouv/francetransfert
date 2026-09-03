@@ -53,6 +53,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/*
 Create the name of the service account to use
 */}}
+{{- define "france-transfert.responseHeaderFilter" -}}
+{{- if .Values.gateway.envoyGateway.customResponseHeaders }}
+filters:
+  - type: ResponseHeaderModifier
+    responseHeaderModifier:
+      set:
+        {{- range $name, $value := .Values.gateway.envoyGateway.customResponseHeaders }}
+        - name: {{ $name }}
+          value: {{ $value | quote }}
+        {{- end }}
+{{- end }}
+{{- end }}
+
 {{- define "france-transfert.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
 {{- default (include "france-transfert.fullname" .) .Values.serviceAccount.name }}

@@ -1,0 +1,161 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-rt-https-redirect
+spec:
+  parentRefs:
+    {{- range $idx, $_ := .Values.gateway.hosts }}
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ include "france-transfert.fullname" $ }}-listeners
+      sectionName: http-{{ $idx }}
+    {{- end }}
+  hostnames:
+    {{- range .Values.gateway.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-rt
+  {{- with .Values.gateway.httproute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- range $idx, $_ := .Values.gateway.hosts }}
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ include "france-transfert.fullname" $ }}-listeners
+      sectionName: https-{{ $idx }}
+    {{- end }}
+  rules:
+    {{- if .Values.mailhog.enable }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-mailhog-service
+          port: {{ .Values.mailhog.service.portHttp }}
+    {{- end }}
+    {{- if not .Values.maintenance.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-private/confirmation-module/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-upload-service
+          port: {{ .Values.upload.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-private/heathcheck/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-upload-service
+          port: {{ .Values.upload.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-private/download-module/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-download-service
+          port: {{ .Values.download.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-angular-service
+          port: {{ .Values.front.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    {{- if .Values.dex.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-dex
+          port: {{ .Values.dex.service.ports.http.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.maintenance.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: maintenance
+          port: 8080
+    {{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-rt-upload
+  {{- with .Values.gateway.httproute.upload.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- range $idx, $_ := .Values.gateway.hosts }}
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ include "france-transfert.fullname" $ }}-listeners
+      sectionName: https-{{ $idx }}
+    {{- end }}
+  rules:
+    {{- if not .Values.maintenance.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-private/upload-module/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-upload-service
+          port: {{ .Values.upload.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-public/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-upload-service
+          port: {{ .Values.upload.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api-public-dl/
+      backendRefs:
+        - name: {{ include "france-transfert.fullname" . }}-download-service
+          port: {{ .Values.download.service.port }}
+      {{- include "france-transfert.responseHeaderFilter" $ | nindent 6 }}
+    {{- end }}
+    {{- if .Values.maintenance.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /maintenance
+      backendRefs:
+        - name: maintenance
+          port: 8080
+    {{- end }}
+{{- end }}

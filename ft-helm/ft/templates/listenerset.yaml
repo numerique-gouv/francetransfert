@@ -1,0 +1,35 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: {{ include "france-transfert.fullname" . }}-listeners
+  annotations:
+    {{- toYaml .Values.gateway.annotations | nindent 4 }}
+spec:
+  parentRef:
+    name: {{ .Values.gateway.gateway.name }}
+    namespace: {{ .Values.gateway.gateway.namespace }}
+    kind: Gateway
+    group: gateway.networking.k8s.io
+  listeners:
+    {{- range $idx, $host := .Values.gateway.hosts }}
+    - name: "https-{{ $idx }}"
+      hostname: {{ $host | quote }}
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: "https-{{ $idx }}"
+      allowedRoutes:
+         namespaces:
+           from: Same
+    - name: "http-{{ $idx }}"
+      hostname: {{ $host | quote }}
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+         namespaces:
+           from: Same
+    {{- end }}
+{{- end }}
