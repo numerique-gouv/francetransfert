@@ -265,7 +265,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: ppr
+    tag: 4.0.18
     imagePullPolicy: Always
   service:
     port: 8080
@@ -313,7 +313,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: ppr
+    tag: 4.0.18
     imagePullPolicy: Always
   service:
     port: 8080
@@ -401,7 +401,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: ppr
+    tag: 4.0.18
     imagePullPolicy: Always
   service:
     port: 8081
@@ -480,7 +480,7 @@ worker:
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: ppr
+    tag: 4.0.18
     imagePullPolicy: Always
   resources:
     requests:
@@ -607,9 +607,73 @@ worker:
             periodSeconds: 600
 
 gateway:
-  enabled: false
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-envoy-prod
+  gateway:
+    name: "platform-gateway"
+    namespace: "envoy-gateway-system"
+  hosts:
+    - envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
+  httproute:
+    annotations:
+      external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+      external-dns.alpha.kubernetes.io/ttl: "10"
+    upload:
+      annotations: 
+        external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+        external-dns.alpha.kubernetes.io/ttl: "10"
+  envoyGateway:
+    clientTrafficPolicy:
+      bufferLimit: "200Mi"
+    upload:
+      clientTrafficPolicy:
+        bufferLimit: "200Mi"
+      backendTrafficPolicy:
+        requestBufferLimit: "200Mi"
+    securityPolicy:
+      ipAllowList:
+        - 185.24.186.71/32
+        - 178.33.22.0/26
+        - 185.179.148.0/22
+        - 185.231.164.0/22
+        - 195.216.140.106/32
+        - 94.231.41.182/32
+        - 199.83.128.0/21
+        - 198.143.32.0/19
+        - 149.126.72.0/21
+        - 103.28.248.0/22
+        - 185.11.124.0/22
+        - 192.230.64.0/18
+        - 45.64.64.0/22
+        - 107.154.0.0/16
+        - 45.60.0.0/16
+        - 45.223.0.0/16
+        - 131.125.128.0/17
+    customResponseHeaders:
+      Referrer-Policy: "strict-origin-when-cross-origin;"
+      Strict-Transport-Security: "\"max-age=31449600; includeSubDomains\" always;"
+      X-Content-Type-Options: "nosniff;"
+      X-Frame-Options: "\"ALLOW-FROM https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr\";"
+      X-XSS-Protection: "\"1; mode=block\";"
+      Content-Security-Policy: "\"default-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat ; connect-src *; script-src-elem 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' ; font-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat ; frame-ancestors 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat; frame-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat https://francetransfert.crisp.help ; style-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat 'unsafe-inline'; img-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat https://image.crisp.chat data: ;\" always;"
   coraza:
-    enabled: false
+    enabled: true
+    dynamicModule:
+      - name: composer
+        filterName: coraza-waf
+        config:
+          directives:
+            - Include @coraza.conf
+            - SecRuleEngine DetectionOnly
+            - SecResponseBodyAccess Off
+            - Include @crs-setup.conf
+            - Include @owasp_crs/*.conf
+            - SecAuditEngine RelevantOnly
+            - SecAuditLog /dev/stdout
+            - SecAuditLogType Serial
+            - SecAuditLogFormat JSON
+            - SecAuditLogParts AJHZ
 
 ingress:
   enabled: true
