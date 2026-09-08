@@ -44,5 +44,5 @@ export const environment = {
     }
   },
   expiredLimit: 60,
-  version: '4.0.10'
+  version: '4.0.11'
 };
