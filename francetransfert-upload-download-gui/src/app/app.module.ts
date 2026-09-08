@@ -18,6 +18,7 @@ import { MaterialModule } from './material.module';
 import { APP_BASE_HREF, DatePipe, PlatformLocation, registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { PwaService } from './services';
+import { isIOS } from './shared/is-ios';
 import { HeaderComponent } from './components/header/header.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { UploadComponent } from './components/upload/upload.component';
@@ -174,7 +175,7 @@ const initializer = (pwaService: PwaService) => () =>
     MatSortModule,
     RouterModule.forRoot(routes, { anchorScrolling: 'enabled' }),
     ServiceWorkerModule.register('ngsw-worker.js', {
-        enabled: environment.production,
+        enabled: environment.production && !isIOS(),
         // Register the ServiceWorker as soon as the app is stable
         // or after 30 seconds (whichever comes first).
         registrationStrategy: 'registerWhenStable:30000'
