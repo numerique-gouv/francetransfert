@@ -63,6 +63,7 @@ spec:
               resources:
                 requests:
                   storage: {{ .Values.upload.persistentVolumeClaim.storage }}
+      terminationGracePeriodSeconds: 190
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
