@@ -29,6 +29,10 @@ spec:
   connection:
     bufferLimit: {{ .bufferLimit | quote }}
   {{- end }}
+  {{- if .proxyProtocol }}
+  proxyProtocol:
+    {{- toYaml .proxyProtocol | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- with .Values.gateway.envoyGateway.upload.backendTrafficPolicy }}
 {{- if .requestBufferLimit }}

@@ -631,6 +631,8 @@ gateway:
     upload:
       clientTrafficPolicy:
         bufferLimit: "200Mi"
+      proxyProtocol:
+          optional: true
       backendTrafficPolicy:
         requestBufferLimit: "200Mi"
     securityPolicy:
