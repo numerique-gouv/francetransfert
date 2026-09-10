@@ -306,14 +306,12 @@ upload:
         port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
-      successThreshold: 2
     livenessProbe:
       httpGet:
         path: /actuator/health
         port: 8880
       initialDelaySeconds: 5
       periodSeconds: 10
-      successThreshold: 2
   image:
     repository: lasuite/francetransfert-upload-api
     tag: 4.0.18
