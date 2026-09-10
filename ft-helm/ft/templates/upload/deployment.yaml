@@ -21,7 +21,7 @@ spec:
         - name: {{ .Values.imagePullSecrets }}
       {{ end }}
       securityContext:
-        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.upload.podSecurityContext | nindent 8 }}
       containers:
       - name: {{ include "france-transfert.fullname" . }}-upload-app
         image: {{ .Values.upload.image.repository }}:{{ .Values.upload.image.tag }}
@@ -63,7 +63,7 @@ spec:
               resources:
                 requests:
                   storage: {{ .Values.upload.persistentVolumeClaim.storage }}
-      terminationGracePeriodSeconds: 190
+      terminationGracePeriodSeconds: {{ .Values.upload.terminationGracePeriodSeconds | default 300 }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
