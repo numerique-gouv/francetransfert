@@ -21,9 +21,12 @@ metadata:
   name: {{ include "france-transfert.fullname" . }}-client-policy-upload
 spec:
   targetRefs:
+    {{- range $idx, $_ := .Values.gateway.hosts }}
     - group: gateway.networking.k8s.io
       kind: ListenerSet
-      name: {{ include "france-transfert.fullname" . }}-listeners
+      name: {{ include "france-transfert.fullname" $ }}-listeners
+      sectionName: https-{{ $idx }}
+    {{- end }}
   {{- with .Values.gateway.envoyGateway.upload.clientTrafficPolicy }}
   {{- if .bufferLimit }}
   connection:
