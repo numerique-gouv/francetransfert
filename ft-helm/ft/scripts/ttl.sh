@@ -5,6 +5,29 @@ set -eu
 TTL_SECONDS=${TTL_SECONDS:-34160000}
 PREFIXES="enclosure-date: enclosure-dates: enclosure: recipient: root-dir: root-file: sender:"
 
+# Keys with quotes/pipes/spaces/newlines stay inside Redis (never parsed by shell)
+LUA_SCRIPT=$(cat <<'EOF'
+local cursor = "0"
+local updated = 0
+local skipped = 0
+local ttl = tonumber(ARGV[1])
+local pattern = ARGV[2]
+repeat
+  local result = redis.call("SCAN", cursor, "MATCH", pattern, "COUNT", 100)
+  cursor = result[1]
+  for _, key in ipairs(result[2]) do
+    if redis.call("TTL", key) == -1 then
+      redis.call("EXPIRE", key, ttl)
+      updated = updated + 1
+    else
+      skipped = skipped + 1
+    end
+  end
+until cursor == "0"
+return {updated, skipped}
+EOF
+)
+
 echo "getting redis-server pods"
 pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//" || true)
 if [ -z "${pods}" ]; then
@@ -29,46 +52,18 @@ fi
 echo "using redis master pod: ${pod}"
 echo "setting TTL of ${TTL_SECONDS}s (12 months) on keys without expiry"
 
-# Run SCAN/TTL/EXPIRE inside one kubectl exec to avoid one exec per key
-kubectl exec "$pod" -- env \
-  METALOAD_PASSWORD="$METALOAD_PASSWORD" \
-  TTL_SECONDS="$TTL_SECONDS" \
-  PREFIXES="$PREFIXES" \
-  sh -c '
-set -eu
-
-updated=0
-skipped=0
+updated_total=0
+skipped_total=0
 
 for prefix in $PREFIXES; do
-  echo "scanning prefix: ${prefix}*"
-  cursor=0
-  while true; do
-    # SCAN --raw: cursor on first line, then matching keys
-    result=$(redis-cli -a "$METALOAD_PASSWORD" --raw SCAN "$cursor" MATCH "${prefix}*" COUNT 100)
-    cursor=$(echo "$result" | head -n 1 | tr -d "\r")
-    keys=$(echo "$result" | tail -n +2)
-
-    for key in $keys; do
-      key=$(echo "$key" | tr -d "\r")
-      if [ -z "$key" ]; then
-        continue
-      fi
-      current_ttl=$(redis-cli -a "$METALOAD_PASSWORD" TTL "$key" | tr -d "\r")
-      if [ "$current_ttl" = "-1" ]; then
-        redis-cli -a "$METALOAD_PASSWORD" EXPIRE "$key" "$TTL_SECONDS" >/dev/null
-        updated=$((updated + 1))
-        echo "EXPIRE $key $TTL_SECONDS"
-      else
-        skipped=$((skipped + 1))
-      fi
-    done
-
-    if [ "$cursor" = "0" ]; then
-      break
-    fi
-  done
+  pattern="${prefix}*"
+  echo "scanning prefix: ${pattern}"
+  result=$(kubectl exec "$pod" -- redis-cli -a "$METALOAD_PASSWORD" --raw EVAL "$LUA_SCRIPT" 0 "$TTL_SECONDS" "$pattern")
+  updated=$(echo "$result" | sed -n '1p' | tr -d '\r')
+  skipped=$(echo "$result" | sed -n '2p' | tr -d '\r')
+  echo "prefix ${prefix}: updated=${updated} skipped=${skipped}"
+  updated_total=$((updated_total + updated))
+  skipped_total=$((skipped_total + skipped))
 done
 
-echo "finished: updated=${updated} skipped=${skipped}"
-'
+echo "finished: updated=${updated_total} skipped=${skipped_total}"
