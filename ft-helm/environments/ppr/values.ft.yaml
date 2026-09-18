@@ -188,6 +188,7 @@ redis:
       dbfilename: "ftr-data.rdb"
       appendfilename: "appendonly.aof"
       appendfsync: "everysec"
+      # normal end
       maxmemory: "0"
       maxmemory-policy: "volatile-lru"
       save: "7200 1 3600 10000"
@@ -265,7 +266,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 4.0.18
+    tag: ppr
     imagePullPolicy: Always
   service:
     port: 8080
@@ -313,7 +314,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 4.0.18
+    tag: ppr
     imagePullPolicy: Always
   service:
     port: 8080
@@ -401,7 +402,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: 4.0.18
+    tag: ppr
     imagePullPolicy: Always
   service:
     port: 8081
@@ -480,7 +481,7 @@ worker:
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: 4.0.18
+    tag: ppr
     imagePullPolicy: Always
   resources:
     requests:
@@ -510,7 +511,7 @@ worker:
     TMP_FOLDER_PATH: /data/
     WORKER_EXPIRED_LIMIT: "90"
     POOL_SIZE: "50"
-    DEEPCLEAN_WEEKDAY: "5"
+    DEEPCLEAN_WEEKDAY: "6"
     SATISFACTIONWORKEREXECUTOR_POOL_SIZE: "5"
     SENDEMAILCONFIRMATIONCODEWORKER_POOL_SIZE: "5"
     TEMPDATACLEANUPWORKEREXECUTOR_POOL_SIZE: "5"
@@ -608,8 +609,6 @@ worker:
 
 gateway:
   enabled: false
-  coraza:
-    enabled: false
 
 ingress:
   enabled: true
@@ -733,3 +732,6 @@ benchmark:
   persistentVolumeClaim:
     storage: 200Gi
     storageClassName: bsu-gp2
+
+ttl:
+  ttlSeconds: "900"

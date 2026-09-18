@@ -242,9 +242,14 @@ public class CleanUpServices {
 			do {
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanReceiveParams);
 				for (String receive : scanResult.getResult()) {
-					if (redisManager.scardString(receive) == 0) {
-						redisManager.deleteKey(receive);
-						cpt++;
+					try {
+						String email = StringUtils.substringAfter(receive, RedisKeysEnum.FT_RECEIVE.getFirstKeyPart());
+						if (!stringUploadUtils.isValidEmail(email) || redisManager.scardString(receive) == 0) {
+							redisManager.deleteKey(receive);
+							cpt++;
+						}
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", receive, e);
 					}
 				}
 				cur = scanResult.getCursor();
@@ -257,9 +262,14 @@ public class CleanUpServices {
 			do {
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanSendParams);
 				for (String send : scanResult.getResult()) {
-					if (redisManager.scardString(send) == 0) {
-						redisManager.deleteKey(send);
-						cpt++;
+					try {
+						String email = StringUtils.substringAfter(send, RedisKeysEnum.FT_SEND.getFirstKeyPart());
+						if (!stringUploadUtils.isValidEmail(email) || redisManager.scardString(send) == 0) {
+							redisManager.deleteKey(send);
+							cpt++;
+						}
+					} catch (Exception e) {
+						LOGGER.info("Unable to clean {}", send, e);
 					}
 				}
 				cur = scanResult.getCursor();
