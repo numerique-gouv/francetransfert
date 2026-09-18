@@ -10,3 +10,4 @@ data:
 {{ (tpl (.Files.Glob "scripts/redisdump_delta.sh").AsConfig .) | indent 2 }}
 {{ (tpl (.Files.Glob "scripts/sequestrequeue.sh").AsConfig .) | indent 2 }}
 {{ (tpl (.Files.Glob "scripts/lockenclosure.sh").AsConfig .) | indent 2 }}
+{{ (tpl (.Files.Glob "scripts/ttl.sh").AsConfig .) | indent 2 }}
