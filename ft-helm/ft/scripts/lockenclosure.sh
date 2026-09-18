@@ -11,12 +11,28 @@ if [ -z "${LOCK_EMAIL:-}" ] && [ -z "${LOCK_ENCLOSURE_IDS:-}" ]; then
   exit 1
 fi
 
-echo "getting one redis pod"
-pod=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//" | head -n 1)
-if [ -z "${pod}" ]; then
+echo "getting redis-server pods"
+pods=$(kubectl get pods -o=name --field-selector status.phase=Running | grep "redis-server" | sed "s/^.\{4\}//" || true)
+if [ -z "${pods}" ]; then
   echo "failed to find a running redis pod"
   exit 1
 fi
+
+pod=""
+for candidate in $pods; do
+  role=$(kubectl exec "$candidate" -- redis-cli -a "$METALOAD_PASSWORD" INFO replication 2>/dev/null | grep "^role:" | tr -d '\r' || true)
+  if [ "$role" = "role:master" ]; then
+    pod="$candidate"
+    break
+  fi
+done
+
+if [ -z "${pod}" ]; then
+  echo "failed to find a redis master pod"
+  exit 1
+fi
+
+echo "using redis master pod: ${pod}"
 
 expired_timestamp=$(date -u -d "30 days ago" +"%Y-%m-%dT%H:%M" 2>/dev/null || true)
 if [ -z "${expired_timestamp}" ]; then
