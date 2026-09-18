@@ -13,4 +13,4 @@ data:
       name:
         matches: "^ft_queue_zip_size$"
         as: "scale_ft_queue_zip_size"
-      metricsQuery: 'sum(max_over_time(ft_queue_zip_size[1m])) by (<<.GroupBy>>)'
+      metricsQuery: 'sum(clamp_min(predict_linear(ft_queue_zip_size[2m], 120), 0)) by (<<.GroupBy>>)'
