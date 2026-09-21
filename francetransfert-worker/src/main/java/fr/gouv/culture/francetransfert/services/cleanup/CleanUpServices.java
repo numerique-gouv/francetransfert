@@ -162,6 +162,7 @@ public class CleanUpServices {
 			LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
 			LocalDate deleteFailBefore = LocalDate.now().minusDays(2);
 			int cpt = 0;
+			int cptOrphan = 0;
 			LOGGER.info("Clean Old Enclosure");
 			do {
 				ScanResult<String> scanResult = redisManager.sscan(cur, scanParams);
@@ -191,6 +192,15 @@ public class CleanUpServices {
 								cleanUpEnclosureCoreInRedis(enclosureId);
 								cpt++;
 							}
+						} else if (StringUtils.countMatches(enclosureKey, ":") > 1) {
+							String enclosureId = StringUtils.substringBefore(StringUtils
+									.substringAfter(enclosureKey, RedisKeysEnum.FT_ENCLOSURE.getFirstKeyPart()), ":");
+							if (StringUtils.isNotBlank(enclosureId)
+									&& !redisManager.exists(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId))) {
+								LOGGER.info("Deleting orphan key {}", enclosureKey);
+								redisManager.deleteKey(enclosureKey);
+								cptOrphan++;
+							}
 						}
 					} catch (Exception e) {
 						LOGGER.info("Unable to clean {}", enclosureKey, e);
@@ -199,6 +209,7 @@ public class CleanUpServices {
 				cur = scanResult.getCursor();
 			} while (!cur.equals(scanParams.SCAN_POINTER_START));
 			LOGGER.info("Cleaned enclosure {}", cpt);
+			LOGGER.info("Cleaned orphan enclosure keys {}", cptOrphan);
 
 			LOGGER.info("Clean fail files");
 			cpt = 0;
