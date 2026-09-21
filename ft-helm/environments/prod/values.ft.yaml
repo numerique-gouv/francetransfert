@@ -189,7 +189,7 @@ redis:
       appendfilename: "appendonly.aof"
       appendfsync: "everysec"
       maxmemory: "8168mb"
-      maxmemory-policy: "allkeys-lru"
+      maxmemory-policy: "volatile-lru"
       save: "7200 1 3600 10000"
       auto-aof-rewrite-percentage: "100"
       auto-aof-rewrite-min-size: "2048mb"
