@@ -171,9 +171,9 @@ redis:
     resources:
       requests:
         cpu: 500m
-        memory: 9Gi
+        memory: 10Gi
       limits:
-        memory: 9Gi
+        memory: 10Gi
     config:
       # # restoration
       # appendonly: "no"
@@ -188,8 +188,8 @@ redis:
       dbfilename: "ftr-data.rdb"
       appendfilename: "appendonly.aof"
       appendfsync: "everysec"
-      maxmemory: "0"
-      maxmemory-policy: "volatile-lru"
+      maxmemory: "8168mb"
+      maxmemory-policy: "allkeys-lru"
       save: "7200 1 3600 10000"
       auto-aof-rewrite-percentage: "100"
       auto-aof-rewrite-min-size: "2048mb"
