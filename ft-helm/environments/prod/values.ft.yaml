@@ -476,9 +476,9 @@ worker:
   resources:
     requests:
       cpu: 1
-      memory: 3Gi
+      memory: 2Gi
     limits:
-      memory: 3Gi
+      memory: 2Gi
   service:
     managementPort: 8380
   overrideConf:
@@ -734,3 +734,59 @@ sequestre:
 lockEnclosure:
   lockEnclosureEmail: "user@example.com"
   lockEnclosureIds: "enc1,enc2,enc3"
+
+gateway:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-envoy-prod
+  gateway:
+    name: "platform-gateway"
+    namespace: "envoy-gateway-system"
+  hosts:
+    - envoy.ft.lasuite-blo-prd-osc-cgw1-wapp-02.k8s.opicloud.numerique.gouv.fr
+  httproute:
+    annotations:
+      external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+      external-dns.alpha.kubernetes.io/ttl: "10"
+    upload:
+      annotations: 
+        external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+        external-dns.alpha.kubernetes.io/ttl: "10"
+  envoyGateway:
+    clientTrafficPolicy:
+      bufferLimit: "200Mi"
+    upload:
+      clientTrafficPolicy:
+        bufferLimit: "200Mi"
+        proxyProtocol:
+            optional: true
+      backendTrafficPolicy:
+        requestBufferLimit: "200Mi"
+    securityPolicy:
+      ipAllowList:
+        - 94.231.44.169
+    customResponseHeaders:
+      Referrer-Policy: "strict-origin-when-cross-origin;"
+      Strict-Transport-Security: "\"max-age=31449600; includeSubDomains\" always;"
+      X-Content-Type-Options: "nosniff;"
+      X-Frame-Options: "\"ALLOW-FROM https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr\";"
+      X-XSS-Protection: "\"1; mode=block\";"
+      Content-Security-Policy: "\"default-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat ; connect-src *; script-src-elem 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' 'unsafe-inline'; script-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat 'unsafe-eval' ; font-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat ; frame-ancestors 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat; frame-src 'self' https://integration.lasuite.numerique.gouv.fr https://auth.appseducation.fr https://client.crisp.chat https://francetransfert.crisp.help ; style-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat 'unsafe-inline'; img-src 'self' https://integration.lasuite.numerique.gouv.fr https://client.crisp.chat https://image.crisp.chat data: ;\" always;"
+  coraza:
+    enabled: true
+    dynamicModule:
+      - name: composer
+        filterName: coraza-waf
+        config:
+          directives:
+            - Include @coraza.conf
+            - SecRuleEngine On
+            - SecResponseBodyAccess Off
+            - Include @crs-setup.conf
+            - Include @owasp_crs/*.conf
+            - SecAuditEngine RelevantOnly
+            - SecRuleRemoveById 920420
+            - SecAuditLog /dev/stdout
+            - SecAuditLogType Serial
+            - SecAuditLogFormat JSON
+            - SecAuditLogParts AJHZ
