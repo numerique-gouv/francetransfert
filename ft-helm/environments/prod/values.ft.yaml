@@ -786,6 +786,7 @@ gateway:
             - Include @owasp_crs/*.conf
             - SecAuditEngine RelevantOnly
             - SecRuleRemoveById 920420
+            - SecRuleUpdateTargetByTag "OWASP_CRS" "!REQUEST_COOKIES:/^(ph_|__ph_)/"
             - SecAuditLog /dev/stdout
             - SecAuditLogType Serial
             - SecAuditLogFormat JSON
