@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +63,8 @@ public class CustomMetricsService {
                 .tags("app", "ft-worker")
                 .publishPercentiles(0.3, 0.5, 0.7, 0.95)
                 .publishPercentileHistogram()
+                .minimumExpectedValue(Duration.ofSeconds(10))
+                .maximumExpectedValue(Duration.ofHours(10))
                 .register(meterRegistry);
 
         Gauge.builder("ft_jcop_state", this, CustomMetricsService::getJcopState)
