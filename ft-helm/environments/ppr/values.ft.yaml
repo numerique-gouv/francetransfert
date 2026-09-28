@@ -616,7 +616,6 @@ gateway:
     namespace: "envoy-gateway-system"
   hosts:
     - envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
-    - envoytest.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
   httproute:
     annotations:
       external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
