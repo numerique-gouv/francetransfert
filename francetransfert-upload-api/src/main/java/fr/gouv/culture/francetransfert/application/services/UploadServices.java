@@ -291,8 +291,7 @@ public class UploadServices {
 			}
 
 			LOGGER.info("Check existence of chunk {} for uploading File {} from enclosure {}",
-					flowChunkNumber, flowIdentifier, enclosureId,
-					flowChunkNumber);
+					flowChunkNumber, flowIdentifier, enclosureId);
 
 			if (chunkExists(flowChunkNumber, enclosureId, flowIdentifier)) {
 				return true; // multipart is uploaded
@@ -303,6 +302,8 @@ public class UploadServices {
 			boolean isUploaded = false;
 			try (InputStream inputStream = multipartFile.getInputStream()) {
 				LOGGER.debug("Osu bucket name: {}", bucketName);
+				LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) started", flowIdentifier, enclosureId,
+						flowChunkNumber);
 				PartETag partETag = storageManager.uploadMultiPartFileToOsuBucket(bucketName, flowChunkNumber,
 						fileNameWithPath, inputStream, multipartFile.getSize(), uploadOsuId);
 				String partETagToString = RedisForUploadUtils.addToPartEtags(redisManager, partETag, hashFid);
@@ -312,14 +313,13 @@ public class UploadServices {
 				isUploaded = true;
 				long flowChuncksCounter = RedisUtils.incrementCounterOfUploadChunksPerFile(redisManager, hashFid);
 				LOGGER.debug("FlowChuncksCounter in redis {}", flowChuncksCounter);
-				LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{}", flowIdentifier, enclosureId,
+				LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{} completed", flowIdentifier,
+						enclosureId,
 						flowChunkNumber, flowChuncksCounter, flowTotalChunks);
 				if (flowChuncksCounter >= flowTotalChunks && chunkUploaded == flowTotalChunks) {
 					isUploaded = finishUploadFile(enclosureId, senderId, hashFid, bucketName, fileNameWithPath,
 							uploadOsuId);
 				}
-				LOGGER.info("Uploading File {} from enclosure {} - Chunk ({}) {}/{} completed", flowIdentifier,
-						enclosureId, flowChunkNumber, flowChuncksCounter, flowTotalChunks);
 			}
 			return isUploaded;
 
