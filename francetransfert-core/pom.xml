@@ -17,7 +17,8 @@
 	<properties>
 		<!-- <log4j2.version>2.26.1</log4j2.version> -->
 		<!-- <jackson-bom.version>3.2.1</jackson-bom.version> -->
-		<jackson.version>2.22.3</jackson.version>
+		<jackson-bom.version>3.2.3</jackson-bom.version>
+		<jackson-2-bom.version>2.22.3</jackson-2-bom.version>
 		<java.version>25</java.version>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -182,7 +183,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.redisson</groupId>
