@@ -411,14 +411,14 @@ public class StorageManager {
 
         // Try creating bucket if continue if not working because bucket can be already
         // created
-        try {
-            if (!conn.listBuckets().stream().filter(bucket -> bucketName != null && bucketName.equals(bucket.getName()))
-                    .findFirst().isPresent()) {
-                conn.createBucket(bucketName);
-            }
-        } catch (Exception e) {
-            LOGGER.info("generateUploadIdOsu Error while creating bucket : " + e.getMessage(), e);
-        }
+        // try {
+        //     if (!conn.listBuckets().stream().filter(bucket -> bucketName != null && bucketName.equals(bucket.getName()))
+        //             .findFirst().isPresent()) {
+        //         conn.createBucket(bucketName);
+        //     }
+        // } catch (Exception e) {
+        //     LOGGER.info("generateUploadIdOsu Error while creating bucket : " + e.getMessage(), e);
+        // }
 
         try {
             String escapedObjectKey = AmazonS3Utils.escapeProblemCharsForObjectKey(objectKey);

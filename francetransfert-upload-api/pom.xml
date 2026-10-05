@@ -16,7 +16,7 @@
 		<java.version>25</java.version>
 		<!-- <log4j2.version>2.26.1</log4j2.version> -->
 		<!-- <jackson-bom.version>3.2.1</jackson-bom.version> -->
-		<jackson.version>2.21.5</jackson.version>
+		<jackson.version>2.22.3</jackson.version>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 		<!-- dependencies version -->
 		<swagger-annotations-version>1.6.3</swagger-annotations-version>
@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>tools.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>3.2.0</version>
+			<version>3.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.gatling.highcharts</groupId>
@@ -135,12 +135,12 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.5.34</version>
+			<version>1.5.38</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.34</version>
+			<version>1.5.38</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
