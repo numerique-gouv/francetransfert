@@ -35,6 +35,7 @@ import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
+import redis.clients.jedis.args.ListDirection;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
@@ -845,6 +846,26 @@ public class RedisManager {
         } catch (Exception e) {
             success = false;
             returnBrokenResource(jedis, "Boken Lpop:" + key, e);
+        } finally {
+            releaseRedisSource(success, jedis);
+        }
+        return ret;
+    }
+
+    public String blmove(String source, String destination, double timeout) {
+        Jedis jedis = null;
+        boolean success = true;
+        String ret = null;
+        try {
+            jedis = pool.getResource();
+            if (jedis == null) {
+                success = false;
+                throw new JedisException(JEDIS_NULL);
+            }
+            ret = jedis.blmove(source, destination, ListDirection.LEFT, ListDirection.RIGHT, timeout);
+        } catch (Exception e) {
+            success = false;
+            returnBrokenResource(jedis, "Boken brpoplpush source: " + source + " and destination: " + destination, e);
         } finally {
             releaseRedisSource(success, jedis);
         }

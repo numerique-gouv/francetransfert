@@ -48,22 +48,16 @@ public class RedisForUploadUtils {
 	public final static String ENCLOSURE_HASH_EXPIRATION_DATE_KEY = "expirationDate";
 
 	private static int maxUpdateDate;
-	private static int osuIdTimeout;
-	private static int osuIdTimeoutInit;
+	private static double osuIdTimeout;
 
 	@Value("${upload.expired.limit}")
 	public void setMaxUpdateDate(int maxUpdateDate) {
 		RedisForUploadUtils.maxUpdateDate = maxUpdateDate;
 	}
 
-	@Value("${upload.osu.id.timeout:5}")
-	public void setOsuIdTimeout(int osuIdTimeout) {
+	@Value("${upload.osu.id.timeout:0.5}")
+	public void setOsuIdTimeout(double osuIdTimeout) {
 		RedisForUploadUtils.osuIdTimeout = osuIdTimeout;
-	}
-
-	@Value("${upload.osu.id.timeout.init:1}")
-	public void setOsuIdTimeoutInit(int osuIdTimeoutInit) {
-		RedisForUploadUtils.osuIdTimeoutInit = osuIdTimeoutInit;
 	}
 
 	public static HashMap<String, String> createHashEnclosure(RedisManager redisManager,
@@ -377,7 +371,7 @@ public class RedisForUploadUtils {
 
 	public static String getUploadIdBlocking(RedisManager redisManager, String hashFid) throws UploadException {
 		String keySource = RedisKeysEnum.FT_ID_CONTAINER.getKey(hashFid);
-		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, osuIdTimeout);
+		String uploadOsuId = redisManager.blmove(keySource, keySource, osuIdTimeout);
 		if (uploadOsuId == null || uploadOsuId.isBlank() || uploadOsuId.isEmpty()) {
 			String uuid = UUID.randomUUID().toString();
 			throw new UploadException("Error getting uploadOsuId for hash : " + hashFid, uuid);
@@ -385,12 +379,12 @@ public class RedisForUploadUtils {
 		return uploadOsuId;
 	}
 
-	public static String getUploadIdBlockingInit(RedisManager redisManager, String hashFid) throws UploadException {
+	public static String getUploadIdNoBlocking(RedisManager redisManager, String hashFid) throws UploadException {
 		String keySource = RedisKeysEnum.FT_ID_CONTAINER.getKey(hashFid);
-		String uploadOsuId = redisManager.brpoplpush(keySource, keySource, osuIdTimeoutInit);
+		String uploadOsuId = redisManager.lindex(keySource);
 		if (uploadOsuId == null || uploadOsuId.isBlank() || uploadOsuId.isEmpty()) {
 			String uuid = UUID.randomUUID().toString();
-			throw new UploadException("Error getting uploadOsuId for hash : " + hashFid, uuid);
+			throw new UploadException("Error checking uploadOsuId for hash : " + hashFid, uuid);
 		}
 		return uploadOsuId;
 	}
