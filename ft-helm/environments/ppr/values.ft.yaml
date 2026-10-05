@@ -349,6 +349,7 @@ upload:
     UPLOAD_MAX_RECIPIENT_AGENT: "100"
     UPLOAD_MAX_RECIPIENT_PUBLIC: "10"
     EXPIRE_CONFIRMATION_CODE_LENGTH: "8"
+    STORAGE_REQUEST_TIMEOUT: "30000"
     EXPIRE_TOKEN_SENDER: "1800"
     EXPIRE_TOKEN_INITAPI: "120"
     CAPTCHA_URL: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/captcha/services/v1.2/captchaService"
@@ -675,6 +676,10 @@ gateway:
             - Include @owasp_crs/*.conf
             - SecAuditEngine RelevantOnly
             - SecRuleRemoveById 920420
+            - SecRuleUpdateTargetByTag "OWASP_CRS" "!REQUEST_COOKIES:/^(ph_|__ph_)/"
+            - SecRule REQUEST_URI "@beginsWith /api-private/upload-module/" "id:10000,phase:1,pass,nolog,ctl:requestBodyAccess=Off"
+            - SecRequestBodyLimit 200000000
+            - SecRequestBodyInMemoryLimit 90000000
             - SecAuditLog /dev/stdout
             - SecAuditLogType Serial
             - SecAuditLogFormat JSON

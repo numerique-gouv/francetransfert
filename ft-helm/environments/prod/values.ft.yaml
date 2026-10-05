@@ -350,6 +350,7 @@ upload:
     EXPIRE_CONFIRMATION_CODE_LENGTH: "8"
     EXPIRE_TOKEN_SENDER: "1800"
     EXPIRE_TOKEN_INITAPI: "120"
+    STORAGE_REQUEST_TIMEOUT: "30000"
     CAPTCHA_URL: "https://francetransfert.numerique.gouv.fr/captcha/services/v1.2/captchaService"
     CAPTCHA_SECURE: "false"
     URL_DOWNLOAD_PUBLIC: "https://francetransfert.numerique.gouv.fr/download/download-info-public?enclosure="
@@ -787,6 +788,9 @@ gateway:
             - SecAuditEngine RelevantOnly
             - SecRuleRemoveById 920420
             - SecRuleUpdateTargetByTag "OWASP_CRS" "!REQUEST_COOKIES:/^(ph_|__ph_)/"
+            - SecRule REQUEST_URI "@beginsWith /api-private/upload-module/" "id:10000,phase:1,pass,nolog,ctl:requestBodyAccess=Off"
+            - SecRequestBodyLimit 200000000
+            - SecRequestBodyInMemoryLimit 90000000
             - SecAuditLog /dev/stdout
             - SecAuditLogType Serial
             - SecAuditLogFormat JSON
