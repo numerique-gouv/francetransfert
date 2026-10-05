@@ -266,7 +266,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 25db72
+    tag: 166f4f
     imagePullPolicy: Always
   service:
     port: 8080
@@ -314,7 +314,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 25db72
+    tag: 166f4f
     imagePullPolicy: Always
   service:
     port: 8080
@@ -402,7 +402,7 @@ download:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-download-api
-    tag: 25db72
+    tag: 166f4f
     imagePullPolicy: Always
   service:
     port: 8081
@@ -481,7 +481,7 @@ worker:
   terminationGracePeriodSeconds: 180
   image:
     repository: lasuite/francetransfert-worker
-    tag: 25db72
+    tag: 166f4f
     imagePullPolicy: Always
   resources:
     requests:
