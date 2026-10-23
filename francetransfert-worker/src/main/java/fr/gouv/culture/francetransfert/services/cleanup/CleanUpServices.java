@@ -103,9 +103,29 @@ public class CleanUpServices {
 	 */
 	public void cleanUp() throws WorkerException {
 
+		LocalDate deleteBefore = LocalDate.now().minusMonths(expireMonth);
+
 		redisManager.smembersString(RedisKeysEnum.FT_ENCLOSURE_DATES.getKey("")).forEach(date -> {
-			redisManager.smembersString(RedisKeysEnum.FT_ENCLOSURE_DATE.getKey(date)).forEach(enclosureId -> {
+			String dateKey = RedisKeysEnum.FT_ENCLOSURE_DATE.getKey(date);
+
+			try {
+				if (LocalDate.parse(date).isBefore(deleteBefore)) {
+					cleanUpEnclosureDatesInRedis(date);
+					return;
+				}
+			} catch (Exception e) {
+				LOGGER.error("Cannot clean date {} : " + e.getMessage(), date, e);
+				return;
+			}
+
+			redisManager.smembersString(dateKey).forEach(enclosureId -> {
 				try {
+
+					if (!redisManager.exists(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId))) {
+						redisManager.sremString(dateKey, enclosureId);
+						return;
+					}
+
 					LocalDate enclosureExipireDateRedis = DateUtils.convertStringToLocalDateTime(
 							redisManager.getHgetString(RedisKeysEnum.FT_ENCLOSURE.getKey(enclosureId),
 									EnclosureKeysEnum.EXPIRED_TIMESTAMP.getKey()))
@@ -131,7 +151,7 @@ public class CleanUpServices {
 											|| enclosureExpireArchiveDateRedis.plusDays(1).isBefore(LocalDate.now()))) {
 								archive = true;
 								cleanEnclosure(enclosureId, archive);
-								cleanUpEnclosureDatesInRedis(date);
+								redisManager.sremString(dateKey, enclosureId);
 							}
 						}
 						// clean enclosure date : delete list enclosureId and date expired
