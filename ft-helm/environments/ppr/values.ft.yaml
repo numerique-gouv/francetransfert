@@ -194,6 +194,12 @@ redis:
       save: "7200 1 3600 10000"
       auto-aof-rewrite-percentage: "100"
       auto-aof-rewrite-min-size: "2048mb"
+      activedefrag: "yes"
+      active-defrag-ignore-bytes: "100mb"
+      active-defrag-threshold-lower: "10"
+      active-defrag-threshold-upper: "40"
+      active-defrag-cycle-min: "1"
+      active-defrag-cycle-max: "15"
     disableCommands:
       - FLUSHDB
       - FLUSHALL
