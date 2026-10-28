@@ -1,6 +1,6 @@
 environnement: &environnement integ
 
-rootUrl: &rootUrl envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net
+rootUrl: &rootUrl ft-ppr.beta.numerique.gouv.fr
 
 # imagePullSecrets: "registry-pull-secret"
 nameOverride: ""
@@ -22,12 +22,12 @@ overrideGlobalConf:
   PASSWORD_SPECIAL_MIN: "3"
   PASSWORD_SPECIAL_LIST: "!@#$%^&*()_-:+"
   PASSWORD_DIGIT_MIN: "3"
-  URL_DOWNLOAD_API: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/download/"
-  URL_ADMIN_PAGE: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/admin"
-  MAIL_IMAGE_FT_LOGO: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/statics/logos/france_transfert_logo.svg"
-  MAIL_IMAGE_FT_FILE: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/statics/email-contents/Fichier_white.png"
-  MAIL_IMAGE_FT_FOLDER: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/statics/email-contents/Dossier_white.png"
-  MAIL_IMAGE_FT_ACCESSBUTTON: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/statics/email-contents/acceder-fichiers.png"
+  URL_DOWNLOAD_API: "https://ft-ppr.beta.numerique.gouv.fr/download/"
+  URL_ADMIN_PAGE: "https://ft-ppr.beta.numerique.gouv.fr/admin"
+  MAIL_IMAGE_FT_LOGO: "https://ft-ppr.beta.numerique.gouv.fr/statics/logos/france_transfert_logo.svg"
+  MAIL_IMAGE_FT_FILE: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/Fichier_white.png"
+  MAIL_IMAGE_FT_FOLDER: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/Dossier_white.png"
+  MAIL_IMAGE_FT_ACCESSBUTTON: "https://ft-ppr.beta.numerique.gouv.fr/statics/email-contents/acceder-fichiers.png"
 
 maintenance:
   enabled: false
@@ -358,13 +358,13 @@ upload:
     STORAGE_REQUEST_TIMEOUT: "30000"
     EXPIRE_TOKEN_SENDER: "1800"
     EXPIRE_TOKEN_INITAPI: "120"
-    CAPTCHA_URL: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/captcha/services/v1.2/captchaService"
+    CAPTCHA_URL: "https://ft-ppr.beta.numerique.gouv.fr/captcha/services/v1.2/captchaService"
     CAPTCHA_SECURE: "false"
-    URL_DOWNLOAD_PUBLIC: "https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/download/download-info-public?enclosure="
+    URL_DOWNLOAD_PUBLIC: "https://ft-ppr.beta.numerique.gouv.fr/download/download-info-public?enclosure="
     AGENTCONNECT_ENABLED: "true"
-    AGENTCONNECT_ISSUERURL: https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/auth
+    AGENTCONNECT_ISSUERURL: https://ft-ppr.beta.numerique.gouv.fr/auth
     AGENTCONNECT_CLIENTID: angular-spa
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/auth
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/auth
   podSecurityContext:
     runAsUser: 100102
     runAsGroup: 100102
@@ -430,7 +430,7 @@ download:
     SERVER_COMPRESSION_MIMETYPES: "application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript"
     ENCLOSURE_MAX_DOWNLOAD: "5"
     ENCLOSURE_MAX_PASSWORD_TRY: "5"
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://envoy.ft.lasuite-ara-ppr-osc-euw2-wapp-02.k8s.cloud.incubateur.net/auth
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: https://ft-ppr.beta.numerique.gouv.fr/auth
   podSecurityContext: {}
   securityContext:
     privileged: false
