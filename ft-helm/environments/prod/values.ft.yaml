@@ -611,11 +611,6 @@ worker:
         selectPolicy: Max
         stabilizationWindowSeconds: 120
 
-gateway:
-  enabled: false
-  coraza:
-    enabled: false
-
 ingress:
   enabled: true
   className: "nginx"
@@ -750,6 +745,7 @@ gateway:
     namespace: "envoy-gateway-system"
   hosts:
     - envoy.ft.lasuite-blo-prd-osc-cgw1-wapp-02.k8s.opicloud.numerique.gouv.fr
+    - francetransfert.numerique.gouv.fr
   httproute:
     annotations:
       external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
@@ -770,7 +766,22 @@ gateway:
         requestBufferLimit: "200Mi"
     securityPolicy:
       ipAllowList:
-        - 94.231.44.169/32
+        - 178.33.22.0/26
+        - 185.179.148.0/22
+        - 185.231.164.0/22
+        - 195.216.140.106/32
+        - 94.231.41.182/32
+        - 199.83.128.0/21
+        - 198.143.32.0/19
+        - 149.126.72.0/21
+        - 103.28.248.0/22
+        - 185.11.124.0/22
+        - 192.230.64.0/18
+        - 45.64.64.0/22
+        - 107.154.0.0/16
+        - 45.60.0.0/16
+        - 45.223.0.0/16
+        - 131.125.128.0/17
     customResponseHeaders:
       Referrer-Policy: "strict-origin-when-cross-origin;"
       Strict-Transport-Security: "\"max-age=31449600; includeSubDomains\" always;"
@@ -793,8 +804,7 @@ gateway:
             - SecAuditEngine RelevantOnly
             - SecRuleRemoveById 920420
             - SecRuleUpdateTargetByTag "OWASP_CRS" "!REQUEST_COOKIES:/^(ph_|__ph_)/"
-            - SecRule REQUEST_URI "@beginsWith /api-private/upload-module/" "id:10000,phase:1,pass,nolog,ctl:requestBodyAccess=Off"
-            - SecRequestBodyLimit 200000000
+            - SecRequestBodyLimit 90000000
             - SecRequestBodyInMemoryLimit 90000000
             - SecAuditLog /dev/stdout
             - SecAuditLogType Serial
