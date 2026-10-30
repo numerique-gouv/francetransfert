@@ -270,7 +270,7 @@ front:
   replicaCount: 2
   image:
     repository: lasuite/francetransfert-upload-download-gui
-    tag: 4.0.20
+    tag: 4.0.21
     imagePullPolicy: Always
   service:
     port: 8080
@@ -319,7 +319,7 @@ upload:
       periodSeconds: 10
   image:
     repository: lasuite/francetransfert-upload-api
-    tag: 4.0.20
+    tag: 4.0.21
     imagePullPolicy: Always
   service:
     port: 8080
