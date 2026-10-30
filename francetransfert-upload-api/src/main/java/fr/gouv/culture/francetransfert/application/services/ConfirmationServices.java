@@ -30,6 +30,7 @@ import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
+import fr.gouv.culture.francetransfert.core.utils.LanguageUtils;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
 import fr.gouv.culture.francetransfert.core.utils.StringUploadUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.ConfirmationCodeException;
@@ -72,6 +73,7 @@ public class ConfirmationServices {
 		// confirmation code and insert in queue redis (send mail to the sender
 		// enclosure with code)
 		senderMail = senderMail.toLowerCase();
+		currentLanguage = LanguageUtils.normalizeLanguage(currentLanguage);
 		if (stringUploadUtils.isValidEmail(senderMail)) {
 			if (StringUtils.isBlank(redisManager.getString(
 					RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail.toLowerCase()))))) {
