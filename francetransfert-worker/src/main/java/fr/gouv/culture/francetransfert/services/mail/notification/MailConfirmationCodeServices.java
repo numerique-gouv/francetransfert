@@ -10,7 +10,6 @@ package fr.gouv.culture.francetransfert.services.mail.notification;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import fr.gouv.culture.francetransfert.model.ConfirmationCode;
 import fr.gouv.culture.francetransfert.security.WorkerException;
 import fr.gouv.culture.francetransfert.services.mail.notification.enums.NotificationTemplateEnum;
+import fr.gouv.culture.francetransfert.core.utils.LanguageUtils;
 
 @Service
 public class MailConfirmationCodeServices {
@@ -49,12 +49,7 @@ public class MailConfirmationCodeServices {
 		String ttlCode = extractHeureExpirationCode(mailCode);
 		int codeMin = secondsToExpireConfirmationCode / 60;
 		int sessionMin = expireTokenSender / 60;
-		Locale currentLanguage = Locale.FRANCE;
-		try {
-			currentLanguage = LocaleUtils.toLocale(extractCurrentLanguage(mailCode));
-		} catch (Exception eL) {
-			LOGGER.error("Error while getting local", eL);
-		}
+		Locale currentLanguage = LanguageUtils.toSupportedLocale(extractCurrentLanguage(mailCode));
 
 		ConfirmationCode confirmationCode = ConfirmationCode.builder().code(code).mail(senderMail)
 				.dateExpiration(ttlCode).codeTime(codeMin).sessionTime(sessionMin).build();
@@ -109,12 +104,9 @@ public class MailConfirmationCodeServices {
 	private String extractCurrentLanguage(String mailCode) {
 
 		String result = extractSenderMailAndConfirmationCode(mailCode, 0);
-		Pattern pattern = Pattern.compile("-");
-		String[] items = pattern.split(result, 2);
-
-		result = items[0];
 		LOGGER.debug("RESULT:  {}", result);
 		return result;
 
 	}
+
 }

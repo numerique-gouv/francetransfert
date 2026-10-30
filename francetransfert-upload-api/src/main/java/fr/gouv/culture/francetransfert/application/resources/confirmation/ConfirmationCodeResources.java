@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 import fr.gouv.culture.francetransfert.application.error.ErrorEnum;
 import fr.gouv.culture.francetransfert.application.resources.model.ValidateCodeResponse;
 import fr.gouv.culture.francetransfert.application.services.ConfirmationServices;
+import fr.gouv.culture.francetransfert.core.utils.LanguageUtils;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Pattern;
 
 @RestController
 @RequestMapping("/api-private/confirmation-module")
@@ -42,7 +44,8 @@ public class ConfirmationCodeResources {
 	@GetMapping("/generate-code")
 	@Operation(method = "GET", description = "Generate code")
 	public void generateCode(HttpServletResponse response, @RequestParam("senderMail") String senderMail,
-			@RequestParam("currentLanguage") String currentLanguage) throws UploadException {
+			@RequestParam("currentLanguage") @Pattern(regexp = LanguageUtils.LANGUAGE_REGEX) String currentLanguage)
+			throws UploadException {
 		try {
 			confirmationServices.generateCodeConfirmation(senderMail.toLowerCase(), currentLanguage);
 			response.setStatus(HttpStatus.OK.value());
@@ -57,7 +60,7 @@ public class ConfirmationCodeResources {
 	@Operation(method = "GET", description = "validate code")
 	public ValidateCodeResponse validateCode(HttpServletResponse response,
 			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code,
-			@RequestParam("currentLanguage") String currentLanguage) {
+			@RequestParam("currentLanguage") @Pattern(regexp = LanguageUtils.LANGUAGE_REGEX) String currentLanguage) {
 		return confirmationServices.validateCodeConfirmationAndGenerateToken(senderMail.toLowerCase(), code.trim());
 	}
 }
