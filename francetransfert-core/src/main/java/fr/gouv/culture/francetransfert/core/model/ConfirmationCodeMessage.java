@@ -1,0 +1,24 @@
+/*
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
+  */
+
+package fr.gouv.culture.francetransfert.core.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ConfirmationCodeMessage {
+    private String language;
+    private String senderMail;
+    private String code;
+    private String expiration;
+}

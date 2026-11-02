@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
 import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
+import fr.gouv.culture.francetransfert.core.model.ConfirmationCodeMessage;
 import fr.gouv.culture.francetransfert.core.model.FormulaireContactData;
 import fr.gouv.culture.francetransfert.core.model.NewRecipient;
 import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
@@ -398,8 +399,10 @@ public class ScheduledTasks {
 								.subscribeFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue());
 						if (!CollectionUtils.isEmpty(returnedBLPOPList)) {
 							String mailCode = returnedBLPOPList.get(1);
-							SendEmailConfirmationCodeTask task = new SendEmailConfirmationCodeTask(mailCode,
-									mailConfirmationCodeServices);
+							ConfirmationCodeMessage confirmationCodeMessage = new Gson().fromJson(mailCode,
+									ConfirmationCodeMessage.class);
+							SendEmailConfirmationCodeTask task = new SendEmailConfirmationCodeTask(
+									confirmationCodeMessage, mailConfirmationCodeServices);
 							SendEmailConfirmationCodeWorkerExecutor.execute(new MonitorRunnable(task,
 									RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(), mailCode));
 						}
