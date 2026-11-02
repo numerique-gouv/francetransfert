@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+
 import fr.gouv.culture.francetransfert.application.error.ErrorEnum;
 import fr.gouv.culture.francetransfert.application.error.UnauthorizedAccessException;
 import fr.gouv.culture.francetransfert.application.resources.model.ValidateCodeResponse;
@@ -29,6 +31,7 @@ import fr.gouv.culture.francetransfert.core.enums.EnclosureKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisKeysEnum;
 import fr.gouv.culture.francetransfert.core.enums.RedisQueueEnum;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
+import fr.gouv.culture.francetransfert.core.model.ConfirmationCodeMessage;
 import fr.gouv.culture.francetransfert.core.services.RedisManager;
 import fr.gouv.culture.francetransfert.core.utils.LanguageUtils;
 import fr.gouv.culture.francetransfert.core.utils.RedisUtils;
@@ -85,13 +88,12 @@ public class ConfirmationServices {
 				redisManager.deleteKey(RedisKeysEnum.FT_CODE_SENDER.getKey(senderMail));
 				redisManager.setString(RedisKeysEnum.FT_CODE_TRY.getKey(RedisUtils.generateHashsha1(senderMail)), "0");
 				LOGGER.info("sender: {} generated confirmation code in redis", senderMail);
-				// insert in queue of REDIS: confirmation-code-mail" => SenderMail":"code" (
-				// insert in queue to: send mail to sender in worker module)
+				// insert in queue of REDIS: confirmation-code-mail => ConfirmationCodeMessage as
+				// JSON (insert in queue to: send mail to sender in worker module)
 				Long ttl = redisManager
 						.ttl(RedisKeysEnum.FT_CODE_SENDER.getKey(RedisUtils.generateHashsha1(senderMail)));
 				String ttltCodeConfirmation = ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusSeconds(ttl).toString();
-				redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
-						currentLanguage + ":" + senderMail + ":" + confirmationCode + ":" + ttltCodeConfirmation);
+				publishConfirmationCode(currentLanguage, senderMail, confirmationCode, ttltCodeConfirmation);
 				LOGGER.info("sender: {} insert in queue rdis to send mail with confirmation code", senderMail);
 				redisManager.setNxString(RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
 						ttltCodeConfirmation, secondsCodeResend);
@@ -109,8 +111,7 @@ public class ConfirmationServices {
 					redisManager.setNxString(
 							RedisKeysEnum.FT_CODE_LASTSENT.getKey(RedisUtils.generateHashsha1(senderMail)),
 							ttltCodeConfirmation, secondsCodeResend);
-					redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(),
-							currentLanguage + ":" + senderMail + ":" + codeSent + ":" + ttltCodeConfirmation);
+					publishConfirmationCode(currentLanguage, senderMail, codeSent, ttltCodeConfirmation);
 				}
 			}
 		} else {
@@ -118,6 +119,12 @@ public class ConfirmationServices {
 					"SenderEmail format is not valid (connect)");
 		}
 
+	}
+
+	private void publishConfirmationCode(String language, String senderMail, String code, String expiration) {
+		ConfirmationCodeMessage message = ConfirmationCodeMessage.builder().language(language).senderMail(senderMail)
+				.code(code).expiration(expiration).build();
+		redisManager.publishFT(RedisQueueEnum.CONFIRMATION_CODE_MAIL_QUEUE.getValue(), new Gson().toJson(message));
 	}
 
 	public ValidateCodeResponse validateCodeConfirmationAndGenerateToken(String senderMail, String code)
