@@ -34,15 +34,12 @@ import fr.gouv.culture.francetransfert.application.services.DownloadServices;
 import fr.gouv.culture.francetransfert.core.exception.ApiValidationException;
 import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api-public-dl")
-@Tag(name = "Public resources")
 @Validated
 public class PublicRessources {
 
@@ -56,7 +53,6 @@ public class PublicRessources {
 	private List<String> forwardedHeaderName;
 
 	@PostMapping("/telechargerPli")
-	@Operation(method = "POST", description = "Generate download URL ")
 	public Download generateDownloadUrlWithPassword(HttpServletResponse response, HttpServletRequest request,
 			@Valid @RequestBody DownloadPasswordMetaData downloadRequest)
 			throws ApiValidationException, MetaloadException, StatException {

@@ -9,6 +9,7 @@ package mail;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
@@ -26,6 +27,7 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import fr.gouv.culture.francetransfert.FranceTransfertWorkerStarter;
+import fr.gouv.culture.francetransfert.core.model.ConfirmationCodeMessage;
 import fr.gouv.culture.francetransfert.model.Enclosure;
 import fr.gouv.culture.francetransfert.model.Recipient;
 import fr.gouv.culture.francetransfert.model.RootData;
@@ -80,7 +82,8 @@ public class MailConfirmationCodeNotificationTest {
 	public void shouldSendMailConfirmationCodeTest() throws Exception {
 		// given
 		String message = "Test message content";
-		String mailCode = "louay.haddad@gouv.fr:123476" + LocalDateTime.now().toString();
+		ConfirmationCodeMessage mailCode = ConfirmationCodeMessage.builder().language("fr-FR")
+				.senderMail("louay.haddad@gouv.fr").code("123476").expiration(ZonedDateTime.now().toString()).build();
 		// when
 		mailConfirmationCodeServices.sendConfirmationCode(mailCode);
 		// then
