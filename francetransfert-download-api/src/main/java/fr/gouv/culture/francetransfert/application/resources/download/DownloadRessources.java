@@ -41,15 +41,12 @@ import fr.gouv.culture.francetransfert.core.model.TokenEnclosureDataDownload;
 import fr.gouv.culture.francetransfert.domain.exceptions.DownloadException;
 import fr.gouv.culture.francetransfert.domain.exceptions.ExpirationEnclosureException;
 import fr.gouv.culture.francetransfert.domain.exceptions.InvalidHashException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api-private/download-module")
-@Tag(name = "Download resources")
 @Validated
 public class DownloadRessources {
 
@@ -65,7 +62,6 @@ public class DownloadRessources {
 	private ConfirmationServices confirmationServices;
 
 	@PostMapping("/generate-download-url")
-	@Operation(method = "POST", description = "Generate download URL ")
 	public Download generateDownloadUrlWithPassword(@RequestBody DownloadPasswordMetaData downloadMeta)
 			throws ExpirationEnclosureException, UnsupportedEncodingException, MetaloadException, StorageException,
 			RetryException {
@@ -75,7 +71,6 @@ public class DownloadRessources {
 	}
 
 	@PostMapping("/generate-download-url-public")
-	@Operation(method = "POST", description = "Generate download public URL ")
 	public Download generateDownloadPublicUrlWithPassword(@RequestBody DownloadPasswordMetaData downloadMeta)
 			throws UnauthorizedAccessException, UnsupportedEncodingException, MetaloadException {
 		LOGGER.info("start generate download URL ");
@@ -84,7 +79,6 @@ public class DownloadRessources {
 	}
 
 	@PostMapping("/validate-password")
-	@Operation(method = "POST", description = "Validate password")
 	public ValidatePasswordRepresentation validatePassword(@RequestBody @Valid ValidatePasswordMetaData metaData)
 			throws Exception {
 		LOGGER.info("validate password for enclosure id {} and recipient id {} ", metaData.getEnclosureId(),
@@ -119,7 +113,6 @@ public class DownloadRessources {
 	}
 
 	@PostMapping("/download-info")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfo(HttpServletResponse response,
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
@@ -149,7 +142,6 @@ public class DownloadRessources {
 	}
 
 	@PostMapping("/download-info-connect")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public DownloadRepresentation downloadinfoConnect(HttpServletResponse response,
 			@RequestBody TokenEnclosureDataDownload tokenEnclosureData)
 			throws UnsupportedEncodingException, ExpirationEnclosureException, MetaloadException, StorageException,
@@ -166,7 +158,6 @@ public class DownloadRessources {
 	}
 
 	@RequestMapping(value = "/satisfaction", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "Rates the app on a scvale of 1 to 4")
 	public boolean createSatisfactionFT(HttpServletResponse response,
 			@Valid @RequestBody RateRepresentation rateRepresentation) throws DownloadException, MetaloadException {
 		LOGGER.info("start Satisfaction ");

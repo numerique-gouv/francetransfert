@@ -827,22 +827,8 @@ public class ValidationMailService {
 		return validFiles;
 	}
 
-	private void validDomainRecipient(String headerAddr, String sender) {
-
-		// get domain from properties
-		String[] domaine = apiKey.getOrDefault(headerAddr, new HashMap<String, String[]>()).getOrDefault("domaine",
-				new String[0]);
-		String senderDomaine = stringUploadUtils.extractDomainNameFromEmailAddress(sender);
-
-		if (domaine.length < 1) {
-			throw new UnauthorizedApiAccessException("Erreur d’authentification : api key inconnue: " + headerAddr);
-		}
-		if (!domaine[0].equals("*")) {
-			if (domaine.length == 0 || !StringUtils.containsIgnoreCase(domaine[0], senderDomaine)) {
-				throw new UnauthorizedApiAccessException("Erreur d’authentification : domaine invalide");
-			}
-		}
-
+	private void validDomainRecipient(String headerAddr, String recipient) {
+		validDomainHeader(headerAddr, recipient);
 	}
 
 	private void validDomainHeader(String headerAddr, String sender) {
@@ -850,19 +836,13 @@ public class ValidationMailService {
 		// get domain from properties
 		String[] domaine = apiKey.getOrDefault(headerAddr, new HashMap<String, String[]>()).getOrDefault("domaine",
 				new String[0]);
-		String senderDomaine = stringUploadUtils.extractDomainNameFromEmailAddress(sender);
 
 		if (domaine.length < 1) {
 			throw new UnauthorizedApiAccessException("Erreur d’authentification : api key inconnue: " + headerAddr);
 		}
 
-		if (!domaine[0].equals("*")) {
-			if ((!stringUploadUtils.isValidEmail(domaine[0])
-					&& (domaine.length == 0 || StringUtils.isBlank(senderDomaine)
-							|| !StringUtils.containsIgnoreCase(domaine[0], senderDomaine)))
-					|| (stringUploadUtils.isValidEmail(domaine[0]) && !domaine[0].equals(sender))) {
-				throw new UnauthorizedApiAccessException("Erreur d’authentification : domaine invalide");
-			}
+		if (!StringUploadUtils.isMailAllowed(sender, domaine)) {
+			throw new UnauthorizedApiAccessException("Erreur d’authentification : domaine invalide");
 		}
 
 	}

@@ -8,14 +8,16 @@
 package fr.gouv.culture.francetransfert.application.services;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -57,36 +59,69 @@ public class TomcatTempCleanupService {
 		}
 
 		Instant cutoff = Instant.now().minus(Duration.ofMinutes(minAgeMinutes));
-		int deletedFiles = 0;
-		long deletedBytes = 0;
-		int errors = 0;
+		Counters counters = new Counters();
 
 		for (Path directory : uniqueExistingDirectories()) {
-			try (Stream<Path> files = Files.walk(directory)) {
-				List<Path> candidates = files.filter(Files::isRegularFile).filter(this::matchesName)
-						.filter(path -> isOlderThan(path, cutoff)).toList();
-				for (Path candidate : candidates) {
-					try {
-						long size = Files.size(candidate);
-						if (Files.deleteIfExists(candidate)) {
-							deletedFiles++;
-							deletedBytes += size;
-							LOGGER.debug("Deleted Tomcat temp file {}", candidate);
-						}
-					} catch (IOException e) {
-						errors++;
-						LOGGER.warn("Unable to delete Tomcat temp file {}", candidate, e);
-					}
-				}
-			} catch (IOException | UncheckedIOException e) {
-				errors++;
+			try {
+				Files.walkFileTree(directory, new CleanupVisitor(cutoff, counters));
+			} catch (IOException e) {
+				counters.errors++;
 				LOGGER.warn("Unable to walk Tomcat temp directory {}", directory, e);
 			}
 		}
 
-		LOGGER.info("Tomcat temp cleanup finished: deletedFiles={} deletedBytes={} errors={}", deletedFiles,
-				deletedBytes, errors);
-		return new CleanupStats(deletedFiles, deletedBytes, errors);
+		LOGGER.info("Tomcat temp cleanup finished: deletedFiles={} deletedBytes={} errors={}", counters.deletedFiles,
+				counters.deletedBytes, counters.errors);
+		return new CleanupStats(counters.deletedFiles, counters.deletedBytes, counters.errors);
+	}
+
+	/**
+	 * Keeps walking when an entry vanishes or cannot be read, so one bad entry does
+	 * not abandon the whole directory.
+	 */
+	private final class CleanupVisitor extends SimpleFileVisitor<Path> {
+
+		private final Instant cutoff;
+		private final Counters counters;
+
+		private CleanupVisitor(Instant cutoff, Counters counters) {
+			this.cutoff = cutoff;
+			this.counters = counters;
+		}
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+			if (attrs.isRegularFile() && matchesName(file) && attrs.lastModifiedTime().toInstant().isBefore(cutoff)) {
+				try {
+					if (Files.deleteIfExists(file)) {
+						counters.deletedFiles++;
+						counters.deletedBytes += attrs.size();
+						LOGGER.debug("Deleted Tomcat temp file {}", file);
+					}
+				} catch (IOException e) {
+					counters.errors++;
+					LOGGER.warn("Unable to delete Tomcat temp file {}", file, e);
+				}
+			}
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFileFailed(Path file, IOException exc) {
+			if (exc instanceof NoSuchFileException) {
+				LOGGER.debug("Tomcat temp entry vanished during cleanup {}", file);
+			} else {
+				counters.errors++;
+				LOGGER.warn("Unable to visit Tomcat temp entry {}", file, exc);
+			}
+			return FileVisitResult.CONTINUE;
+		}
+	}
+
+	private static final class Counters {
+		private int deletedFiles;
+		private long deletedBytes;
+		private int errors;
 	}
 
 	private List<Path> uniqueExistingDirectories() {
@@ -119,15 +154,6 @@ public class TomcatTempCleanupService {
 		}
 		String name = fileName.toString();
 		return fileNamePatterns.stream().anyMatch(pattern -> FilenameUtils.wildcardMatch(name, pattern));
-	}
-
-	private boolean isOlderThan(Path path, Instant cutoff) {
-		try {
-			return Files.getLastModifiedTime(path).toInstant().isBefore(cutoff);
-		} catch (IOException e) {
-			LOGGER.debug("Unable to read last modified time of {}", path, e);
-			return false;
-		}
 	}
 
 	public record CleanupStats(int deletedFiles, long deletedBytes, int errors) {

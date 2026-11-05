@@ -167,12 +167,8 @@ public class DownloadServices {
 		// get domain from properties
 		String[] domaine = apiKey.getOrDefault(headerAddr, new HashMap<String, String[]>()).getOrDefault("domaine",
 				new String[0]);
-		String senderDomaine = stringUploadUtils.extractDomainNameFromEmailAddress(sender);
-		if (!domaine[0].equals("*")) {
-			if (domaine.length == 0 || StringUtils.isBlank(senderDomaine)
-					|| !StringUtils.containsIgnoreCase(domaine[0], senderDomaine)) {
-				throw new UnauthorizedApiAccessException("Erreur d’authentification : aucun objet de réponse renvoyé");
-			}
+		if (domaine.length < 1 || !StringUploadUtils.isMailAllowed(sender, domaine)) {
+			throw new UnauthorizedApiAccessException("Erreur d’authentification : aucun objet de réponse renvoyé");
 		}
 
 	}

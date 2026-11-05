@@ -22,14 +22,11 @@ import fr.gouv.culture.francetransfert.application.error.UnauthorizedAccessExcep
 import fr.gouv.culture.francetransfert.application.services.HealthCheckService;
 import fr.gouv.culture.francetransfert.core.model.HealthCheckRepresentation;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 
 @RestController
 @RequestMapping("/api-private/heathcheck")
-@Tag(name = "HeathCheck")
 public class HeathCheckResources {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HeathCheckResources.class);
@@ -41,7 +38,6 @@ public class HeathCheckResources {
 	String apiKeyConfig;
 
 	@GetMapping("/")
-	@Operation(method = "Get", description = "HeathCheck")
 	public ResponseEntity<HealthCheckRepresentation> healthCheck(@RequestHeader("X-Api-Key") String apiKey,
 			HttpServletRequest request) throws UploadException {
 

@@ -55,8 +55,6 @@ import fr.gouv.culture.francetransfert.core.model.RateRepresentation;
 import fr.gouv.culture.francetransfert.core.model.TokenEnclosureData;
 import fr.gouv.culture.francetransfert.domain.exceptions.UploadException;
 import fr.gouv.culture.francetransfert.validator.EmailsFranceTransfert;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -64,7 +62,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api-private/upload-module")
-@Tag(name = "Upload resources")
 @Validated
 public class UploadResources {
 
@@ -89,7 +86,6 @@ public class UploadResources {
 	private long uploadFileLimitSize;
 
 	@GetMapping("/upload")
-	@Operation(method = "GET", description = "Upload")
 	public boolean chunkExists(HttpServletResponse response, @RequestParam("flowChunkNumber") int flowChunkNumber,
 			@RequestParam("flowChunkSize") int flowChunkSize,
 			@RequestParam("flowCurrentChunkSize") int flowCurrentChunkSize,
@@ -111,7 +107,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/upload")
-	@Operation(method = "POST", description = "Upload  ")
 	public void processUpload(HttpServletResponse response, @RequestParam("flowChunkNumber") int flowChunkNumber,
 			@RequestParam("flowTotalChunks") int flowTotalChunks, @RequestParam("flowChunkSize") long flowChunkSize,
 			@RequestParam("flowTotalSize") long flowTotalSize, @RequestParam("flowIdentifier") String flowIdentifier,
@@ -135,7 +130,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/sender-info")
-	@Operation(method = "POST", description = "sender Info ")
 	public EnclosureRepresentation senderInfo(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody @Valid @EmailsFranceTransfert FranceTransfertDataRepresentation metadata) {
 		LOGGER.info("start upload enclosure for user mail {} and sender id {}", metadata.getSenderEmail(),
@@ -149,7 +143,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/delete-file")
-	@Operation(method = "GET", description = "Generate delete URL ")
 	public EnclosureRepresentation deleteFile(HttpServletResponse response, @RequestBody DeleteRequest deleteRequest)
 			throws MetaloadException {
 		LOGGER.info("start delete enclosure {}", deleteRequest.getEnclosureId());
@@ -162,7 +155,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/update-expired-date")
-	@Operation(method = "POST", description = "Update expired date")
 	public ResponseEntity<Object> updateTimeStamp(HttpServletResponse response,
 			@RequestBody @Valid DateUpdateRequest dateUpdateRequest)
 			throws UnauthorizedAccessException, MetaloadException {
@@ -186,7 +178,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/validate-code")
-	@Operation(method = "POST", description = "Validate code")
 	public EnclosureRepresentation validateCode(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("senderMail") String senderMail, @RequestParam("code") String code,
 			@Valid @EmailsFranceTransfert @RequestBody FranceTransfertDataRepresentation metadata) {
@@ -205,7 +196,6 @@ public class UploadResources {
 	// ---
 
 	@PostMapping("/file-info")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfo(HttpServletResponse response,
 			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
 		LOGGER.info("get file info from admin link for enclosure {} ", tokenEnclosureData.getEnclosure());
@@ -216,7 +206,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/file-info-connect")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfoConnect(HttpServletResponse response,
 			@RequestParam("enclosure") String enclosureId, @RequestBody ValidateCodeResponse metadata)
 			throws UnauthorizedAccessException, MetaloadException {
@@ -231,7 +220,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/file-info-reciever")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public FileInfoRepresentation fileInfoReciever(HttpServletResponse response,
 			@RequestBody TokenEnclosureData tokenEnclosureData) throws UnauthorizedAccessException, MetaloadException {
 		LOGGER.info("get file info for reciever for enclosure {} and user mail {} ", tokenEnclosureData.getEnclosure(),
@@ -247,7 +235,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/get-plis-sent")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public PlisPaginated getPlisSent(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
 			@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String searchedMail,
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
@@ -263,7 +250,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/get-plis-received")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public PlisPaginated getPliReceived(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
 			@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String searchedMail,
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
@@ -281,7 +267,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/get-export")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public CompletableFuture<String> getExportPlis(HttpServletResponse response,
 			@RequestBody ValidateCodeResponse metadata, @RequestParam(required = false) String searchedMail,
 			@RequestParam(required = false) String dateDebut, @RequestParam(required = false) String dateFin,
@@ -300,12 +285,11 @@ public class UploadResources {
 	}
 
 	@PostMapping("/get-url-export")
-	@Operation(method = "POST", description = "Download Info without URL ")
 	public String getUrlExport(HttpServletResponse response, @RequestBody ValidateCodeResponse metadata,
 			@RequestParam String objectKey) throws UnauthorizedAccessException, MetaloadException, IOException {
 		LOGGER.info("get url export for export {} and user mail {} ", objectKey, metadata.getSenderMail());
 		if (metadata.getSenderMail() != null && metadata.getSenderToken() != null && objectKey != null
-				&& objectKey != "") {
+				&& !objectKey.isBlank()) {
 			confirmationServices.validateToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 			confirmationServices.extendsToken(metadata.getSenderMail().toLowerCase(), metadata.getSenderToken());
 			uploadServices.validateCheckExport(metadata.getSenderMail().toLowerCase(), objectKey);
@@ -319,7 +303,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/add-recipient")
-	@Operation(method = "POST", description = "add a new recipient")
 	public boolean addRecipient(HttpServletResponse response,
 			@RequestBody @Valid AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
@@ -336,7 +319,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/delete-recipient")
-	@Operation(method = "POST", description = "delete recipient")
 	public boolean deleteRecipient(HttpServletResponse response,
 			@RequestBody AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
@@ -353,7 +335,6 @@ public class UploadResources {
 	}
 
 	@PostMapping("/resend-download-link")
-	@Operation(method = "POST", description = "add a new recipient")
 	public boolean resendDownloadLink(HttpServletResponse response,
 			@RequestBody AddNewRecipientRequest addNewRecipientRequest)
 			throws UnauthorizedAccessException, MetaloadException {
@@ -370,7 +351,6 @@ public class UploadResources {
 	}
 
 	@RequestMapping(value = "/satisfaction", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "Rates the app on a scvale of 1 to 4")
 	public boolean createSatisfactionFT(HttpServletResponse response,
 			@Valid @RequestBody RateRepresentation rateRepresentation) throws UploadException, MetaloadException {
 		confirmationServices.validateToken(rateRepresentation.getMailAdress().toLowerCase(),
@@ -383,7 +363,6 @@ public class UploadResources {
 	}
 
 	@RequestMapping(value = "/validate-mail", method = RequestMethod.GET)
-	@Operation(method = "GET", description = "Validate mail")
 	public Boolean validateMailDomain(@RequestParam("mail") String mail) throws UploadException {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(mail);
@@ -391,25 +370,21 @@ public class UploadResources {
 	}
 
 	@RequestMapping(value = "/validate-mail", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "Validate mail")
 	public Boolean validateMailDomain(@RequestBody List<String> mails) throws UploadException {
 		return uploadServices.validateMailDomain(mails);
 	}
 
 	@RequestMapping(value = "/allowed-sender-mail", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "allowed sender mail")
 	public Boolean allowedSenderMail(@RequestBody String mail) throws UploadException {
 		return uploadServices.allowedSendermail(mail.toLowerCase());
 	}
 
 	@RequestMapping(value = "/config", method = RequestMethod.GET)
-	@Operation(method = "GET", description = "Get Config")
 	public ConfigRepresentation getConfig() {
 		return configService.getConfig();
 	}
 
 	@RequestMapping(value = "/config", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "Update Config")
 	public void updateConfig(@RequestBody ConfigUpdate configUpdate, @RequestHeader("X-Api-Key") String apiKey) {
 		if (apiKeyConfig.equals(apiKey)) {
 			configService.updateConfig(configUpdate);
@@ -419,7 +394,6 @@ public class UploadResources {
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.POST)
-	@Operation(method = "POST", description = "Logout")
 	public boolean logout(@RequestBody ValidateCodeResponse data) throws MetaloadException {
 		return uploadServices.logout(data);
 	}
