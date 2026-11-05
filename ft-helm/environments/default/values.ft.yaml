@@ -201,6 +201,11 @@ upload:
       memory: 512Mi
   overrideConf:
     SERVER_TOMCAT_BASEDIR: "/opt/work/"
+    TOMCAT_TEMP_CLEANUP_ENABLED: "true"
+    TOMCAT_TEMP_CLEANUP_CRON: "0 0 3 * * *"
+    TOMCAT_TEMP_CLEANUP_ZONE: "Europe/Paris"
+    TOMCAT_TEMP_CLEANUP_MIN_AGE_MINUTES: "30"
+    TOMCAT_TEMP_CLEANUP_DIRECTORIES: "/opt/work,/tmp"
     SERVER_PORT: "8080"
     SERVER_COMPRESSION_ENABLED: "true"
     SERVER_COMPRESSION_MIMETYPES: application/json,application/xml,text/css,text/html,text/xml,text/plain,application/javascript

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.gouv.culture.francetransfert</groupId>
 	<artifactId>ftr-core</artifactId>
-	<version>4.1.14-SNAPSHOT</version>
+	<version>4.1.15-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>ftr-core</name>
 	<url>http://maven.apache.org</url>
@@ -17,8 +17,8 @@
 	<properties>
 		<!-- <log4j2.version>2.26.1</log4j2.version> -->
 		<!-- <jackson-bom.version>3.2.1</jackson-bom.version> -->
-		<jackson-bom.version>3.2.3</jackson-bom.version>
-		<jackson-2-bom.version>2.22.3</jackson-2-bom.version>
+		<jackson-bom.version>3.2.4</jackson-bom.version>
+		<jackson-2-bom.version>2.22.4</jackson-2-bom.version>
 		<java.version>25</java.version>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,16 +32,11 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.1</version>
+		<version>4.1.2</version>
 		<relativePath />
 	</parent>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>external.atlassian.jgitflow</groupId>
-				<artifactId>jgitflow-maven-plugin</artifactId>
-				<version>1.0-m5.1</version>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -50,7 +45,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.42</version>
+							<version>1.18.48</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -70,12 +65,12 @@
 		<dependency>
 			<groupId>org.owasp.encoder</groupId>
 			<artifactId>encoder</artifactId>
-			<version>1.4.0</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
 			<artifactId>owasp-java-html-sanitizer</artifactId>
-			<version>20260924.2</version>
+			<version>20261103.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -128,7 +123,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.20.0</version>
+			<version>3.21.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -142,8 +137,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>2.2</version>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -178,7 +173,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-s3</artifactId>
-			<version>1.12.787</version>
+			<version>1.12.797</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -187,34 +182,34 @@
 		<dependency>
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson</artifactId>
-			<version>4.3.0</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>7.3.0</version>
+			<version>7.5.3</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>3.3.2</version>
+			<version>3.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers-standard-package</artifactId>
-			<version>3.3.2</version>
+			<version>3.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
-			<version>3.3.2</version>
+			<version>3.3.3</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika</artifactId>
-			<version>3.3.2</version>
+			<version>3.3.3</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -232,7 +227,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.42</version>
+			<version>1.18.48</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

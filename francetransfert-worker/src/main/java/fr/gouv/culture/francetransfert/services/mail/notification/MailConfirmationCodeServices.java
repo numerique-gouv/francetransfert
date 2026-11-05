@@ -7,6 +7,9 @@
 
 package fr.gouv.culture.francetransfert.services.mail.notification;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +29,8 @@ import fr.gouv.culture.francetransfert.core.utils.LanguageUtils;
 public class MailConfirmationCodeServices {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MailConfirmationCodeServices.class);
+
+	private static final DateTimeFormatter HEURE_EXPIRATION = DateTimeFormatter.ofPattern("HH:mm:ss");
 
 	@Autowired
 	private MailNotificationServices mailNotificationServices;
@@ -69,11 +74,15 @@ public class MailConfirmationCodeServices {
 	}
 
 	private String extractHeureExpirationCode(String expiration) {
-		String result = "";
-		if (StringUtils.isNotBlank(expiration)) {
-			result = expiration.substring(11, 19);
+		if (StringUtils.isBlank(expiration)) {
+			return "";
 		}
-		return result;
+		try {
+			return ZonedDateTime.parse(expiration).format(HEURE_EXPIRATION);
+		} catch (DateTimeParseException e) {
+			LOGGER.warn("Unable to parse confirmation code expiration {}", expiration);
+			return "";
+		}
 	}
 
 }

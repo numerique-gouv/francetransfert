@@ -7,7 +7,9 @@
 
 package fr.gouv.culture.francetransfert.core.utils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -190,6 +192,30 @@ public class StringUploadUtils {
             }
         }
         return false;
+    }
+
+
+    public static boolean isMailAllowed(String mail, String[] allowedEntries) {
+        if (allowedEntries == null || allowedEntries.length == 0) {
+            return false;
+        }
+        if (Arrays.stream(allowedEntries).anyMatch(entry -> entry != null && "*".equals(entry.trim()))) {
+            return true;
+        }
+        if (!isValidRegex(REGEX_VALID_EMAIL, mail)) {
+            return false;
+        }
+        String mailLower = mail.toLowerCase(Locale.ROOT);
+        return Arrays.stream(allowedEntries).filter(StringUtils::isNotBlank)
+                .anyMatch(entry -> matchesAllowedEntry(mailLower, entry.trim().toLowerCase(Locale.ROOT)));
+    }
+
+    private static boolean matchesAllowedEntry(String mailLower, String allowed) {
+        if (isValidRegex(REGEX_VALID_EMAIL, allowed)) {
+            return allowed.equals(mailLower);
+        }
+        String mailDomain = mailLower.substring(mailLower.indexOf('@') + 1);
+        return mailDomain.equals(allowed);
     }
 
     public static boolean isValidRegex(String p, String str) {

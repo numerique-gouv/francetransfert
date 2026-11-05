@@ -38,8 +38,6 @@ import fr.gouv.culture.francetransfert.core.exception.MetaloadException;
 import fr.gouv.culture.francetransfert.core.exception.RetryException;
 import fr.gouv.culture.francetransfert.core.exception.StatException;
 import fr.gouv.culture.francetransfert.core.exception.StorageException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -50,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api-public")
-@Tag(name = "Public resources")
 @Validated
 public class PublicResources {
 
@@ -67,7 +64,6 @@ public class PublicResources {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PublicResources.class);
 
 	@PostMapping("/initPli")
-	@Operation(method = "POST", description = "initPli")
 	public InitialisationInfo validateCode(HttpServletResponse response, HttpServletRequest request,
 			@Valid @RequestBody ValidateData metadata)
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {
@@ -102,7 +98,6 @@ public class PublicResources {
 
 	// ---
 	@PostMapping("/chargementPli")
-	@Operation(method = "POST", description = "chargementPli")
 	public InitialisationInfo uploadData(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam(value = "numMorceauFichier", required = false) Integer flowChunkNumber,
 			@RequestParam(value = "totalMorceauxFichier", required = false) Integer flowTotalChunks,
@@ -147,7 +142,6 @@ public class PublicResources {
 	}
 
 	@GetMapping("/statutPli")
-	@Operation(method = "GET", description = "statutPli")
 	public InitialisationInfo packageStatus(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam(value = "idPli", required = false) String enclosureId,
 			@RequestParam(value = "courrielExpediteur", required = false) String senderMail)
@@ -172,7 +166,6 @@ public class PublicResources {
 	}
 
 	@GetMapping("/donneesPli")
-	@Operation(method = "GET", description = "donneesPli")
 	public PackageInfoRepresentation packageInfo(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam(value = "idPli", required = false) String enclosureId,
 			@RequestParam(value = "courrielExpediteur", required = false) String senderMail)
@@ -200,7 +193,6 @@ public class PublicResources {
 	}
 
 	@GetMapping("/mesPlis")
-	@Operation(method = "GET", description = "get-plis")
 	public FilesInfosApi getPlis(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam(value = "courrielUtilisateur", required = true) String courrielUtilisateur)
 			throws UnauthorizedAccessException, MetaloadException, ApiValidationException {
@@ -223,7 +215,6 @@ public class PublicResources {
 	}
 
 	@GetMapping("/donneesPliDest")
-	@Operation(method = "GET", description = "Get Info")
 	public PliInfoRepresentation pliInfoConnectReciever(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam("idPli") String idPli, @RequestParam("courrielExpediteur") String courrielExpediteur,
 			@RequestParam("courrielUtilisateur") String courrielUtilisateur)
@@ -252,7 +243,6 @@ public class PublicResources {
 	}
 
 	@PostMapping("/majPreferenceDestinataire")
-	@Operation(method = "POST", description = "majPreferenceDestinataire")
 	public void majPreferenceDestinataire(HttpServletResponse response, HttpServletRequest request,
 			@RequestBody ValidateCanal metadata)
 			throws ApiValidationException, MetaloadException, StorageException, RetryException {

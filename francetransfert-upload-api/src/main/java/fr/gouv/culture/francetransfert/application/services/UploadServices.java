@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -98,6 +99,12 @@ import jakarta.annotation.PostConstruct;
 public class UploadServices {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadServices.class);
+
+	private static final String EXPORT_SENT_INFIX = "_plis_envoyés_";
+	private static final String EXPORT_RECEIVED_INFIX = "_plis_reçus_";
+	// date au format yyyyMMdd_HHmmss
+	private static final String EXPORT_SUFFIX_REGEX = "(" + Pattern.quote(EXPORT_SENT_INFIX) + "|"
+			+ Pattern.quote(EXPORT_RECEIVED_INFIX) + ")\\d{8}_\\d{6}\\.csv";
 
 	@Value("${bucket.prefix}")
 	private String bucketPrefix;
@@ -208,7 +215,8 @@ public class UploadServices {
 
 		try {
 
-			redisManager.validateToken(senderId, senderToken);
+			confirmationServices.validateTokenAndEnclosure(senderId, senderToken, enclosureId);
+
 			if ((flowChunkNumber % chunkModulo) == 0) {
 				redisManager.extendTokenValidity(senderId, senderToken);
 			}
@@ -899,10 +907,11 @@ public class UploadServices {
 		String formattedDate = now.format(formatter);
 		String objectKey;
 
+		String senderMail = metadata.getSenderMail().toLowerCase(Locale.ROOT);
 		if (isPLiSent) {
-			objectKey = metadata.getSenderMail() + "_plis_envoyés_" + formattedDate + ".csv";
+			objectKey = senderMail + EXPORT_SENT_INFIX + formattedDate + ".csv";
 		} else {
-			objectKey = metadata.getSenderMail() + "_plis_reçus_" + formattedDate + ".csv";
+			objectKey = senderMail + EXPORT_RECEIVED_INFIX + formattedDate + ".csv";
 		}
 
 		LOGGER.debug("objectKey ready");
@@ -1060,7 +1069,8 @@ public class UploadServices {
 	public void validateCheckExport(String senderMail, String objectKey) throws MetaloadException {
 		// verify token in redis
 		LOGGER.debug("check senderMail for export csv {}", senderMail);
-		if (!objectKey.startsWith(senderMail)) {
+		if (senderMail == null || objectKey == null
+				|| !Pattern.matches(Pattern.quote(senderMail) + EXPORT_SUFFIX_REGEX, objectKey)) {
 			throw new MetaloadException("Invalid senderMail");
 		}
 	}
