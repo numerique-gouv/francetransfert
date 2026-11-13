@@ -4,9 +4,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    display: -webkit-flex;
-    -webkit-flex-direction: row;
-    -webkit-align-items: center;
     .upload-title-card {
       margin-top: 20px;
       .upload-title-card-content {
@@ -24,10 +21,6 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      display: -webkit-flex;
-      -webkit-flex-direction: row;
-      -webkit-justify-content: center;
-      -webkit-align-items: center;
 
       .list-elements-wrapper {
         height: 88%;
@@ -75,10 +68,6 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    display: -webkit-flex;
-    -webkit-flex-direction: row;
-    -webkit-justify-content: center;
-    -webkit-align-items: center;
 
     .list-elements-wrapper {
       height: 60%;
@@ -117,9 +106,6 @@
     display: flex;
     flex-direction: column-reverse;
     align-self: center;
-    display: -webkit-flex;
-    -webkit-flex-direction: column-reverse;
-    -webkit-align-self: center;
     margin-top: 90px;
 
     .list-elements-wrapper {
@@ -164,7 +150,7 @@
 }
 
 ::ng-deep {
-  .mat-snack-bar-container {
+  .mat-mdc-snack-bar-container {
     padding: 0px !important;
     background-color: #ffffff;
     color: #0a0a0a;

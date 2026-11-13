@@ -5,50 +5,33 @@
   * License-Filename: LICENSE.txt 
   */
 
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { ResponsiveService, TarteaucitronService } from 'src/app/services';
+import { Component, inject, output, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { ResponsiveService } from 'src/app/services';
 import { environment } from '../../../environments/environment';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'ft-footer',
   templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.scss']
+  styleUrls: ['./footer.component.scss'],
+  imports: [MatToolbar, MatToolbarRow, RouterLink, TranslatePipe]
 })
-export class FooterComponent implements OnInit, OnDestroy {
-  isMobile: boolean = false;
-  responsiveSubscription: Subscription = new Subscription;
-  version: string;
-  @Output() routingCalled: EventEmitter<boolean> = new EventEmitter();
+export class FooterComponent {
+  private responsiveService = inject(ResponsiveService);
+  private router = inject(Router);
 
-  constructor(private responsiveService: ResponsiveService,
-    private router: Router,
-    private tarteaucitronService: TarteaucitronService) {
-    this.version = environment.version;
-  }
+  readonly isMobile = this.responsiveService.isMobile;
+  readonly version = signal<string>(undefined);
+  readonly routingCalled = output<boolean>();
 
-  ngOnInit(): void {
-    this.onResize();
-    this.responsiveService.checkWidth();
-  }
-
-  ngOnDestroy() {
-    this.responsiveSubscription.unsubscribe();
-  }
-
-  onResize() {
-    this.responsiveSubscription = this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-    });
+  constructor() {
+    this.version.set(environment.version);
   }
 
   routeTo(_route) {
     this.routingCalled.emit(true);
-  }
-
-  showTarteaucitronManager() {
-    this.tarteaucitronService.showPanel();
   }
 
 }

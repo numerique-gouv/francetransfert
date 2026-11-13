@@ -17,8 +17,6 @@
         min-height: 93.4vh;
         display: flex;
         flex-direction: column;
-        display: -webkit-flex;
-        -webkit-flex-direction: column;
         .app-content {
             flex-grow:1;
             height: 100%;
@@ -29,8 +27,6 @@
             flex-grow:1;
             justify-content: center;
             align-items: center;
-            -webkit-justify-content: center;
-            -webkit-align-items: center;
         }
     }
 }
@@ -89,7 +85,7 @@ button:focus{
   100% { transform: rotate(360deg); }
 }
 
-::ng-deep .mat-tooltip {
+::ng-deep .mat-mdc-tooltip {
     color: var(--ft-mention) !important;
     background-color: var(--ft-white) !important;
     border: solid 1px var(--ft-mention) !important;
@@ -98,49 +94,54 @@ button:focus{
     line-height: 20px !important;
 }
 
-::ng-deep .mat-form-field.mat-focused {
-    .mat-form-field-label {
+::ng-deep .mat-mdc-form-field.mat-focused {
+    .mdc-floating-label {
+        color: var(--ft-blue-france) !important;
+    }
+    .mdc-line-ripple::after {
+        border-bottom-color: var(--ft-blue-france) !important;
+    }
+    .mdc-notched-outline > * {
+        border-color: var(--ft-blue-france) !important;
+    }
+    .mat-mdc-form-field-required-marker {
         color: var(--ft-blue-france);
     }
-    .mat-form-field-ripple {
-        background-color: var(--ft-blue-france);
-    }
-    .mat-form-field-required-marker {
-        color: var(--ft-blue-france);
-    }
-    .mat-input-element {
+    .mat-mdc-input-element {
         color: var(--ft-blue-france);
     }
 }
 
-::ng-deep .mat-form-field.mat-form-field-invalid {
-    .mat-input-element {
+::ng-deep .mat-mdc-form-field.mat-form-field-invalid {
+    .mat-mdc-input-element {
         color: var(--ft-error);
     }
-    .mat-form-field-label {
-        color: var(--ft-error);
-        .mat-form-field-required-marker {
-            color: var(--ft-error);
-        }
+    .mdc-floating-label,
+    .mat-mdc-form-field-required-marker {
+        color: var(--ft-error) !important;
     }
-    .mat-form-field-ripple {
-        background-color: var(--ft-error);
+    .mdc-line-ripple::before,
+    .mdc-line-ripple::after {
+        border-bottom-color: var(--ft-error) !important;
+    }
+    .mdc-notched-outline > * {
+        border-color: var(--ft-error) !important;
     }
 
-    .mat-error {
+    .mat-mdc-form-field-error {
         color: var(--ft-error);
         font-size: 18.5px;
         font-weight: bold;
     }
 }
 
-::ng-deep .mat-error {
+::ng-deep .mat-mdc-form-field-error {
     color: var(--ft-error);
     font-size: 18.5px;
     font-weight: bold;
 }
 
-::ng-deep .tootlip-ml.mat-tooltip{
+::ng-deep .tootlip-ml.mat-mdc-tooltip{
     max-width:max-content !important;
     white-space: pre-wrap;
 }
@@ -158,13 +159,14 @@ button:focus{
 }
 
 // overwrite the checkbox background
-::ng-deep .mat-checkbox-checked .mat-checkbox-background,
-.mat-checkbox-indeterminate .mat-checkbox-background {
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
     background-color: var(--ft-blue-france) !important;
+    border-color: var(--ft-blue-france) !important;
 }
 
 // overwrite the ripple overlay on hover and click
-::ng-deep .mat-checkbox:not(.mat-checkbox-disabled) .mat-checkbox-ripple .mat-ripple-element {
+::ng-deep .mat-mdc-checkbox:not(.mat-mdc-checkbox-disabled) .mat-mdc-checkbox-ripple .mat-ripple-element {
     background-color: var(--ft-blue-france) !important;
 }
 

@@ -15,8 +15,8 @@ describe('PwaPromptInstallComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PwaPromptInstallComponent ]
-    })
+    imports: [PwaPromptInstallComponent]
+})
     .compileComponents();
   });
 

@@ -17,35 +17,26 @@
   justify-content: center;
   //padding: 0px;
 
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
   .envelope-card-content {
     padding: 16px;
       .envelope-card-tab-group {
-
-        ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
+        ::ng-deep.mat-mdc-tab, ::ng-deep.mdc-tab--active{
           padding: 3px!important;
          }
-          ::ng-deep .mat-tab-label-content {
+          ::ng-deep .mdc-tab__text-label {
               width: 100%;
               justify-content: flex-start;
-              -webkit-justify-content: flex-start;
               font-weight: bold;
               font-size: 16px;
               line-height: 28px;
           }
-          ::ng-deep .mat-ink-bar {
-              background-color: var(--ft-primary);
-          }
-          ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
-              width: 100%;
+          ::ng-deep .mdc-tab-indicator__content--underline {
+              border-color: var(--ft-primary);
           }
 
       }
   }
-
-  ::ng-deep .mat-tab-body-content{
+  ::ng-deep .mat-mdc-tab-body-content{
       overflow-x: clip;
   }
 }
@@ -58,7 +49,7 @@
           height: 100%;
           overflow: auto;
           .envelope-card-tab-group {
-                ::ng-deep .mat-tab-label-content {
+                ::ng-deep .mdc-tab__text-label {
                     font-size: 15px;
                 }
 
@@ -76,7 +67,7 @@
           overflow: auto;
           .envelope-card-tab-group {
               height: 100%;
-              ::ng-deep .mat-tab-body-wrapper {
+              ::ng-deep .mat-mdc-tab-body-wrapper {
                   height: 100%;
               }
 
@@ -94,7 +85,7 @@
           overflow: auto;
           .envelope-card-tab-group {
               height: 100%;
-              ::ng-deep .mat-tab-body-wrapper {
+              ::ng-deep .mat-mdc-tab-body-wrapper {
                   height: 100%;
               }
 

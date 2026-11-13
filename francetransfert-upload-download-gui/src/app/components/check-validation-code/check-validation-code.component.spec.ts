@@ -7,6 +7,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { DownloadManagerService, UploadManagerService } from 'src/app/services';
 import { CheckValidationCodeComponent } from './check-validation-code.component';
 
 describe('CheckValidationCodeComponent', () => {
@@ -15,8 +16,8 @@ describe('CheckValidationCodeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CheckValidationCodeComponent ]
-    })
+    imports: [CheckValidationCodeComponent]
+})
     .compileComponents();
   });
 
@@ -28,5 +29,25 @@ describe('CheckValidationCodeComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('shows an upload error and re-enables the validation button', () => {
+    component.buttonDisable.set(true);
+
+    TestBed.inject(UploadManagerService).uploadError.set({ statusCode: 401, message: 'INVALID_CODE', codeTryCount: 2 });
+    fixture.detectChanges();
+
+    expect(component.buttonDisable()).toBe(false);
+    expect(component.error()).toMatchObject({ statusCode: 401, codeTryCount: 2 });
+  });
+
+  it('shows a download error and re-enables the validation button', () => {
+    component.buttonDisable.set(true);
+
+    TestBed.inject(DownloadManagerService).downloadError.set({ statusCode: 401, message: 'WRONG_PASSWORD', codeTryCount: 1 });
+    fixture.detectChanges();
+
+    expect(component.buttonDisable()).toBe(false);
+    expect(component.error()).toMatchObject({ statusCode: 401, codeTryCount: 1 });
   });
 });

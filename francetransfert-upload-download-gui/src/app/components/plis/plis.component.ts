@@ -6,26 +6,32 @@
   */
 
 
-import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Transfer } from '@flowjs/ngx-flow';
-import { BehaviorSubject, Subscription, take } from 'rxjs';
 import { FTTransferModel, LinkInfosModel, MailInfosModel, ParametersModel } from 'src/app/models';
-import { TokenModel } from 'src/app/models/token.model';
 import { AdminService, FileManagerService, UploadManagerService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { majChar, minChar, numChar, sizeControl, specialChar } from 'src/app/shared/validators/forms-validator';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatTabGroup, MatTab, MatTabContent } from '@angular/material/tabs';
+import { PlisEnvoyesComponent } from './plis-envoyes/plis-envoyes.component';
+import { PlisRecusComponent } from './plis-recus/plis-recus.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-plis',
-  templateUrl: './plis.component.html',
-  styleUrls: ['./plis.component.scss']
+    selector: 'ft-plis',
+    templateUrl: './plis.component.html',
+    styleUrls: ['./plis.component.scss'],
+    imports: [MatCard, MatCardContent, MatTabGroup, MatTab, MatTabContent, PlisEnvoyesComponent, PlisRecusComponent, TranslatePipe]
 })
 export class PlisComponent implements OnInit {
+  private loginService = inject(LoginService);
+  private titleService = inject(Title);
+
 
   //added by abir
-  tokenInfo: BehaviorSubject<TokenModel> = new BehaviorSubject<any>(null);
   fileInfos: any;
   transfers: Array<any> = [];
   validUntilDate;
@@ -33,17 +39,12 @@ export class PlisComponent implements OnInit {
   public selectedDate: Date = new Date();
 
 
-  @Output() uploadStarted: EventEmitter<boolean> = new EventEmitter();
+  readonly uploadStarted = output<boolean>();
   selectedTab: string;
 
   showParameters: boolean = false;
 
   parametersFormValues: ParametersModel;
-
-  constructor(private loginService: LoginService,
-    private titleService: Title,
-    ) {
-  }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Mes plis');

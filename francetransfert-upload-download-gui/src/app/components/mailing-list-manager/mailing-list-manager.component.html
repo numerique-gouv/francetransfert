@@ -4,7 +4,9 @@
 <mat-dialog-content class="mat-typography">
   <!-- <h3>Cette action supprimera définitivement votre pli et le rendra inaccessible.</h3> -->
   <span> {{'ImportationListeContactsText' | translate}} ";"</span>
-  <span *ngIf="errorMessage !== ''" class="error" role="alert">{{errorMessage}}</span>
+  @if (errorMessage() !== '') {
+    <span class="error" role="alert">{{errorMessage()}}</span>
+  }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button class="btn" mat-button (click)="fileInput.click()" attr.aria-label="{{'Fichier' | translate}}">

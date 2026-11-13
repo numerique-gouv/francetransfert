@@ -5,65 +5,63 @@
   * License-Filename: LICENSE.txt
   */
 
-import { ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, Signal, effect, inject, viewChild, viewChildren, signal } from '@angular/core';
+import { formSignal } from '../../shared/forms/form-signal';
 import { ConnectEndMessageComponent } from './../connect-end-message/connect-end-message.component';
-import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms";
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Subscription, take } from 'rxjs';
+import { take } from 'rxjs';
 import { LoginService } from 'src/app/services/login/login.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { Title } from '@angular/platform-browser';
+import { MatFormField, MatLabel, MatError } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { MatCardActions } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 
 
 @Component({
-  selector: 'ft-connect',
-  templateUrl: './connect.component.html',
-  styleUrls: ['./connect.component.scss']
+    selector: 'ft-connect',
+    templateUrl: './connect.component.html',
+    styleUrls: ['./connect.component.scss'],
+    imports: [ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatCardActions, MatButton, TranslatePipe]
 })
 export class ConnectComponent implements OnInit {
+  private configService = inject(ConfigService);
+  private loginService = inject(LoginService);
+  translateService = inject(TranslateService);
+  private _snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private titleService = inject(Title);
 
 
-  @ViewChild('mailEnter') mailEnter: ElementRef;
-  @ViewChild('codeEnter', { static: false }) codeEnter: ElementRef;
 
-  loginForm
+  readonly mailEnter = viewChild<ElementRef>('mailEnter');
+  readonly codeEnter = viewChild<ElementRef>('codeEnter');
 
-  codeSent: boolean = false;
-  visible: boolean = false;
-  error = null;
-  @ViewChildren('codeReceived') codeField: QueryList<ElementRef>;
-  isAgentConnect: boolean = false;
-  agentConnectSub: Subscription = new Subscription();
+  readonly loginForm: Signal<FormGroup>;
 
-  constructor(
-    private configService: ConfigService,
-    private loginService: LoginService,
-    public translateService: TranslateService,
-    private _snackBar: MatSnackBar,
-    private router: Router,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: Title,
-  ) {
+  readonly codeSent = signal<boolean>(false);
+  readonly visible = signal<boolean>(false);
+  readonly error = signal(null);
+  readonly codeField = viewChildren<ElementRef>('codeReceived');
+  readonly isAgentConnect = this.configService.isAgentConnect;
 
-    this.loginForm = new FormGroup({
+  constructor() {
+
+    this.loginForm = formSignal(new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       code: new FormControl('', [Validators.required, Validators.minLength(8)]),
-    });
+    }));
 
-    this.agentConnectSub = this.configService.isAgentConnect.subscribe(x => {
-      this.isAgentConnect = x;
-    });
-
+    // The code field only exists once the code is sent: give it the focus as soon as it is rendered.
+    effect(() => this.codeField().at(0)?.nativeElement.focus());
   }
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - Connexion');
-  }
-
-  ngOnDestroy() {
-    this.agentConnectSub.unsubscribe();
   }
 
 
@@ -76,12 +74,12 @@ export class ConnectComponent implements OnInit {
   // }
 
   cancel(event) {
-    this.loginService.tokenInfo.next(null);
-    this.loginForm.reset();
-    this.codeSent = false;
-    this.visible = false;
-    this.error = null;
-    this.mailEnter.nativeElement.focus();
+    this.loginService.tokenInfo.set(null);
+    this.loginForm().reset();
+    this.codeSent.set(false);
+    this.visible.set(false);
+    this.error.set(null);
+    this.mailEnter().nativeElement.focus();
   }
 
   backToHome() {
@@ -90,33 +88,31 @@ export class ConnectComponent implements OnInit {
 
 
 
-  get email() { return this.loginForm.get('email') }
-  get code() { return this.loginForm.get('code') }
-  get f() { return this.loginForm.controls; }
-  get form() { return this.loginForm; }
+  get email() { return this.loginForm().get('email') }
+  get code() { return this.loginForm().get('code') }
+  get f() { return this.loginForm().controls; }
+  get form() { return this.loginForm(); }
 
 
   sendCode(event) {
     event.preventDefault();
-    this.codeSent = !this.codeSent;
-    this.visible = !this.visible;
-    this.loginService.generateCode(this.email.value, this.translateService.currentLang).pipe(take(1)).subscribe();
-    this.changeDetectorRef.detectChanges();
-    this.codeField.first.nativeElement.focus();
+    this.codeSent.set(!this.codeSent());
+    this.visible.set(!this.visible());
+    this.loginService.generateCode(this.email.value, this.translateService.currentLang()).pipe(take(1)).subscribe();
   }
 
 
   validateCode(event) {
-    if (this.loginForm.valid) {
-      this.error = null;
+    if (this.loginForm().valid) {
+      this.error.set(null);
       this.loginService.validateCode({
         code: this.code.value,
         senderMail: this.email.value
       },
-        this.translateService.currentLang).pipe(take(1)).subscribe(x => {
+        this.translateService.currentLang()).pipe(take(1)).subscribe(x => {
           this.router.navigate(['/upload']);
         }, err => {
-          this.error = err.error;
+          this.error.set(err.error);
         });
     }
   }

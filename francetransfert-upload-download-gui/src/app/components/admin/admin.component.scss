@@ -2,9 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  display: -webkit-flex;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
   .big-error {
     margin-bottom: 2.2rem;
   }
@@ -12,19 +9,13 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    -webkit-justify-content: flex-start;
     .admin-card-header {
       width: 100%;
       align-self: flex-start;
       display: flex;
       flex-direction: column;
-      -webkit-align-self: flex-start;
-      display: -webkit-flex;
-      -webkit-flex-direction: column;
       border-bottom: 1px solid var(--ft-asset);
-      .mat-card-title {
+      .mat-mdc-card-title {
         font-size: 16px;
       }
     }
@@ -35,8 +26,6 @@
       margin-top: 10px;
       display: flex;
       flex-direction: column;
-      display: -webkit-flex;
-      -webkit-flex-direction: column;
 
       p {
         height: 30px;
@@ -51,14 +40,17 @@
           flex-direction: column;
           padding: 0 16px;
         }
-        ::ng-deep .mat-list-item-content {
+        ::ng-deep .mdc-list-item__content {
           display: flex;
           flex-direction: row;
           justify-content: space-between;
-          display: -webkit-flex;
-          -webkit-flex-direction: row;
-          -webkit-justify-content: space-between;
           flex-wrap: wrap;
+
+
+          > .mat-mdc-list-item-unscoped-content {
+            display: contents;
+            white-space: normal;
+          }
 
           .mat-icon {
             cursor: pointer;
@@ -101,8 +93,6 @@
         width: 100%;
         display: flex;
         flex-direction: column;
-        display: -webkit-flex;
-        -webkit-flex-direction: column;
         .file-item {
           width: 100%;
           height: 100%;
@@ -127,7 +117,7 @@
       }
     }
 
-    ::ng-deep .mat-list-item {
+    ::ng-deep .mat-mdc-list-item {
       height: 100%;
     }
 
@@ -151,15 +141,12 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      display: -webkit-flex;
-      -webkit-flex-direction: row;
-      -webkit-justify-content: space-between;
       padding-top: 0.5rem;
       .admin-card-actions-btn {
         background-color: var(--ft-blue-france);
         color: var(--ft-white);
       }
-      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+      .mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
         box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
         outline-style: solid;
         outline-width: 2px;
@@ -228,7 +215,7 @@
   }
 }
 
-::ng-deep .mat-snack-bar-container {
+::ng-deep .mat-mdc-snack-bar-container {
   padding: 0px !important;
   background-color: #ffffff;
   color: #0a0a0a;

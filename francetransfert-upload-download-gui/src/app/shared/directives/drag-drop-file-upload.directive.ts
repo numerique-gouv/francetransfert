@@ -5,17 +5,15 @@
   * License-Filename: LICENSE.txt 
   */
 
-import { Directive, EventEmitter, Output, HostListener, HostBinding } from '@angular/core';
+import { Directive, HostListener, HostBinding, output } from '@angular/core';
 
-@Directive({
-  selector: '[ftDragDropFileUpload]'
-})
+@Directive({ selector: '[ftDragDropFileUpload]' })
 
 export class DragDropFileUploadDirective {
 
-  @Output() fileDropped = new EventEmitter<any>();
+  readonly fileDropped = output<any>();
 
-  @HostBinding('style.background-color') private background = '#ffffff';
+  @HostBinding('style.background-color') protected background = '#ffffff';
 
   // Dragover Event
   @HostListener('dragover', ['$event']) dragOver(event) {

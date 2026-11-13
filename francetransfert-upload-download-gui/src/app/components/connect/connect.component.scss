@@ -1,4 +1,4 @@
-.mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]) {
+.mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]) {
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
   outline-style: solid;
   outline-width: 2px;
@@ -118,7 +118,7 @@
       margin-bottom: 2.2rem;
     }
 
-    .mat-error {
+    .mat-mdc-form-field-error {
       color: var(--ft-error);
       font-size: 18.5px;
       font-weight: 700;
@@ -128,13 +128,13 @@
       margin: 6%;
     }
 
-    ::ng-deep textarea.mat-input-element {
+    ::ng-deep textarea.mat-mdc-input-element {
       min-height: 80px;
       max-height: 160px;
       height: 80px;
     }
 
-    .mat-form-field {
+    .mat-mdc-form-field {
       width: 100%;
 
       .icon-btn {
@@ -152,7 +152,6 @@
       align-items: center;
       display: flex;
       flex-direction: row;
-      display: -webkit-flex;
       flex-direction: row;
       margin-top: 1rem;
       margin-bottom: 2rem;
@@ -165,8 +164,7 @@
         background-color: var(--ft-blue-france);
         color: var(--ft-white);
       }
-
-      ::ng-deep .card-actions-btn.mat-button-disabled {
+      ::ng-deep .card-actions-btn:is(:disabled, [aria-disabled="true"]) {
         background-color: var(--ft-grey);
         color: var(--ft-mention);
       }
@@ -179,11 +177,9 @@
       text-align: center;
       margin-bottom: 3%;
       color: var(--ft-mention) !important;
-
-      ::ng-deep .mat-tab-label-content {
+      ::ng-deep .mdc-tab__text-label {
         width: 100%;
         justify-content: flex-start;
-        -webkit-justify-content: flex-start;
         font-weight: bold;
         font-size: 20px;
         line-height: 28px;
@@ -193,7 +189,7 @@
   }
 }
 
-::ng-deep .mat-snack-bar-container {
+::ng-deep .mat-mdc-snack-bar-container {
   padding: 0px !important;
   background-color: #ffffff;
   color: #0a0a0a;
@@ -292,10 +288,6 @@
   align-items: center;
   justify-content: space-around;
   flex-direction: column;
-  display: -webkit-flex;
-  -webkit-align-items: center;
-  -webkit-justify-content: space-around;
-  -webkit-flex-direction: column;
   height: 90%;
   width: 100%;
   padding: 0px 8px;

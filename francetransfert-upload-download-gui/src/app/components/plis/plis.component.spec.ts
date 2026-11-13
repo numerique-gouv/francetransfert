@@ -15,8 +15,8 @@ describe('PlisComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlisComponent ]
-    })
+    imports: [PlisComponent]
+})
     .compileComponents();
   });
 

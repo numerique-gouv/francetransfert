@@ -1,10 +1,7 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-//@import "~material-design-icons/iconfont/material-icons.css";
-@import '~material-icons/iconfont/material-icons.css';
-@import "@angular/material/theming";
-// Plus imports for other components in your app.
+// material-icons and tarteaucitron CSS are loaded via angular.json "styles".
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
@@ -16,34 +13,297 @@
 //  If you specify typography styles for the components you use elsewhere, you should delete this line.
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
+//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
+// Marianne everywhere, no MDC letter-spacing (legacy components had none on buttons/tabs/labels).
+$ft-font: 'marianne, sans-serif';
+$ft-typography: mat.m2-define-typography-config(
+  $font-family: $ft-font,
+  // Used by h2, card and dialog titles: the default 0.0125em spacing made long h2 titles wrap.
+  $headline-6: mat.m2-define-typography-level(20px, 32px, 500, $ft-font, normal),
+  $body-1: mat.m2-define-typography-level(16px, 24px, 400, $ft-font, normal),
+  $body-2: mat.m2-define-typography-level(14px, 20px, 400, $ft-font, normal),
+  $subtitle-1: mat.m2-define-typography-level(16px, 28px, 400, $ft-font, normal),
+  $subtitle-2: mat.m2-define-typography-level(14px, 22px, 500, $ft-font, normal),
+  $caption: mat.m2-define-typography-level(12px, 20px, 400, $ft-font, normal),
+  $button: mat.m2-define-typography-level(14px, 14px, 500, $ft-font, normal),
+);
+@include mat.all-component-typographies($ft-typography);
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$app-primary: mat.define-palette(mat.$indigo-palette);
-$app-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$app-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$app-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$app-warn: mat.define-palette(mat.$red-palette);
+$app-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-// Create the theme object (a Sass map containing all of the palettes).
-$app-theme: mat.define-light-theme($app-primary, $app-accent, $app-warn);
+// Create the theme object (color only: typography is emitted above via all-component-typographies).
+$app-theme: mat.m2-define-light-theme((
+  color: (primary: $app-primary, accent: $app-accent, warn: $app-warn),
+  density: 0,
+));
 
 // Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-@include mat.all-legacy-component-themes($app-theme);
+@include mat.all-component-themes($app-theme);
+// Legacy icon buttons were 40px wide (MDC: 48px).
+@include mat.icon-button-density(-2);
 
-// Ionic Variables and Theming. For more info, please see:
-// http://ionicframework.com/docs/theming/
-// Dark theme
-$dark-primary: mat.define-palette(mat.$blue-grey-palette);
-$dark-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
-$dark-warn: mat.define-palette(mat.$deep-orange-palette);
-$dark-theme: mat.define-dark-theme($dark-primary, $dark-accent, $dark-warn);
+.mat-mdc-form-field {
+  --mat-form-field-container-text-size: 14px;
+  --mat-form-field-container-text-line-height: 16px;
+  --mat-form-field-filled-label-text-size: 14px;
+  --mat-form-field-outlined-label-text-size: 14px;
+  --mat-select-trigger-text-size: 14px;
+  --mat-select-trigger-text-line-height: 16px;
+}
+
+
+.mat-mdc-form-field:not([appearance]) {
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-filled-with-label-container-padding-top: 17px;
+  --mat-form-field-filled-with-label-container-padding-bottom: 7px;
+  --mat-form-field-container-vertical-padding: 12px;
+  --mat-form-field-subscript-text-line-height: 17px;
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent;
+  }
+  .mdc-text-field {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .mat-mdc-form-field-focus-overlay {
+    display: none;
+  }
+
+  .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+    top: 25px;
+    line-height: 16px;
+  }
+  .mdc-text-field--filled .mdc-floating-label--float-above {
+    transform: translateY(-24px) scale(0.75);
+  }
+
+  .mat-mdc-form-field-subscript-wrapper::before {
+    display: block;
+    height: 17px;
+  }
+  
+  textarea.mat-mdc-input-element {
+    padding: 2px 0;
+    margin: -2px 0;
+  }
+  
+  textarea[cdkautosizeminrows="5"] {
+    min-height: 84px !important;
+  }
+  
+  .mat-mdc-form-field-icon-suffix {
+    align-self: flex-end;
+    padding: 0 0 4px;
+
+    .mat-mdc-icon-button {
+      --mat-icon-button-state-layer-size: 21px;
+      padding: 0;
+    }
+    .mat-icon {
+      font-size: 21px;
+      width: 21px;
+      height: 21px;
+    }
+    .mat-datepicker-toggle-default-icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  
+  .mat-mdc-select-arrow-wrapper {
+    height: 16px;
+    transform: none;
+  }
+}
+
+
+html {
+  --mat-button-text-horizontal-padding: 16px;
+  --mat-button-text-with-icon-horizontal-padding: 16px;
+  --mat-button-text-container-height: 38px;
+  --mat-button-filled-container-height: 38px;
+  --mat-button-protected-container-height: 38px;
+  --mat-button-outlined-container-height: 38px;
+}
+html .mat-mdc-button-base > .mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+
+
+html {
+  --mat-dialog-headline-padding: 0;
+  --mat-dialog-content-padding: 0 24px;
+  --mat-dialog-with-actions-content-padding: 0 24px;
+  --mat-dialog-actions-padding: 8px 0;
+  --mat-dialog-supporting-text-size: 14px;
+  --mat-dialog-supporting-text-line-height: 20px;
+  --mat-dialog-supporting-text-tracking: normal;
+  --mat-dialog-supporting-text-color: rgba(0, 0, 0, 0.87);
+}
+html .mat-mdc-dialog-surface {
+  box-sizing: border-box;
+  padding: 24px;
+}
+html .mat-mdc-dialog-title {
+  margin: 0 0 16px;
+
+  &::before {
+    display: none;
+  }
+}
+html .mat-mdc-dialog-content {
+  margin: 0 -24px;
+}
+html .mat-mdc-dialog-actions {
+  box-sizing: content-box;
+  min-height: 52px;
+  margin-bottom: -24px;
+}
+
+
+html .mat-mdc-card {
+  
+  --mat-card-title-text-line-height: 20px;
+  display: block;
+  padding: 16px;
+}
+html .mat-mdc-card-header {
+  padding: 0;
+}
+.mat-mdc-card-header-text {
+  margin: 0 16px;
+}
+.mat-mdc-card-title {
+  margin-bottom: 8px;
+}
+.mat-mdc-card-header .mat-mdc-card-title {
+  margin-bottom: 12px;
+}
+html .mat-mdc-card-content,
+html .mat-mdc-card-content:first-child,
+html .mat-mdc-card-content:last-child {
+  padding: 0;
+}
+.mat-mdc-card-content,
+.mat-mdc-card-subtitle {
+  margin-bottom: 16px;
+}
+html .mat-mdc-card-actions {
+  display: block;
+  min-height: 0;
+  margin: 0 -8px 16px;
+  padding: 8px 0;
+
+  
+  .mat-mdc-button-base:not(.mat-mdc-icon-button) {
+    margin: 0 8px;
+
+    &:first-child {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}
+.mat-mdc-card > :first-child,
+.mat-mdc-card-content > :first-child {
+  margin-top: 0;
+}
+.mat-mdc-card > :last-child,
+.mat-mdc-card-content > :last-child {
+  margin-bottom: 0;
+}
+html .mat-mdc-card > .mat-mdc-card-actions:last-child {
+  margin-bottom: -8px;
+  padding-bottom: 0;
+}
+
+
+.cdk-overlay-container .mat-mdc-snack-bar-container {
+  --mat-snack-bar-container-color: #ffffff;
+  --mat-snack-bar-supporting-text-color: #0a0a0a;
+  margin: 24px;
+  border-radius: 4px;
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
+
+  .mat-mdc-snackbar-surface {
+    box-shadow: none;
+    padding: 0;
+  }
+  .mdc-snackbar__label {
+    padding: 0;
+  }
+}
+
+
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  --mat-tab-active-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-active-hover-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-active-focus-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-inactive-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-inactive-hover-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-inactive-focus-label-text-color: rgba(0, 0, 0, 0.87);
+  --mat-tab-active-indicator-color: var(--ft-primary);
+  --mat-tab-active-hover-indicator-color: var(--ft-primary);
+  --mat-tab-active-focus-indicator-color: var(--ft-primary);
+  // click ripple: neutral, as the legacy one
+  --mat-tab-active-ripple-color: #000000;
+  --mat-tab-inactive-ripple-color: #000000;
+
+  .mat-mdc-tab-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .mat-mdc-tab {
+    flex: 1 1 0;
+  }
+  .mat-mdc-tab .mdc-tab__content {
+    width: 100%;
+    opacity: 0.6;
+  }
+  .mat-mdc-tab:focus .mdc-tab__content {
+    opacity: 1;
+  }
+  
+  .mat-mdc-tab:hover .mdc-tab__ripple::before {
+    opacity: 0;
+  }
+  .mat-mdc-tab.cdk-keyboard-focused .mdc-tab__ripple::before,
+  .mat-mdc-tab.cdk-program-focused .mdc-tab__ripple::before {
+    background-color: #c5cae9;
+    opacity: 0.3;
+  }
+}
+
+
+.mat-mdc-table {
+  --mat-table-header-headline-size: 12px;
+  --mat-table-header-headline-color: rgba(0, 0, 0, 0.54);
+}
+
+
+@include mat.checkbox-density(-3);
+.mat-mdc-checkbox {
+  .mdc-checkbox {
+    margin-left: -5px; // (28px state layer - 18px box) / 2
+  }
+  .mdc-label {
+    padding-left: 0;
+  }
+}
+
 /** CSS Variables **/
 :root {
 
@@ -60,9 +320,6 @@ $dark-theme: mat.define-dark-theme($dark-primary, $dark-accent, $dark-warn);
   --ft-loader: rgba(0, 0, 0, 0.5);
 
 }
-
-/* Tarteaucitron */
-@import "~tarteaucitronjs/css/tarteaucitron.css";
 
 @font-face {
   font-family: marianne;

@@ -5,18 +5,17 @@
   * License-Filename: LICENSE.txt
   */
 
-import { Component, ViewChild, AfterViewInit, OnInit } from '@angular/core';
-import { MatLegacyPaginator as MatPaginator, MatLegacyPaginatorIntl as MatPaginatorIntl } from '@angular/material/legacy-paginator';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
-import { AdminService, ResponsiveService } from 'src/app/services';
+import { Component, AfterViewInit, OnInit, effect, inject, viewChild, signal } from '@angular/core';
+import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { LangChangeEvent, TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { AdminService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { take } from 'rxjs';
 import { PliModel } from 'src/app/models/pli.model';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { FTTransferModel } from 'src/app/models';
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
@@ -24,7 +23,17 @@ import {CustomPaginatorService} from "../../../shared/custom-paginator/custom-pa
 import {LoaderService} from "../../../services/loader/loader.service";
 import {DateAdapter} from "@angular/material/core";
 import {MyDateAdapter, MyDefaultDateAdapter} from "../../upload/envelope/envelope-parameters-form/my-date-adapter";
-import * as moment from "moment";
+import moment from 'moment';
+import { MatFormField, MatLabel, MatSuffix, MatSelect } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { MatDatepickerInput, MatDatepicker } from '@angular/material/datepicker';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatCardActions } from '@angular/material/card';
+import { DatePipe } from '@angular/common';
 
 
 interface Type {
@@ -34,23 +43,26 @@ interface Type {
 
 
 @Component({
-  selector: 'ft-plis-envoyes',
-  templateUrl: './plis-envoyes.component.html',
-  styleUrls: ['./plis-envoyes.component.scss'],
-  providers: [{provide: MatPaginatorIntl, useClass: CustomPaginatorService},{provide: DateAdapter, useClass: MyDefaultDateAdapter}],
+    selector: 'ft-plis-envoyes',
+    templateUrl: './plis-envoyes.component.html',
+    styleUrls: ['./plis-envoyes.component.scss'],
+    providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorService }, { provide: DateAdapter, useClass: MyDefaultDateAdapter }],
+    imports: [MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatDatepickerInput, MatDatepicker, MatIconButton, MatSuffix, MatIcon, MatSelect, MatOption, MatButton, MatProgressSpinner, MatTable, MatSort, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatTooltip, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatPaginator, MatCardActions, DatePipe, TranslatePipe]
 })
 export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
+  private _adminService = inject(AdminService);
+  private loginService = inject(LoginService);
+  private _router = inject(Router);
+  private _translate = inject(TranslateService);
+  private loaderService = inject(LoaderService);
+
 
   //@ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  readonly sort = viewChild(MatSort);
+  readonly paginator = viewChild(MatPaginator);
   empList: PliModel[] = [];
   displayedColumns: string[] = ['dateEnvoi', 'type', 'objet', 'taille', 'finValidite', 'destinataires', 'expired'];
   dataSource = new MatTableDataSource<PliModel>(this.empList);
-  subscriptions: Subscription[] = [];
-  hideSubscription: Subscription= new Subscription;
-  isMobile;
-  screenWidth;
 
   destinatairesFilter = new FormControl();
   objet = new FormControl();
@@ -60,8 +72,8 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
   filteredValues = { dateEnvoi: '', type: '', objet: '', finValidite: '', destinataires: '', expired: '' };
 
   selectedValue: string;
-  types: any;
-  loading = false;
+  readonly types = signal<any>(undefined);
+  readonly loading = signal(false);
 
   fileInfos: any;
   transfers: Array<any> = [];
@@ -71,7 +83,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
   destDownload: number;
   roots: string[] = [];
   plisPaginated;
-  totalItems;
+  readonly totalItems = signal<number>(undefined);
   pageSize = 5;
   pageIndex = 0;
   urlExport;
@@ -81,26 +93,21 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
   exportEnError;
   interval;
 
-  constructor(
-    private _adminService: AdminService,
-    private loginService: LoginService,
-    private _router: Router,
-    private responsiveService: ResponsiveService,
-    private _translate: TranslateService, private loaderService: LoaderService,
-    private translateService:TranslateService
-  ) {
+  constructor() {
     this.getListTypes();
-    this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+    this._translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.updateTranslations();
+    });
+
+    effect(() => {
+      if (!this.loaderService.isLoading()) {
+        clearInterval(this.interval);
+      }
     });
   }
 
   ngOnInit(): void {
     this.updateTranslations();
-    this.subscriptions.push(this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-      this.screenWidth = this.responsiveService.screenWidth;
-    }));
 
     if (!this.loginService.isLoggedIn()) {
       this.navigateToConnect();
@@ -109,23 +116,18 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
       this.getPlisInfo(this.pageIndex,this.pageSize);
 
     }
-    this.hideSubscription = this.loaderService.hideSubject.subscribe(hide => {
-      if (hide) {
-        clearInterval(this.interval);
-      }
-    });
 
     this.dataSource.filterPredicate = this.customFilterPredicate();
   }
 
   private updateTranslations() {
-    this.translateService.get('ExportEnCours').subscribe((translation: string) => {
+    this._translate.get('ExportEnCours').subscribe((translation: string) => {
       this.exportEnCours = translation;
     });
-    this.translateService.get('ExportTerminé').subscribe((translation: string) => {
+    this._translate.get('ExportTerminé').subscribe((translation: string) => {
       this.exportTermine = translation;
     });
-    this.translateService.get('ExportEnError').subscribe((translation: string) => {
+    this._translate.get('ExportEnError').subscribe((translation: string) => {
       this.exportEnError = translation;
     });
   }
@@ -133,8 +135,8 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
   PdfGenerated(enclosureId: string): any {
     this._adminService
     .getFileInfosConnect({
-      senderMail: this.loginService.tokenInfo.getValue().senderMail,
-      senderToken: this.loginService.tokenInfo.getValue().senderToken,
+      senderMail: this.loginService.tokenInfo().senderMail,
+      senderToken: this.loginService.tokenInfo().senderToken,
     }, enclosureId)
     .pipe(take(1))
     .subscribe(fileInfos => {
@@ -170,13 +172,13 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
   }
 
   getPlisInfo(page:number, pageSize: number){
-    this.loading = true;
+    this.loading.set(true);
     this.dataSource.data = [];
     this.empList = [];
     this._adminService.getPlisSent(
       {
-        senderMail: this.loginService.tokenInfo.getValue().senderMail,
-        senderToken: this.loginService.tokenInfo.getValue().senderToken
+        senderMail: this.loginService.tokenInfo().senderMail,
+        senderToken: this.loginService.tokenInfo().senderToken
       }, page, pageSize,this.destinatairesFilter.value,moment(this.dateDebut.value).utc(true).toISOString(), moment(this.dateFin.value).utc(true).toISOString(), this.objet.value, this.expiredFilter.value
     ).pipe(take(1)).subscribe(
       {
@@ -185,7 +187,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
             const fileInfos = response.plis;
             this.plisPaginated = response;
             this.pageSize = pageSize;
-            this.totalItems = this.plisPaginated.totalItems;
+            this.totalItems.set(this.plisPaginated.totalItems);
             fileInfos?.forEach(t => {
               this.destDownload = 0;
               this.roots = [];
@@ -242,7 +244,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
             });
 
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (err) => {
           console.error(err);
@@ -254,7 +256,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
 
   getListTypes() {
     this._translate.stream("typePli").subscribe(v => {
-      this.types = v
+      this.types.set(v)
     });
   }
 
@@ -300,7 +302,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
 
   ngAfterViewInit() {
     //this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.dataSource.sort = this.sort();
   }
 
   filterType(filterValue: string) {
@@ -323,8 +325,8 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
     this.urlExport = null;
     this.donwloadKey = null;
     this._adminService.exportPlis({
-        senderMail: this.loginService.tokenInfo.getValue().senderMail,
-        senderToken: this.loginService.tokenInfo.getValue().senderToken
+        senderMail: this.loginService.tokenInfo().senderMail,
+        senderToken: this.loginService.tokenInfo().senderToken
       },
       this.destinatairesFilter.value,
       moment(this.dateDebut.value).utc(true).toISOString(),
@@ -346,8 +348,8 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
     this.interval = setInterval(() => {
       if(this.donwloadKey != null && this.donwloadKey != undefined){
         this._adminService.getUrlExport({
-            senderMail: this.loginService.tokenInfo.getValue().senderMail,
-            senderToken: this.loginService.tokenInfo.getValue().senderToken
+            senderMail: this.loginService.tokenInfo().senderMail,
+            senderToken: this.loginService.tokenInfo().senderToken
           }, this.donwloadKey
         ).pipe(take(1)).subscribe(
           urlResult => {
@@ -368,14 +370,8 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
 
 
   ngOnDestroy() {
-    this.subscriptions.forEach(x => {
-      x.unsubscribe();
-    });
     if (this.interval) {
       clearInterval(this.interval);
-    }
-    if (this.hideSubscription) {
-      this.hideSubscription.unsubscribe();
     }
   }
 
@@ -393,7 +389,7 @@ export class PlisEnvoyesComponent implements OnInit, AfterViewInit{
 
   filtrer(){
     this.pageIndex = 0;
-    this.paginator.pageIndex = this.pageIndex;
+    this.paginator().pageIndex = this.pageIndex;
     this.onPageChange(null, false);
   }
 }

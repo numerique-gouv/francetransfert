@@ -3,10 +3,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
   .satisfaction-check-card-content-icon {
     overflow: visible;
   }
@@ -16,11 +12,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    -webkit-align-items: center;
     .satisfaction-check-faces {
-      ::ng-deep .mat-radio-container{
+      ::ng-deep .mdc-radio{
         display: none;
       }
       .only-image{
@@ -32,17 +25,10 @@
       flex-direction: row;
       justify-content: space-evenly;
       align-self: center;
-      display: -webkit-flex;
-      -webkit-flex-direction: row;
-      -webkit-justify-content: space-evenly;
-      -webkit-align-self: center;
       .satisfaction-check-faces-icon-wrapper {
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-        display: -webkit-flex;
-        -webkit-flex-direction: column;
-        -webkit-justify-content: space-around;
         cursor: pointer;
         width: 70px;
         .menu-icon{
@@ -75,7 +61,7 @@
     }
     .satisfaction-check-form-group {
       width: 100%;
-      .mat-form-field {
+      .mat-mdc-form-field {
         width: 100%;
       }
       .after-field{
@@ -87,9 +73,6 @@
       display: flex;
       justify-content: space-around;
       flex-direction: column;
-      display: -webkit-flex;
-      -webkit-justify-content: space-around;
-      -webkit-flex-direction: column;
       height: 90%;
       width: 100%;
       padding: 0px 8px;
@@ -97,15 +80,11 @@
         font-size: 70px;
         color: var(--ft-blue-france);
         align-self: center;
-        -webkit-align-self: center;
       }
       &-text {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        display: -webkit-flex;
-        -webkit-flex-direction: column;
-        -webkit-justify-content: space-between;
         text-align: center;
         &-title {
           font-weight: bold;
@@ -124,11 +103,11 @@
         background-color: var(--ft-blue-france);
         color: var(--ft-white);
       }
-      .satisfaction-check-card-actions-btn.mat-button-disabled {
+      .satisfaction-check-card-actions-btn:is(:disabled, [aria-disabled="true"]) {
         background-color: var(--ft-grey);
         color: var(--ft-mention);
       }
-      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+      .mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
         box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
         outline-style: solid;
         outline-width: 2px;

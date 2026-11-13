@@ -1,13 +1,12 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { map, catchError, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
@@ -28,24 +27,23 @@ export interface ConfigInfo {
   providedIn: 'root'
 })
 export class ConfigService {
-
-  configError$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
-  isAgentConnect: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  configInfo: BehaviorSubject<ConfigInfo> = new BehaviorSubject<ConfigInfo>(null);
+  private _httpClient = inject(HttpClient);
 
 
-  constructor(private _httpClient: HttpClient) {
-    this.getConfig().pipe(take(1)).subscribe((res: ConfigInfo) => {
-      this.configInfo.next(res);
-      this.isAgentConnect.next(res.agentConnect);
-    })
+  readonly configError = signal<number | null>(null);
+  readonly configInfo = signal<ConfigInfo | null>(null);
+  readonly isAgentConnect = computed(() => !!this.configInfo()?.agentConnect);
+
+
+  constructor() {
+    this.getConfig().pipe(take(1)).subscribe();
   }
 
   getMailLimit(isAgent: boolean) {
     if (isAgent) {
-      return this.configInfo.getValue().uploadMaxRecipientAgent;
+      return this.configInfo().uploadMaxRecipientAgent;
     } else {
-      return this.configInfo.getValue().uploadMaxRecipientPublic;
+      return this.configInfo().uploadMaxRecipientPublic;
     }
   }
 
@@ -57,8 +55,8 @@ export class ConfigService {
     return this._httpClient.get(
       `${environment.host}${environment.apis.upload.config}`, httpOptions
     ).pipe(map((response: ConfigInfo) => {
-      this.configError$.next(null);
-      this.configInfo.next(response);
+      this.configError.set(null);
+      this.configInfo.set(response);
       return response;
     }),
       catchError(this.handleError('getConfig'))
@@ -69,7 +67,7 @@ export class ConfigService {
     return (err: any) => {
       const errMsg = `error in ${operation}()`;
       if (err instanceof HttpErrorResponse) {
-        this.configError$.next(err.status);
+        this.configError.set(err.status);
       }
       throw (errMsg);
     };

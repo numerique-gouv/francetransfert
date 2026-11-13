@@ -1,15 +1,12 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Observable } from 'rxjs/internal/Observable';
-import { filter } from 'rxjs/internal/operators/filter';
-import { first } from 'rxjs/internal/operators/first';
+import { Injectable, signal } from '@angular/core';
+import { Observable, filter, firstValueFrom } from 'rxjs';
 import { FTErrorModel, LinkInfosModel, MailInfosModel, UploadInfosModel } from 'src/app/models';
 
 @Injectable({
@@ -17,14 +14,12 @@ import { FTErrorModel, LinkInfosModel, MailInfosModel, UploadInfosModel } from '
 })
 export class UploadManagerService {
 
-  envelopeInfos: BehaviorSubject<MailInfosModel | LinkInfosModel> = new BehaviorSubject<MailInfosModel | LinkInfosModel>(null);
-  uploadError$: BehaviorSubject<FTErrorModel> = new BehaviorSubject<FTErrorModel>(null);
-  uploadInfos: BehaviorSubject<UploadInfosModel> = new BehaviorSubject<UploadInfosModel>(null);
-
-  constructor() { }
+  readonly envelopeInfos = signal<MailInfosModel | LinkInfosModel | null>(null);
+  readonly uploadError = signal<FTErrorModel | null>(null);
+  readonly uploadInfos = signal<UploadInfosModel | null>(null);
 
   getRxValue(observable: Observable<any>): Promise<any> {
-    return observable.pipe(filter(this.hasValue), first()).toPromise();
+    return firstValueFrom(observable.pipe(filter(this.hasValue)));
   }
 
   hasValue(value: any) {

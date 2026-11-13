@@ -15,8 +15,8 @@ describe('EnvelopeLinkFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnvelopeLinkFormComponent ]
-    })
+    imports: [EnvelopeLinkFormComponent]
+})
     .compileComponents();
   });
 

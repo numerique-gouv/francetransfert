@@ -8,9 +8,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Transfer } from '@flowjs/ngx-flow';
 import { FTTransferModel } from 'src/app/models';
-@Pipe({
-  name: 'tm'
-})
+@Pipe({ name: 'tm' })
 export class TransfersMappingPipe implements PipeTransform {
   /**
    * Mapping Transfers to show Folders

@@ -7,9 +7,7 @@
 
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'filename'
-})
+@Pipe({ name: 'filename' })
 export class FileNamePipe implements PipeTransform {
   /**
    * Returns the name fo the file

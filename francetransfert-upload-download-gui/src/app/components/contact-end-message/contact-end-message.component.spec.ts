@@ -15,8 +15,8 @@ describe('ContactEndMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ContactEndMessageComponent ]
-    })
+    imports: [ContactEndMessageComponent]
+})
     .compileComponents();
   });
 

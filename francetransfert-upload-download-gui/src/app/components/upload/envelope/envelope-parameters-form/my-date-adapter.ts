@@ -6,7 +6,7 @@
  */
 
 import { NativeDateAdapter } from "@angular/material/core";
-import * as moment from "moment";
+import moment from 'moment';
 
 
 export class MyDateAdapter extends NativeDateAdapter{

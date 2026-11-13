@@ -1,23 +1,21 @@
 /*
-  * Copyright (c) Direction Interministérielle du Numérique 
-  * 
-  * SPDX-License-Identifier: Apache-2.0 
-  * License-Filename: LICENSE.txt 
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
   */
 
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { UploadState } from '@flowjs/ngx-flow';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileManagerService {
 
-  hasFiles: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  transfers: BehaviorSubject<Observable<UploadState>> = new BehaviorSubject<Observable<UploadState>>(null);
-  uploadProgress: BehaviorSubject<UploadState> = new BehaviorSubject<UploadState>(null);
+  readonly hasFiles = signal(false);
+  readonly transfers = signal<Observable<UploadState> | null>(null);
+  readonly uploadProgress = signal<UploadState | null>(null);
 
-  constructor() { }
 }

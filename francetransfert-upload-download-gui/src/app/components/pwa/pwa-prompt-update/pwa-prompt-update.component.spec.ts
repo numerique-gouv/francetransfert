@@ -15,8 +15,8 @@ describe('PwaPromptUpdateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PwaPromptUpdateComponent ]
-    })
+    imports: [PwaPromptUpdateComponent]
+})
     .compileComponents();
   });
 

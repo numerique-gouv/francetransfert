@@ -6,11 +6,14 @@
   */
 
 import { Component, OnInit } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-connect-end-message',
-  templateUrl: './connect-end-message.component.html',
-  styleUrls: ['./connect-end-message.component.scss']
+    selector: 'ft-connect-end-message',
+    templateUrl: './connect-end-message.component.html',
+    styleUrls: ['./connect-end-message.component.scss'],
+    imports: [MatIcon, TranslatePipe]
 })
 export class ConnectEndMessageComponent implements OnInit {
 

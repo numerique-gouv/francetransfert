@@ -1,4 +1,4 @@
-<form [formGroup]="envelopeParametersForm" class="envelope-parameters-form-container" autocomplete="off">
+<form [formGroup]="envelopeParametersForm()" class="envelope-parameters-form-container" autocomplete="off">
 
     <div class="envelope-parameters-form-group">
         <mat-form-field>
@@ -10,51 +10,51 @@
             </button>
         </mat-form-field>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="sizeControl();else error_size">
-                check</mat-icon>
-            <ng-template #error_size>
+            @if (sizeControl()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_Caractères' | translate}}
         </div>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="minChar();else error_size">check
-            </mat-icon>
-            <ng-template #error_size>
+            @if (minChar()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_Lettres_Minuscules' | translate}}
         </div>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="majChar();else error_size">check
-            </mat-icon>
-            <ng-template #error_size>
+            @if (majChar()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_Lettres_Majuscules' | translate}}
         </div>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="numChar();else error_size">check
-            </mat-icon>
-            <ng-template #error_size>
+            @if (numChar()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_chiffres' | translate}}
         </div>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="specialChar();else error_size">
-                check</mat-icon>
-            <ng-template #error_size>
+            @if (specialChar()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_Caractères_Spéciaux' | translate}}
         </div>
         <div class="error-container">
-            <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid" *ngIf="!noSpecial();else error_size">
-                check</mat-icon>
-            <ng-template #error_size>
+            @if (!noSpecial()) {
+                <mat-icon attr.aria-label="{{'Valide' | translate}}" class="valid">check</mat-icon>
+            } @else {
                 <mat-icon attr.aria-label="{{'Erreur' | translate}}" class="invalid">error</mat-icon>
-            </ng-template>
+            }
             {{'Nombres_Caractères_Spéciaux_Forbidden' | translate}}
         </div>
 
@@ -68,10 +68,10 @@
           <mat-error role="alert" *ngIf="f.expiryDays.errors?.min">Le délai de validité ne peut être inférieur à 1 jour</mat-error>
           <mat-error role="alert" *ngIf="f.expiryDays.errors?.max">Le délai de validité ne peut être supérieur à 60 jours</mat-error> -->
          <input matInput [matDatepicker]="picker" formControlName="expiryDays" [min]="minDate" [max]="maxDate" autocomplete="off">
-          <mat-error role="alert" *ngIf="f.expiryDays.errors">{{'Date_invalide' | translate}}</mat-error>
+          @if (f.expiryDays.errors) {<mat-error role="alert">{{'Date_invalide' | translate}}</mat-error>}
            <mat-datepicker #picker></mat-datepicker>
 
-              <button mat-icon-button matSuffix mat-stroked-button matTooltip="{{'Modification_Date_Fin_Validité' | translate}}"
+              <button mat-icon-button matSuffix matTooltip="{{'Modification_Date_Fin_Validité' | translate}}"
               (click)="picker.open()" class="backgroundColor">
                 <mat-icon matSuffix aria-hidden="true"
                 >event
@@ -88,9 +88,9 @@
           <mat-label> {{'Langue_Affichage_Courriels' | translate}}</mat-label>
           <!-- langue d'affichage des courriels -->
           <mat-select matNativeControl  [(value)]="language" class="language-select" [compareWith]="compareFunction" disableOptionCentering  (selectionChange)="selectLanguage($event.value)">
-              <mat-option *ngFor="let lang of languageList" [value]="lang"  [ngClass]="language.code">
+              @for (lang of languageList(); track lang) {<mat-option [value]="lang" [ngClass]="language()?.code">
                   <span>{{ lang.label }}</span>
-              </mat-option>
+              </mat-option>}
           </mat-select>
       </mat-form-field>
     </div>

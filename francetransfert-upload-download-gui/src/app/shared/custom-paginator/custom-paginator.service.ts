@@ -5,20 +5,22 @@
   * License-Filename: LICENSE.txt
   */
 
-import { Injectable } from '@angular/core';
-import { MatLegacyPaginatorIntl as MatPaginatorIntl } from '@angular/material/legacy-paginator';
+import { Injectable, inject } from '@angular/core';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomPaginatorService extends MatPaginatorIntl {
+  private translate = inject(TranslateService);
+
 
   OF_LABEL: any;
 
-  constructor(private translate: TranslateService) {
+  constructor() {
     super();
-    this.translate.onLangChange.subscribe((e: Event) => {
+    this.translate.onLangChange.subscribe(() => {
       this.getAndInitTranslations();
     });
     this.getAndInitTranslations();

@@ -6,30 +6,38 @@
   */
 
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { TranslateService } from '@ngx-translate/core';
 import jsPDF from 'jspdf';
-import { BehaviorSubject, Observable, of, Subject, take, throwError, timer } from 'rxjs';
-import { catchError } from 'rxjs/internal/operators/catchError';
-import { map } from 'rxjs/internal/operators/map';
+import { Observable, of, take, throwError, timer } from 'rxjs';
+import { catchError } from 'rxjs';
+import { map } from 'rxjs';
 import { FTTransferModel } from 'src/app/models';
 import { PliDestinataires } from 'src/app/models/pli-destinataires.model';
 import { TokenModel } from 'src/app/models/token.model';
 import { FileSizePipe, FileTypePipe, FileUnitPipe } from 'src/app/shared/pipes';
 import { environment } from 'src/environments/environment';
 import { LoginService } from '../login/login.service';
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 import { switchMap, takeWhile } from 'rxjs/operators';
 //import autoTable from 'jspdf-autotable';
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+// pdfmake >= 0.2.10: vfs_fonts exports the virtual file system directly
+(pdfMake as any).vfs = pdfFonts;
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
+  private _httpClient = inject(HttpClient);
+  private loginService = inject(LoginService);
+  private _translate = inject(TranslateService);
+  private pipe = inject(FileUnitPipe);
+  private filePipe = inject(FileTypePipe);
+  private sizePipe = inject(FileSizePipe);
+
 
   fileInfos: any;
   transfers: Array<any> = [];
@@ -45,21 +53,11 @@ export class AdminService {
   now = new Date();
 
 
-  adminError$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
-  currentDestinatairesInfo: BehaviorSubject<PliDestinataires> = new BehaviorSubject<PliDestinataires>(null);
+  readonly adminError = signal<number | null>(null);
+  readonly currentDestinatairesInfo = signal<PliDestinataires | null>(null);
   mockCsvData: string;
   header: any;
   fileTitle: string;
-
-  dataSubject: Subject<any> = new Subject<any>();
-
-  constructor(private _httpClient: HttpClient,
-    private loginService: LoginService,
-    private _translate: TranslateService,
-    private pipe: FileUnitPipe,
-    private filePipe: FileTypePipe,
-    private sizePipe: FileSizePipe,
-  ) { }
 
 
   getFileInfosConnect(body: any, enclosureId: string): Observable<any> {
@@ -71,7 +69,7 @@ export class AdminService {
       `${environment.host}${environment.apis.admin.fileInfosConnect}?enclosure=${enclosureId}`,
       treeBody
     ).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('file-info-connect'))
@@ -91,7 +89,7 @@ export class AdminService {
       `${environment.host}${environment.apis.admin.fileInfosReciever}`,
       body
     ).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('file-info-reciever'))
@@ -189,7 +187,7 @@ export class AdminService {
       `${environment.host}${environment.apis.admin.fileInfos}`,
       body
     ).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('file-info'))
@@ -203,7 +201,7 @@ export class AdminService {
       `${environment.host}${environment.apis.admin.deleteFile}`,
       body
     ).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('delete-file'))
@@ -217,7 +215,7 @@ export class AdminService {
       token: body.token,
       senderMail: body.senderMail,
     }).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('update-expired-date'))
@@ -231,7 +229,7 @@ export class AdminService {
       newRecipient: body.recipient,
       senderMail: body.senderMail,
     }).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('resend-Link'))
@@ -247,7 +245,7 @@ export class AdminService {
       newRecipient: body.newRecipient,
       senderMail: body.senderMail,
     }).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('add-new-Recipient'))
@@ -261,7 +259,7 @@ export class AdminService {
       newRecipient: body.newRecipient,
       senderMail: body.senderMail,
     }).pipe(map(response => {
-      this.adminError$.next(null);
+      this.adminError.set(null);
       return response;
     }),
       catchError(this.handleError('delete-Recipient'))
@@ -338,13 +336,13 @@ export class AdminService {
   }
 
   setDestinatairesList(destinatairesData) {
-    this.currentDestinatairesInfo.next({
+    this.currentDestinatairesInfo.set({
       destinataires: destinatairesData.destinataires,
     });
   }
 
   cleanDestinatairesList() {
-    this.currentDestinatairesInfo.next(null);
+    this.currentDestinatairesInfo.set(null);
   }
 
 
@@ -405,7 +403,7 @@ export class AdminService {
         var selectedDate = temp;
 
         itemsFormatted.push({
-          dateEnvoi: selectedDate.toLocaleDateString(this._translate.currentLang, {
+          dateEnvoi: selectedDate.toLocaleDateString(this._translate.currentLang(), {
             hour: "numeric",
             minute: "numeric",
             second: "numeric",
@@ -416,7 +414,7 @@ export class AdminService {
 
           type: this._translate.instant(t.type), objet: t.objet ? t.objet : "",
           taille: t.taille + " " + this._translate.instant(t.typeSize),
-          finValidite: selectedDateFV.toLocaleDateString(this._translate.currentLang, {
+          finValidite: selectedDateFV.toLocaleDateString(this._translate.currentLang(), {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -440,7 +438,7 @@ export class AdminService {
 
 
         itemsFormatted.push({
-          dateReception: selectedDateST.toLocaleDateString(this._translate.currentLang, {
+          dateReception: selectedDateST.toLocaleDateString(this._translate.currentLang(), {
             hour: "numeric",
             minute: "numeric",
             second: "numeric",
@@ -451,13 +449,13 @@ export class AdminService {
 
           expediteur: t.expediteur, objet: t.objet ? t.objet : "",
           taille: t.taille + " " + this._translate.instant(t.typeSize),
-          finValidite: selectedDateFV.toLocaleDateString(this._translate.currentLang, {
+          finValidite: selectedDateFV.toLocaleDateString(this._translate.currentLang(), {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
           }),
           downloadCount: t.downloadCount,
-          firstDate: t.firstDate ? selectedDateFD.toLocaleDateString(this._translate.currentLang, {
+          firstDate: t.firstDate ? selectedDateFD.toLocaleDateString(this._translate.currentLang(), {
             hour: "numeric",
             minute: "numeric",
             second: "numeric",
@@ -465,7 +463,7 @@ export class AdminService {
             month: 'numeric',
             year: 'numeric',
           }) : "",
-          lastDate: t.lastDate ? selectedDateLD.toLocaleDateString(this._translate.currentLang, {
+          lastDate: t.lastDate ? selectedDateLD.toLocaleDateString(this._translate.currentLang(), {
             hour: "numeric",
             minute: "numeric",
             second: "numeric",
@@ -520,7 +518,7 @@ export class AdminService {
     return (err: any) => {
       const errMsg = `error in ${operation}()`;
       if (err instanceof HttpErrorResponse) {
-        this.adminError$.next(err.status);
+        this.adminError.set(err.status);
       }
       throw (errMsg);
     };
@@ -606,7 +604,7 @@ export class AdminService {
         {
           columns: [
             this.getInfoMessage(this.selectedDate.toString(), 'Date_Emission'),
-            this.getInfoObject(this.selectedDate.toLocaleDateString(this._translate.currentLang, {
+            this.getInfoObject(this.selectedDate.toLocaleDateString(this._translate.currentLang(), {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -625,7 +623,7 @@ export class AdminService {
             },
             {
               text: `${this.fileInfos.expired && this.fileInfos.archiveUntilDate != '2000-01-31' ?
-                new Date(this.event.setHours(0, 0, 0)).toLocaleTimeString(this._translate.currentLang, {
+                new Date(this.event.setHours(0, 0, 0)).toLocaleTimeString(this._translate.currentLang(), {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
@@ -633,7 +631,7 @@ export class AdminService {
                   minute: "numeric",
                   second: "numeric"
                 })
-                : date.toLocaleDateString(this._translate.currentLang, {
+                : date.toLocaleDateString(this._translate.currentLang(), {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
@@ -833,7 +831,7 @@ export class AdminService {
               this.downloadDate = [];
               ed.downloadDates.map(t => {
 
-                this.downloadDate.push(new Date(t).toLocaleDateString(this._translate.currentLang, {
+                this.downloadDate.push(new Date(t).toLocaleDateString(this._translate.currentLang(), {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',

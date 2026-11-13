@@ -7,9 +7,7 @@
  
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'fileunit'
-})
+@Pipe({ name: 'fileunit' })
 export class FileUnitPipe implements PipeTransform {
   private units: Array<string> = ['B', 'KB', 'MB', 'GB'];
 

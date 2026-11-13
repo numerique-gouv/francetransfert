@@ -15,8 +15,8 @@ describe('AdminAlertDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AdminAlertDialogComponent ]
-    })
+    imports: [AdminAlertDialogComponent]
+})
     .compileComponents();
   });
 

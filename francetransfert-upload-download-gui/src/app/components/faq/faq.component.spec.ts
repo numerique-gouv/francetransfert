@@ -15,8 +15,8 @@ describe('FaqComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FaqComponent ]
-    })
+    imports: [FaqComponent]
+})
     .compileComponents();
   });
 

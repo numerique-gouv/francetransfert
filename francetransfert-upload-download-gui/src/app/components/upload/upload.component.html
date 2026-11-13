@@ -1,36 +1,49 @@
 <div>
-    <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
+  <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
 </div>
 <div class="upload-root-wrapper">
-    <mat-card class="upload-title-card" *ngIf="screenWidth === 'lg'">
-        <mat-card-content class="upload-title-card-content">
-            <span>{{'UploadTitre' | translate}}</span>
-            <ng-container *ngIf="config && config.messages && config.messages['UploadTitre_'+langueCourriels]">
-                <br />
-                <span [innerHTML]="config.messages['UploadTitre_'+langueCourriels] | safeHtml"></span>
-            </ng-container>
-        </mat-card-content>
+  @if (screenWidth() === 'lg') {
+    <mat-card class="upload-title-card">
+      <mat-card-content class="upload-title-card-content">
+        <span>{{'UploadTitre' | translate}}</span>
+        @if (config() && config().messages && config().messages['UploadTitre_'+langueCourriels()]) {
+          <br />
+          <span [innerHTML]="config().messages['UploadTitre_'+langueCourriels()] | safeHtml"></span>
+        }
+      </mat-card-content>
     </mat-card>
-    <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
-        <ft-loader *ngIf="uploadValidated && uploadStarted && !uploadFinished"
-            (transferFailed)="onTransferFailed($event)" (transferCancelled)="onTransferCancelled($event)"
-            (transferFinished)="onTransferFinished($event)" class="loader-wrapper"></ft-loader>
-        <ft-check-validation-code *ngIf="uploadStarted && !uploadValidated && showCode"
-            (transferValidated)="onTransferValidated($event)" (transferCancelled)="onCheckTransferCancelled($event)"
-            [component]="'upload'" [email]="senderEmail" class="check-validation-code-wrapper">
-        </ft-check-validation-code>
-        <ft-list-elements *ngIf="!uploadStarted" [component]="'upload'" [flow]="flow" [screenWidth]="screenWidth"
-            (listExpanded)="onListExpanded($event)" class="list-elements-wrapper"
-            [ngClass]="{'expanded': listExpanded, 'reduced' : !listExpanded && hasFiles}"></ft-list-elements>
-        <ft-envelope
-            *ngIf="!uploadStarted && (screenWidth !== 'sm' || (screenWidth === 'sm' && hasFiles && !listExpanded))"
-            (uploadStarted)="onUploadStarted($event)" class="envelope-wrapper" [ngClass]="{'reduced': listExpanded}">
-        </ft-envelope>
-        <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed"
-            [publicLink]="publicLink" [availabilityDate]="availabilityDate" *ngIf="uploadFinished && uploadStarted"
-            class="end-message-wrapper">
-        </ft-end-message>
-        <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
-            *ngIf="uploadFinished && uploadStarted" class="satisfaction-check-wrapper"></ft-satisfaction-check>
-    </div>
+  }
+  <div class="upload-wrapper" [ngStyle]="styleObject()" #upload>
+    @if (uploadValidated() && uploadStarted() && !uploadFinished()) {
+      <ft-loader
+        (transferFailed)="onTransferFailed($event)" (transferCancelled)="onTransferCancelled($event)"
+      (transferFinished)="onTransferFinished($event)" class="loader-wrapper"></ft-loader>
+    }
+    @if (uploadStarted() && !uploadValidated() && showCode()) {
+      <ft-check-validation-code
+        (transferValidated)="onTransferValidated($event)" (transferCancelled)="onCheckTransferCancelled($event)"
+        [component]="'upload'" [email]="senderEmail()" class="check-validation-code-wrapper">
+      </ft-check-validation-code>
+    }
+    @if (!uploadStarted()) {
+      <ft-list-elements [component]="'upload'" [flow]="flow" [screenWidth]="screenWidth()"
+        (listExpanded)="onListExpanded($event)" class="list-elements-wrapper"
+      [ngClass]="{'expanded': listExpanded(), 'reduced' : !listExpanded() && hasFiles()}"></ft-list-elements>
+    }
+    @if (!uploadStarted() && (screenWidth() !== 'sm' || (screenWidth() === 'sm' && hasFiles() && !listExpanded()))) {
+      <ft-envelope
+        (uploadStarted)="onUploadStarted($event)" class="envelope-wrapper" [ngClass]="{'reduced': listExpanded()}">
+      </ft-envelope>
+    }
+    @if (uploadFinished() && uploadStarted()) {
+      <ft-end-message (backToHomeEvent)="reset()" [component]="'upload'" [uploadFailed]="uploadFailed()"
+        [publicLink]="publicLink()" [availabilityDate]="availabilityDate()"
+        class="end-message-wrapper">
+      </ft-end-message>
+    }
+    @if (uploadFinished() && uploadStarted()) {
+      <ft-satisfaction-check (satisfactionCheckDone)="onSatisfactionCheckDone($event)"
+      class="satisfaction-check-wrapper"></ft-satisfaction-check>
+    }
+  </div>
 </div>

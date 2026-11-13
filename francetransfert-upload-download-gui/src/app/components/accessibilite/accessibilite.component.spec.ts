@@ -15,8 +15,8 @@ describe('AccessibiliteComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AccessibiliteComponent ]
-    })
+    imports: [AccessibiliteComponent]
+})
     .compileComponents();
   });
 

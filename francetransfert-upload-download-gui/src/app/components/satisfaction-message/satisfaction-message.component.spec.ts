@@ -15,8 +15,8 @@ describe('SatisfactionMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SatisfactionMessageComponent ]
-    })
+    imports: [SatisfactionMessageComponent]
+})
     .compileComponents();
   });
 

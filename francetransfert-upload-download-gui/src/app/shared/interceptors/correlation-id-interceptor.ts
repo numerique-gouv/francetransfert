@@ -1,31 +1,33 @@
-import { Injectable } from '@angular/core';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { v4 as uuidv4 } from "uuid";
+/*
+  * Copyright (c) Direction Interministérielle du Numérique
+  *
+  * SPDX-License-Identifier: Apache-2.0
+  * License-Filename: LICENSE.txt
+  */
+
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid';
 import { SessionsService } from '../../services/sessions/sessions.service';
 
-@Injectable()
-export class CorrelationIdInterceptor implements HttpInterceptor {
-    private readonly correlationIdHeader = 'x-correlation-id';
-    private readonly sessionIdHeader = 'x-session-id';
-    constructor(private readonly sessionsService: SessionsService) { }
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        let requestToHandle = req;
+const CORRELATION_ID_HEADER = 'x-correlation-id';
+const SESSION_ID_HEADER = 'x-session-id';
 
-        if (!requestToHandle.headers.has(this.correlationIdHeader)) {
-            const correlationId = uuidv4();
-            requestToHandle = requestToHandle.clone({
-                headers: requestToHandle.headers.set(this.correlationIdHeader, correlationId),
-            });
-        }
+export const correlationIdInterceptor: HttpInterceptorFn = (req, next) => {
+  const sessionsService = inject(SessionsService);
+  let requestToHandle = req;
 
-        if (!requestToHandle.headers.has(this.sessionIdHeader)) {
-            const sessionId = this.sessionsService.sessionId;
-            requestToHandle = requestToHandle.clone({
-                headers: requestToHandle.headers.set(this.sessionIdHeader, sessionId),
-            });
-        }
+  if (!requestToHandle.headers.has(CORRELATION_ID_HEADER)) {
+    requestToHandle = requestToHandle.clone({
+      headers: requestToHandle.headers.set(CORRELATION_ID_HEADER, uuidv4()),
+    });
+  }
 
-        return next.handle(requestToHandle);
-    }
-}
+  if (!requestToHandle.headers.has(SESSION_ID_HEADER)) {
+    requestToHandle = requestToHandle.clone({
+      headers: requestToHandle.headers.set(SESSION_ID_HEADER, sessionsService.sessionId),
+    });
+  }
+
+  return next(requestToHandle);
+};

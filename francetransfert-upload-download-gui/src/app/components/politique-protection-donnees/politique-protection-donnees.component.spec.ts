@@ -15,8 +15,8 @@ describe('PolitiqueProtectionDonneesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PolitiqueProtectionDonneesComponent ]
-    })
+    imports: [PolitiqueProtectionDonneesComponent]
+})
     .compileComponents();
   });
 

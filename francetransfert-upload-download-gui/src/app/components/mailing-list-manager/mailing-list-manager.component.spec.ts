@@ -15,8 +15,8 @@ describe('MailingListManagerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MailingListManagerComponent ]
-    })
+    imports: [MailingListManagerComponent]
+})
     .compileComponents();
   });
 
@@ -28,5 +28,16 @@ describe('MailingListManagerComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render the error for an imported file without ";"', async () => {
+    const file = new File(['not-a-mailing-list'], 'list.txt', { type: 'text/plain' });
+    component.loadMailingListFromFile({ target: { files: [file] } });
+
+    await vi.waitFor(() => expect(component.errorMessage()).not.toBe(''));
+    await fixture.whenStable();
+
+    const error: HTMLElement = fixture.nativeElement.querySelector('.error[role="alert"]');
+    expect(error?.textContent).toContain('Le fichier importé est invalide.');
   });
 });

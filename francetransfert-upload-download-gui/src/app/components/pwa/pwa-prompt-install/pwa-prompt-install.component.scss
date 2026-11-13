@@ -1,4 +1,4 @@
-.mat-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+.mat-mdc-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
   outline-style: solid;
   outline-width: 2px;
@@ -9,9 +9,6 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    display: -webkit-flex;
-    -webkit-flex-direction: row;
-    -webkit-justify-content: space-between;
     border-radius: 6px;
     background-color: var(--janus-aot-primary-light);
     color: var(--janus-aot-white);
@@ -25,15 +22,11 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
 
     .close-ios-inv {
         width: 100%;
         display: flex;
         justify-content: flex-end;
-        display: -webkit-flex;
-        -webkit-justify-content: flex-end;
     }
 
     .icons {
@@ -41,9 +34,5 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-justify-content: center;
-        -webkit-align-items: center;
     }
 }

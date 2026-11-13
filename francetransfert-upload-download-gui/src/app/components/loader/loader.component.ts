@@ -5,84 +5,63 @@
   * License-Filename: LICENSE.txt 
   */
 
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { LegacyProgressSpinnerMode as ProgressSpinnerMode } from '@angular/material/legacy-progress-spinner';
+import { Component, effect, inject, output, signal, untracked } from '@angular/core';
+import { ProgressSpinnerMode, MatProgressSpinner } from '@angular/material/progress-spinner';
 import { UploadState } from '@flowjs/ngx-flow';
-import { timer } from 'rxjs/internal/observable/timer';
-import { Subscription } from 'rxjs/internal/Subscription';
 import { FileManagerService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
+import { MatCard, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 
 
 @Component({
-  selector: 'ft-loader',
-  templateUrl: './loader.component.html',
-  styleUrls: ['./loader.component.scss']
+    selector: 'ft-loader',
+    templateUrl: './loader.component.html',
+    styleUrls: ['./loader.component.scss'],
+    imports: [MatCard, MatCardContent, MatProgressSpinner, MatCardActions, MatButton, TranslatePipe]
 })
-export class LoaderComponent implements OnInit, OnDestroy {
+export class LoaderComponent {
+  private fileManagerService = inject(FileManagerService);
+  private loginService = inject(LoginService);
+
 
   mode: ProgressSpinnerMode = 'determinate';
-  progressValue: number = 0;
-  @Output() transferCancelled: EventEmitter<boolean> = new EventEmitter();
-  @Output() transferFinished: EventEmitter<boolean> = new EventEmitter();
-  @Output() transferFailed: EventEmitter<boolean> = new EventEmitter();
-  timerSubscription: Subscription;
-  progressSubscription: Subscription;
+  readonly progressValue = signal<number>(0);
+  readonly transferCancelled = output<boolean>();
+  readonly transferFinished = output<boolean>();
+  readonly transferFailed = output<boolean>();
+  private cancelled = false;
 
-  constructor(private fileManagerService: FileManagerService,
-    private loginService: LoginService,
-  ) { }
-
-  ngOnInit(): void {
-
-
-    // this.observableTimer();
-    this.progressSubscription = this.fileManagerService.uploadProgress.subscribe(t => {
-      if (this.haveChunkError(t)) {
-        this.cancelTransfer();
-        console.log('Transfert Error');
-      }
-      this.progressValue = Math.round(t.totalProgress * 100);
-      if (this.progressValue < 100) {
-      } else if (this.isFinish(t) && !this.haveChunkError(t)) {
-        this.transferFinished.emit(true);
-      } else if (this.haveChunkError(t)) {
-        this.cancelTransfer();
-        console.log('Transfert Error');
-      }
+  constructor() {
+    effect(() => {
+      const uploadState = this.fileManagerService.uploadProgress();
+      untracked(() => this.onUploadProgress(uploadState));
     });
-
-
   }
 
-  observableTimer() {
-    this.timerSubscription = timer(0, 500)
-      .subscribe(time => {
-        if (this.progressValue < 100) {
-          this.progressValue += 20;
-        } else {
-          // this.transferFinished.emit(true);
-        }
-      });
+  private onUploadProgress(uploadState: UploadState | null) {
+    if (!uploadState || this.cancelled) {
+      return; 
+    }
+    if (this.haveChunkError(uploadState)) {
+      this.cancelTransfer();
+      console.log('Transfert Error');
+    }
+    this.progressValue.set(Math.round(uploadState.totalProgress * 100));
+    if (this.progressValue() >= 100) {
+      if (this.isFinish(uploadState) && !this.haveChunkError(uploadState)) {
+        this.transferFinished.emit(true);
+      } else if (this.haveChunkError(uploadState)) {
+        this.cancelTransfer();
+        console.log('Transfert Error');
+      }
+    }
   }
 
   cancelTransfer() {
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
-    if (this.progressSubscription) {
-      this.progressSubscription.unsubscribe();
-    }
+    this.cancelled = true;
     this.transferFailed.emit(true);
-  }
-
-  ngOnDestroy(): void {
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
-    if (this.progressSubscription) {
-      this.progressSubscription.unsubscribe();
-    }
   }
 
 

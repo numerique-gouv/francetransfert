@@ -15,13 +15,14 @@ describe('FileItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileItemComponent ]
-    })
+    imports: [FileItemComponent]
+})
     .compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(FileItemComponent);
+    fixture.componentRef.setInput('transfer', { name: 'rapport.txt', size: 2048, folder: false } as any);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

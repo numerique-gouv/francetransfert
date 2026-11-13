@@ -9,34 +9,28 @@
   }
 
   .envelope-parameters-form-group {
-    .mat-form-field {
+    .mat-mdc-form-field {
       width: 100%;
     }
     .mat-icon {
       cursor: pointer;
     }
-    ::ng-deep .mat-slide-toggle-content {
+    ::ng-deep .mat-mdc-slide-toggle label {
       white-space: pre-wrap;
       width: 500px;
     }
-
-    ::ng-deep
-      .mat-slide-toggle.mat-checked:not(.mat-disabled)
-      .mat-slide-toggle-bar {
-      background-color: var(--ft-blue-france);
-    }
-
-    ::ng-deep
-      .mat-slide-toggle.mat-checked:not(.mat-disabled)
-      .mat-slide-toggle-thumb {
-      background-color: var(--ft-blue-france);
-    }
-
-    ::ng-deep
-      .mat-slide-toggle.mat-checked
-      .mat-slide-toggle-ripple
-      .mat-ripple-element {
-      background-color: var(--ft-blue-france);
+    ::ng-deep .mat-mdc-slide-toggle {
+      --mat-slide-toggle-selected-handle-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-hover-handle-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-focus-handle-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-pressed-handle-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-track-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-hover-track-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-focus-track-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-pressed-track-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-hover-state-layer-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-focus-state-layer-color: var(--ft-blue-france);
+      --mat-slide-toggle-selected-pressed-state-layer-color: var(--ft-blue-france);
     }
   }
 

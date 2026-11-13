@@ -7,7 +7,15 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { of } from 'rxjs';
 import { ListElementsComponent } from './list-elements.component';
+
+const flowStub: any = {
+  events$: of(),
+  transfers$: of({ transfers: [], totalProgress: 0 }),
+  flowJs: { files: [], removeFile: () => undefined },
+  cancelFile: () => undefined,
+};
 
 describe('ListElementsComponent', () => {
   let component: ListElementsComponent;
@@ -15,13 +23,14 @@ describe('ListElementsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ListElementsComponent ]
-    })
+    imports: [ListElementsComponent]
+})
     .compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ListElementsComponent);
+    fixture.componentRef.setInput('flow', flowStub);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

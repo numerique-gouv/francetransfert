@@ -1,5 +1,5 @@
 <mat-card class="satisfaction-check-card">
-    <form [formGroup]="satisfactionCheckForm" class="satisfaction-check-form-container">
+    <form [formGroup]="satisfactionCheckForm()" class="satisfaction-check-form-container">
         <mat-card-content class="satisfaction-check-card-content">
             <mat-icon class="satisfaction-check-card-content-icon" aria-hidden="true">info_outline</mat-icon>
             <div class="satisfaction-check-card-content-text">
@@ -56,7 +56,7 @@
             </div>
         </mat-card-content>
         <mat-card-actions class="satisfaction-check-card-actions">
-            <button type="submit" [disabled]="selectedFace === '' || !satisfactionCheckForm.valid" mat-raised-button
+            <button type="submit" [disabled]="selectedFace === '' || !satisfactionCheckForm().valid" mat-raised-button
                 class="satisfaction-check-card-actions-btn" attr.aria-label="{{'Envoyer' | translate}}" (click)="validateForm()"> {{'Envoyer' | translate}}</button>
         </mat-card-actions>
     </form>

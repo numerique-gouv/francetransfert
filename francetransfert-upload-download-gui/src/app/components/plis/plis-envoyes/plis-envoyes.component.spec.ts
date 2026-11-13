@@ -7,6 +7,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { LoaderService } from 'src/app/services/loader/loader.service';
 import { PlisEnvoyesComponent } from './plis-envoyes.component';
 
 describe('PlisEnvoyesComponent', () => {
@@ -15,8 +16,8 @@ describe('PlisEnvoyesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlisEnvoyesComponent ]
-    })
+    imports: [PlisEnvoyesComponent]
+})
     .compileComponents();
   });
 
@@ -28,5 +29,18 @@ describe('PlisEnvoyesComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('stops polling the export when the loader overlay is closed', () => {
+    const loader = TestBed.inject(LoaderService);
+    loader.show('Export en cours', undefined, true);
+    fixture.detectChanges();
+    component.interval = setInterval(() => undefined, 60000);
+    const clear = vi.spyOn(globalThis, 'clearInterval');
+
+    loader.hide();
+    fixture.detectChanges();
+
+    expect(clear).toHaveBeenCalledWith(component.interval);
   });
 });

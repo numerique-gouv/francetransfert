@@ -3,7 +3,7 @@
 }
 
 .envelope-mail-form-container {
-  /* ::ng-deep .mat-form-field-infix {
+  /* ::ng-deep .mat-mdc-form-field-infix {
      display: flex;
    }*/
 
@@ -27,9 +27,11 @@
   .button-fix{
     border-color: transparent;
     width: fit-content;
+    padding-left: 1px;
+    padding-right: 1px;
   }
   .resize-icon {
-    ::ng-deep .mat-form-field-appearance-legacy .mat-form-field-suffix {
+    ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
       .mat-icon {
         font-size: 21px;
         width: 21px;
@@ -48,8 +50,7 @@
   .big-error {
     margin-bottom: 2.2rem;
   }
-
-  ::ng-deep .mat-checkbox-layout {
+  ::ng-deep .mat-mdc-checkbox label {
     white-space: normal !important;
   }
 
@@ -70,7 +71,7 @@
     cursor: pointer;
   }
 
-  .mat-form-field {
+  .mat-mdc-form-field {
     width: 100%;
     .icon-btn {
       cursor: pointer;
@@ -94,25 +95,31 @@
     max-width: 80%;
   }
   .destinataires-chip-list {
-    ::ng-deep .mat-chip-list-wrapper {
+    ::ng-deep .mdc-evolution-chip-set__chips {
       width: 100%;
       margin: 0px;
     }
     .destinataires-chip {
-      background-color: #dbdbea;
-      color: var(--ft-blue-france);
-      //cursor: pointer;
+      --mat-chip-elevated-container-color: #dbdbea;
+      --mat-chip-label-text-color: var(--ft-blue-france);
+      --mat-chip-label-text-weight: 500;
+      --mat-chip-with-trailing-icon-trailing-icon-color: var(--ft-blue-france);
+      --mat-chip-trailing-action-opacity: 1;
+      --mat-chip-trailing-action-focus-opacity: 1;
+      --mat-chip-touch-target-display: none;
+      overflow: hidden;
       height: auto !important;
-      pointer-events: none;
+      min-height: 34px;
+      padding-right: 2px;
+      margin: 4px;
     }
     .destinataires-chip-delete {
       cursor: pointer;
-      font-size: 19px;
-      pointer-events: fill;
-      margin-left: 5px;
-      height: 14px;
-      width: auto;
-      overflow: visible;
+      .mat-icon {
+        font-size: 19px;
+        width: 19px;
+        height: 19px;
+      }
     }
   }
 }

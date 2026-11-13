@@ -6,27 +6,32 @@
   */
 
 import { Platform } from '@angular/cdk/platform';
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { SwUpdate } from '@angular/service-worker';
-import { interval, BehaviorSubject, timer } from 'rxjs';
-import { take } from 'rxjs/operators';
-import { PwaPromptInstallComponent, PwaPromptUpdateComponent } from 'src/app/components';
+import { MatDialog } from '@angular/material/dialog';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+import { interval, timer } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import { PwaPromptInstallComponent } from 'src/app/components/pwa/pwa-prompt-install/pwa-prompt-install.component';
+import { PwaPromptUpdateComponent } from 'src/app/components/pwa/pwa-prompt-update/pwa-prompt-update.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PwaService {
+  private swUpdate = inject(SwUpdate);
+  private _dialog = inject(MatDialog);
+  private bottomSheet = inject(MatBottomSheet);
+  private platform = inject(Platform);
+
 
   private promptEvent: any;
-  appInstalled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  appUpdateAvailable$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  readonly appInstalled = signal(false);
+  readonly appUpdateAvailable = signal(false);
 
-  constructor(private swUpdate: SwUpdate,
-    private _dialog: MatDialog,
-    private bottomSheet: MatBottomSheet,
-    private platform: Platform) {
+  constructor() {
+    const swUpdate = this.swUpdate;
+
 
     if (swUpdate.isEnabled) {
       interval(6 * 60 * 60).subscribe(() => swUpdate.checkForUpdate()
@@ -41,8 +46,10 @@ export class PwaService {
   }
 
   checkForUpdates() {
-    this.swUpdate.available.subscribe(event => {
-      this.appUpdateAvailable$.next(true);
+    this.swUpdate.versionUpdates.pipe(
+      filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
+    ).subscribe(() => {
+      this.appUpdateAvailable.set(true);
       this.promptUserUpdate();
     });
   }
@@ -55,7 +62,7 @@ export class PwaService {
       });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.appUpdateAvailable$.next(false);
+          this.appUpdateAvailable.set(false);
           window.location.reload();
         }
       });

@@ -30,3 +30,21 @@ Enfin pour les agents de l’Etat, il y a un salon "France transfert" dans TCHAP
 # Contributions
 
 Les Issues et Pull Request sont les bienvenus mais il n'y a pas d'engagement de l'équipe produit France transfert à les traiter. 
+
+# Développement local
+
+```bash
+npm install
+npm run start   # http://localhost:4200
+```
+
+En développement, l'application appelle les API en relatif (`/api-private/...`), comme en production derrière nginx. Le serveur de développement les redirige via `proxy.conf.mjs` :
+
+| Préfixe | Cible par défaut | Variable pour la surcharger |
+|---|---|---|
+| `/api-private/upload-module`, `/api-private/confirmation-module` | `http://localhost:8080` | `UPLOAD_API_URL` |
+| `/api-private/download-module` | `http://localhost:8081` | `DOWNLOAD_API_URL` |
+
+Exemple avec des API dans Docker : `UPLOAD_API_URL=http://upload-api:8080 DOWNLOAD_API_URL=http://download-api:8081 npm run start`.
+
+Tests unitaires (Vitest) : `npm test`.

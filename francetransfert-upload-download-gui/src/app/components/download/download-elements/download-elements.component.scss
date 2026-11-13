@@ -6,10 +6,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
   .download-elements-card-content-icon {
     overflow: visible;
   }
@@ -17,9 +13,6 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-    display: -webkit-flex;
-    -webkit-align-items: center;
-    -webkit-flex-direction: column;
     width: 100%;
     padding: 0px 8px;
     &-error {
@@ -30,15 +23,11 @@
       margin-right: 140px;
       color: var(--ft-blue-france);
       align-self: center;
-      -webkit-align-self: center;
     }
     &-text {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      display: -webkit-flex;
-      -webkit-flex-direction: column;
-      -webkit-justify-content: space-between;
       text-align: center;
       &-title {
         font-weight: bold;
@@ -59,11 +48,11 @@
       background-color: var(--ft-blue-france);
       color: var(--ft-white);
     }
-    .download-elements-card-actions-btn.mat-button-disabled {
+    .download-elements-card-actions-btn:is(:disabled, [aria-disabled="true"]) {
       background-color: var(--ft-grey);
       color: var(--ft-mention);
     }
-    .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+    .mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
       box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
       outline-style: solid;
       outline-width: 2px;
@@ -79,7 +68,7 @@
     ::ng-deep .align-text{
       margin: 0 0 2px !important;
     }
-    ::ng-deep .mat-checkbox-layout {
+    ::ng-deep .mat-mdc-checkbox label {
       white-space: normal!important;
     }
   }
@@ -90,7 +79,6 @@
     .download-elements-card-content {
       height: 80%;
       justify-content: space-between;
-      -webkit-justify-content: space-between;
       &-text {
        // margin-bottom: 50%;
       }
@@ -103,7 +91,6 @@
     .download-elements-card-content {
       height: 80%;
       justify-content: space-around;
-      -webkit-justify-content: space-around;
       &-text {
       }
     }

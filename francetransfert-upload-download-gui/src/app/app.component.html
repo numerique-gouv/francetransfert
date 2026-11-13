@@ -1,24 +1,31 @@
-<div *ngIf="loaderService.isLoading$ | async" class="loader-overlay">
-  <div *ngIf="loaderService.showSpinner$ | async" class="spinner"></div>
-  <p class="loading-message">{{ loaderService.loadingMessage$ | async }}</p>
-  <ng-container *ngIf="loaderService.downloadKeyId$ | async as downloadKeyId">
-    <button #clickHere type="button" mat-raised-button class="filtred-button"
-      [attr.aria-label]=" 'CliquerIci' | translate " (click)="handleDownload(downloadKeyId)">{{"CliquerIci" | translate}}
-    </button>
-  </ng-container>
-  <button *ngIf="loaderService.showSpinner$ | async" type="button" mat-raised-button class="filtred-button"
-    (click)="handleClick()" attr.aria-label="{{'Annuler' | translate}}" #btnRef>{{'Annuler'
-    |translate}}</button>
-
-</div>
+@if (loaderService.isLoading()) {
+  <div class="loader-overlay">
+    @if (loaderService.showSpinner()) {
+      <div class="spinner"></div>
+    }
+    <p class="loading-message">{{ loaderService.loadingMessage() }}</p>
+    @if (loaderService.downloadKeyId(); as downloadKeyId) {
+      <button #clickHere type="button" mat-raised-button class="filtred-button"
+        [attr.aria-label]=" 'CliquerIci' | translate " (click)="handleDownload(downloadKeyId)">{{"CliquerIci" | translate}}
+      </button>
+    }
+    @if (loaderService.showSpinner()) {
+      <button type="button" mat-raised-button class="filtred-button"
+        (click)="handleClick()" attr.aria-label="{{'Annuler' | translate}}" #btnRef>{{'Annuler'
+      |translate}}</button>
+    }
+  </div>
+}
 <div class="app-root" (window:resize)="onResize()">
   <header role="banner">
-    <ft-header class="app-header" (sidenavToggle)="toggleSideNav()" (routingCalled)="onRoutingCalled($event)"
-      *ngIf="!opened"></ft-header>
+    @if (!opened()) {
+      <ft-header class="app-header" (sidenavToggle)="toggleSideNav()" (routingCalled)="onRoutingCalled($event)"
+      ></ft-header>
+    }
   </header>
-  <mat-sidenav-container id="container" fullscreen [ngStyle]="{'background-image': 'url(' + backgroundPath + ')'}">
+  <mat-sidenav-container id="container" fullscreen [ngStyle]="{'background-image': 'url(' + backgroundPath() + ')'}">
     <mat-sidenav #sidenav [mode]="sideNavMode" role="navigation" [(opened)]="opened" [fixedInViewport]="true"
-      [fixedTopGap]="fixedTopGap" class="menu-sidenav">
+      [fixedTopGap]="fixedTopGap()" class="menu-sidenav">
       <ft-menu class="app-menu" (sidenavToggle)="toggleSideNav()"></ft-menu>
     </mat-sidenav>
     <mat-sidenav-content>
@@ -29,8 +36,10 @@
           </div>
         </main>
         <footer role="contentinfo">
-          <ft-footer (routingCalled)="onRoutingCalled($event)" *ngIf="screenWidth === 'lg'" class="app-footer">
-          </ft-footer>
+          @if (screenWidth() === 'lg') {
+            <ft-footer (routingCalled)="onRoutingCalled($event)" class="app-footer">
+            </ft-footer>
+          }
         </footer>
       </div>
     </mat-sidenav-content>

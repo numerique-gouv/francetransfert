@@ -6,7 +6,7 @@
   */
 
 import { FormControl, FormGroup, ValidatorFn } from '@angular/forms';
-import * as moment from 'moment';
+import moment from 'moment';
 import { environment } from '../../../environments/environment';
 import { ConfigService } from '../../services/config/config.service';
 
@@ -31,7 +31,7 @@ export function passwordValidator(formControl: FormControl) {
 
 export function dateValidator(formControl: FormControl) {
   const date = formControl.value;
-  if (date > moment().add(this.configService.configInfo.getValue().uploadExpiredLimit, 'days').endOf('day').toDate() || date < new Date()) {
+  if (date > moment().add(this.configService.configInfo().uploadExpiredLimit, 'days').endOf('day').toDate() || date < new Date()) {
     return { pattern: true }
   } else {
     return null;
@@ -39,7 +39,7 @@ export function dateValidator(formControl: FormControl) {
 }
 
 export function isDayNumberValid(dayNumber: number, configService: ConfigService) {
-  if (dayNumber > configService.configInfo.getValue().uploadExpiredLimit || dayNumber < 1) {
+  if (dayNumber > configService.configInfo().uploadExpiredLimit || dayNumber < 1) {
     return false
   } else {
     return true;

@@ -5,7 +5,7 @@
   * License-Filename: LICENSE.txt 
   */
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, map } from "rxjs/operators";
@@ -17,14 +17,15 @@ import { Router } from "@angular/router";
   providedIn: 'root'
 })
 export class ContactService {
+  private _httpClient = inject(HttpClient);
+  private uploadManagerService = inject(UploadManagerService);
 
-  constructor(private _httpClient: HttpClient, private uploadManagerService: UploadManagerService) { }
 
 
   sendFormulaireContact(body: any): any {
     return this._httpClient.post(`${environment.host}${environment.apis.upload.formulaireContact}`, body).pipe(
       map((response: any) => {
-        this.uploadManagerService.uploadError$.next(null);
+        this.uploadManagerService.uploadError.set(null);
         return response;
       })
     );

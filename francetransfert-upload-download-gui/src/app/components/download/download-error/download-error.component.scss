@@ -3,19 +3,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
   .error-download-code-card-content {
     display: flex;
     align-items: center;
     justify-content: space-around;
     flex-direction: column;
-    display: -webkit-flex;
-    -webkit-align-items: center;
-    -webkit-justify-content: space-around;
-    -webkit-flex-direction: column;
     height: 333px;
     width: 100%;
     padding: 0px 8px;
@@ -24,15 +16,11 @@
       margin-right: 70px;
       color: var(--ft-blue-france);
       align-self: center;
-      -webkit-align-self: center;
     }
     &-text {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      display: -webkit-flex;
-      -webkit-flex-direction: column;
-      -webkit-justify-content: space-between;
       text-align: center;
       &-title {
         font-weight: bold;
@@ -52,7 +40,6 @@
       width: 50%;
       text-align: center;
       align-self: center;
-      -webkit-align-self: center;
     }
   }
 }
@@ -87,7 +74,7 @@
       }
     }
 
-    .mat-card-actions {
+    .mat-mdc-card-actions {
       padding: 0px !important;
       margin-bottom: 0px !important;
     }

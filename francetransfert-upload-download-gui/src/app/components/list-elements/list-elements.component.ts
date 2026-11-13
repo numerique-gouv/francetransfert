@@ -5,56 +5,67 @@
   * License-Filename: LICENSE.txt
   */
 
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FlowDirective, Transfer, UploadState } from '@flowjs/ngx-flow';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, inject, input, output, signal } from '@angular/core';
+import { FlowConfig, Transfer, UploadState, FlowDrop, FlowButton } from '@flowjs/ngx-flow';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { FileManagerService, MailingListService } from 'src/app/services';
 import { ConfigService } from 'src/app/services/config/config.service';
-import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { InfoMsgComponent } from "../info-msg/info-msg.component";
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { FileUnitPipe } from 'src/app/shared/pipes';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent } from '@angular/material/card';
+import { DragDropFileUploadDirective } from '../../shared/directives/drag-drop-file-upload.directive';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { FileItemComponent } from './file-item/file-item.component';
+import { MatIconButton } from '@angular/material/button';
+import { FileSizePipe } from '../../shared/pipes/file-size.pipe';
+import { TransfersMappingPipe } from '../../shared/pipes/transfer-mapping.pipe';
 
 @Component({
-  selector: 'ft-list-elements',
-  templateUrl: './list-elements.component.html',
-  styleUrls: ['./list-elements.component.scss'],
-  providers: [FileUnitPipe]
+    selector: 'ft-list-elements',
+    templateUrl: './list-elements.component.html',
+    styleUrls: ['./list-elements.component.scss'],
+    providers: [FileUnitPipe],
+    imports: [MatCard, DragDropFileUploadDirective, FlowDrop, NgClass, MatCardHeader, MatCardTitle, MatIcon, MatCardContent, FileItemComponent, MatIconButton, FlowButton, AsyncPipe, TranslatePipe, FileSizePipe, TransfersMappingPipe]
 })
 export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private fileManagerService = inject(FileManagerService);
+  private configService = inject(ConfigService);
+  private translate = inject(TranslateService);
+  private _snackBar = inject(MatSnackBar);
+  private pipe = inject(FileUnitPipe);
 
-  @Input() component: 'upload' | 'download';
-  @Input() transfers: Array<any>;
-  @Input() flow: FlowDirective;
-  @Input() screenWidth: string;
-  @Output() listExpanded: EventEmitter<boolean> = new EventEmitter();
-  filesSize: number = 0;
+
+  readonly component = input<'upload' | 'download'>(undefined);
+  readonly transfers = input<Array<any>>(undefined);
+  readonly flow = input<FlowConfig>(undefined);
+  readonly screenWidth = input<string>(undefined);
+  readonly listExpanded = output<boolean>();
+  readonly filesSize = signal<number>(0);
   fileSizeLimit: number = 1024 * 1024 * 1024 * 2;
   filesSizeLimit: number = 1024 * 1024 * 1024 * 20;
   maxFilenameLength: number = 150;
-  errorMessage: string = '';
-  expanded: boolean = false;
+  readonly errorMessage = signal<string>('');
+  readonly expanded = signal<boolean>(false);
   mimetype: string[] = [];
   extension: string[] = [];
   flowAttributes: any;
   firstFile: boolean = true;
   oldLength: number = 0;
   hasError: boolean = false;
-  unauthorizedFile: string;
-  file: string = '';
+  readonly unauthorizedFile = signal<string>(undefined);
+  readonly file = signal<string>('');
   uploadSubscription: Subscription;
+  private unitSizeSubscription: Subscription;
   newUnit: any;
-  unitSize: string;
+  readonly unitSize = signal<string>(undefined);
 
 
-  constructor(private cdr: ChangeDetectorRef,
-    private fileManagerService: FileManagerService,
-    private configService: ConfigService,
-    private translate: TranslateService,
-    private _snackBar: MatSnackBar,
-    private pipe: FileUnitPipe,
-  ) {
+  constructor() {
 
     this.configService.getConfig().pipe(take(1)).subscribe((config: any) => {
       this.mimetype = config.mimeType;
@@ -66,13 +77,13 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.component === 'download') {
-      this.transfers.forEach(t => {
-        this.filesSize += t.size;
+    if (this.component() === 'download') {
+      this.transfers().forEach(t => {
+        this.filesSize.update(v => v + (t.size));
       });
-      this.newUnit = this.pipe.transform(this.filesSize);
+      this.newUnit = this.pipe.transform(this.filesSize());
       this.translate.stream(this.newUnit).pipe(take(1)).subscribe(v => {
-        this.unitSize = v;
+        this.unitSize.set(v);
       })
     }
 
@@ -81,16 +92,17 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.uploadSubscription = this.flow.events$.subscribe((event) => {
+    this.uploadSubscription = this.flow().events$.subscribe((event) => {
       if (event.type === 'filesSubmitted') {
-        this.fileManagerService.transfers.next(this.flow.transfers$);
+        this.fileManagerService.transfers.set(this.flow().transfers$);
         this.cdr.detectChanges();
       }
     });
   }
 
   ngOnDestroy() {
-    this.uploadSubscription.unsubscribe();
+    this.uploadSubscription?.unsubscribe();
+    this.unitSizeSubscription?.unsubscribe();
   }
 
   /**
@@ -112,16 +124,16 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       for (let child of event.childs) {
         if (child.flowFile) {
           try {
-            this.flow.cancelFile(child);
+            this.flow().cancelFile(child);
           } catch (e) {
           }
         }
-        this.flow.flowJs.removeFile(child);
+        this.flow().flowJs.removeFile(child);
       }
     }
-    this.flow.flowJs.removeFile(event);
+    this.flow().flowJs.removeFile(event);
     // for (let child of event.childs) {
-    //   this.flow.cancelFile(child);
+    //   this.flow().cancelFile(child);
     // }
   }
 
@@ -130,41 +142,40 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
    * This ensures accuracy by calculating from source of truth
    */
   recalculateFilesSize(): void {
-    if (!this.flow || !this.flow.flowJs || !this.flow.flowJs.files) {
-      this.filesSize = 0;
+    if (!this.flow() || !this.flow().flowJs || !this.flow().flowJs.files) {
+      this.filesSize.set(0);
       return;
     }
 
     let totalSize = 0;
 
-    totalSize = this.flow.flowJs.files.reduce((acc, file) => {
+    totalSize = this.flow().flowJs.files.reduce((acc, file) => {
       return acc + (file as any).size || 0;
     }, 0);
 
-    this.filesSize = totalSize;
+    this.filesSize.set(totalSize);
   }
 
   deleteTransfer(transfer: any): void {
     if (!transfer.folder) {
-      this.flow.cancelFile(transfer);
-      this.flow.flowJs.removeFile(transfer);
-      this.fileManagerService.hasFiles.next(this.filesSize > 0);
-      if (this.filesSize <= this.filesSizeLimit) {
-        this.errorMessage = '';
-        this.unauthorizedFile = '';
-        this.file = '';
-      }
+      this.flow().cancelFile(transfer);
+      this.flow().flowJs.removeFile(transfer);
     } else {
       for (let tr of transfer.childs) {
         this.deleteTransfer(tr);
       }
     }
 
-    // Recalculate total size from actual files array after deletion
     this.recalculateFilesSize();
+    this.fileManagerService.hasFiles.set(this.filesSize() > 0);
+    if (this.filesSize() <= this.filesSizeLimit) {
+      this.errorMessage.set('');
+      this.unauthorizedFile.set('');
+      this.file.set('');
+    }
 
-    this.oldLength = this.flow.flowJs.files.length;
-    if (this.flow.flowJs.files.length === 0) {
+    this.oldLength = this.flow().flowJs.files.length;
+    if (this.flow().flowJs.files.length === 0) {
       this.firstFile = true;
     }
 
@@ -180,7 +191,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           for (let child of event.childs) {
             if (child.flowFile) {
               try {
-                this.flow.cancelFile(child);
+                this.flow().cancelFile(child);
               } catch (e) {
               }
             }
@@ -192,13 +203,12 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (event.folder) {
 
         try {
-          this.checkSize(event, this.filesSize);
-          // Recalculate total size from actual files array after folder is added
+          this.checkSize(event, this.filesSize());
           this.recalculateFilesSize();
-          this.fileManagerService.hasFiles.next(this.filesSize > 0);
-          this.errorMessage = '';
-          this.unauthorizedFile = '';
-          this.file = '';
+          this.fileManagerService.hasFiles.set(this.filesSize() > 0);
+          this.errorMessage.set('');
+          this.unauthorizedFile.set('');
+          this.file.set('');
           this.hasError = false;
 
           this.cdr.detectChanges();
@@ -207,13 +217,13 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
           // c'est un dossier
           this.deleteFolder(event)
           this.openSnackBar(4000, error.message, 'file-exist');
-          if (this.filesSize < 0) {
-            this.filesSize = 0;
+          if (this.filesSize() < 0) {
+            this.filesSize.set(0);
           }
-          this.fileManagerService.hasFiles.next(this.filesSize > 0);
-          this.errorMessage = error.message;
-          this.unauthorizedFile = '';
-          this.file = '';
+          this.fileManagerService.hasFiles.set(this.filesSize() > 0);
+          this.errorMessage.set(error.message);
+          this.unauthorizedFile.set('');
+          this.file.set('');
           this.hasError = true;
 
           this.cdr.detectChanges();
@@ -221,49 +231,50 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       } else {
 
-        // Recalculate total size from actual files array after file is added
-        this.recalculateFilesSize();
-        if (this.filesSize <= this.filesSizeLimit && event.size <= this.fileSizeLimit) {
 
-          this.fileManagerService.hasFiles.next(this.filesSize > 0);
-          this.errorMessage = '';
-          this.unauthorizedFile = '';
-          this.file = '';
+        this.recalculateFilesSize();
+        if (this.filesSize() <= this.filesSizeLimit && event.size <= this.fileSizeLimit) {
+
+          this.fileManagerService.hasFiles.set(this.filesSize() > 0);
+          this.errorMessage.set('');
+          this.unauthorizedFile.set('');
+          this.file.set('');
           this.hasError = false;
           this.cdr.detectChanges();
 
         } else {
-          this.flow.cancelFile(event);
-          this.errorMessage = 'TailleMaximale';
-          this.unauthorizedFile = '';
-          this.file = '';
+          this.flow().cancelFile(event);
+          this.errorMessage.set('TailleMaximale');
+          this.unauthorizedFile.set('');
+          this.file.set('');
           this.hasError = true;
-          this.openSnackBar(4000, this.errorMessage, 'file-exist');
+          this.openSnackBar(4000, this.errorMessage(), 'file-exist');
 
           this.cdr.detectChanges();
         }
       }
     } else {
-      // this.flow.flowJs.removeFile(event);
+      // this.flow().flowJs.removeFile(event);
       if (!this.hasError) {
         this.openSnackBar(4000, 'Fichier_Dossier_DéjàPrésent', 'file-exist');
       }
     }
-    if (index == this.flow.flowJs.files.length - 1) {
+    if (index == this.flow().flowJs.files.length - 1) {
       this.hasError = false;
     }
-    this.oldLength = this.flow.flowJs.files.length;
-    this.newUnit = this.pipe.transform(this.filesSize);
-    this.translate.stream(this.newUnit).subscribe(v => {
-      this.unitSize = v;
-    })
+    this.oldLength = this.flow().flowJs.files.length;
+    this.newUnit = this.pipe.transform(this.filesSize());
+    this.unitSizeSubscription?.unsubscribe();
+    this.unitSizeSubscription = this.translate.stream(this.newUnit).subscribe(v => {
+      this.unitSize.set(v);
+    });
 
     this.cdr.detectChanges();
   }
 
   expandList() {
-    this.expanded = !this.expanded;
-    this.listExpanded.emit(this.expanded);
+    this.expanded.set(!this.expanded());
+    this.listExpanded.emit(this.expanded());
   }
 
   checkExisteFile() {
@@ -274,7 +285,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     // comparer length avec le tableau des fichiers
     //si c'est different alors le fichier n'existe pas
-    if (this.oldLength == this.flow.flowJs.files.length) {
+    if (this.oldLength == this.flow().flowJs.files.length) {
       if (this.firstFile == false) {
         existe = true;
       }
@@ -282,7 +293,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       let hasDuplicates = false;
       let seen = new Set();
       let dup = [];
-      this.flow.flowJs.files.forEach(file => {
+      this.flow().flowJs.files.forEach(file => {
         if (seen.has(file.relativePath)) {
           hasDuplicates = true;
           dup.push(file);
@@ -292,7 +303,7 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       if (hasDuplicates) {
         dup.forEach(file => {
-          this.flow.flowJs.removeFile(file);
+          this.flow().flowJs.removeFile(file);
         });
       }
       existe = hasDuplicates;
@@ -310,19 +321,19 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         for (let child of event.childs) {
           const fileExt = child.name.split('.').pop();
           if (this.extension.includes(fileExt)) {
-            this.file = 'TypeFichier';
-            this.errorMessage = 'NonAutorisé';
-            this.unauthorizedFile = child.name;
+            this.file.set('TypeFichier');
+            this.errorMessage.set('NonAutorisé');
+            this.unauthorizedFile.set(child.name);
             this.hasError = true;
             return false;
           }
           //check file name too long
           if (child.name.length > this.maxFilenameLength
             || (child.flowFile?.file?.relativePath && child.flowFile.file.relativePath.length > this.maxFilenameLength)) {
-            this.file = 'TypeFichier';
-            this.errorMessage = 'NomFichierLong';
+            this.file.set('TypeFichier');
+            this.errorMessage.set('NomFichierLong');
             this.hasError = true;
-            this.unauthorizedFile = child.flowFile?.file?.relativePath ? child.flowFile.file.relativePath : child.name;
+            this.unauthorizedFile.set(child.flowFile?.file?.relativePath ? child.flowFile.file.relativePath : child.name);
             return false;
           }
         }
@@ -332,19 +343,19 @@ export class ListElementsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.extension.includes(fileExt)) {
           valid = true;
           if (event.name.length > this.maxFilenameLength || event.flowFile?.file?.relativePath?.length > this.maxFilenameLength) {
-            this.flow.cancelFile(event);
-            this.file = 'TypeFichier';
-            this.errorMessage = 'NomFichierLong';
-            this.unauthorizedFile = event.flowFile?.file?.relativePath ? event.flowFile.file.relativePath : event.name;
+            this.flow().cancelFile(event);
+            this.file.set('TypeFichier');
+            this.errorMessage.set('NomFichierLong');
+            this.unauthorizedFile.set(event.flowFile?.file?.relativePath ? event.flowFile.file.relativePath : event.name);
             this.hasError = true;
             return false;
           }
         }
         else {
-          this.flow.cancelFile(event);
-          this.file = '';
-          this.errorMessage = 'FichierNonAutorisé';
-          this.unauthorizedFile = '';
+          this.flow().cancelFile(event);
+          this.file.set('');
+          this.errorMessage.set('FichierNonAutorisé');
+          this.unauthorizedFile.set('');
           this.hasError = true;
         }
       }

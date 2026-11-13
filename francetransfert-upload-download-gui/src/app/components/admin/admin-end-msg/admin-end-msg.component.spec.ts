@@ -15,8 +15,8 @@ describe('AdminEndMsgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AdminEndMsgComponent ]
-    })
+    imports: [AdminEndMsgComponent]
+})
     .compileComponents();
   });
 

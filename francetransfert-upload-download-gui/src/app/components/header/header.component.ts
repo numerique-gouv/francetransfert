@@ -6,45 +6,43 @@ import { UploadService } from './../../services/upload/upload.service';
   * License-Filename: LICENSE.txt
   */
 
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Component, ElementRef, OnInit, ViewChild, inject, output } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { ResponsiveService, UploadManagerService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatSuffix } from '@angular/material/select';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    selector: 'ft-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    imports: [MatToolbar, MatToolbarRow, MatButton, RouterLink, MatSuffix, MatTooltip, MatIconButton, MatIcon, LanguageSelectorComponent, MatMenuTrigger, MatMenu, MatMenuItem, TranslatePipe]
 })
-export class HeaderComponent implements OnInit, OnDestroy {
-  isMobile: boolean = false;
-  @Output() sidenavToggle = new EventEmitter();
-  @Output() routingCalled: EventEmitter<boolean> = new EventEmitter();
-  responsiveSubscription: Subscription = new Subscription;
-  screenWidth: string;
+export class HeaderComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  private loginService = inject(LoginService);
+  private uploadService = inject(UploadService);
+  private elementRef = inject(ElementRef);
+  private _router = inject(Router);
 
-  constructor(private responsiveService: ResponsiveService, private loginService: LoginService,
-    private uploadService: UploadService, private elementRef: ElementRef,
-    private _router: Router) {
+  readonly isMobile = this.responsiveService.isMobile;
+  readonly sidenavToggle = output();
+  readonly routingCalled = output<boolean>();
+  readonly screenWidth = this.responsiveService.screenWidth;
+
+  constructor() {
       this.uploadService.scroll();
     }
 
   ngOnInit(): void {
     this.elementRef.nativeElement.focus();
-    this.onResize();
-    this.responsiveService.checkWidth();
-  }
-
-  ngOnDestroy() {
-    this.responsiveSubscription.unsubscribe();
-  }
-
-  onResize() {
-    this.responsiveSubscription = this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-      this.screenWidth = this.responsiveService.screenWidth;
-    });
   }
 
   onToggleSidenav = () => {

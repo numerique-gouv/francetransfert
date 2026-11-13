@@ -1,21 +1,23 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
+/* To learn more about this file see: https://angular.dev/reference/configs/workspace-config */
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    // TypeScript 6 enables "strict" by default; this codebase was never strict.
+    "strict": false,
+    // "baseUrl" is deprecated in TS 6: map the absolute "src/..." imports explicitly.
+    "paths": {
+      "src/*": ["./src/*"]
+    },
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "esModuleInterop": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "es2020",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "module": "es2022",
+    "lib": ["es2022", "dom"],
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {

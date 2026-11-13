@@ -13,20 +13,21 @@
   */
 
 import { DatePipe } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Pipe({
-  name: 'customDate',
-  pure: false,
+    name: 'customDate',
+    pure: false
 })
 
 
 export class CustomDatePipe implements PipeTransform {
-  constructor(private translateService: TranslateService) {}
+  private translateService = inject(TranslateService);
+
 
   transform(value: Date | string, format = 'd MMMM y'): string {
-    const datePipe = new DatePipe(this.translateService.currentLang || 'en');
+    const datePipe = new DatePipe(this.translateService.currentLang() || 'en');
     return datePipe.transform(value, format);
   }
 }

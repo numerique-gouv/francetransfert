@@ -7,6 +7,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ConfigService } from 'src/app/services/config/config.service';
 import { EnvelopeParametersFormComponent } from './envelope-parameters-form.component';
 
 describe('EnvelopeParametersFormComponent', () => {
@@ -15,12 +16,14 @@ describe('EnvelopeParametersFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnvelopeParametersFormComponent ]
-    })
+    imports: [EnvelopeParametersFormComponent]
+})
     .compileComponents();
   });
 
   beforeEach(() => {
+    // the component reads the backend configuration (loaded at startup in the app)
+    TestBed.inject(ConfigService).configInfo.set({ uploadExpiredLimit: 90 } as any);
     fixture = TestBed.createComponent(EnvelopeParametersFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -15,8 +15,8 @@ describe('ConnectEndMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ConnectEndMessageComponent ]
-    })
+    imports: [ConnectEndMessageComponent]
+})
     .compileComponents();
   });
 

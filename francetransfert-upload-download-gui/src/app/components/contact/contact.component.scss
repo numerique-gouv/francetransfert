@@ -30,13 +30,13 @@
       margin: 1% 3% 5% 3%;
     }
 
-    ::ng-deep textarea.mat-input-element {
+    ::ng-deep textarea.mat-mdc-input-element {
       min-height: 80px;
       max-height: 160px;
       height: 80px;
     }
 
-    .mat-form-field {
+    .mat-mdc-form-field {
       width: 100%;
 
       .icon-btn {
@@ -53,7 +53,6 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      display: -webkit-flex;
       flex-direction: row;
       justify-content: flex-start;
       padding-top: 2.5rem;
@@ -61,7 +60,7 @@
       padding-top: 2%;
       padding-bottom: 1%;
 
-      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+      .mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
         box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
         outline-style: solid;
         outline-width: 2px;
@@ -73,8 +72,7 @@
         background-color: var(--ft-blue-france);
         color: var(--ft-white);
       }
-
-      ::ng-deep .card-actions-btn.mat-button-disabled {
+      ::ng-deep .card-actions-btn:is(:disabled, [aria-disabled="true"]) {
         background-color: var(--ft-grey);
         color: var(--ft-mention);
       }
@@ -106,11 +104,9 @@
       text-align: center;
       margin-bottom: 3%;
       color:var(--ft-mention) !important;
-
-      ::ng-deep .mat-tab-label-content {
+      ::ng-deep .mdc-tab__text-label {
         width: 100%;
         justify-content: flex-start;
-        -webkit-justify-content: flex-start;
         font-weight: bold;
         font-size: 20px;
         line-height: 28px;
@@ -120,7 +116,6 @@
 
     .captcha-container {
       display: flex;
-      display: -webkit-flex;
       flex-wrap: wrap;
       margin-top: 2rem;
       .captcha-text {
@@ -133,7 +128,7 @@
   }
 }
 
- ::ng-deep .mat-snack-bar-container{
+ ::ng-deep .mat-mdc-snack-bar-container{
   padding: 0px !important;
   background-color: #FFFFFF;
   color: #0a0a0a;

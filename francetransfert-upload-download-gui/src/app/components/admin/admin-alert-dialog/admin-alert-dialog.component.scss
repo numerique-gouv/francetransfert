@@ -3,7 +3,7 @@
     color: var(--ft-white);
 }
 
-.mat-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+.mat-mdc-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
   outline-style: solid;
   outline-width: 2px;

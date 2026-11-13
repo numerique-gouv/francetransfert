@@ -22,8 +22,8 @@ describe('DestinatairesEndMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DestinatairesEndMessageComponent ]
-    })
+    imports: [DestinatairesEndMessageComponent]
+})
     .compileComponents();
   });
 

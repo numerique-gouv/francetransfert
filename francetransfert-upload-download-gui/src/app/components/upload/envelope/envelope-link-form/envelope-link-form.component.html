@@ -1,4 +1,4 @@
-<form [formGroup]="envelopeLinkForm" class="envelope-link-form-container">
+<form [formGroup]="envelopeLinkForm()" class="envelope-link-form-container">
 
   <div class="envelope-link-form-info">
     <span>{{'ChampsObligatoires' | translate}}</span>
@@ -8,10 +8,10 @@
     <mat-form-field>
       <mat-label>{{'NomTransfert' | translate}}</mat-label>
       <input matInput placeholder="{{'Facultatif' | translate}}" formControlName="subject">
-      <button mat-icon-button matSuffix mat-stroked-button attr.aria-label="{{'TooltipNomTransfert' | translate}}"
+      <button mat-icon-button matSuffix attr.aria-label="{{'TooltipNomTransfert' | translate}}"
         matTooltip="{{'TooltipNomTransfert' | translate}}" class="backgroundColor">
         <mat-icon matSuffix aria-hidden="true" class="mat-icon" attr.aria-label="{{'TooltipNomTransfert' | translate}}">
-          info_outline</mat-icon>
+        info_outline</mat-icon>
       </button>
     </mat-form-field>
   </div>
@@ -21,28 +21,36 @@
       <mat-label>{{'Expéditeur' | translate}}</mat-label>
       <input id="sendermail" name="email" matInput [readonly]="isLoggedIn()" [disabled]="isLoggedIn()"
         placeholder="Votre adresse courriel" formControlName="from" autocomplete="email" required>
-      <mat-error role="alert" *ngIf="f.from.errors?.required">{{'ExpéditeurRequis' | translate}}</mat-error>
-      <mat-error role="alert" *ngIf="f.from.errors?.email">{{'AdresseRequis' | translate}}</mat-error>
-      <mat-error role="alert" *ngIf="f.from.errors?.notValid">{{'LienRéservé' | translate}}</mat-error>
-      <mat-error role="alert" *ngIf="f.from.errors?.quota">{{'QotaDépassé' | translate}}
-      </mat-error>
+        @if (f.from.errors?.required) {
+          <mat-error role="alert">{{'ExpéditeurRequis' | translate}}</mat-error>
+        }
+        @if (f.from.errors?.email) {
+          <mat-error role="alert">{{'AdresseRequis' | translate}}</mat-error>
+        }
+        @if (f.from.errors?.notValid) {
+          <mat-error role="alert">{{'LienRéservé' | translate}}</mat-error>
+        }
+        @if (f.from.errors?.quota) {
+          <mat-error role="alert">{{'QotaDépassé' | translate}}
+          </mat-error>
+        }
 
-    </mat-form-field>
-  </div>
+      </mat-form-field>
+    </div>
 
-  <div class="envelope-link-form-group">
-    <mat-form-field>
-      <mat-label>{{'Message' | translate}}</mat-label>
-      <textarea cdkTextareaAutosize cdkAutosizeMinRows="5" cdkAutosizeMaxRows="10" matInput placeholder="(Facultatif)"
+    <div class="envelope-link-form-group">
+      <mat-form-field>
+        <mat-label>{{'Message' | translate}}</mat-label>
+        <textarea cdkTextareaAutosize cdkAutosizeMinRows="5" cdkAutosizeMaxRows="10" matInput placeholder="(Facultatif)"
         formControlName="message" autocomplete="off" maxlength=2500 [maxLength]=2500></textarea>
-    </mat-form-field>
-  </div>
+      </mat-form-field>
+    </div>
 
-  <div class="envelope-link-form-group mat-checkbox-layout">
-    <mat-checkbox formControlName="cguCheck">
-      <div [innerHTML]="'CGU' | translate">
-      </div>
-    </mat-checkbox>
-  </div>
+    <div class="envelope-link-form-group mat-checkbox-layout">
+      <mat-checkbox formControlName="cguCheck">
+        <div [innerHTML]="'CGU' | translate">
+        </div>
+      </mat-checkbox>
+    </div>
 
-</form>
+  </form>

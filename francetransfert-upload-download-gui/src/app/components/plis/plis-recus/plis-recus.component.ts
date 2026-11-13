@@ -6,47 +6,62 @@
   */
 
 
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, ViewChild } from '@angular/core';
-import { MatLegacyPaginator as MatPaginator, MatLegacyPaginatorIntl as MatPaginatorIntl } from '@angular/material/legacy-paginator';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { Component, HostListener, OnDestroy, effect, inject, viewChild, signal } from '@angular/core';
+import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { LangChangeEvent, TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { AdminService, ResponsiveService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { PliRecuModel } from 'src/app/models/pli-recu.model';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Transfer } from '@flowjs/ngx-flow';
 import { FTTransferModel } from 'src/app/models';
 import { PageEvent } from "@angular/material/paginator";
 import { CustomPaginatorService } from "../../../shared/custom-paginator/custom-paginator.service";
 import { LoaderService } from "../../../services/loader/loader.service";
 import { dateValidator, passwordValidator } from "../../../shared/validators/forms-validator";
-import * as moment from "moment/moment";
+import moment from 'moment';
 import { DateAdapter } from "@angular/material/core";
 import { MyDateAdapter, MyDefaultDateAdapter } from "../../upload/envelope/envelope-parameters-form/my-date-adapter";
 import { environment } from '../../../../environments/environment';
 import { ConfigService } from '../../../services/config/config.service';
+import { MatFormField, MatLabel, MatSuffix, MatSelect } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { MatDatepickerInput, MatDatepicker } from '@angular/material/datepicker';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatCardActions } from '@angular/material/card';
+import { DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'ft-plis-recus',
-  templateUrl: './plis-recus.component.html',
-  styleUrls: ['./plis-recus.component.scss'],
-  providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorService }, { provide: DateAdapter, useClass: MyDefaultDateAdapter }],
+    selector: 'ft-plis-recus',
+    templateUrl: './plis-recus.component.html',
+    styleUrls: ['./plis-recus.component.scss'],
+    providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorService }, { provide: DateAdapter, useClass: MyDefaultDateAdapter }],
+    imports: [MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatDatepickerInput, MatDatepicker, MatIconButton, MatSuffix, MatIcon, MatSelect, MatOption, MatButton, MatProgressSpinner, MatTable, MatSort, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatTooltip, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatPaginator, MatCardActions, DatePipe, TranslatePipe]
 })
 export class PlisRecusComponent {
+  private _adminService = inject(AdminService);
+  private loginService = inject(LoginService);
+  private _router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  private _translate = inject(TranslateService);
+  private loaderService = inject(LoaderService);
+  private configService = inject(ConfigService);
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  responsiveSubscription: Subscription = new Subscription;
-  hideSubscription: Subscription = new Subscription;
+
+  readonly sort = viewChild(MatSort);
+  readonly paginator = viewChild(MatPaginator);
   empList: PliRecuModel[] = [];
   displayedColumns: string[] = ['dateReception', 'expediteur', 'objet', 'taille', 'finValidite', 'expired'];
   dataSource = new MatTableDataSource<PliRecuModel>(this.empList);
-  isMobile: boolean = false;
   lengthScreen: any;
-  screenWidth: string;
   link: string;
   destinatairesFilter = new FormControl();
   expiredFilter = new FormControl();
@@ -54,10 +69,10 @@ export class PlisRecusComponent {
   dateDebut = new FormControl();
   dateFin = new FormControl();
   filteredValues = { dateReception: '', expediteur: '', objet: '', taille: '', finValidite: '', expired: '' };
-  types: any;
+  readonly types = signal<any>(undefined);
   subscriptions: Subscription[] = [];
 
-  loading = false;
+  readonly loading = signal(false);
   fileInfos: any;
   transfers: Array<any> = [];
   validUntilDate;
@@ -68,7 +83,7 @@ export class PlisRecusComponent {
   roots: string[] = [];
   downloadDates: any;
   plisPaginated;
-  totalItems;
+  readonly totalItems = signal<number>(undefined);
   pageSize = 5;
   pageIndex = 0;
   urlExport;
@@ -81,31 +96,21 @@ export class PlisRecusComponent {
 
 
 
-  constructor(
-    private _adminService: AdminService,
-    private loginService: LoginService,
-    private _router: Router,
-    private responsiveService: ResponsiveService,
-    private _translate: TranslateService,
-    private loaderService: LoaderService,
-    private translateService: TranslateService,
-    private configService: ConfigService,
-
-  ) {
+  constructor() {
     this.getListTypes();
-    this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+    this._translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.updateTranslations();
+    });
+    effect(() => {
+      if (!this.loaderService.isLoading()) {
+        clearInterval(this.interval);
+      }
     });
   }
 
   ngOnInit(): void {
     this.updateTranslations();
     this.empList = [];
-    this.responsiveSubscription = this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-      this.screenWidth = this.responsiveService.screenWidth;
-
-    });
     this.onResize();
 
     //---------------get infos--------------
@@ -115,22 +120,16 @@ export class PlisRecusComponent {
       this.getPlisInfo(this.pageIndex, this.pageSize);
     }
 
-    this.hideSubscription = this.loaderService.hideSubject.subscribe(hide => {
-      if (hide) {
-        clearInterval(this.interval);
-      }
-    });
-
   }
 
   private updateTranslations() {
-    this.translateService.get('ExportEnCours').subscribe((translation: string) => {
+    this._translate.get('ExportEnCours').subscribe((translation: string) => {
       this.exportEnCours = translation;
     });
-    this.translateService.get('ExportTerminé').subscribe((translation: string) => {
+    this._translate.get('ExportTerminé').subscribe((translation: string) => {
       this.exportTermine = translation;
     });
-    this.translateService.get('ExportEnError').subscribe((translation: string) => {
+    this._translate.get('ExportEnError').subscribe((translation: string) => {
       this.exportEnError = translation;
     });
   }
@@ -141,8 +140,8 @@ export class PlisRecusComponent {
     this._adminService
       .getFileInfosReciever({
         enclosure: enclosureId,
-        senderMail: this.loginService.tokenInfo.getValue().senderMail,
-        senderToken: this.loginService.tokenInfo.getValue().senderToken,
+        senderMail: this.loginService.tokenInfo().senderMail,
+        senderToken: this.loginService.tokenInfo().senderToken,
       })
       .pipe(take(1))
       .subscribe(fileInfos => {
@@ -156,7 +155,7 @@ export class PlisRecusComponent {
         this.validUntilDate = new FormControl(new Date(this.fileInfos.validUntilDate));
         let temp = new Date(this.fileInfos.timestamp);
         this.selectedDate = temp;
-        this.maxDate.setDate(temp.getDate() + this.configService.configInfo.getValue().uploadExpiredLimit);
+        this.maxDate.setDate(temp.getDate() + this.configService.configInfo().uploadExpiredLimit);
         this.fileInfos.recipientsMails.forEach((element) => {
           this.numberOfDownload = element.numberOfDownloadPerRecipient;
           this.downloadDates = element.downloadDates;
@@ -201,19 +200,19 @@ export class PlisRecusComponent {
     this.pageIndex = 0;
     //this.pageSize = 5;
     //this.paginator.pageSize = this.pageSize;
-    this.paginator.pageIndex = this.pageIndex;
+    this.paginator().pageIndex = this.pageIndex;
     //this.paginator._changePageSize(this.pageSize);
     this.onPageChange(null, false);
   }
 
   getPlisInfo(page: number, size: number) {
-    this.loading = true;
+    this.loading.set(true);
     this.dataSource.data = [];
     this.empList = [];
     this._adminService.getPlisReceived(
       {
-        receiverMail: this.loginService.tokenInfo.getValue().senderMail,
-        senderToken: this.loginService.tokenInfo.getValue().senderToken
+        receiverMail: this.loginService.tokenInfo().senderMail,
+        senderToken: this.loginService.tokenInfo().senderToken
       }, page, size, this.destinatairesFilter.value, moment(this.dateDebut.value).utc(true).toISOString(), moment(this.dateFin.value).utc(true).toISOString(), this.objet.value, this.expiredFilter.value
 
     ).pipe(take(1)).subscribe(
@@ -222,7 +221,7 @@ export class PlisRecusComponent {
           const fileInfos = response.plis;
           this.plisPaginated = response;
           this.pageSize = size;
-          this.totalItems = this.plisPaginated.totalItems;
+          this.totalItems.set(this.plisPaginated.totalItems);
           fileInfos?.forEach(t => {
             const taillePli = t.totalSize.split(" ");
             this.roots = [];
@@ -267,7 +266,7 @@ export class PlisRecusComponent {
             this.empList.sort((a, b) => Date.parse(b.dateReception) - Date.parse(a.dateReception))
             this.dataSource.data = this.empList;
           });
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (err) => {
           console.error(err);
@@ -278,7 +277,7 @@ export class PlisRecusComponent {
 
   getListTypes() {
     this._translate.stream("typePliReçus").subscribe(v => {
-      this.types = v
+      this.types.set(v)
     });
   }
 
@@ -299,7 +298,7 @@ export class PlisRecusComponent {
 
   onResize() {
     this.responsiveService.checkWidth();
-    if (this.screenWidth === 'lg') {
+    if (this.responsiveService.screenWidth() === 'lg') {
       this.lengthScreen = 150
     }
     else {
@@ -313,8 +312,8 @@ export class PlisRecusComponent {
     this.urlExport = null;
     this.donwloadKey = null;
     this._adminService.exportPlis({
-      senderMail: this.loginService.tokenInfo.getValue().senderMail,
-      senderToken: this.loginService.tokenInfo.getValue().senderToken
+      senderMail: this.loginService.tokenInfo().senderMail,
+      senderToken: this.loginService.tokenInfo().senderToken
     },
       this.destinatairesFilter.value,
       moment(this.dateDebut.value).utc(true).toISOString(),
@@ -336,8 +335,8 @@ export class PlisRecusComponent {
     this.interval = setInterval(() => {
       if (this.donwloadKey != null && this.donwloadKey != undefined) {
         this._adminService.getUrlExport({
-          senderMail: this.loginService.tokenInfo.getValue().senderMail,
-          senderToken: this.loginService.tokenInfo.getValue().senderToken
+          senderMail: this.loginService.tokenInfo().senderMail,
+          senderToken: this.loginService.tokenInfo().senderToken
         }, this.donwloadKey
         ).pipe(take(1)).subscribe(
           urlResult => {
@@ -365,7 +364,7 @@ export class PlisRecusComponent {
     this.expiredFilter.setValue(null);
   }
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
+    this.dataSource.sort = this.sort();
   }
 
   applyFilter(event: Event) {
@@ -398,15 +397,11 @@ export class PlisRecusComponent {
   }
 
   ngOnDestroy() {
-    this.responsiveSubscription.unsubscribe();
     this.subscriptions.forEach(x => {
       x.unsubscribe();
     });
     if (this.interval) {
       clearInterval(this.interval);
-    }
-    if (this.hideSubscription) {
-      this.hideSubscription.unsubscribe();
     }
   }
 

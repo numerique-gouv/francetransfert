@@ -5,75 +5,88 @@
   * License-Filename: LICENSE.txt
   */
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit, effect, inject, input, output, signal, untracked, Signal } from '@angular/core';
+import { formSignal } from '../../../shared/forms/form-signal';
 import { Router } from "@angular/router";
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { FTErrorModel } from 'src/app/models';
 import { DownloadManagerService } from 'src/app/services';
 import { take } from 'rxjs/operators';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatCard, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'ft-download-elements',
-  templateUrl: './download-elements.component.html',
-  styleUrls: ['./download-elements.component.scss']
+    selector: 'ft-download-elements',
+    templateUrl: './download-elements.component.html',
+    styleUrls: ['./download-elements.component.scss'],
+    imports: [MatCard, MatCardContent, MatIcon, ReactiveFormsModule, MatCheckbox, MatCardActions, MatButton, TranslatePipe]
 })
 export class DownloadElementsComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private downloadManagerService = inject(DownloadManagerService);
+  private translate = inject(TranslateService);
 
-  @Output() dowloadStarted: EventEmitter<boolean> = new EventEmitter();
-  @Input() availabilityDate: Date;
-  @Input() checkRESANA: boolean;
-  @Input() checkOSMOSE: boolean;
-  @Input() urlResana: string;
-  @Input() urlOsmose: string;
-  remainingDays: number;
-  checkCGU: boolean = false;
-  errorDLSubscription: Subscription = new Subscription();
+
+  readonly dowloadStarted = output<boolean>();
+  readonly availabilityDate = input<Date>(undefined);
+  readonly checkRESANA = input<boolean>(undefined);
+  readonly checkOSMOSE = input<boolean>(undefined);
+  readonly urlResana = input<string>(undefined);
+  readonly urlOsmose = input<string>(undefined);
+  readonly remainingDays = signal<number>(undefined);
+  readonly checkCGU = signal<boolean>(false);
   checkSub: Subscription = new Subscription();
-  cguForm: FormGroup;
+  cguForm: Signal<FormGroup>;
 
 
-  error: FTErrorModel;
-  buttonDisable = false;
-  errorMessage: string = "";
+  readonly error = signal<FTErrorModel>(undefined);
+  readonly buttonDisable = signal(false);
+  readonly errorMessage = signal<string>("");
 
-  constructor(private fb: FormBuilder, private router: Router, private downloadManagerService: DownloadManagerService,
-    private translate: TranslateService,) {
-    this.checkCGU = false;
-    this.cguForm = this.fb.group({
+  constructor() {
+    this.checkCGU.set(false);
+    this.cguForm = formSignal(this.fb.group({
       cguCheck: [false, [Validators.requiredTrue]]
+    }));
+
+    effect(() => {
+      const error = this.downloadManagerService.downloadError();
+      untracked(() => {
+        if (error) {
+          this.translate.stream(error.message).pipe(take(1)).subscribe(v => {
+            this.errorMessage.set(v);
+          });
+          this.error.set({ statusCode: error.statusCode, message: this.errorMessage(), codeTryCount: error.codeTryCount });
+        } else {
+          this.errorMessage.set("");
+        }
+      });
     });
   }
 
   ngOnInit(): void {
-    this.remainingDays = this.calculateDiff(this.availabilityDate);
-    this.checkSub = this.cguForm.valueChanges.subscribe(cguValue => {
-      this.checkCGU = cguValue.cguCheck;
-    });
-    this.errorDLSubscription = this.downloadManagerService.downloadError$.subscribe(error => {
-      if (error) {
-        this.translate.stream(error.message).pipe(take(1)).subscribe(v => {
-          this.errorMessage = v;
-        });
-        this.error = { statusCode: error.statusCode, message: this.errorMessage, codeTryCount: error.codeTryCount };
-      } else {
-        this.errorMessage = "";
-      }
+    this.remainingDays.set(this.calculateDiff(this.availabilityDate()));
+    this.checkSub = this.cguForm().valueChanges.subscribe(cguValue => {
+      this.checkCGU.set(cguValue.cguCheck);
     });
   }
 
   download() {
     this.dowloadStarted.emit(true);
-    this.buttonDisable = true;
+    this.buttonDisable.set(true);
   }
 
   downloadResana() {
-    window.open(this.urlResana, '_blank');
+    window.open(this.urlResana(), '_blank');
   }
 
   downloadOsmose() {
-    window.open(this.urlOsmose, '_blank');
+    window.open(this.urlOsmose(), '_blank');
   }
 
   calculateDiff(dateSent) {
@@ -94,11 +107,10 @@ export class DownloadElementsComponent implements OnInit, OnDestroy {
 
 
   cguChecked() {
-    this.checkCGU = !this.checkCGU;
+    this.checkCGU.set(!this.checkCGU());
   }
 
   ngOnDestroy(): void {
     this.checkSub.unsubscribe();
-    this.errorDLSubscription.unsubscribe();
   }
 }

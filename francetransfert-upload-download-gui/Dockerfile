@@ -1,9 +1,10 @@
-FROM node:20.11-alpine3.19 as builder
+FROM node:24-alpine AS builder
 
-COPY . /appli/
 WORKDIR /appli/
-RUN npm install --force
-RUN npm run build 
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+RUN npm run build
 
 FROM nginx/nginx-unprivileged:stable-alpine
 COPY --from=builder /appli/dist/francetransfert-updown-gui /app

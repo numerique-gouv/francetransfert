@@ -5,129 +5,128 @@
   * License-Filename: LICENSE.txt
   */
 
-import { ChangeDetectorRef, Component, EventEmitter, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, computed, effect, inject, output, signal, untracked } from '@angular/core';
 import { LinkInfosModel, MailInfosModel, ParametersModel } from 'src/app/models';
 import { FileManagerService, UploadManagerService, UploadService } from 'src/app/services';
 import { LoginService } from 'src/app/services/login/login.service';
 import { majChar, minChar, numChar, sizeControl, specialChar, noSpecial, isDayNumberValid } from 'src/app/shared/validators/forms-validator';
 import { ConfigService } from '../../../services/config/config.service';
+import { MatCard, MatCardContent, MatCardActions, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatTabGroup, MatTab, MatTabContent, MatTabLabel } from '@angular/material/tabs';
+import { EnvelopeMailFormComponent } from './envelope-mail-form/envelope-mail-form.component';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { MatSuffix } from '@angular/material/select';
+import { EnvelopeLinkFormComponent } from './envelope-link-form/envelope-link-form.component';
+import { EnvelopeParametersFormComponent } from './envelope-parameters-form/envelope-parameters-form.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-envelope',
-  templateUrl: './envelope.component.html',
-  styleUrls: ['./envelope.component.scss']
+    selector: 'ft-envelope',
+    templateUrl: './envelope.component.html',
+    styleUrls: ['./envelope.component.scss'],
+    imports: [MatCard, MatCardContent, MatTabGroup, MatTab, MatTabContent, EnvelopeMailFormComponent, MatTabLabel, MatButton, MatTooltip, MatIcon, MatSuffix, EnvelopeLinkFormComponent, MatCardActions, MatCardHeader, MatCardTitle, EnvelopeParametersFormComponent, TranslatePipe]
 })
-export class EnvelopeComponent implements OnInit, OnDestroy {
+export class EnvelopeComponent {
+  private fileManagerService = inject(FileManagerService);
+  private uploadManagerService = inject(UploadManagerService);
+  private loginService = inject(LoginService);
+  private uploadService = inject(UploadService);
+  private configService = inject(ConfigService);
 
-  @Output() uploadStarted: EventEmitter<boolean> = new EventEmitter();
-  selectedTabIndex: number = 0;
-  canSend: boolean = false;
-  mailFormValid: boolean = false;
-  linkFormValid: boolean = false;
-  fileManagerServiceSubscription: Subscription;
-  uploadManagerSubscription: Subscription;
-  loginSubscription: Subscription;
-  showParameters: boolean = false;
-  mailFormValues: MailInfosModel = { type: 'mail' };
-  linkFormValues: LinkInfosModel = { type: 'link' };
-  parametersFormValues: ParametersModel;
 
-  constructor(private fileManagerService: FileManagerService,
-    private uploadManagerService: UploadManagerService,
-    private loginService: LoginService,
-    private uploadService: UploadService,
-    private cdr: ChangeDetectorRef,
-    private configService: ConfigService
-  ) { }
+  readonly uploadStarted = output<boolean>();
+  readonly selectedTabIndex = signal(0);
+  private readonly mailFormValid = signal(false);
+  private readonly linkFormValid = signal(false);
+  
+  readonly canSend = computed(() => this.fileManagerService.hasFiles()
+    && (this.selectedTabIndex() === 0 ? this.mailFormValid() : this.linkFormValid()));
+  readonly showParameters = signal<boolean>(false);
+  
+  readonly mailFormValues = signal<MailInfosModel>({ type: 'mail', from: '' });
+  readonly linkFormValues = signal<LinkInfosModel>({ type: 'link', from: '' });
+  readonly parametersFormValues = signal<ParametersModel>(undefined);
+  private sessionMail = '';
 
-  ngOnInit(): void {
-    this.loginSubscription = this.loginService.tokenInfo.subscribe(tokenInfo => {
-      if (tokenInfo && tokenInfo.senderMail &&
-        (this.mailFormValues.from != tokenInfo.senderMail
-          || this.linkFormValues.from != tokenInfo.senderMail)) {
-        this.mailFormValues.from = tokenInfo.senderMail;
-        this.linkFormValues.from = tokenInfo.senderMail;
-        this.cdr.detectChanges();
-      } else {
-        this.mailFormValues.from = '';
-        this.linkFormValues.from = '';
-      }
+  constructor() {
+    
+    effect(() => {
+      const senderMail = this.loginService.senderMail();
+      untracked(() => {
+        if (senderMail !== this.sessionMail) {
+          this.sessionMail = senderMail;
+          this.mailFormValues().from = senderMail;
+          this.linkFormValues().from = senderMail;
+        }
+      });
     });
-    this.uploadManagerSubscription = this.uploadManagerService.envelopeInfos.subscribe(_infos => {
-      if (_infos) {
-        if (_infos.type === 'mail') {
-          this.mailFormValues = _infos
+
+
+    effect(() => {
+      const _infos = this.uploadManagerService.envelopeInfos();
+      untracked(() => {
+        if (_infos) {
+          if (_infos.type === 'mail') {
+            this.mailFormValues.set(_infos);
+          }
+          if (_infos.type === 'link') {
+            this.linkFormValues.set(_infos);
+          }
+          this.parametersFormValues.set(_infos.parameters);
         }
-        if (_infos.type === 'link') {
-          this.linkFormValues = _infos
-        }
-        this.parametersFormValues = _infos.parameters;
-        this.cdr.detectChanges();
-        this.checkCanSend();
-      }
+      });
     });
   }
 
   onSelectedTabChange(event) {
-    this.selectedTabIndex = event.index;
-    this.checkCanSend();
+    this.selectedTabIndex.set(event.index);
   }
 
   onMailFormGroupChangeEvent(event) {
-    this.mailFormValues = event.values;
-    this.mailFormValues.to = event.destinataires;
-    this.mailFormValid = event.isValid && this.selectedTabIndex === 0;
-    this.checkCanSend();
+    
+    event.values.to = event.destinataires;
+    this.mailFormValues.set(event.values);
+    this.mailFormValid.set(event.isValid && this.selectedTabIndex() === 0);
   }
 
   onLinkFormGroupChangeEvent(event) {
-    this.linkFormValues = event.values;
-    this.linkFormValid = event.isValid && this.selectedTabIndex === 1;
-    this.checkCanSend();
+    this.linkFormValues.set(event.values);
+    this.linkFormValid.set(event.isValid && this.selectedTabIndex() === 1);
   }
 
   onParametersFormGroupChangeEvent(event) {
-    this.parametersFormValues = event.values;
-    this.cdr.detectChanges();
+    this.parametersFormValues.set(event.values);
   }
 
   isParamFromValid() {
 
     let checkpassword = true;
     let checkdate = true;
-    if (this.parametersFormValues && this.parametersFormValues.password && this.parametersFormValues.password != '' && this.parametersFormValues.password != null && this.parametersFormValues.password != undefined) {
-      checkpassword = minChar(this.parametersFormValues.password)
-        && majChar(this.parametersFormValues.password)
-        && specialChar(this.parametersFormValues.password)
-        && numChar(this.parametersFormValues.password)
-        && sizeControl(this.parametersFormValues.password)
-        && !noSpecial(this.parametersFormValues.password)
+    const parameters = this.parametersFormValues();
+    if (parameters && parameters.password && parameters.password != '' && parameters.password != null && parameters.password != undefined) {
+      checkpassword = minChar(parameters.password)
+        && majChar(parameters.password)
+        && specialChar(parameters.password)
+        && numChar(parameters.password)
+        && sizeControl(parameters.password)
+        && !noSpecial(parameters.password)
     }
-    if (this.parametersFormValues && this.parametersFormValues.expiryDays) {
-      checkdate = isDayNumberValid(this.parametersFormValues.expiryDays, this.configService);
+    if (parameters && parameters.expiryDays) {
+      checkdate = isDayNumberValid(parameters.expiryDays, this.configService);
     }
     return checkpassword && checkdate;
   }
 
-  checkCanSend() {
-    this.fileManagerServiceSubscription = this.fileManagerService.hasFiles.subscribe(hasFiles => {
-      if (this.selectedTabIndex === 0) {
-        this.canSend = hasFiles && this.mailFormValid;
-      } else {
-        if (this.selectedTabIndex === 1) {
-          this.canSend = hasFiles && this.linkFormValid;
-        }
-      }
-    });
-  }
 
   triggerShowParameters() {
 
-    this.showParameters = !this.showParameters;
-    if (this.parametersFormValues?.expiryDays) {
-      if (!isDayNumberValid(this.parametersFormValues?.expiryDays, this.configService)) {
-        this.parametersFormValues.expiryDays = 30;
+    this.showParameters.set(!this.showParameters());
+    const parameters = this.parametersFormValues();
+    if (parameters?.expiryDays) {
+      if (!isDayNumberValid(parameters.expiryDays, this.configService)) {
+        parameters.expiryDays = 30;
       }
     }
     
@@ -137,24 +136,12 @@ export class EnvelopeComponent implements OnInit, OnDestroy {
   triggerShowParametersValider() {
 
     this.uploadService.setCheckValidation(true);
-    this.showParameters = !this.showParameters;
+    this.showParameters.set(!this.showParameters());
 
   }
 
   startUpload() {
     this.uploadService.setCheckValidation(false);
-    this.uploadStarted.next(true);
-  }
-
-  ngOnDestroy(): void {
-    if (this.fileManagerServiceSubscription) {
-      this.fileManagerServiceSubscription.unsubscribe();
-    }
-    if (this.uploadManagerSubscription) {
-      this.uploadManagerSubscription.unsubscribe();
-    }
-    if (this.loginSubscription) {
-      this.loginSubscription.unsubscribe();
-    }
+    this.uploadStarted.emit(true);
   }
 }

@@ -1,8 +1,8 @@
 <mat-card class="loader-card">
     <mat-card-content class="loader-card-content">
         <div class="progress-spinner-wrapper">
-            <mat-progress-spinner [mode]="mode" [value]="progressValue" diameter="150" strokeWidth="4"></mat-progress-spinner>
-            <div class="progress-spinner-inner-text">{{progressValue}} %</div>
+            <mat-progress-spinner [mode]="mode" [value]="progressValue()" diameter="150" strokeWidth="4"></mat-progress-spinner>
+            <div class="progress-spinner-inner-text">{{progressValue()}} %</div>
         </div>
         <div class="loader-card-content-text">
             <span class="loader-card-content-text-title">  {{'CréationTransfert' | translate}}</span>

@@ -90,7 +90,7 @@
     overflow-y: auto;
     .faq-card {
       margin-top: 90px;
-      ::ng-deep .mat-card-header-text {
+      ::ng-deep .mat-mdc-card-header-text {
         margin: 0 0 !important;
       }
     }

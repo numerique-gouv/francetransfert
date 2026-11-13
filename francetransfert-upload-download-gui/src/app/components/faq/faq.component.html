@@ -13,33 +13,30 @@
       </mat-form-field>
 
 
-      <mat-accordion *ngFor="let category of categories; index as i">
-        <h2>{{ category.category}}</h2>
-
-
-      <mat-expansion-panel
-          *ngFor="let question of category.entities | FilterQuestionsPipe: queryString : searchableList; index as j"
-          [expanded]="stateJ === j && stateI === i" (opened)="setState(i, j)">
-
-      <mat-expansion-panel-header>
-            <mat-panel-title>
-              <h3>
-                {{ question.Question}}
-              </h3>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <p [innerHTML]="question.Question_Texte1"></p>
-          <ul [innerHTML]="question.Question_Liste">
-          </ul>
-          <ol [innerHTML]="question.Question_Liste_Ordered">
-          </ol>
-          <p [innerHTML]="question.Question_Texte2"></p>
-          <div class="imagefaq" [innerHTML]="question.QuestionImage"></div>
-        </mat-expansion-panel>
-
-
-
-      </mat-accordion>
+      @for (category of categories(); track category; let i = $index) {
+        <mat-accordion>
+          <h2>{{ category.category}}</h2>
+          @for (question of category.entities | FilterQuestionsPipe: queryString : searchableList(); track question; let j = $index) {
+            <mat-expansion-panel
+              [expanded]="stateJ === j && stateI() === i" (opened)="setState(i, j)">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <h3>
+                    {{ question.Question}}
+                  </h3>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p [innerHTML]="question.Question_Texte1"></p>
+              <ul [innerHTML]="question.Question_Liste">
+              </ul>
+              <ol [innerHTML]="question.Question_Liste_Ordered">
+              </ol>
+              <p [innerHTML]="question.Question_Texte2"></p>
+              <div class="imagefaq" [innerHTML]="question.QuestionImage"></div>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      }
 
     </mat-card-content>
   </mat-card>

@@ -5,28 +5,28 @@
   * License-Filename: LICENSE.txt
   */
 
-import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { Component, inject, signal } from '@angular/core';
+import { MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MailingListService } from 'src/app/services';
 import { DestinatairesEndMessageComponent } from '../destinataires-end-message/destinataires-end-message.component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatButton } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-mailing-list-manager',
-  templateUrl: './mailing-list-manager.component.html',
-  styleUrls: ['./mailing-list-manager.component.scss']
+    selector: 'ft-mailing-list-manager',
+    templateUrl: './mailing-list-manager.component.html',
+    styleUrls: ['./mailing-list-manager.component.scss'],
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, TranslatePipe]
 })
-export class MailingListManagerComponent implements OnInit {
+export class MailingListManagerComponent {
+  private dialogRef = inject<MatDialogRef<MailingListManagerComponent>>(MatDialogRef);
+  private mailingListService = inject(MailingListService);
+  private _snackBar = inject(MatSnackBar);
 
-  errorMessage;
 
-  constructor(private dialogRef: MatDialogRef<MailingListManagerComponent>,
-    private mailingListService: MailingListService,
-    private _snackBar: MatSnackBar) { }
-
-  ngOnInit(): void {
-    this.errorMessage = '';
-  }
+  readonly errorMessage = signal('');
 
   loadMailingListFromLocalStorage() {
     this.dialogRef.close({ event: 'loadMailingListFromLocalStorage', data: this.mailingListService.getMailingList() });
@@ -58,7 +58,7 @@ export class MailingListManagerComponent implements OnInit {
       let splittedData = _data.replace(/\s/g, '').split(';');
       this.dialogRef.close({ event: 'loadMailingListFromFile', data: splittedData });
     } else {
-      this.errorMessage = 'Le fichier importé est invalide.'
+      this.errorMessage.set('Le fichier importé est invalide.');
     }
   }
 

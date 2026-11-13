@@ -5,119 +5,108 @@
   * License-Filename: LICENSE.txt
   */
 
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, OnDestroy, OnInit, effect, inject, viewChild, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { FlowDirective, UploadState } from '@flowjs/ngx-flow';
-import { Subject } from 'rxjs/internal/Subject';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { take, takeUntil } from 'rxjs/operators';
+import { FlowConfig, UploadState } from '@flowjs/ngx-flow';
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { DownloadManagerService, FileManagerService, LanguageSelectionService, ResponsiveService, UploadManagerService, UploadService } from 'src/app/services';
 import { FLOW_CONFIG } from 'src/app/shared/config/flow-config';
-import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { SatisfactionMessageComponent } from "../satisfaction-message/satisfaction-message.component";
 import { Router } from "@angular/router";
 import { LoginService } from 'src/app/services/login/login.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { ConfigService } from '../../services/config/config.service';
 import { SessionsService } from '../../services/sessions/sessions.service';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { NgStyle, NgClass } from '@angular/common';
+import { LoaderComponent } from '../loader/loader.component';
+import { CheckValidationCodeComponent } from '../check-validation-code/check-validation-code.component';
+import { ListElementsComponent } from '../list-elements/list-elements.component';
+import { EnvelopeComponent } from './envelope/envelope.component';
+import { EndMessageComponent } from '../end-message/end-message.component';
+import { SatisfactionCheckComponent } from '../satisfaction-check/satisfaction-check.component';
+import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 
 @Component({
-  selector: 'ft-upload',
-  templateUrl: './upload.component.html',
-  styleUrls: ['./upload.component.scss']
+    selector: 'ft-upload',
+    templateUrl: './upload.component.html',
+    styleUrls: ['./upload.component.scss'],
+    imports: [FlowConfig, MatCard, MatCardContent, NgStyle, LoaderComponent, CheckValidationCodeComponent, ListElementsComponent, NgClass, EnvelopeComponent, EndMessageComponent, SatisfactionCheckComponent, TranslatePipe, SafeHtmlPipe]
 })
 export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
+  private responsiveService = inject(ResponsiveService);
+  private uploadManagerService = inject(UploadManagerService);
+  private downloadManagerService = inject(DownloadManagerService);
+  private fileManagerService = inject(FileManagerService);
+  translateService = inject(TranslateService);
+  private uploadService = inject(UploadService);
+  private loginService = inject(LoginService);
+  private languageSelectionService = inject(LanguageSelectionService);
+  private configService = inject(ConfigService);
+  private titleService = inject(Title);
+  private _snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private sessionsService = inject(SessionsService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private onDestroy$: Subject<void> = new Subject();
-  checkConnect: boolean;
-  isMobile: boolean = false;
-  screenWidth: string;
-  uploadStarted: boolean = false;
-  uploadFinished: boolean = false;
-  uploadValidated: boolean = false;
-  uploadFailed: boolean = false;
-  publicLink: boolean = false;
-  uploadManagerSubscription: Subscription = new Subscription;
-  responsiveSubscription: Subscription = new Subscription;
-  fileManagerSubscription: Subscription = new Subscription;
+  readonly screenWidth = this.responsiveService.screenWidth;
+  readonly uploadStarted = signal<boolean>(false);
+  readonly uploadFinished = signal<boolean>(false);
+  readonly uploadValidated = signal<boolean>(false);
+  readonly uploadFailed = signal<boolean>(false);
+  readonly publicLink = signal<boolean>(false);
   transfertSubscription: Subscription = new Subscription;
   uploadSubscription: Subscription = new Subscription;
-  loginSubscription: Subscription = new Subscription;
-  langSubscription: Subscription = new Subscription;
-  senderEmail: string;
-  availabilityDate: Date;
+  readonly senderEmail = signal<string>(undefined);
+  readonly availabilityDate = signal<Date>(undefined);
   availabilityDays: number;
-  @ViewChild('upload') private uploadFragment: ElementRef;
-  @ViewChild('flow')
-  flow: FlowDirective;
+  private readonly uploadFragment = viewChild<ElementRef>('upload');
+  readonly flow = viewChild<FlowConfig>('flow');
   flowConfig: any;
-  hasFiles: boolean = false;
-  listExpanded: boolean = false;
+  readonly hasFiles = this.fileManagerService.hasFiles;
+  readonly listExpanded = signal<boolean>(false);
   enclosureId: string = '';
   canReset: boolean = false;
-  showCode: boolean = false;
-  langueCourriels: any;
-  refreshUpdateSubscription: Subscription = new Subscription;
-  config: any;
-  configSubscription: Subscription;
+  readonly showCode = signal<boolean>(false);
+  readonly langueCourriels = this.uploadService.langueCourriels;
+  private readonly ssoUploadRunning = signal(false);
+  readonly config = this.configService.configInfo;
 
+  constructor() {
+    effect(() => {
+      const _envelopeInfos = this.uploadManagerService.envelopeInfos();
+      if (_envelopeInfos && _envelopeInfos.from) {
+        this.senderEmail.set(_envelopeInfos.from.toLowerCase());
+        if (_envelopeInfos.parameters) {
+          this.availabilityDays = _envelopeInfos.parameters.expiryDays;
+        }
+      }
+    });
 
-  constructor(private responsiveService: ResponsiveService,
-    private uploadManagerService: UploadManagerService,
-    private downloadManagerService: DownloadManagerService,
-    private fileManagerService: FileManagerService,
-    public translateService: TranslateService,
-    private uploadService: UploadService,
-    private loginService: LoginService,
-    private languageSelectionService: LanguageSelectionService,
-    private configService: ConfigService,
-    private titleService: Title,
-    private _snackBar: MatSnackBar,
-    private router: Router,
-    private changeDetectorRef: ChangeDetectorRef,
-    private sessionsService: SessionsService) { }
+    
+    effect(() => {
+      if (this.ssoUploadRunning() && this.loginService.tokenInfo()?.fromSso) {
+        this.flow().flowJs.opts.headers = {
+          Authorization: 'Bearer ' + this.loginService.getSsoToken()
+        };
+      }
+    });
+  }
 
   ngOnInit(): void {
 
 
 
     this.titleService.setTitle("France transfert - Résultat d'un envoi");
-    this.onResize();
     this.flowConfig = FLOW_CONFIG;
     this.flowConfig.headers = {
       ...this.flowConfig.headers,
       'x-session-id': this.sessionsService.sessionId
     };
-    this.responsiveService.checkWidth();
-    this.uploadManagerSubscription = this.uploadManagerService.envelopeInfos.subscribe(_envelopeInfos => {
-      if (_envelopeInfos && _envelopeInfos.from) {
-        this.senderEmail = _envelopeInfos.from.toLowerCase();
-        if (_envelopeInfos.parameters) {
-          this.availabilityDays = _envelopeInfos.parameters.expiryDays;
-        }
-      }
-    });
-    this.fileManagerSubscription = this.fileManagerService.hasFiles.subscribe(_hasFiles => {
-      this.hasFiles = _hasFiles;
-    });
     this.reset();
-
-
-    this.loginSubscription = this.loginService.connectCheck.subscribe(checkConnect => {
-      this.checkConnect = checkConnect;
-    });
-
-    this.langSubscription = this.uploadService.langueCourriels.subscribe(langueCourriels => {
-      this.langueCourriels = langueCourriels;
-      this.changeDetectorRef.detectChanges();
-    });
-
-    this.configSubscription = this.configService.configInfo.subscribe(config => {
-      this.config = config;
-      this.changeDetectorRef.detectChanges();
-    });
-
-
   }
 
   ngAfterViewInit() {
@@ -131,7 +120,7 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   scrollTo(_anchor: string) {
     switch (_anchor) {
       case 'upload':
-        this.uploadFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.uploadFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
     }
   }
@@ -143,24 +132,25 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
       this.transfertSubscription.unsubscribe();
     }
     this.enclosureId = '';
-    this.uploadStarted = false;
-    this.uploadFinished = false;
-    this.uploadValidated = false;
-    this.showCode = false;
-    this.uploadFailed = false;
-    this.publicLink = false;
-    this.uploadManagerService.uploadInfos.next(null);
-    this.uploadManagerService.uploadError$.next(null);
-    this.downloadManagerService.downloadError$.next(null);
+    this.uploadStarted.set(false);
+    this.uploadFinished.set(false);
+    this.uploadValidated.set(false);
+    this.showCode.set(false);
+    this.uploadFailed.set(false);
+    this.publicLink.set(false);
+    this.uploadManagerService.uploadInfos.set(null);
+    this.uploadManagerService.uploadError.set(null);
+    this.downloadManagerService.downloadError.set(null);
     //Reset token
     if (!this.canReset) {
-      this.uploadManagerService.envelopeInfos.next(null);
-      if (this.flow) {
-        this.fileManagerService.hasFiles.next(false);
-        this.flow.cancel();
+      this.uploadManagerService.envelopeInfos.set(null);
+      const flow = this.flow();
+      if (flow?.flowJs) {
+        this.fileManagerService.hasFiles.set(false);
+        flow.cancel();
       }
     } else {
-      this.flow.transfers$.pipe(take(1)).subscribe(transfer => {
+      this.flow().transfers$.pipe(take(1)).subscribe(transfer => {
         transfer.transfers.forEach(t => {
           t.flowFile.bootstrap();
         });
@@ -168,26 +158,20 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onResize() {
-    this.responsiveSubscription = this.responsiveService.getMobileStatus().subscribe(isMobile => {
-      this.isMobile = isMobile;
-      this.screenWidth = this.responsiveService.screenWidth;
-    });
-  }
 
   styleObject(): Object {
-    if (this.screenWidth === 'lg') {
+    if (this.screenWidth() === 'lg') {
       return { '-webkit-flex-direction': 'row' }
     }
-    if (this.screenWidth === 'md') {
-      if (!this.uploadFinished && !this.uploadStarted) {
+    if (this.screenWidth() === 'md') {
+      if (!this.uploadFinished() && !this.uploadStarted()) {
         return { '-webkit-flex-direction': 'row' }
       } else {
         return { '-webkit-flex-direction': 'column-reverse' }
       }
     }
-    if (this.screenWidth === 'sm') {
-      if (this.uploadFinished && this.uploadStarted) {
+    if (this.screenWidth() === 'sm') {
+      if (this.uploadFinished() && this.uploadStarted()) {
         return { '-webkit-flex-direction': 'column' }
       } else {
         return { '-webkit-flex-direction': 'column-reverse' }
@@ -197,18 +181,18 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onUploadStarted(event) {
-    this.uploadStarted = event;
+    this.uploadStarted.set(event);
     this.upload();
 
   }
 
   onTransferFailed(event) {
-    this.uploadFailed = true;
-    this.uploadFinished = true;
+    this.uploadFailed.set(true);
+    this.uploadFinished.set(true);
     this.canReset = true;
     this.uploadSubscription.unsubscribe();
-    this.refreshUpdateSubscription.unsubscribe();
-    this.flow.transfers$.pipe(take(1)).subscribe(transfer => {
+    this.ssoUploadRunning.set(false);
+    this.flow().transfers$.pipe(take(1)).subscribe(transfer => {
       transfer.transfers.forEach(t => {
         t.flowFile.pause();
         t.flowFile.bootstrap();
@@ -218,16 +202,16 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onTransferCancelled(event) {
     this.uploadSubscription.unsubscribe();
-    this.refreshUpdateSubscription.unsubscribe();
-    this.uploadStarted = !event;
-    this.uploadValidated = !event;
+    this.ssoUploadRunning.set(false);
+    this.uploadStarted.set(!event);
+    this.uploadValidated.set(!event);
 
   }
 
   onTransferFinished(event) {
     this.uploadSubscription.unsubscribe();
-    this.refreshUpdateSubscription.unsubscribe();
-    this.uploadFinished = event;
+    this.ssoUploadRunning.set(false);
+    this.uploadFinished.set(event);
     this.canReset = !event;
 
 
@@ -245,16 +229,16 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onCheckTransferCancelled(event) {
     if (event) {
-      this.uploadStarted = false;
+      this.uploadStarted.set(false);
     }
   }
 
   onSatisfactionCheckDone(event) {
     if (event) {
       this.uploadService.rate({
-        plis: this.enclosureId, mail: this.uploadManagerService.envelopeInfos.getValue().from,
+        plis: this.enclosureId, mail: this.uploadManagerService.envelopeInfos().from,
         message: event.message, satisfaction: event.satisfaction,
-        ...this.loginService.tokenInfo.getValue()?.senderToken ? { token: this.loginService.tokenInfo.getValue()?.senderToken } : {},
+        ...this.loginService.tokenInfo()?.senderToken ? { token: this.loginService.tokenInfo()?.senderToken } : {},
       }).pipe(take(1))
         .subscribe((result: any) => {
           if (result) {
@@ -273,43 +257,43 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onListExpanded(event) {
-    this.listExpanded = event;
+    this.listExpanded.set(event);
   }
 
   ispublicLink(val: any) {
     if (val === 'link')
-      this.publicLink = true;
+      this.publicLink.set(true);
   }
 
   async upload(): Promise<any> {
-    let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers.getValue());
+    let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers());
     this.uploadService
       .sendTree({
         transfers: transfers.transfers,
-        ...this.uploadManagerService.envelopeInfos.getValue().type === 'mail' ? { emails: this.uploadManagerService.envelopeInfos.getValue().to } : {},
-        message: this.uploadManagerService.envelopeInfos.getValue().message,
-        subject: this.uploadManagerService.envelopeInfos.getValue().subject,
-        senderMail: this.uploadManagerService.envelopeInfos.getValue().from.toLowerCase(),
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.password ? { password: this.uploadManagerService.envelopeInfos.getValue().parameters.password } : { password: '' },
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.expiryDays ? { expiryDays: this.uploadManagerService.envelopeInfos.getValue().parameters.expiryDays } : { expiryDays: 30 },
-        ...this.uploadManagerService.envelopeInfos.getValue().type === 'link' ? { publicLink: true } : { publicLink: false },
-        ...this.loginService.tokenInfo.getValue()?.senderToken ? { senderToken: this.loginService.tokenInfo.getValue()?.senderToken } : {},
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos.getValue().parameters.zipPassword } : { zipPassword: false },
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos.getValue().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels },
+        ...this.uploadManagerService.envelopeInfos().type === 'mail' ? { emails: this.uploadManagerService.envelopeInfos().to } : {},
+        message: this.uploadManagerService.envelopeInfos().message,
+        subject: this.uploadManagerService.envelopeInfos().subject,
+        senderMail: this.uploadManagerService.envelopeInfos().from.toLowerCase(),
+        ...this.uploadManagerService.envelopeInfos().parameters?.password ? { password: this.uploadManagerService.envelopeInfos().parameters.password } : { password: '' },
+        ...this.uploadManagerService.envelopeInfos().parameters?.expiryDays ? { expiryDays: this.uploadManagerService.envelopeInfos().parameters.expiryDays } : { expiryDays: 30 },
+        ...this.uploadManagerService.envelopeInfos().type === 'link' ? { publicLink: true } : { publicLink: false },
+        ...this.loginService.tokenInfo()?.senderToken ? { senderToken: this.loginService.tokenInfo()?.senderToken } : {},
+        ...this.uploadManagerService.envelopeInfos().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos().parameters.zipPassword } : { zipPassword: false },
+        ...this.uploadManagerService.envelopeInfos().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels() },
       })
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result: any) => {
         if (result && result?.canUpload == true) {
-          this.uploadManagerService.uploadInfos.next(result);
-          this.uploadValidated = true;
-          this.showCode = false;
-          this.availabilityDate = result.expireDate;
-          this.ispublicLink(this.uploadManagerService.envelopeInfos.getValue().type);
+          this.uploadManagerService.uploadInfos.set(result);
+          this.uploadValidated.set(true);
+          this.showCode.set(false);
+          this.availabilityDate.set(result.expireDate);
+          this.ispublicLink(this.uploadManagerService.envelopeInfos().type);
           this.beginUpload(result);
         } else {
-          this.showCode = true;
-          if (this.uploadManagerService.uploadInfos.getValue()) {
-            if (this.uploadManagerService.uploadInfos.getValue().senderId && this.uploadManagerService.uploadInfos.getValue().senderToken) {
+          this.showCode.set(true);
+          if (this.uploadManagerService.uploadInfos()) {
+            if (this.uploadManagerService.uploadInfos().senderId && this.uploadManagerService.uploadInfos().senderToken) {
               this.validateCode();
             }
           }
@@ -319,30 +303,30 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   async validateCode(code?: string): Promise<any> {
-    let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers.getValue());
+    let transfers: UploadState = await this.uploadManagerService.getRxValue(this.fileManagerService.transfers());
     this.uploadService
       .validateCode({
         ...code ? { code: code } : {},
         transfers: transfers.transfers,
-        ...this.uploadManagerService.envelopeInfos.getValue().type === 'mail' ? { emails: this.uploadManagerService.envelopeInfos.getValue().to } : {},
-        message: this.uploadManagerService.envelopeInfos.getValue().message,
-        subject: this.uploadManagerService.envelopeInfos.getValue().subject,
-        senderMail: this.uploadManagerService.envelopeInfos.getValue().from.toLowerCase(),
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.password ? { password: this.uploadManagerService.envelopeInfos.getValue().parameters.password } : { password: '' },
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.expiryDays ? { expiryDays: this.uploadManagerService.envelopeInfos.getValue().parameters.expiryDays } : { expiryDays: 30 },
-        ...this.uploadManagerService.envelopeInfos.getValue().type === 'link' ? { publicLink: true } : { publicLink: false },
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos.getValue().parameters.zipPassword } : { zipPassword: false },
-        ...this.uploadManagerService.envelopeInfos.getValue().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos.getValue().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels },
+        ...this.uploadManagerService.envelopeInfos().type === 'mail' ? { emails: this.uploadManagerService.envelopeInfos().to } : {},
+        message: this.uploadManagerService.envelopeInfos().message,
+        subject: this.uploadManagerService.envelopeInfos().subject,
+        senderMail: this.uploadManagerService.envelopeInfos().from.toLowerCase(),
+        ...this.uploadManagerService.envelopeInfos().parameters?.password ? { password: this.uploadManagerService.envelopeInfos().parameters.password } : { password: '' },
+        ...this.uploadManagerService.envelopeInfos().parameters?.expiryDays ? { expiryDays: this.uploadManagerService.envelopeInfos().parameters.expiryDays } : { expiryDays: 30 },
+        ...this.uploadManagerService.envelopeInfos().type === 'link' ? { publicLink: true } : { publicLink: false },
+        ...this.uploadManagerService.envelopeInfos().parameters?.zipPassword ? { zipPassword: this.uploadManagerService.envelopeInfos().parameters.zipPassword } : { zipPassword: false },
+        ...this.uploadManagerService.envelopeInfos().parameters?.langueCourriels ? { langueCourriels: this.uploadManagerService.envelopeInfos().parameters.langueCourriels.code } : { langueCourriels: this.langueCourriels() },
 
       })
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result: any) => {
-        this.uploadManagerService.uploadInfos.next(result);
-        this.uploadValidated = true;
-        this.availabilityDate = result.expireDate;
-        this.ispublicLink(this.uploadManagerService.envelopeInfos.getValue().type);
-        if (this.checkConnect == false) {
-          this.loginService.tokenInfo.next(null);
+        this.uploadManagerService.uploadInfos.set(result);
+        this.uploadValidated.set(true);
+        this.availabilityDate.set(result.expireDate);
+        this.ispublicLink(this.uploadManagerService.envelopeInfos().type);
+        if (!this.loginService.connectCheck()) {
+          this.loginService.tokenInfo.set(null);
         }
         this.beginUpload(result);
       });
@@ -353,55 +337,39 @@ export class UploadComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.transfertSubscription) {
       this.transfertSubscription.unsubscribe();
     }
-    if (this.loginService.isLoggedIn() && this.loginService.tokenInfo && this.loginService.tokenInfo.getValue()) {
-      token = this.loginService.tokenInfo.getValue()?.senderToken;
-      if (this.loginService.isSso()) {
-        this.refreshUpdateSubscription = this.loginService.tokenInfo.subscribe(tokenInfo => {
-          if (tokenInfo.fromSso) {
-            this.flow.flowJs.opts.headers = {
-              Authorization: 'Bearer ' + this.loginService.getSsoToken()
-            };
-          }
-        });
-      }
+    if (this.loginService.isLoggedIn()) {
+      token = this.loginService.tokenInfo().senderToken;
+      this.ssoUploadRunning.set(this.loginService.isSso());
     } else {
-      token = this.uploadManagerService.uploadInfos.getValue().senderToken;
+      token = this.uploadManagerService.uploadInfos().senderToken;
     }
 
     this.enclosureId = result.enclosureId;
-    this.flow.flowJs.opts.query = {
+    const flow = this.flow();
+    flow.flowJs.opts.query = {
       enclosureId: result.enclosureId,
-      senderId: this.uploadManagerService.envelopeInfos.getValue().from.toLowerCase(),
+      senderId: this.uploadManagerService.envelopeInfos().from.toLowerCase(),
       senderToken: token,
     };
-    if (this.loginService.isLoggedIn() && this.loginService.tokenInfo.getValue().fromSso) {
-      this.flow.flowJs.opts.headers = {
+    if (this.loginService.isLoggedIn() && this.loginService.tokenInfo().fromSso) {
+      flow.flowJs.opts.headers = {
         Authorization: 'Bearer ' + this.loginService.getSsoToken()
       };
     }
 
-    this.transfertSubscription = this.flow.transfers$.subscribe((uploadState: UploadState) => {
-      this.fileManagerService.uploadProgress.next(uploadState);
+    this.transfertSubscription = flow.transfers$.subscribe((uploadState: UploadState) => {
+      this.fileManagerService.uploadProgress.set(uploadState);
     });
-    this.uploadSubscription = this.flow.events$.subscribe((event) => {
+    this.uploadSubscription = flow.events$.subscribe((event) => {
       if (event.type === 'fileRetry') {
         event.event[1]['tested'] = false;
       }
     });
-    this.flow.upload();
+    flow.upload();
   }
 
   ngOnDestroy() {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
-    this.responsiveSubscription.unsubscribe();
-    this.uploadManagerSubscription.unsubscribe();
-    this.fileManagerSubscription.unsubscribe();
     this.transfertSubscription.unsubscribe();
-    this.loginSubscription.unsubscribe();
-    this.langSubscription.unsubscribe();
     this.uploadSubscription.unsubscribe();
-    this.refreshUpdateSubscription.unsubscribe();
-    this.configSubscription.unsubscribe();
   }
 }

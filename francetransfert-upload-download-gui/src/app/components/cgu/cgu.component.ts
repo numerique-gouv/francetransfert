@@ -5,44 +5,42 @@
   * License-Filename: LICENSE.txt
   */
 
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, computed, inject, viewChild } from '@angular/core';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ConfigService } from '../../services/config/config.service';
+import { MatCard, MatCardHeader, MatCardContent } from '@angular/material/card';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-cgu',
-  templateUrl: './cgu.component.html',
-  styleUrls: ['./cgu.component.scss']
+    selector: 'ft-cgu',
+    templateUrl: './cgu.component.html',
+    styleUrls: ['./cgu.component.scss'],
+    imports: [MatCard, MatCardHeader, MatCardContent, TranslatePipe]
 })
 export class CguComponent implements OnInit, AfterViewInit {
+  private titleService = inject(Title);
+  private sanitizer = inject(DomSanitizer);
+  private router = inject(Router);
+  private configService = inject(ConfigService);
 
-  @ViewChild('cgu') private cguFragment: ElementRef;
-  @ViewChild('presentationduservice') private presentationduserviceFragment: ElementRef;
-  @ViewChild('modalites') private modalitesFragment: ElementRef;
-  @ViewChild('traitementdesdonnees') private traitementdesdonneesFragment: ElementRef;
-  @ViewChild('conservationdesdonnees') private conservationdesdonneesFragment: ElementRef;
-  @ViewChild('engagementsetresponsabilite') private engagementsetresponsabiliteFragment: ElementRef;
-  @ViewChild('qualiteduservice') private qualiteduserviceFragment: ElementRef;
-  @ViewChild('securite') private securiteFragment: ElementRef;
-  @ViewChild('contact') private contact: ElementRef;
-  @ViewChild('validite') private validiteFragment: ElementRef;
+
+  private readonly cguFragment = viewChild<ElementRef>('cgu');
+  private readonly presentationduserviceFragment = viewChild<ElementRef>('presentationduservice');
+  private readonly modalitesFragment = viewChild<ElementRef>('modalites');
+  private readonly traitementdesdonneesFragment = viewChild<ElementRef>('traitementdesdonnees');
+  private readonly conservationdesdonneesFragment = viewChild<ElementRef>('conservationdesdonnees');
+  private readonly engagementsetresponsabiliteFragment = viewChild<ElementRef>('engagementsetresponsabilite');
+  private readonly qualiteduserviceFragment = viewChild<ElementRef>('qualiteduservice');
+  private readonly securiteFragment = viewChild<ElementRef>('securite');
+  private readonly contact = viewChild<ElementRef>('contact');
+  private readonly validiteFragment = viewChild<ElementRef>('validite');
   sanitizedUrl: any;
-  jours: number;
-
-  constructor(private titleService: Title,
-    private sanitizer: DomSanitizer,
-    private router: Router,
-    private configService: ConfigService,
-    private changeDetectorRef: ChangeDetectorRef) { }
+  readonly jours = computed(() => this.configService.configInfo()?.uploadExpiredLimit);
 
   ngOnInit(): void {
     this.titleService.setTitle('France transfert - CGU');
     this.sanitizedUrl = this.sanitizer.bypassSecurityTrustUrl('https://www.ssi.gouv.fr/administration/qualification/zed/');
-    this.configService.configInfo.subscribe(config => {
-      this.jours = config?.uploadExpiredLimit;
-      this.changeDetectorRef.detectChanges();
-    });
   }
 
   ngAfterViewInit(): void {
@@ -55,34 +53,34 @@ export class CguComponent implements OnInit, AfterViewInit {
   scrollTo(_anchor: string) {
     switch (_anchor) {
       case 'cgu':
-        this.cguFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.cguFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'presentationduservice':
-        this.presentationduserviceFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.presentationduserviceFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'modalites':
-        this.modalitesFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.modalitesFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'traitementdesdonnees':
-        this.traitementdesdonneesFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.traitementdesdonneesFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'conservationdesdonnees':
-        this.conservationdesdonneesFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.conservationdesdonneesFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'engagementsetresponsabilite':
-        this.engagementsetresponsabiliteFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.engagementsetresponsabiliteFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'qualiteduservice':
-        this.qualiteduserviceFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.qualiteduserviceFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'securite':
-        this.securiteFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.securiteFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'contact':
-        this.contact.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.contact().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
       case 'validite':
-        this.validiteFragment.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.validiteFragment().nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
         break;
     }
   }

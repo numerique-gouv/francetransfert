@@ -2,17 +2,11 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: flex-start;
   .list-elements-card-header {
     width: 100%;
     align-self: flex-start;
     display: flex;
     flex-direction: column;
-    -webkit-align-self: flex-start;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
     border-bottom: 1px solid var(--ft-asset);
 
     .error-message {
@@ -25,11 +19,6 @@
     align-items: center;
     justify-content: space-around;
     flex-direction: column;
-    display: -webkit-flex;
-    -webkit-align-self: center;
-    -webkit-align-items: center;
-    -webkit-justify-content: space-around;
-    -webkit-flex-direction: column;
     text-align: center;
     width: 100%;
 
@@ -48,12 +37,10 @@
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
     .file-item {
       width: 100%;
     }
-    .mat-icon-button.cdk-keyboard-focused:not([_ngcontent-ata-c84]) {
+    .mat-mdc-icon-button.cdk-keyboard-focused:not([_ngcontent-ata-c84]) {
       background-color: #00000087 !important;
     }
     .list-elements-card-content-icon {
@@ -81,9 +68,6 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      display: -webkit-flex;
-      -webkit-flex-direction: row;
-      -webkit-align-items: center;
       position: absolute;
       bottom: 0;
       margin-bottom: 10px;
@@ -109,16 +93,13 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
 }
 
 @media screen and (min-width: 812px) {
   .list-elements-card {
     height: 100%;
     .list-elements-card-header {
-      .mat-card-title {
+      .mat-mdc-card-title {
         font-size: 16px;
       }
     }
@@ -157,7 +138,7 @@
   .list-elements-card {
     min-height: 100%;
     .list-elements-card-header {
-      .mat-card-title {
+      .mat-mdc-card-title {
         font-size: 16px;
       }
     }
@@ -177,7 +158,6 @@
       .list-elements-add-elements-wrapper {
         width: 100%;
         justify-content: center;
-        -webkit-justify-content: center;
         .list-elements-card-content-first-line {
         }
       }
@@ -193,16 +173,12 @@
   .list-elements-card {
     min-height: 80%;
     .list-elements-card-header {
-      .mat-card-title {
+      .mat-mdc-card-title {
         font-size: 14px;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-justify-content: space-between;
-        -webkit-align-items: center;
       }
     }
     .list-elements-card-content.empty {
@@ -220,7 +196,6 @@
       .list-elements-add-elements-wrapper {
         width: 90%;
         justify-content: center;
-        -webkit-justify-content: center;
         margin-bottom: 15px;
         position: inherit;
         bottom: 0;

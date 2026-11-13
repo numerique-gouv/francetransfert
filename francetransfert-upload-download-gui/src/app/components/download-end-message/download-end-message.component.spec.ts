@@ -15,8 +15,8 @@ describe('DownloadEndMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DownloadEndMessageComponent ]
-    })
+    imports: [DownloadEndMessageComponent]
+})
     .compileComponents();
   });
 

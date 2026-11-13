@@ -1,4 +1,4 @@
-.mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]) {
+.mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]) {
     // box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
     // outline-style: solid;
     // outline-width: 2px;
@@ -32,7 +32,7 @@
 }
 
 
-.mat-menu-item .mat-icon {
+.mat-mdc-menu-item .mat-icon {
     margin-right: 3px;
 }
 
@@ -46,9 +46,6 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        display: -webkit-flex;
-        -webkit-flex-direction: row;
-        -webkit-justify-content: space-between;
 
         .header-toolbar-row-title {
             cursor: pointer;
@@ -56,19 +53,25 @@
             width: 100%;
             display: flex;
             align-items: center;
-            display: -webkit-flex;
-            -webkit-align-items: center;
 
             .header-toolbar-logos-wrapper {
                 display: flex;
                 justify-content: space-around;
                 align-items: center;
-                display: -webkit-flex;
-                -webkit-justify-content: space-around;
-                -webkit-align-items: center;
 
                 .header-toolbar-logo.ft {
                     margin-left: 30px;
+                }
+
+                a.mat-mdc-button {
+                    white-space: nowrap;
+                    height: auto;
+
+                    ::ng-deep .mdc-button__label {
+                        display: flex;
+                        flex-wrap: nowrap;
+                        align-items: center;
+                    }
                 }
             }
 
@@ -77,9 +80,6 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                display: -webkit-flex;
-                -webkit-justify-content: space-between;
-                -webkit-align-items: center;
 
                 .language-selector-wrapper {
                     width: 50%;
@@ -98,16 +98,13 @@
 
                 nav {
                     display: flex;
-                    display: -webkit-flex;
                     width: 100%;
                 }
 
                 .header-toolbar-links {
                     flex-direction: row;
                     justify-content: space-around;
-                    display: -webkit-flex;
-                    -webkit-flex-direction: row;
-                    -webkit-justify-content: space-around;
+                    display: flex;
                     width: 100%;
                     list-style-type: none;
                     color: var(--ft-blue-france);
@@ -129,7 +126,7 @@
                 }
             }
 
-            .header-toolbar-link.mat-icon-button {
+            .header-toolbar-link.mat-mdc-icon-button {
                 color: var(--ft-blue-france);
                 font-size: 14px;
                 line-height: 24px;
@@ -152,7 +149,6 @@
         .header-toolbar-row {
             .header-toolbar-row-title {
                 justify-content: space-around;
-                -webkit-justify-content: space-around;
 
                 .header-toolbar-logos-wrapper {
                     width: 35%;
@@ -187,7 +183,6 @@
                     letter-spacing: 1px;
                     color: var(--ft-asset);
                     transform: rotate(-45deg);
-                    -webkit-transform: rotate(-45deg);
                     overflow: hidden;
 
                     .ribbon-text {
@@ -206,7 +201,6 @@
                     right: -70px;
                     left: auto;
                     transform: rotate(45deg);
-                    -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
 
@@ -227,7 +221,6 @@
 
             .header-toolbar-row-title {
                 justify-content: space-between;
-                -webkit-justify-content: space-between;
 
                 .header-toolbar-logos-wrapper {
                     width: 75%;
@@ -242,8 +235,6 @@
                     font-size: 16px;
                     display: flex;
                     align-items: center;
-                    display: -webkit-flex;
-                    -webkit-align-items: center;
                 }
 
                 .menu-icon {
@@ -260,7 +251,6 @@
                     letter-spacing: 1px;
                     color: var(--ft-asset);
                     transform: rotate(-45deg);
-                    -webkit-transform: rotate(-45deg);
                     overflow: hidden;
 
                     .ribbon-text {
@@ -279,7 +269,6 @@
                     right: -70px;
                     left: auto;
                     transform: rotate(45deg);
-                    -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
 
@@ -300,7 +289,6 @@
 
             .header-toolbar-row-title {
                 justify-content: space-between;
-                -webkit-justify-content: space-between;
 
                 .header-toolbar-logos-wrapper {
                     width: 75%;
@@ -319,8 +307,6 @@
                     font-size: 16px;
                     display: flex;
                     align-items: center;
-                    display: -webkit-flex;
-                    -webkit-align-items: center;
                 }
 
                 .menu-icon {
@@ -337,7 +323,6 @@
                     letter-spacing: 1px;
                     color: var(--ft-asset);
                     transform: rotate(-45deg);
-                    -webkit-transform: rotate(-45deg);
                     overflow: hidden;
 
                     .ribbon-text {
@@ -356,7 +341,6 @@
                     right: -70px;
                     left: auto;
                     transform: rotate(45deg);
-                    -webkit-transform: rotate(46deg);
                     overflow: hidden;
                 }
 

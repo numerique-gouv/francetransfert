@@ -15,8 +15,8 @@ describe('InfoMsgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InfoMsgComponent ]
-    })
+    imports: [InfoMsgComponent]
+})
     .compileComponents();
   });
 

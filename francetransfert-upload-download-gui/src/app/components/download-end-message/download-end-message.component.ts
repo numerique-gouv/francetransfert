@@ -6,11 +6,14 @@
   */
 
 import { Component, OnInit } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'ft-download-end-message',
-  templateUrl: './download-end-message.component.html',
-  styleUrls: ['./download-end-message.component.scss']
+    selector: 'ft-download-end-message',
+    templateUrl: './download-end-message.component.html',
+    styleUrls: ['./download-end-message.component.scss'],
+    imports: [MatIcon, TranslatePipe]
 })
 export class DownloadEndMessageComponent implements OnInit {
 

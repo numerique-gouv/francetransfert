@@ -15,8 +15,8 @@ describe('PlisRecusComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PlisRecusComponent]
-    })
+    imports: [PlisRecusComponent]
+})
       .compileComponents();
   });
 

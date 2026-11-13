@@ -5,18 +5,26 @@
   * License-Filename: LICENSE.txt 
   */
 
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-pwa-prompt-install',
-  templateUrl: './pwa-prompt-install.component.html',
-  styleUrls: ['./pwa-prompt-install.component.scss']
+    selector: 'app-pwa-prompt-install',
+    templateUrl: './pwa-prompt-install.component.html',
+    styleUrls: ['./pwa-prompt-install.component.scss'],
+    imports: [MatToolbar, MatButton, MatIconButton, MatIcon, TranslatePipe]
 })
 export class PwaPromptInstallComponent implements OnInit {
+  data = inject<{
+    mobileType: 'ios' | 'android';
+    promptEvent?: any;
+}>(MAT_BOTTOM_SHEET_DATA);
+  private bottomSheetRef = inject<MatBottomSheetRef<PwaPromptInstallComponent>>(MatBottomSheetRef);
 
-  constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: { mobileType: 'ios' | 'android', promptEvent?: any },
-    private bottomSheetRef: MatBottomSheetRef<PwaPromptInstallComponent>) { }
 
   ngOnInit(): void {
   }

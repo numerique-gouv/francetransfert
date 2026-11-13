@@ -32,7 +32,7 @@ export class MailAsyncValidator {
                     let toError = control.get(toField).errors;
                     const destListOk = ret.destListOk;
                     const senderOk = ret.senderOk;
-                    loginService.isAgent$.next(senderOk);
+                    loginService.isAgent.set(senderOk);
                     if (destList.length > 0) {
                         // if dest list is not empty and sender and dest ok no error
                         if (destListOk || senderOk) {

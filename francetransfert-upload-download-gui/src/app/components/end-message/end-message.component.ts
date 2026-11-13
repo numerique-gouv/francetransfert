@@ -5,25 +5,29 @@
   * License-Filename: LICENSE.txt
   */
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, OnInit, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { MatCard, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
+import { CustomDatePipe } from '../../shared/pipes/custom.datepipe';
 
 @Component({
-  selector: 'ft-end-message',
-  templateUrl: './end-message.component.html',
-  styleUrls: ['./end-message.component.scss']
+    selector: 'ft-end-message',
+    templateUrl: './end-message.component.html',
+    styleUrls: ['./end-message.component.scss'],
+    imports: [MatCard, MatCardContent, MatCardActions, MatButton, TranslatePipe, CustomDatePipe]
 })
 export class EndMessageComponent implements OnInit {
+  private _router = inject(Router);
+  private _translate = inject(TranslateService);
 
-  @Input() component: 'upload' | 'download';
-  @Input() availabilityDate: Date
-  @Input() uploadFailed: boolean = false;
-  @Output() backToHomeEvent: EventEmitter<any> = new EventEmitter();
-  @Input() publicLink: boolean = false;
 
-  constructor(private _router: Router,
-    private _translate: TranslateService,) { }
+  readonly component = input<'upload' | 'download'>(undefined);
+  readonly availabilityDate = input<Date>(undefined);
+  readonly uploadFailed = input<boolean>(false);
+  readonly backToHomeEvent = output<void>();
+  readonly publicLink = input<boolean>(false);
 
   ngOnInit(): void {
   }

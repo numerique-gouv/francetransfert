@@ -15,8 +15,8 @@ describe('EnvelopeMailFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnvelopeMailFormComponent ]
-    })
+    imports: [EnvelopeMailFormComponent]
+})
     .compileComponents();
   });
 

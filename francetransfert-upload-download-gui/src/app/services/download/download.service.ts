@@ -6,10 +6,10 @@
   */
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
-import { catchError } from 'rxjs/internal/operators/catchError';
-import { map } from 'rxjs/internal/operators/map';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs';
+import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DownloadManagerService } from '../download-manager/download-manager.service';
 import { LoginService } from '../login/login.service';
@@ -18,8 +18,10 @@ import { LoginService } from '../login/login.service';
   providedIn: 'root'
 })
 export class DownloadService {
+  private _httpClient = inject(HttpClient);
+  private downloadManagerService = inject(DownloadManagerService);
+  private loginService = inject(LoginService);
 
-  constructor(private _httpClient: HttpClient, private downloadManagerService: DownloadManagerService, private loginService: LoginService) { }
 
   getDownloadInfos(body: any) {
 
@@ -27,7 +29,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.download}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('download-info'))
@@ -44,7 +46,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.existsEnclosure}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('exists-enclosure'))
@@ -55,7 +57,7 @@ export class DownloadService {
     return this._httpClient.get(
       `${environment.host}${environment.apis.download.existsPublicEnclosure}?enclosure=${params['enclosure']}`
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('exists-public-enclosure'))
@@ -67,7 +69,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.downloadInfosPublic}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('download-info-public'))
@@ -87,7 +89,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.downloadConnect}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('download-info-connect'))
@@ -101,16 +103,16 @@ export class DownloadService {
     }
     const body = {
       enclosure: params['enclosure'],
-      ...params['recipient'] ? { recipient: params['recipient'] } : { recipient: this.loginService.tokenInfo.getValue().senderMail },
+      ...params['recipient'] ? { recipient: params['recipient'] } : { recipient: this.loginService.tokenInfo().senderMail },
       token: params['token'],
-      ...params['recipient'] ? { senderToken: null } : { senderToken: this.loginService.tokenInfo.getValue().senderToken },
+      ...params['recipient'] ? { senderToken: null } : { senderToken: this.loginService.tokenInfo().senderToken },
       ...withPassword ? { password: escapedPassword } : { password: '' }
     };
     return this._httpClient.post(
       `${environment.host}${environment.apis.download.downloadUrl}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('generate-download-url'))
@@ -128,7 +130,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.validatePassword}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('validateCode'))
@@ -145,7 +147,7 @@ export class DownloadService {
       `${environment.host}${environment.apis.download.downloadUrlPublic}`,
       body
     ).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('generate-download-url-public'))
@@ -160,7 +162,7 @@ export class DownloadService {
       satisfaction: body.satisfaction,
       token: body.token
     }).pipe(map(response => {
-      this.downloadManagerService.downloadError$.next(null);
+      this.downloadManagerService.downloadError.set(null);
       return response;
     }),
       catchError(this.handleError('rate'))
@@ -171,7 +173,7 @@ export class DownloadService {
     return (err: any) => {
       const errMsg = `error in ${operation}()`;
       if (err instanceof HttpErrorResponse) {
-        this.downloadManagerService.downloadError$.next({ statusCode: err.status, ...(err.message && !err.error.type) ? { message: err.message } : { message: err.error.type }, ...err.error.codeTryCount ? { codeTryCount: err.error.codeTryCount } : {} });
+        this.downloadManagerService.downloadError.set({ statusCode: err.status, ...(err.message && !err.error.type) ? { message: err.message } : { message: err.error.type }, ...err.error.codeTryCount ? { codeTryCount: err.error.codeTryCount } : {} });
       }
       throw (errMsg);
     };

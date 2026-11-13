@@ -5,26 +5,39 @@
   * License-Filename: LICENSE.txt
   */
 
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, OnInit, Output, PLATFORM_ID, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, Signal, effect, inject, output, untracked, viewChild, viewChildren } from '@angular/core';
+import { formSignal } from '../../shared/forms/form-signal';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms";
 import { FormulaireContactModel } from "../../models/envelope-infos.model";
 import { ContactService } from "../../services/contact/contact.service";
-import { MatLegacySnackBar as MatSnackBar } from "@angular/material/legacy-snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { ContactEndMessageComponent } from "../contact-end-message/contact-end-message.component";
-import { BehaviorSubject, Subscription, take } from "rxjs";
+import { Subscription, take } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from "../../../environments/environment";
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { MatDivider } from '@angular/material/list';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'ft-contact',
-  templateUrl: './contact.component.html',
-  styleUrls: ['./contact.component.scss']
+    selector: 'ft-contact',
+    templateUrl: './contact.component.html',
+    styleUrls: ['./contact.component.scss'],
+    imports: [ReactiveFormsModule, MatDivider, MatButton, MatTooltip, MatIcon, TranslatePipe]
 })
 export class ContactComponent implements OnInit {
-  formulaireContactForm: FormGroup;
+  private fb = inject(FormBuilder);
+  private contactService = inject(ContactService);
+  private _snackBar = inject(MatSnackBar);
+  translateService = inject(TranslateService);
+  private _router = inject(Router);
+  private titleService = inject(Title);
+
+  formulaireContactForm: Signal<FormGroup>;
   formulaireContact: FormulaireContactModel;
   formulaireBody: any;
   contatactFormChangeSubscription: Subscription;
@@ -35,20 +48,14 @@ export class ContactComponent implements OnInit {
   CaptchaAudio: string;
   CaptchaVisuel: string;
   ChangerCaptcha: string;
-  @Output() sidenavToggle = new EventEmitter();
+  readonly sidenavToggle = output();
 
-  @ViewChild('nom') nom: ElementRef;
-  @ViewChildren('myInput') myInput: QueryList<ElementRef>;
+  readonly nom = viewChild<ElementRef>('nom');
+  readonly myInput = viewChildren<ElementRef>('myInput');
 
-  constructor(private fb: FormBuilder, private contactService: ContactService,
-    private _snackBar: MatSnackBar,
-    public translateService: TranslateService,
-    private _router: Router,
-    private titleService: Title,
-    private changeDetectorRef: ChangeDetectorRef,
-  ) {
+  constructor() {
     this.uuid = uuidv4();
-    this.formulaireContactForm = this.fb.group({
+    this.formulaireContactForm = formSignal(this.fb.group({
       nom: [this.formulaireContact?.nom],
       prenom: [this.formulaireContact?.prenom],
       from: [this.formulaireContact?.from, { validators: [Validators.required, Validators.email], updateOn: 'blur' }],
@@ -56,6 +63,11 @@ export class ContactComponent implements OnInit {
       subject: [this.formulaireContact?.subject],
       message: [this.formulaireContact?.message, { validators: [Validators.required] }],
       userResponse: ['', [Validators.required]]
+    }));
+
+    effect(() => {
+      const inputs = this.myInput();
+      untracked(() => this.focusAudio(inputs));
     });
   }
 
@@ -66,11 +78,7 @@ export class ContactComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.nom.nativeElement.focus();
-    this.myInput.changes.subscribe(x => {
-      this.focusAudio(x);
-    })
-
+    this.nom()?.nativeElement.focus();
   }
 
   goToExternalLink(link: string, newTab: boolean = false) {
@@ -89,7 +97,7 @@ export class ContactComponent implements OnInit {
 
 
   initForm() {
-    this.contatactFormChangeSubscription = this.formulaireContactForm.valueChanges
+    this.contatactFormChangeSubscription = this.formulaireContactForm().valueChanges
       .subscribe(() => {
         this.checkSend();
       });
@@ -100,21 +108,21 @@ export class ContactComponent implements OnInit {
 
   }
 
-  get f() { return this.formulaireContactForm.controls; }
+  get f() { return this.formulaireContactForm().controls; }
 
   checkSend() {
-    this.canSend = this.formulaireContactForm.valid;
+    this.canSend = this.formulaireContactForm().valid;
   }
 
   send() {
     this.formulaireBody = {
-      ...this.formulaireContactForm.controls.nom.value ? { nom: this.formulaireContactForm.controls.nom.value } : { nom: "" },
-      ...this.formulaireContactForm.controls.prenom.value ? { prenom: this.formulaireContactForm.controls.prenom.value } : { prenom: "" },
-      ...this.formulaireContactForm.controls.from.value ? { from: this.formulaireContactForm.controls.from.value } : { from: "" },
-      ...this.formulaireContactForm.controls.administration.value ? { administration: this.formulaireContactForm.controls.administration.value } : { administration: "" },
-      ...this.formulaireContactForm.controls.subject.value ? { subject: this.formulaireContactForm.controls.subject.value } : { subject: "" },
-      ...this.formulaireContactForm.controls.message.value ? { message: this.formulaireContactForm.controls.message.value } : { message: "" },
-      userResponse: this.formulaireContactForm.controls.userResponse.value,
+      ...this.formulaireContactForm().controls.nom.value ? { nom: this.formulaireContactForm().controls.nom.value } : { nom: "" },
+      ...this.formulaireContactForm().controls.prenom.value ? { prenom: this.formulaireContactForm().controls.prenom.value } : { prenom: "" },
+      ...this.formulaireContactForm().controls.from.value ? { from: this.formulaireContactForm().controls.from.value } : { from: "" },
+      ...this.formulaireContactForm().controls.administration.value ? { administration: this.formulaireContactForm().controls.administration.value } : { administration: "" },
+      ...this.formulaireContactForm().controls.subject.value ? { subject: this.formulaireContactForm().controls.subject.value } : { subject: "" },
+      ...this.formulaireContactForm().controls.message.value ? { message: this.formulaireContactForm().controls.message.value } : { message: "" },
+      userResponse: this.formulaireContactForm().controls.userResponse.value,
       challengeId: this.uuid,
       captchaType: this.captchaType,
     }
@@ -127,8 +135,8 @@ export class ContactComponent implements OnInit {
       this.reset();
     }, (error) => {
       if (error.status === 400) {
-        this.formulaireContactForm.controls.userResponse.setValue('');
-        this.formulaireContactForm.controls.userResponse.setErrors({ 'wrong': true });
+        this.formulaireContactForm().controls.userResponse.setValue('');
+        this.formulaireContactForm().controls.userResponse.setErrors({ 'wrong': true });
         this.reset();
       }
 
@@ -146,9 +154,9 @@ export class ContactComponent implements OnInit {
     });
   }
 
-  focusAudio(x) {
+  focusAudio(inputs: readonly ElementRef[]) {
     if (this.captchaType == 'SOUND') {
-      x._results[0].nativeElement.focus();
+      inputs[0]?.nativeElement.focus();
     }
   }
 

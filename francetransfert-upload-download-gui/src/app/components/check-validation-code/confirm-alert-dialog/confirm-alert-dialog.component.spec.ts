@@ -15,8 +15,8 @@ describe('ConfirmAlertDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ConfirmAlertDialogComponent ]
-    })
+    imports: [ConfirmAlertDialogComponent]
+})
     .compileComponents();
   });
 

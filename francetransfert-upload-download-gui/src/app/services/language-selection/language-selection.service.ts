@@ -6,19 +6,20 @@
   */
 
 import { APP_BASE_HREF } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { Injectable, inject, signal } from '@angular/core';
 import { LanguageModel } from 'src/app/models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LanguageSelectionService {
+  baseHref = inject(APP_BASE_HREF);
+
 
   languageList: LanguageModel[] = [];
-  selectedLanguage: BehaviorSubject<LanguageModel> = new BehaviorSubject<LanguageModel>({ code: '', label: '', flagUrl: '', href: '', value: '' });
+  readonly selectedLanguage = signal<LanguageModel>({ code: '', label: '', flagUrl: '', href: '', value: '' });
 
-  constructor(@Inject(APP_BASE_HREF) public baseHref: string) {
+  constructor() {
     const rootHref = this.baseHref.split('/');
     this.languageList = [
       { code: 'fr', label: 'Français', flagUrl: './assets/flags/flag_fr.svg', href: `${rootHref[1]}/fr/`, value: 'fr-FR' },
@@ -26,6 +27,6 @@ export class LanguageSelectionService {
       //{ code: 'de', label: 'Deutsch', flagUrl: './assets/flags/flag_de.svg', href: `${rootHref[1]}/de/`, value: 'de-de' },
       //{ code: 'es', label: 'Español', flagUrl: './assets/flags/flag_es.svg', href: `${rootHref[1]}/es/`, value: 'es-ES' }
     ];
-    this.selectedLanguage.next(this.languageList[0]);
+    this.selectedLanguage.set(this.languageList[0]);
   }
 }

@@ -9,9 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Transfer } from '@flowjs/ngx-flow';
 import { FTTransferModel } from 'src/app/models';
 
-@Pipe({
-  name: 'filemtpsize'
-})
+@Pipe({ name: 'filemtpsize' })
 export class FileMultipleSizePipe implements PipeTransform {
   /**
    * Returns the somme of all transfers size.

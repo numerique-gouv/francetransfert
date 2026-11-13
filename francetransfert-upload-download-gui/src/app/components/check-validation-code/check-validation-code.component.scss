@@ -1,5 +1,5 @@
 
-  .mat-icon-button.cdk-keyboard-focused:not([aria-disabled=true]) {
+  .mat-mdc-icon-button.cdk-keyboard-focused:not([aria-disabled=true]) {
     background: rgba(0, 0, 0, 0.3)
   }
 .check-validation-code-card {
@@ -7,10 +7,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  display: -webkit-flex;
-  -webkit-flex-direction: column;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
   .check-validation-code-card-content-icon-container {
     display: flex;
     flex-grow: 1;
@@ -30,12 +26,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    -webkit-align-items: center;
     .verification-code-form-group {
       width: 100%;
-      .mat-form-field {
+      .mat-mdc-form-field {
         width: 100%;
       }
     }
@@ -44,10 +37,6 @@
       align-items: center;
       justify-content: space-around;
       flex-direction: column;
-      display: -webkit-flex;
-      -webkit-align-items: center;
-      -webkit-justify-content: space-around;
-      -webkit-flex-direction: column;
       height: 90%;
       width: 100%;
       padding: 0px 8px;
@@ -56,15 +45,11 @@
         margin-right: 70px;
         color: var(--ft-blue-france);
         align-self: center;
-        -webkit-align-self: center;
       }
       &-text {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        display: -webkit-flex;
-        -webkit-flex-direction: column;
-        -webkit-justify-content: space-between;
         text-align: center;
         &-title {
           font-weight: bold;
@@ -83,7 +68,7 @@
       }
     }
     .check-validation-code-card-actions {
-      .mat-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
+      .mat-mdc-raised-button.cdk-keyboard-focused:not([class*=mat-elevation-z]){
         box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5) !important;
         outline-style: solid;
         outline-width: 2px;
@@ -94,7 +79,7 @@
         background-color: var(--ft-blue-france);
         color: var(--ft-white);
       }
-      .check-validation-code-card-actions-btn.mat-button-disabled {
+      .check-validation-code-card-actions-btn:is(:disabled, [aria-disabled="true"]) {
         background-color: var(--ft-grey);
         color: var(--ft-mention);
       }
@@ -130,7 +115,7 @@
         margin-top: 20px;
       }
     }
-    .mat-card-actions {
+    .mat-mdc-card-actions {
       padding: 0px !important;
       margin-bottom: 0px !important;
     }

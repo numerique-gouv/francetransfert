@@ -7,10 +7,10 @@
 
 import { ViewportScroller } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Transfer } from '@flowjs/ngx-flow/lib/transfer';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Transfer } from '@flowjs/ngx-flow';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { UploadInfosModel } from 'src/app/models';
 import { TokenModel } from 'src/app/models/token.model';
@@ -22,15 +22,15 @@ import { UploadManagerService } from '../upload-manager/upload-manager.service';
   providedIn: 'root'
 })
 export class UploadService {
+  private _httpClient = inject(HttpClient);
+  private uploadManagerService = inject(UploadManagerService);
+  private loginService = inject(LoginService);
+  private activatedRoute = inject(ActivatedRoute);
+  private viewportScroller = inject(ViewportScroller);
 
-  public langueCourriels = new BehaviorSubject('langueCourriels');
-  public checkValidation = new BehaviorSubject(false);
 
-  constructor(private _httpClient: HttpClient,
-    private uploadManagerService: UploadManagerService,
-    private loginService: LoginService,
-    private activatedRoute: ActivatedRoute,
-    private viewportScroller: ViewportScroller,) { }
+  readonly langueCourriels = signal('langueCourriels');
+  readonly checkValidation = signal(false);
 
 
   scroll() {
@@ -77,7 +77,7 @@ export class UploadService {
     };
     return this._httpClient.post(`${environment.host}${environment.apis.upload.tree}`, treeBody).pipe(
       map((response: any) => {
-        this.uploadManagerService.uploadError$.next(null);
+        this.uploadManagerService.uploadError.set(null);
         return response;
       }),
       catchError(this.handleError('sendTree'))
@@ -94,11 +94,11 @@ export class UploadService {
   }
 
   setCheckValidation(checkValidation) {
-    this.checkValidation.next(checkValidation);
+    this.checkValidation.set(checkValidation);
   }
 
   setLangueCourriels(langueCourriels) {
-    this.langueCourriels.next(langueCourriels);
+    this.langueCourriels.set(langueCourriels);
   }
 
   allowedSenderMail(mail: any): Observable<any> {
@@ -129,12 +129,12 @@ export class UploadService {
       `${environment.host}${environment.apis.upload.confirmationCode}?code=${body.code}&senderMail=${body.senderMail}`,
       treeBody
     ).pipe(map((response: UploadInfosModel) => {
-      this.uploadManagerService.uploadError$.next(null);
+      this.uploadManagerService.uploadError.set(null);
       this.loginService.setLogin({
         senderMail: body.senderMail,
         senderToken: response.senderToken
       });
-      this.uploadManagerService.uploadInfos.next({
+      this.uploadManagerService.uploadInfos.set({
         canUpload: response.canUpload,
         enclosureId: response.enclosureId,
         expireDate: response.expireDate,
@@ -155,7 +155,7 @@ export class UploadService {
       satisfaction: body.satisfaction,
       token: body.token
     }).pipe(map(response => {
-      this.uploadManagerService.uploadError$.next(null);
+      this.uploadManagerService.uploadError.set(null);
       return response;
     }),
       catchError(this.handleError('rate'))
@@ -212,7 +212,7 @@ export class UploadService {
     return (err: any) => {
       const errMsg = `error in ${operation}()`;
       if (err instanceof HttpErrorResponse) {
-        this.uploadManagerService.uploadError$.next({ statusCode: err.status, ...(err.message && !err.error.type) ? { message: err.message } : { message: err.error.type }, ...err.error.codeTryCount ? { codeTryCount: err.error.codeTryCount } : {} });
+        this.uploadManagerService.uploadError.set({ statusCode: err.status, ...(err.message && !err.error.type) ? { message: err.message } : { message: err.error.type }, ...err.error.codeTryCount ? { codeTryCount: err.error.codeTryCount } : {} });
       }
       throw (errMsg);
     };
