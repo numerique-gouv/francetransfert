@@ -81,14 +81,6 @@
   }
 }
 
-::ng-deep .cdk-overlay-pane {
-  position: static;
-}
-::ng-deep .cdk-global-overlay-wrapper {
-  justify-content: center;
-  align-items: flex-end;
-}
-
 .list-elements-card.empty {
   display: flex;
   flex-direction: column;
