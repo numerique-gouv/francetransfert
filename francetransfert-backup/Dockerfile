@@ -1,3 +1,6 @@
-FROM mesosphere/aws-cli:latest
+FROM amazon/aws-cli:2.40.4
 
-RUN apk add --no-cache zip
+RUN yum install -y zip unzip findutils ca-certificates \
+    && update-ca-trust \
+    && yum clean all \
+    && rm -rf /var/cache/yum /var/cache/dnf

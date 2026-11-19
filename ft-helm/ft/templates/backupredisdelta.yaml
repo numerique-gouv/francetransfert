@@ -48,7 +48,7 @@ spec:
                 {{- toYaml .Values.backup.securityContext | nindent 16 }}
           containers:
             - name: s3
-              image: lasuite/ft-backup:main
+              image: lasuite/ft-backup:4.0.24
               resources:
                 requests:
                   memory: "512Mi"
@@ -65,6 +65,11 @@ spec:
                     name: app-config-map-{{ .Release.Name }}
                 - secretRef:
                     name: ft-secret-app
+              env:
+                - name: AWS_REQUEST_CHECKSUM_CALCULATION
+                  value: WHEN_REQUIRED
+                - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+                  value: WHEN_REQUIRED
               command:
                 - /bin/sh
                 - "/scripts/backup.sh"
